@@ -1,0 +1,557 @@
+#include "bsp_fdcan.h"
+#include "string.h"
+#include "servo_mapping.h"
+
+__IO CAN_t can = {0};
+__IO CAN_ErrorStatus can_error_status = CAN_ERROR_NONE;
+
+uint8_t len1,len2;
+
+uint8_t rx_data1[8] = {0};
+uint16_t rec_id1;
+uint8_t rx_data2[8] = {0};
+uint16_t rec_id2;
+
+uint8_t MOTOR_Data[8]={0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}; // 电机数据
+
+uint8_t MOTOR_Enable[8]={0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFC};   // 电机使能命令
+uint8_t MOTOR_Save_zero[8]={0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFE}; // 电机保存零点命令
+uint8_t RS_MOTOR_PRE_MODE[8]={0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x00, 0xFD}; // 灵足电机私有模式
+uint8_t RS_MOTOR_MIT_MODE[8]={0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x02, 0xFD}; // 灵足电机私有模式
+// MIT 速度滤波缓冲（抑制近似正弦噪声）
+static float mit_vel_lpf = 0.0f;
+
+/*
+  MIT 电机反馈帧结构体
+*/
+MITMeasure_t MIT_MOTOR_MEASURE;   // 单个电机反馈结构体
+extern MotorCurrentInfo MotorCurrents[SERVOS_NUM];
+/**
+************************************************************************
+* @brief:      	bsp_can_init(void)
+* @param:       void
+* @retval:     	void
+* @details:    	CAN初始化
+************************************************************************
+**/
+void bsp_can_init(void)
+{
+	can1_filter_init();
+	can2_filter_init();
+	HAL_FDCAN_Start(&hfdcan1);                               //启动FDCAN
+	HAL_FDCAN_Start(&hfdcan2);
+	HAL_FDCAN_ActivateNotification(&hfdcan1, 
+                               FDCAN_IT_RX_FIFO0_NEW_MESSAGE |
+                               FDCAN_IT_ERROR_WARNING |
+                               FDCAN_IT_ERROR_PASSIVE |
+                               FDCAN_IT_BUS_OFF |
+                               FDCAN_IT_ARB_PROTOCOL_ERROR |
+                               FDCAN_IT_DATA_PROTOCOL_ERROR,
+                               0);
+	HAL_FDCAN_ActivateNotification(&hfdcan2, FDCAN_IT_RX_FIFO1_NEW_MESSAGE, 0);
+}
+
+/**
+************************************************************************
+* @brief:      	can_filter_init(void)
+* @param:       void
+* @retval:     	void
+* @details:    	CAN滤波器初始化
+************************************************************************
+**/
+void can1_filter_init(void)
+{
+	FDCAN_FilterTypeDef fdcan_filter;
+	
+	fdcan_filter.IdType = FDCAN_EXTENDED_ID;                       // 改为扩展ID
+	fdcan_filter.FilterIndex = 0;                                  // 滤波器索引                   
+	fdcan_filter.FilterType = FDCAN_FILTER_MASK;                   
+	fdcan_filter.FilterConfig = FDCAN_FILTER_TO_RXFIFO0;           // 过滤器0关联到FIFO0  
+	fdcan_filter.FilterID1 = 0x0000;                               // 滤波器ID1
+	fdcan_filter.FilterID2 = 0x0000;                               // 滤波器ID2
+
+	HAL_FDCAN_ConfigFilter(&hfdcan1, &fdcan_filter);
+	
+	// 配置全局滤波器：拒绝所有不匹配的帧
+	HAL_FDCAN_ConfigGlobalFilter(&hfdcan1, 
+//		FDCAN_REJECT, 
+//		FDCAN_REJECT, 
+		FDCAN_ACCEPT_IN_RX_FIFO0,  // 接收所有标准帧
+		FDCAN_ACCEPT_IN_RX_FIFO0,  // 接收所有扩展帧
+		FDCAN_FILTER_REMOTE, 
+		FDCAN_FILTER_REMOTE);
+		
+	HAL_FDCAN_ConfigFifoWatermark(&hfdcan1, FDCAN_CFG_RX_FIFO0, 1);
+}
+
+void can2_filter_init(void)
+{
+	FDCAN_FilterTypeDef fdcan_filter;
+	
+	fdcan_filter.IdType = FDCAN_EXTENDED_ID;                       // 改为扩展ID
+	fdcan_filter.FilterIndex = 0;                                  // 滤波器索引                   
+	fdcan_filter.FilterType = FDCAN_FILTER_MASK;                   
+	fdcan_filter.FilterConfig = FDCAN_FILTER_TO_RXFIFO1;           // 过滤器0关联到FIFO0  
+	fdcan_filter.FilterID1 = 0x0000;                               // 滤波器ID1
+	fdcan_filter.FilterID2 = 0x0000;                               // 滤波器ID2
+
+	HAL_FDCAN_ConfigFilter(&hfdcan2, &fdcan_filter);
+	
+	// 配置全局滤波器：拒绝所有不匹配的帧
+	HAL_FDCAN_ConfigGlobalFilter(&hfdcan2, 
+//		FDCAN_REJECT, 
+//		FDCAN_REJECT, 
+		FDCAN_ACCEPT_IN_RX_FIFO1,  // 接收所有标准帧
+		FDCAN_ACCEPT_IN_RX_FIFO1,  // 接收所有扩展帧
+		FDCAN_FILTER_REMOTE, 
+		FDCAN_FILTER_REMOTE);
+		
+	HAL_FDCAN_ConfigFifoWatermark(&hfdcan2, FDCAN_CFG_RX_FIFO1, 1);
+}
+/**
+************************************************************************
+* @brief:      	fdcanx_send_data(FDCAN_HandleTypeDef *hfdcan, uint16_t id, uint8_t *data, uint32_t len)
+* @param:       hfdcan：FDCAN句柄
+* @param:       id：CAN设备ID
+* @param:       data：要发送的数据
+* @param:       len：要发送的数据长度
+* @retval:     	0-成功, 1-失败
+* @details:    	发送数据
+************************************************************************
+**/
+uint8_t fdcanx_send_data(hcan_t *hfdcan, uint16_t id, uint8_t *data, uint32_t len)
+{	
+    FDCAN_TxHeaderTypeDef pTxHeader;
+    pTxHeader.Identifier = id;
+    pTxHeader.IdType = FDCAN_STANDARD_ID;
+    pTxHeader.TxFrameType = FDCAN_DATA_FRAME;
+    
+    // 经典CAN模式只支持最多8字节数据长度
+    if(len > 8) {
+        len = 8; // 限制为8字节
+    }
+    pTxHeader.DataLength = len << 16; // 经典CAN模式下数据长度配置
+    
+    pTxHeader.ErrorStateIndicator = FDCAN_ESI_ACTIVE;
+    pTxHeader.BitRateSwitch = FDCAN_BRS_OFF; // 经典CAN模式关闭比特率切换
+    pTxHeader.FDFormat = FDCAN_CLASSIC_CAN;   // 经典CAN帧格式
+    pTxHeader.TxEventFifoControl = FDCAN_NO_TX_EVENTS;
+    pTxHeader.MessageMarker = 0;
+ 
+	if(HAL_FDCAN_AddMessageToTxFifoQ(hfdcan, &pTxHeader, data) != HAL_OK) 
+		return 1; // 失败
+	return 0; // 成功	
+}
+
+/**
+ * @brief  MITFdbData: 获取 MIT 电机反馈数据（内联），含速度低通滤波
+ * @note   vel 噪声近似正弦，使用一阶低通平滑
+ */
+static inline void MITFdbData(MITMeasure_t *MIT_measure, const uint8_t rx_data[8])
+{
+    MIT_measure->id = (rx_data[0]) & 0x0F;
+    MIT_measure->state = (rx_data[0]) >> 4;
+    MIT_measure->p_int = ((rx_data[1] << 8) | rx_data[2]);
+    MIT_measure->v_int = ((rx_data[3] << 4) | (rx_data[4] >> 4));
+    MIT_measure->t_int = (((rx_data[4] & 0xF) << 8) | rx_data[5]);
+    MIT_measure->pos = uint_to_float(MIT_measure->p_int, P_MIN, P_MAX, 16);
+
+    const float vel_raw = uint_to_float(MIT_measure->v_int, V_MIN, V_MAX, 12);
+    const float alpha = 0.15f;
+    // 一阶低通滤波，直接操作全局静态变量 mit_vel_lpf
+    mit_vel_lpf = mit_vel_lpf + alpha * (vel_raw - mit_vel_lpf);
+    MIT_measure->vel = mit_vel_lpf;
+
+    MIT_measure->tor = uint_to_float(MIT_measure->t_int, T_MIN, T_MAX, 12);
+    MIT_measure->t_mos = (float)(rx_data[6]);
+    MIT_measure->t_motor = (float)(rx_data[7]);
+}
+
+
+void Motor_ENABLE(FDCAN_HandleTypeDef *hcan, uint16_t id)
+{
+	canx_send_data(hcan, id, MOTOR_Enable, 8);
+}
+
+void Motor_save_zero(FDCAN_HandleTypeDef *hcan, uint16_t id)
+{
+	canx_send_data(hcan, id, MOTOR_Save_zero, 8);
+}
+void Motor_MIT_MODE(FDCAN_HandleTypeDef *hcan, uint16_t id)
+{
+	canx_send_data(hcan, id, RS_MOTOR_MIT_MODE, 8);
+}
+
+
+/**
+************************************************************************
+* @brief:      	fdcanx_receive(FDCAN_HandleTypeDef *hfdcan, uint16_t *rec_id, uint8_t *buf)
+* @param:       hfdcan：FDCAN句柄
+* @param:       rec_id：接收到的ID（扩展ID的高16位）
+* @param:       buf：接收数据缓冲区
+* @retval:     	接收到的数据长度
+* @details:    	接收数据
+************************************************************************
+**/
+uint32_t rx1free_level;
+uint8_t fdcan1_receive(hcan_t *hfdcan, uint16_t *rec_id, uint8_t *buf)
+{	
+	FDCAN_RxHeaderTypeDef pRxHeader;
+	uint8_t len = 0;
+	rx1free_level = HAL_FDCAN_GetRxFifoFillLevel(&hfdcan1, FDCAN_CFG_RX_FIFO0);
+if (rx1free_level > 0) {
+    // FIFO 还有 free_level 个空闲槽位，可以安全接收新报文
+    // 例如，可以继续使能接收中断，或者不做特殊处理
+} else {
+    // FIFO 已满！新报文将会溢出
+    // 可以采取紧急措施：提高读取频率、丢弃某些低优先级报文、或记录错误
+    // 例如：暂时关闭接收中断，强制读取所有报文后再恢复
+}
+		if(HAL_FDCAN_GetRxMessage(hfdcan, FDCAN_RX_FIFO0, &pRxHeader, buf) == HAL_OK)
+		{
+			// 提取扩展ID的高16位作为接收ID（保持与原有代码兼容）
+			*rec_id = (uint16_t)(pRxHeader.Identifier >> 8);
+			
+			// 经典CAN模式下，数据长度直接就是字节数
+			len = pRxHeader.DataLength >> 16;
+			if(len > 8) {
+				len = 8; // 确保不超过8字节
+			}
+			
+			return len; // 返回数据长度
+		}
+	return 0;	
+}
+
+uint8_t fdcan2_receive(hcan_t *hfdcan, uint16_t *rec_id, uint8_t *buf)
+{   
+    FDCAN_RxHeaderTypeDef pRxHeader;
+    uint8_t len = 0;
+    
+    if (HAL_FDCAN_GetRxMessage(hfdcan, FDCAN_RX_FIFO1, &pRxHeader, buf) == HAL_OK)
+    {
+        // 获取数据长度（经典CAN模式长度位于高16位）
+        len = pRxHeader.DataLength >> 16;
+        if (len > 8) len = 8;
+
+        // 为了兼容原有代码，仍将右移8位后的值赋给 rec_id
+        *rec_id = (uint16_t)(pRxHeader.Identifier >> 8);
+
+        // 提取真实的电机 ID
+        uint8_t motor_id;
+        if (pRxHeader.IdType == FDCAN_STANDARD_ID) {
+            motor_id = (uint8_t)pRxHeader.Identifier;          // 标准ID，电机ID在低8位
+        } else {
+            motor_id = (uint8_t)(pRxHeader.Identifier >> 8);   // 扩展ID，电机ID在高8位
+        }
+
+        // 根据电机 ID 分流处理
+        if (motor_id == 0x00) {
+            // MIT 电机反馈（ID=00）
+            MITFdbData(&MIT_MOTOR_MEASURE, buf); 
+            MotorCurrents[1].position = MIT_MOTOR_MEASURE.pos;
+            Get_theta(MotorCurrents, 1);
+            // 更新方向（与原逻辑保持一致）
+            MotorCurrents[1].dir = (MotorCurrents[1].position >= 0) ? 0 : 1;
+        }
+        else if (motor_id == 0x01 || motor_id == 0x03) {
+            // ZDT 电机反馈（ID=1 或 3）
+            process_zdt_can_frame(motor_id, buf, len);
+        }
+        // 如有其他 ID 可继续添加分支
+
+        return len;
+    }
+    return 0;   
+}
+
+/**
+************************************************************************
+* @brief:      	can_SendCmd
+* @param:       cmd：命令数据
+* @param:       len：数据长度
+* @retval:     	void
+* @details:    	发送CAN命令（适配原有ZDT协议）
+************************************************************************
+**/
+uint32_t free_level;
+void USER_can_SendCmd(FDCAN_HandleTypeDef *hfdcan, uint8_t *cmd, uint32_t len)
+{
+    uint8_t i = 0, j = 0, k = 0, l = 0, packNum = 0;
+    uint8_t send_buffer[8] = {0};
+    FDCAN_TxHeaderTypeDef pTxHeader;
+
+    // 去除ID地址和功能码后的数据长度
+    j = len - 2;
+
+    // 分包发送
+    while(i < j)
+    {
+        // 剩余数据长度
+        k = j - i;
+
+        // 配置发送头
+        pTxHeader.Identifier = ((uint32_t)cmd[0] << 8) | (uint32_t)packNum; // 扩展ID格式
+        pTxHeader.IdType = FDCAN_EXTENDED_ID; // 使用扩展ID
+        pTxHeader.TxFrameType = FDCAN_DATA_FRAME;
+        
+        // 第一个字节是功能码
+        send_buffer[0] = cmd[1];
+        
+        // 小于8字节数据
+        if(k < 8)
+        {
+            for(l = 0; l < k; l++, i++) 
+            { 
+                send_buffer[l + 1] = cmd[i + 2]; 
+            }
+            pTxHeader.DataLength = (k + 1) << 16; // 数据长度
+        }
+        // 大于等于8字节数据，分包发送，每包最多7个数据字节
+        else
+        {
+            for(l = 0; l < 7; l++, i++) 
+            { 
+                send_buffer[l + 1] = cmd[i + 2]; 
+            }
+            pTxHeader.DataLength = 8 << 16; // 固定8字节
+        }
+        
+        pTxHeader.ErrorStateIndicator = FDCAN_ESI_ACTIVE;
+        pTxHeader.BitRateSwitch = FDCAN_BRS_OFF; // 经典CAN模式关闭比特率切换
+        pTxHeader.FDFormat = FDCAN_CLASSIC_CAN;   // 经典CAN帧格式
+        pTxHeader.TxEventFifoControl = FDCAN_NO_TX_EVENTS;
+        pTxHeader.MessageMarker = 0;
+
+		
+		free_level = HAL_FDCAN_GetTxFifoFreeLevel(hfdcan);
+		if (free_level > 0) {
+			// 至少有一个空闲槽位，可以添加报文
+			// 发送数据
+			if(HAL_FDCAN_AddMessageToTxFifoQ(hfdcan, &pTxHeader, send_buffer) != HAL_OK)
+			{
+				can_error_status = CAN_ERROR_SEND;
+			}
+		} else {
+			// FIFO 已满，稍后重试或丢弃
+			// 可记录错误或触发重传机制
+		}
+        
+        
+        // 记录发送的包序号
+        packNum++;
+        
+        // 清空发送缓冲区
+        memset(send_buffer, 0, sizeof(send_buffer));
+    }
+}
+/**
+************************************************************************
+* @brief:      	can_SendCmd
+* @param:       cmd：命令数据
+* @param:       len：数据长度
+* @retval:     	void
+* @details:    	发送CAN命令（适配原有ZDT协议）
+************************************************************************
+**/
+void can_SendCmd(uint8_t *cmd, uint32_t len)
+{
+    uint8_t i = 0, j = 0, k = 0, l = 0, packNum = 0;
+    uint8_t send_buffer[8] = {0};
+    FDCAN_TxHeaderTypeDef pTxHeader;
+
+    // 去除ID地址和功能码后的数据长度
+    j = len - 2;
+
+    // 分包发送
+    while(i < j)
+    {
+        // 剩余数据长度
+        k = j - i;
+
+        // 配置发送头
+        pTxHeader.Identifier = ((uint32_t)cmd[0] << 8) | (uint32_t)packNum; // 扩展ID格式
+        pTxHeader.IdType = FDCAN_EXTENDED_ID; // 使用扩展ID
+        pTxHeader.TxFrameType = FDCAN_DATA_FRAME;
+        
+        // 第一个字节是功能码
+        send_buffer[0] = cmd[1];
+        
+        // 小于8字节数据
+        if(k < 8)
+        {
+            for(l = 0; l < k; l++, i++) 
+            { 
+                send_buffer[l + 1] = cmd[i + 2]; 
+            }
+            pTxHeader.DataLength = (k + 1) << 16; // 数据长度
+        }
+        // 大于等于8字节数据，分包发送，每包最多7个数据字节
+        else
+        {
+            for(l = 0; l < 7; l++, i++) 
+            { 
+                send_buffer[l + 1] = cmd[i + 2]; 
+            }
+            pTxHeader.DataLength = 8 << 16; // 固定8字节
+        }
+        
+        pTxHeader.ErrorStateIndicator = FDCAN_ESI_ACTIVE;
+        pTxHeader.BitRateSwitch = FDCAN_BRS_OFF; // 经典CAN模式关闭比特率切换
+        pTxHeader.FDFormat = FDCAN_CLASSIC_CAN;   // 经典CAN帧格式
+        pTxHeader.TxEventFifoControl = FDCAN_NO_TX_EVENTS;
+        pTxHeader.MessageMarker = 0;
+
+		
+		free_level = HAL_FDCAN_GetTxFifoFreeLevel(&hfdcan1);
+		if (free_level > 0) {
+			// 至少有一个空闲槽位，可以添加报文
+			// 发送数据
+			if(HAL_FDCAN_AddMessageToTxFifoQ(&hfdcan1, &pTxHeader, send_buffer) != HAL_OK)
+			{
+				can_error_status = CAN_ERROR_SEND;
+			}
+		} else {
+			// FIFO 已满，稍后重试或丢弃
+			// 可记录错误或触发重传机制
+		}
+        
+        
+        // 记录发送的包序号
+        packNum++;
+        
+        // 清空发送缓冲区
+        memset(send_buffer, 0, sizeof(send_buffer));
+    }
+}
+void fdcan1_rx_callback(void)
+{
+	len1 = fdcan1_receive(&hfdcan1, &rec_id1, rx_data1);  // 获取实际数据长度
+    process_zdt_can_frame(rec_id1, rx_data1, len1);               // 解析 ZDT 数据帧
+}
+void fdcan2_rx_callback(void)
+{
+	len2 = fdcan2_receive(&hfdcan2, &rec_id2, rx_data2);
+}
+
+void HAL_FDCAN_RxFifo0Callback(FDCAN_HandleTypeDef *hfdcan, uint32_t RxFifo0ITs)
+{
+    if(hfdcan == &hfdcan1)
+	{
+		fdcan1_rx_callback();
+	}
+}
+void HAL_FDCAN_RxFifo1Callback(FDCAN_HandleTypeDef *hfdcan, uint32_t RxFifo0ITs)
+{
+    if(hfdcan == &hfdcan2)
+	{
+		fdcan2_rx_callback();
+	}
+}
+void HAL_FDCAN_ErrorCallback(FDCAN_HandleTypeDef *hfdcan)
+{
+    if (hfdcan == &hfdcan1) {
+		
+        uint32_t hal_error = HAL_FDCAN_GetError(hfdcan);
+		
+        /* 清除旧状态（可根据需求选择清除全部或保留累积状态） */
+        can_error_status = CAN_ERROR_NONE;
+        
+        /* 映射 HAL 错误到自定义状态 */
+        if (hal_error & FDCAN_IT_ERROR_WARNING)   can_error_status |= CAN_ERROR_WARNING;
+        if (hal_error & FDCAN_IT_ERROR_PASSIVE)   can_error_status |= CAN_ERROR_PASSIVE;
+        if (hal_error & FDCAN_IT_BUS_OFF)   can_error_status |= CAN_ERROR_BUS_OFF;
+        if (hal_error & FDCAN_IT_ARB_PROTOCOL_ERROR) can_error_status |= CAN_ERROR_PROTOCOL_ARB;
+        if (hal_error & FDCAN_IT_DATA_PROTOCOL_ERROR) can_error_status |= CAN_ERROR_PROTOCOL_DATA;
+       
+    }
+}
+
+void CAN_cmd_MIT(FDCAN_HandleTypeDef *hcan,uint16_t id, float _pos, float _vel,
+float _KP, float _KD, float _torq)
+ { 
+	uint16_t pos_tmp,vel_tmp,kp_tmp,kd_tmp,tor_tmp;
+	pos_tmp = float_to_uint(_pos, P_MIN, P_MAX, 16);
+	vel_tmp = float_to_uint(_vel, V_MIN, V_MAX, 12);
+	kp_tmp = float_to_uint(_KP, KP_MIN, KP_MAX, 12);
+	kd_tmp = float_to_uint(_KD, KD_MIN, KD_MAX, 12);
+	tor_tmp = float_to_uint(_torq, T_MIN, T_MAX, 12);
+
+	
+	MOTOR_Data[0] = (pos_tmp >> 8);
+	MOTOR_Data[1] = pos_tmp;
+	MOTOR_Data[2] = (vel_tmp >> 4);
+	MOTOR_Data[3] = ((vel_tmp&0xF)<<4)|(kp_tmp>>8);
+	MOTOR_Data[4] = kp_tmp;
+	MOTOR_Data[5] = (kd_tmp >> 4);
+	MOTOR_Data[6] = ((kd_tmp&0xF)<<4)|(tor_tmp>>8);
+	MOTOR_Data[7] = tor_tmp;
+	
+	canx_send_data(hcan, id , MOTOR_Data, 8);
+ }
+ 
+ uint32_t g_can_fail_len = 0xFFFF; 
+ uint8_t canx_send_data(FDCAN_HandleTypeDef *hcan, uint16_t id, uint8_t *data, uint32_t len)
+{
+	g_can_fail_len = len;
+	FDCAN_TxHeaderTypeDef TxHeader;
+	
+	TxHeader.Identifier = id;                 // CAN ID
+  TxHeader.IdType =  FDCAN_STANDARD_ID ;        
+  TxHeader.TxFrameType = FDCAN_DATA_FRAME;  
+  if(len<=8)	
+	{
+	  TxHeader.DataLength = len<<16;    // 发送长度：8byte
+	}
+	else  if(len==12)	
+	{
+	   TxHeader.DataLength =FDCAN_DLC_BYTES_12;
+	}
+	else  if(len==16)	
+	{
+	  TxHeader.DataLength =FDCAN_DLC_BYTES_16;
+	
+	}
+  else  if(len==20)
+	{
+		TxHeader.DataLength =FDCAN_DLC_BYTES_20;
+	}		
+	else  if(len==24)	
+	{
+	 TxHeader.DataLength =FDCAN_DLC_BYTES_24;	
+	}else  if(len==48)
+	{
+	 TxHeader.DataLength =FDCAN_DLC_BYTES_48;
+	}else  if(len==64)
+   {
+		 TxHeader.DataLength =FDCAN_DLC_BYTES_64;
+	 }									
+	TxHeader.ErrorStateIndicator =  FDCAN_ESI_ACTIVE;
+  TxHeader.BitRateSwitch = FDCAN_BRS_OFF;//比特率切换关闭，不适用于经典CAN
+  TxHeader.FDFormat =  FDCAN_CLASSIC_CAN;            // CANFD
+  TxHeader.TxEventFifoControl =  FDCAN_NO_TX_EVENTS;  
+  TxHeader.MessageMarker = 0;//消息标记
+
+   // 发送CAN指令
+  if(HAL_FDCAN_AddMessageToTxFifoQ(hcan, &TxHeader, data) != HAL_OK)
+  {
+       // 发送失败处理
+//       Error_Handler();      
+  }
+//	 HAL_FDCAN_AddMessageToTxFifoQ(hcan, &TxHeader, data);
+	 return 0;
+
+}
+ 
+ 
+ float uint_to_float(int x_int, float x_min, float x_max, int bits){
+ float span = x_max - x_min;
+ float offset = x_min;
+ return ((float)x_int)*span/((float)((1<<bits)-1)) + offset;
+}
+
+int float_to_uint(float x, float x_min, float x_max, int bits){
+ float span = x_max - x_min;
+ float offset = x_min;
+ return (int) ((x-offset)*((float)((1<<bits)-1))/span);
+}
