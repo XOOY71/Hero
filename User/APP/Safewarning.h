@@ -1,7 +1,7 @@
 #ifndef __SAFEWARNING_H__
 #define __SAFEWARNING_H__
 
-#include "main.h"
+#include <stdint.h>
 
 void ws2812_task(void);
 // 提示音类型枚举

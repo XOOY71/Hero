@@ -40,6 +40,3 @@ ctrlboard-h7_ws1812\gpio.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_ti
 ctrlboard-h7_ws1812\gpio.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_tim_ex.h
 ctrlboard-h7_ws1812\gpio.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_uart.h
 ctrlboard-h7_ws1812\gpio.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_uart_ex.h
-ctrlboard-h7_ws1812\gpio.o: ../Core/Inc/usart.h
-ctrlboard-h7_ws1812\gpio.o: ../Core/Inc/main.h
-ctrlboard-h7_ws1812\gpio.o: D:\Keil5\ARM\ARMCC\Bin\..\include\stdbool.h

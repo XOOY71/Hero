@@ -338,9 +338,9 @@
             <v6Rtti>0</v6Rtti>
             <VariousControls>
               <MiscControls></MiscControls>
-              <Define>USE_HAL_DRIVER,STM32H723xx</Define>
+              <Define>USE_HAL_DRIVER,STM32H723xx,USE_PWR_LDO_SUPPLY</Define>
               <Undefine></Undefine>
-              <IncludePath>../Core/Inc;../Drivers/STM32H7xx_HAL_Driver/Inc;../Drivers/STM32H7xx_HAL_Driver/Inc/Legacy;../Drivers/CMSIS/Device/ST/STM32H7xx/Include;../Drivers/CMSIS/Include;../Middlewares/Third_Party/FreeRTOS/Source/include;../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS;../Middlewares/Third_Party/FreeRTOS/Source/portable/RVDS/ARM_CM4F;../User/APP;../User/BSP;../User/Devices/WS2812;../User/Devices/ZDT</IncludePath>
+              <IncludePath>../Core/Inc;../Drivers/STM32H7xx_HAL_Driver/Inc;../Drivers/STM32H7xx_HAL_Driver/Inc/Legacy;../Drivers/CMSIS/Device/ST/STM32H7xx/Include;../Drivers/CMSIS/Include;../Middlewares/Third_Party/FreeRTOS/Source/include;../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS;../Middlewares/Third_Party/FreeRTOS/Source/portable/RVDS/ARM_CM4F;../User/APP;../User/BSP;../User/Devices</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -1525,9 +1525,9 @@
           <GroupName>APP</GroupName>
           <Files>
             <File>
-              <FileName>crc.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\User\APP\crc.c</FilePath>
+              <FileName>project_config.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\User\APP\project_config.h</FilePath>
             </File>
             <File>
               <FileName>Safewarning.c</FileName>
@@ -1535,39 +1535,24 @@
               <FilePath>..\User\APP\Safewarning.c</FilePath>
             </File>
             <File>
-              <FileName>servo_mapping.c</FileName>
+              <FileName>target_curve.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\User\APP\servo_mapping.c</FilePath>
+              <FilePath>..\User\APP\target_curve.c</FilePath>
             </File>
             <File>
-              <FileName>userkey.c</FileName>
+              <FileName>yaw_pitch_direct.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\User\APP\userkey.c</FilePath>
+              <FilePath>..\User\APP\yaw_pitch_direct.c</FilePath>
             </File>
             <File>
-              <FileName>userkey.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\User\APP\userkey.h</FilePath>
+              <FileName>gimbal_behaviour.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\User\APP\gimbal_behaviour.c</FilePath>
             </File>
             <File>
-              <FileName>joint_impedance.c</FileName>
+              <FileName>gimbal_task.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\User\APP\joint_impedance.c</FilePath>
-            </File>
-            <File>
-              <FileName>Gravity_comp.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\User\APP\Gravity_comp.c</FilePath>
-            </File>
-            <File>
-              <FileName>kinematics.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\User\APP\kinematics.c</FilePath>
-            </File>
-            <File>
-              <FileName>sine_target.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\User\APP\sine_target.c</FilePath>
+              <FilePath>..\User\APP\gimbal_task.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -1580,9 +1565,14 @@
               <FilePath>..\User\BSP\bsp_fdcan.c</FilePath>
             </File>
             <File>
-              <FileName>vofa.c</FileName>
+              <FileName>bsp_usart.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\User\BSP\vofa.c</FilePath>
+              <FilePath>..\User\BSP\bsp_usart.c</FilePath>
+            </File>
+            <File>
+              <FileName>remote_control.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\User\BSP\remote_control.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -1590,19 +1580,24 @@
           <GroupName>Devices</GroupName>
           <Files>
             <File>
+              <FileName>CRC8_CRC16.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\User\Devices\CRC8_CRC16.c</FilePath>
+            </File>
+            <File>
+              <FileName>vofa.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\User\Devices\vofa.c</FilePath>
+            </File>
+            <File>
               <FileName>ws2812.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\User\Devices\WS2812\ws2812.c</FilePath>
+              <FilePath>..\User\Devices\ws2812.c</FilePath>
             </File>
-          </Files>
-        </Group>
-        <Group>
-          <GroupName>ZDT</GroupName>
-          <Files>
             <File>
-              <FileName>ZDT_X42_V2.c</FileName>
+              <FileName>pid.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\User\Devices\ZDT\ZDT_X42_V2.c</FilePath>
+              <FilePath>..\User\Devices\pid.c</FilePath>
             </File>
           </Files>
         </Group>

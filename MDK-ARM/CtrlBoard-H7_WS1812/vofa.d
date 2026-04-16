@@ -1,5 +1,7 @@
-ctrlboard-h7_ws1812\vofa.o: ..\User\BSP\vofa.c
-ctrlboard-h7_ws1812\vofa.o: ..\User\BSP\vofa.h
+ctrlboard-h7_ws1812\vofa.o: ..\User\Devices\vofa.c
+ctrlboard-h7_ws1812\vofa.o: ..\User\Devices\vofa.h
+ctrlboard-h7_ws1812\vofa.o: D:\Keil5\ARM\ARMCC\Bin\..\include\stdint.h
+ctrlboard-h7_ws1812\vofa.o: ../Core/Inc/usart.h
 ctrlboard-h7_ws1812\vofa.o: ../Core/Inc/main.h
 ctrlboard-h7_ws1812\vofa.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal.h
 ctrlboard-h7_ws1812\vofa.o: ../Core/Inc/stm32h7xx_hal_conf.h
@@ -8,7 +10,6 @@ ctrlboard-h7_ws1812\vofa.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_de
 ctrlboard-h7_ws1812\vofa.o: ../Drivers/CMSIS/Device/ST/STM32H7xx/Include/stm32h7xx.h
 ctrlboard-h7_ws1812\vofa.o: ../Drivers/CMSIS/Device/ST/STM32H7xx/Include/stm32h723xx.h
 ctrlboard-h7_ws1812\vofa.o: ../Drivers/CMSIS/Include/core_cm7.h
-ctrlboard-h7_ws1812\vofa.o: D:\Keil5\ARM\ARMCC\Bin\..\include\stdint.h
 ctrlboard-h7_ws1812\vofa.o: ../Drivers/CMSIS/Include/cmsis_version.h
 ctrlboard-h7_ws1812\vofa.o: ../Drivers/CMSIS/Include/cmsis_compiler.h
 ctrlboard-h7_ws1812\vofa.o: ../Drivers/CMSIS/Include/cmsis_armcc.h
@@ -40,7 +41,3 @@ ctrlboard-h7_ws1812\vofa.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_ti
 ctrlboard-h7_ws1812\vofa.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_tim_ex.h
 ctrlboard-h7_ws1812\vofa.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_uart.h
 ctrlboard-h7_ws1812\vofa.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_uart_ex.h
-ctrlboard-h7_ws1812\vofa.o: ../Core/Inc/usart.h
-ctrlboard-h7_ws1812\vofa.o: ../Core/Inc/main.h
-ctrlboard-h7_ws1812\vofa.o: D:\Keil5\ARM\ARMCC\Bin\..\include\stdbool.h
-ctrlboard-h7_ws1812\vofa.o: ../User/APP/servo_mapping.h

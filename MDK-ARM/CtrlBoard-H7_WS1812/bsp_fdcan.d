@@ -40,9 +40,5 @@ ctrlboard-h7_ws1812\bsp_fdcan.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_h
 ctrlboard-h7_ws1812\bsp_fdcan.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_tim_ex.h
 ctrlboard-h7_ws1812\bsp_fdcan.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_uart.h
 ctrlboard-h7_ws1812\bsp_fdcan.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_uart_ex.h
-ctrlboard-h7_ws1812\bsp_fdcan.o: ../Core/Inc/usart.h
-ctrlboard-h7_ws1812\bsp_fdcan.o: ../Core/Inc/main.h
-ctrlboard-h7_ws1812\bsp_fdcan.o: D:\Keil5\ARM\ARMCC\Bin\..\include\stdbool.h
 ctrlboard-h7_ws1812\bsp_fdcan.o: ../Core/Inc/fdcan.h
-ctrlboard-h7_ws1812\bsp_fdcan.o: D:\Keil5\ARM\ARMCC\Bin\..\include\string.h
-ctrlboard-h7_ws1812\bsp_fdcan.o: ../User/APP/servo_mapping.h
+ctrlboard-h7_ws1812\bsp_fdcan.o: D:\Keil5\ARM\ARMCC\Bin\..\include\stdbool.h

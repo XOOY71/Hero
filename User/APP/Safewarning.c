@@ -1,7 +1,7 @@
 #include "safewarning.h"
+#include "cmsis_os.h"
 #include "ws2812.h"
 #include "tim.h"
-#include "cmsis_os.h"
 
 uint8_t r = 1;
 uint8_t g = 1;

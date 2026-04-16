@@ -25,10 +25,9 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include "safewarning.h"
-#include "servo_mapping.h"
-#include "bsp_fdcan.h"
-#include "userkey.h"
+
+#include "gimbal_task.h"
+
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -50,20 +49,14 @@
 /* USER CODE BEGIN Variables */
 
 /* USER CODE END Variables */
-osThreadId LED_TaskHandle;
-osThreadId SERVO_TASKHandle;
-osThreadId ROBOT_TASKHandle;
-osThreadId MAPDATASEND_TASHandle;
+osThreadId defaultTaskHandle;
 
 /* Private function prototypes -----------------------------------------------*/
 /* USER CODE BEGIN FunctionPrototypes */
 
 /* USER CODE END FunctionPrototypes */
 
-void LedTask(void const * argument);
-void Servo_TASK(void const * argument);
-void Robot_TASK(void const * argument);
-void MapDataSend_task(void const * argument);
+void StartDefaultTask(void const * argument);
 
 void MX_FREERTOS_Init(void); /* (MISRA C 2004 rule 8.1) */
 
@@ -110,115 +103,33 @@ void MX_FREERTOS_Init(void) {
   /* USER CODE END RTOS_QUEUES */
 
   /* Create the thread(s) */
-  /* definition and creation of LED_Task */
-  osThreadDef(LED_Task, LedTask, osPriorityNormal, 0, 128);
-  LED_TaskHandle = osThreadCreate(osThread(LED_Task), NULL);
-
-  /* definition and creation of SERVO_TASK */
-  osThreadDef(SERVO_TASK, Servo_TASK, osPriorityHigh, 0, 1024);
-  SERVO_TASKHandle = osThreadCreate(osThread(SERVO_TASK), NULL);
-
-  /* definition and creation of ROBOT_TASK */
-  osThreadDef(ROBOT_TASK, Robot_TASK, osPriorityHigh, 0, 1024);
-  ROBOT_TASKHandle = osThreadCreate(osThread(ROBOT_TASK), NULL);
-
-  /* definition and creation of MAPDATASEND_TAS */
-  osThreadDef(MAPDATASEND_TAS, MapDataSend_task, osPriorityNormal, 0, 128);
-  MAPDATASEND_TASHandle = osThreadCreate(osThread(MAPDATASEND_TAS), NULL);
+  /* definition and creation of defaultTask */
+  osThreadDef(defaultTask, StartDefaultTask, osPriorityNormal, 0, 128);
+  defaultTaskHandle = osThreadCreate(osThread(defaultTask), NULL);
 
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
+	GimbalTask_Init();
   /* USER CODE END RTOS_THREADS */
 
 }
 
-/* USER CODE BEGIN Header_LedTask */
+/* USER CODE BEGIN Header_StartDefaultTask */
 /**
-  * @brief  Function implementing the LED_Task thread.
+  * @brief  Function implementing the defaultTask thread.
   * @param  argument: Not used
   * @retval None
   */
-/* USER CODE END Header_LedTask */
-void LedTask(void const * argument)
+/* USER CODE END Header_StartDefaultTask */
+void StartDefaultTask(void const * argument)
 {
-  /* USER CODE BEGIN LedTask */
+  /* USER CODE BEGIN StartDefaultTask */
   /* Infinite loop */
   for(;;)
   {
-	ws2812_task();
-	Key_Beep_Handler();
     osDelay(1);
-	  
   }
-  /* USER CODE END LedTask */
-}
-
-/* USER CODE BEGIN Header_Servo_TASK */
-/**
-* @brief Function implementing the SERVO_TASK thread.
-* @param argument: Not used
-* @retval None
-*/
-/* USER CODE END Header_Servo_TASK */
-void Servo_TASK(void const * argument)
-{
-  /* USER CODE BEGIN Servo_TASK */
-  /* Infinite loop */
-  for(;;)
-  {
-	  
-//	Servo_Task();
-	TaskFrequencycount(GETTASK);
-	osDelay(3);
-	  
-  }
-  /* USER CODE END Servo_TASK */
-}
-
-/* USER CODE BEGIN Header_Robot_TASK */
-/**
-* @brief Function implementing the ROBOT_TASK thread.
-* @param argument: Not used
-* @retval None
-*/
-/* USER CODE END Header_Robot_TASK */
-void Robot_TASK(void const * argument)
-{
-  /* USER CODE BEGIN Robot_TASK */
-	motor_mapping_init();
-	static TickType_t xLastWakeTime = 0;
-    const TickType_t xPeriod = pdMS_TO_TICKS(ROBOT_TASK_PERIOD_MS);  // ÿ 10ms ִ��һ�Σ�100Hz
-	vTaskDelay(300);
-  /* Infinite loop */
-  for(;;)
-  {
-
-	Robot_Task();
-	TaskFrequencycount(SENDTASK);
-    // ��֤���������ȶ�
-    vTaskDelayUntil(&xLastWakeTime, xPeriod);
-	  
-  }
-  /* USER CODE END Robot_TASK */
-}
-
-/* USER CODE BEGIN Header_MapDataSend_task */
-/**
-* @brief Function implementing the MAPDATASEND_TAS thread.
-* @param argument: Not used
-* @retval None
-*/
-/* USER CODE END Header_MapDataSend_task */
-void MapDataSend_task(void const * argument)
-{
-  /* USER CODE BEGIN MapDataSend_task */
-  /* Infinite loop */
-  for(;;)
-  {
-//	CustomController_StructSend(&MoterMap);
-    osDelay(35);
-  }
-  /* USER CODE END MapDataSend_task */
+  /* USER CODE END StartDefaultTask */
 }
 
 /* Private application code --------------------------------------------------*/

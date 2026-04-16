@@ -7,23 +7,23 @@
 #define hcan_t FDCAN_HandleTypeDef
 
 
-//Ö§³ÖMITĞ­Òé²ÅÓÃ
-#define P_MIN -12.5663704f		//Î»ÖÃ×îĞ¡Öµ
-#define P_MAX 12.5663704f		//Î»ÖÃ×î´óÖµ
-#define V_MIN -45			//ËÙ¶È×îĞ¡Öµ
-#define V_MAX 45			//ËÙ¶È×î´óÖµ
-#define KP_MIN 0.0		//Kp×îĞ¡Öµ
-#define KP_MAX 500.0	//Kp×î´óÖµ
-#define KD_MIN 0.0		//Kd×îĞ¡Öµ
-#define KD_MAX 5.0		//Kd×î´óÖµ
-//ĞèÒª¸ù¾İÃ¿¸öµç»úµÄ²»Í¬À´Ñ¡Ôñ
-//ËùÒÔ½¨ÒéÔÚËÍÈë·¢ËÍº¯ÊıÖ®Ç°½øĞĞÏŞ·ù£¬
-#define T_MIN -100.0f			//×ª¾Ø×î´óÖµ
-#define T_MAX 100.0f			//×ª¾Ø×îĞ¡Öµ
+//æ”¯æŒMITåè®®æ‰ç”¨
+#define P_MIN -12.5663704f		//ä½ç½®æœ€å°å€¼
+#define P_MAX 12.5663704f		//ä½ç½®æœ€å¤§å€¼
+#define V_MIN -45			//é€Ÿåº¦æœ€å°å€¼
+#define V_MAX 45			//é€Ÿåº¦æœ€å¤§å€¼
+#define KP_MIN 0.0		//Kpæœ€å°å€¼
+#define KP_MAX 500.0	//Kpæœ€å¤§å€¼
+#define KD_MIN 0.0		//Kdæœ€å°å€¼
+#define KD_MAX 5.0		//Kdæœ€å¤§å€¼
+//éœ€è¦æ ¹æ®æ¯ä¸ªç”µæœºçš„ä¸åŒæ¥é€‰æ‹©
+//æ‰€ä»¥å»ºè®®åœ¨é€å…¥å‘é€å‡½æ•°ä¹‹å‰è¿›è¡Œé™å¹…ï¼Œ
+#define T_MIN -100.0f			//è½¬çŸ©æœ€å¤§å€¼
+#define T_MAX 100.0f			//è½¬çŸ©æœ€å°å€¼
 
 typedef struct
 {
-    //Ô­Ê¼Êı¾İ
+    //åŸå§‹æ•°æ®
     int id;
     int state;
     int p_int;
@@ -31,45 +31,45 @@ typedef struct
     int t_int;
     int kp_int;
     int kd_int;
-    //¼ÆËãºóµÄÊı¾İ
+    //è®¡ç®—åçš„æ•°æ®
     float pos;
     float vel;
-    float tor; //µç»ú·´À¡µÄÁ¦¾Ø
+    float tor; //ç”µæœºåé¦ˆçš„åŠ›çŸ©
     float Kp;
     float Kd;
-    float t_mos; //mosÎÂ¶È
-    float t_motor; //µç»úÎÂ¶È
+    float t_mos; //mosæ¸©åº¦
+    float t_motor; //ç”µæœºæ¸©åº¦
 		
-		float motor_t;//¼ÆËã³öµÄµç»úÁ¦¾Ø
-		uint32_t last_fdb_time; //µç»ú·´À¡Ê±¼ä
+		float motor_t;//è®¡ç®—å‡ºçš„ç”µæœºåŠ›çŸ©
+		uint32_t last_fdb_time; //ç”µæœºåé¦ˆæ—¶é—´
 } MITMeasure_t;
 
 typedef struct {
 	
 	__IO bool rxFrameFlag;
 }CAN_t;
-// ÉùÃ÷È«¾ÖCAN½á¹¹Ìå
+// å£°æ˜å…¨å±€CANç»“æ„ä½“
 extern __IO CAN_t can;
 
-/* ´íÎó×´Ì¬Ã¶¾Ù£¨¿É¸ù¾İĞèÒªÀ©Õ¹£© */
+/* é”™è¯¯çŠ¶æ€æšä¸¾ï¼ˆå¯æ ¹æ®éœ€è¦æ‰©å±•ï¼‰ */
 typedef enum {
     CAN_ERROR_NONE         = 0x00,
-    CAN_ERROR_WARNING      = 0x01,   // ´íÎó¾¯¸æ
-    CAN_ERROR_PASSIVE      = 0x02,   // ´íÎó±»¶¯
-    CAN_ERROR_BUS_OFF      = 0x04,   // ×ÜÏß¹Ø±Õ
-    CAN_ERROR_PROTOCOL_ARB = 0x08,   // Ğ­Òé´íÎó£¨ÖÙ²Ã½×¶Î£©
-    CAN_ERROR_PROTOCOL_DATA= 0x10,   // Ğ­Òé´íÎó£¨Êı¾İ½×¶Î£©
-    CAN_ERROR_STUFF        = 0x20,   // Ìî³ä´íÎó
-    CAN_ERROR_FORM         = 0x40,   // ¸ñÊ½´íÎó
-    CAN_ERROR_ACK          = 0x80,   // Ó¦´ğ´íÎó
-    CAN_ERROR_CRC          = 0x100,  // CRC´íÎó
-	CAN_ERROR_SEND		   = 0x200,  //·¢ËÍÊ§°Ü
+    CAN_ERROR_WARNING      = 0x01,   // é”™è¯¯è­¦å‘Š
+    CAN_ERROR_PASSIVE      = 0x02,   // é”™è¯¯è¢«åŠ¨
+    CAN_ERROR_BUS_OFF      = 0x04,   // æ€»çº¿å…³é—­
+    CAN_ERROR_PROTOCOL_ARB = 0x08,   // åè®®é”™è¯¯ï¼ˆä»²è£é˜¶æ®µï¼‰
+    CAN_ERROR_PROTOCOL_DATA= 0x10,   // åè®®é”™è¯¯ï¼ˆæ•°æ®é˜¶æ®µï¼‰
+    CAN_ERROR_STUFF        = 0x20,   // å¡«å……é”™è¯¯
+    CAN_ERROR_FORM         = 0x40,   // æ ¼å¼é”™è¯¯
+    CAN_ERROR_ACK          = 0x80,   // åº”ç­”é”™è¯¯
+    CAN_ERROR_CRC          = 0x100,  // CRCé”™è¯¯
+	CAN_ERROR_SEND		   = 0x200,  //å‘é€å¤±è´¥
 } CAN_ErrorStatus;
 
-/* ÉùÃ÷È«¾Ö´íÎó×´Ì¬±äÁ¿ */
+/* å£°æ˜å…¨å±€é”™è¯¯çŠ¶æ€å˜é‡ */
 extern __IO CAN_ErrorStatus can_error_status;
 
-// Ìí¼ÓZDT¼æÈİ½ÓÊÕº¯ÊıÉùÃ÷
+// æ·»åŠ ZDTå…¼å®¹æ¥æ”¶å‡½æ•°å£°æ˜
 void ZDT_Compatible_Receive_Data(uint8_t *rxCmd, uint8_t *rxCount);
 
 void bsp_can_init(void);

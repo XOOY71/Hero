@@ -65,5 +65,5 @@ ctrlboard-h7_ws1812\servo_mapping.o: ../Core/Inc/fdcan.h
 ctrlboard-h7_ws1812\servo_mapping.o: ..\User\APP\Gravity_comp.h
 ctrlboard-h7_ws1812\servo_mapping.o: ..\User\APP\joint_impedance.h
 ctrlboard-h7_ws1812\servo_mapping.o: ..\User\APP\kinematics.h
-ctrlboard-h7_ws1812\servo_mapping.o: ..\User\APP\sine_target.h
+ctrlboard-h7_ws1812\servo_mapping.o: ..\User\APP\target_curve.h
 ctrlboard-h7_ws1812\servo_mapping.o: ../User/BSP/vofa.h

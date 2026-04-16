@@ -1,6 +1,5 @@
 #include "bsp_fdcan.h"
-#include "string.h"
-#include "servo_mapping.h"
+
 
 __IO CAN_t can = {0};
 __IO CAN_ErrorStatus can_error_status = CAN_ERROR_NONE;
@@ -12,33 +11,32 @@ uint16_t rec_id1;
 uint8_t rx_data2[8] = {0};
 uint16_t rec_id2;
 
-uint8_t MOTOR_Data[8]={0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}; // µç»úÊı¾İ
+uint8_t MOTOR_Data[8]={0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}; // ç”µæœºæ•°æ®
 
-uint8_t MOTOR_Enable[8]={0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFC};   // µç»úÊ¹ÄÜÃüÁî
-uint8_t MOTOR_Save_zero[8]={0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFE}; // µç»ú±£´æÁãµãÃüÁî
-uint8_t RS_MOTOR_PRE_MODE[8]={0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x00, 0xFD}; // Áé×ãµç»úË½ÓĞÄ£Ê½
-uint8_t RS_MOTOR_MIT_MODE[8]={0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x02, 0xFD}; // Áé×ãµç»úË½ÓĞÄ£Ê½
-// MIT ËÙ¶ÈÂË²¨»º³å£¨ÒÖÖÆ½üËÆÕıÏÒÔëÉù£©
+uint8_t MOTOR_Enable[8]={0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFC};   // ç”µæœºä½¿èƒ½å‘½ä»¤
+uint8_t MOTOR_Save_zero[8]={0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFE}; // ç”µæœºä¿å­˜é›¶ç‚¹å‘½ä»¤
+uint8_t RS_MOTOR_PRE_MODE[8]={0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x00, 0xFD}; // çµè¶³ç”µæœºç§æœ‰æ¨¡å¼
+uint8_t RS_MOTOR_MIT_MODE[8]={0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x02, 0xFD}; // çµè¶³ç”µæœºç§æœ‰æ¨¡å¼
+// MIT é€Ÿåº¦æ»¤æ³¢ç¼“å†²ï¼ˆæŠ‘åˆ¶è¿‘ä¼¼æ­£å¼¦å™ªå£°ï¼‰
 static float mit_vel_lpf = 0.0f;
 
 /*
-  MIT µç»ú·´À¡Ö¡½á¹¹Ìå
+  MIT ç”µæœºåé¦ˆå¸§ç»“æ„ä½“
 */
-MITMeasure_t MIT_MOTOR_MEASURE;   // µ¥¸öµç»ú·´À¡½á¹¹Ìå
-extern MotorCurrentInfo MotorCurrents[SERVOS_NUM];
+MITMeasure_t MIT_MOTOR_MEASURE;   // å•ä¸ªç”µæœºåé¦ˆç»“æ„ä½“
 /**
 ************************************************************************
 * @brief:      	bsp_can_init(void)
 * @param:       void
 * @retval:     	void
-* @details:    	CAN³õÊ¼»¯
+* @details:    	CANåˆå§‹åŒ–
 ************************************************************************
 **/
 void bsp_can_init(void)
 {
 	can1_filter_init();
 	can2_filter_init();
-	HAL_FDCAN_Start(&hfdcan1);                               //Æô¶¯FDCAN
+	HAL_FDCAN_Start(&hfdcan1);                               //å¯åŠ¨FDCAN
 	HAL_FDCAN_Start(&hfdcan2);
 	HAL_FDCAN_ActivateNotification(&hfdcan1, 
                                FDCAN_IT_RX_FIFO0_NEW_MESSAGE |
@@ -56,28 +54,28 @@ void bsp_can_init(void)
 * @brief:      	can_filter_init(void)
 * @param:       void
 * @retval:     	void
-* @details:    	CANÂË²¨Æ÷³õÊ¼»¯
+* @details:    	CANæ»¤æ³¢å™¨åˆå§‹åŒ–
 ************************************************************************
 **/
 void can1_filter_init(void)
 {
 	FDCAN_FilterTypeDef fdcan_filter;
 	
-	fdcan_filter.IdType = FDCAN_EXTENDED_ID;                       // ¸ÄÎªÀ©Õ¹ID
-	fdcan_filter.FilterIndex = 0;                                  // ÂË²¨Æ÷Ë÷Òı                   
+	fdcan_filter.IdType = FDCAN_EXTENDED_ID;                       // æ”¹ä¸ºæ‰©å±•ID
+	fdcan_filter.FilterIndex = 0;                                  // æ»¤æ³¢å™¨ç´¢å¼•                   
 	fdcan_filter.FilterType = FDCAN_FILTER_MASK;                   
-	fdcan_filter.FilterConfig = FDCAN_FILTER_TO_RXFIFO0;           // ¹ıÂËÆ÷0¹ØÁªµ½FIFO0  
-	fdcan_filter.FilterID1 = 0x0000;                               // ÂË²¨Æ÷ID1
-	fdcan_filter.FilterID2 = 0x0000;                               // ÂË²¨Æ÷ID2
+	fdcan_filter.FilterConfig = FDCAN_FILTER_TO_RXFIFO0;           // è¿‡æ»¤å™¨0å…³è”åˆ°FIFO0  
+	fdcan_filter.FilterID1 = 0x0000;                               // æ»¤æ³¢å™¨ID1
+	fdcan_filter.FilterID2 = 0x0000;                               // æ»¤æ³¢å™¨ID2
 
 	HAL_FDCAN_ConfigFilter(&hfdcan1, &fdcan_filter);
 	
-	// ÅäÖÃÈ«¾ÖÂË²¨Æ÷£º¾Ü¾øËùÓĞ²»Æ¥ÅäµÄÖ¡
+	// é…ç½®å…¨å±€æ»¤æ³¢å™¨ï¼šæ‹’ç»æ‰€æœ‰ä¸åŒ¹é…çš„å¸§
 	HAL_FDCAN_ConfigGlobalFilter(&hfdcan1, 
 //		FDCAN_REJECT, 
 //		FDCAN_REJECT, 
-		FDCAN_ACCEPT_IN_RX_FIFO0,  // ½ÓÊÕËùÓĞ±ê×¼Ö¡
-		FDCAN_ACCEPT_IN_RX_FIFO0,  // ½ÓÊÕËùÓĞÀ©Õ¹Ö¡
+		FDCAN_ACCEPT_IN_RX_FIFO0,  // æ¥æ”¶æ‰€æœ‰æ ‡å‡†å¸§
+		FDCAN_ACCEPT_IN_RX_FIFO0,  // æ¥æ”¶æ‰€æœ‰æ‰©å±•å¸§
 		FDCAN_FILTER_REMOTE, 
 		FDCAN_FILTER_REMOTE);
 		
@@ -88,21 +86,21 @@ void can2_filter_init(void)
 {
 	FDCAN_FilterTypeDef fdcan_filter;
 	
-	fdcan_filter.IdType = FDCAN_EXTENDED_ID;                       // ¸ÄÎªÀ©Õ¹ID
-	fdcan_filter.FilterIndex = 0;                                  // ÂË²¨Æ÷Ë÷Òı                   
+	fdcan_filter.IdType = FDCAN_EXTENDED_ID;                       // æ”¹ä¸ºæ‰©å±•ID
+	fdcan_filter.FilterIndex = 0;                                  // æ»¤æ³¢å™¨ç´¢å¼•                   
 	fdcan_filter.FilterType = FDCAN_FILTER_MASK;                   
-	fdcan_filter.FilterConfig = FDCAN_FILTER_TO_RXFIFO1;           // ¹ıÂËÆ÷0¹ØÁªµ½FIFO0  
-	fdcan_filter.FilterID1 = 0x0000;                               // ÂË²¨Æ÷ID1
-	fdcan_filter.FilterID2 = 0x0000;                               // ÂË²¨Æ÷ID2
+	fdcan_filter.FilterConfig = FDCAN_FILTER_TO_RXFIFO1;           // è¿‡æ»¤å™¨0å…³è”åˆ°FIFO0  
+	fdcan_filter.FilterID1 = 0x0000;                               // æ»¤æ³¢å™¨ID1
+	fdcan_filter.FilterID2 = 0x0000;                               // æ»¤æ³¢å™¨ID2
 
 	HAL_FDCAN_ConfigFilter(&hfdcan2, &fdcan_filter);
 	
-	// ÅäÖÃÈ«¾ÖÂË²¨Æ÷£º¾Ü¾øËùÓĞ²»Æ¥ÅäµÄÖ¡
+	// é…ç½®å…¨å±€æ»¤æ³¢å™¨ï¼šæ‹’ç»æ‰€æœ‰ä¸åŒ¹é…çš„å¸§
 	HAL_FDCAN_ConfigGlobalFilter(&hfdcan2, 
 //		FDCAN_REJECT, 
 //		FDCAN_REJECT, 
-		FDCAN_ACCEPT_IN_RX_FIFO1,  // ½ÓÊÕËùÓĞ±ê×¼Ö¡
-		FDCAN_ACCEPT_IN_RX_FIFO1,  // ½ÓÊÕËùÓĞÀ©Õ¹Ö¡
+		FDCAN_ACCEPT_IN_RX_FIFO1,  // æ¥æ”¶æ‰€æœ‰æ ‡å‡†å¸§
+		FDCAN_ACCEPT_IN_RX_FIFO1,  // æ¥æ”¶æ‰€æœ‰æ‰©å±•å¸§
 		FDCAN_FILTER_REMOTE, 
 		FDCAN_FILTER_REMOTE);
 		
@@ -111,12 +109,12 @@ void can2_filter_init(void)
 /**
 ************************************************************************
 * @brief:      	fdcanx_send_data(FDCAN_HandleTypeDef *hfdcan, uint16_t id, uint8_t *data, uint32_t len)
-* @param:       hfdcan£ºFDCAN¾ä±ú
-* @param:       id£ºCANÉè±¸ID
-* @param:       data£ºÒª·¢ËÍµÄÊı¾İ
-* @param:       len£ºÒª·¢ËÍµÄÊı¾İ³¤¶È
-* @retval:     	0-³É¹¦, 1-Ê§°Ü
-* @details:    	·¢ËÍÊı¾İ
+* @param:       hfdcanï¼šFDCANå¥æŸ„
+* @param:       idï¼šCANè®¾å¤‡ID
+* @param:       dataï¼šè¦å‘é€çš„æ•°æ®
+* @param:       lenï¼šè¦å‘é€çš„æ•°æ®é•¿åº¦
+* @retval:     	0-æˆåŠŸ, 1-å¤±è´¥
+* @details:    	å‘é€æ•°æ®
 ************************************************************************
 **/
 uint8_t fdcanx_send_data(hcan_t *hfdcan, uint16_t id, uint8_t *data, uint32_t len)
@@ -126,26 +124,26 @@ uint8_t fdcanx_send_data(hcan_t *hfdcan, uint16_t id, uint8_t *data, uint32_t le
     pTxHeader.IdType = FDCAN_STANDARD_ID;
     pTxHeader.TxFrameType = FDCAN_DATA_FRAME;
     
-    // ¾­µäCANÄ£Ê½Ö»Ö§³Ö×î¶à8×Ö½ÚÊı¾İ³¤¶È
+    // ç»å…¸CANæ¨¡å¼åªæ”¯æŒæœ€å¤š8å­—èŠ‚æ•°æ®é•¿åº¦
     if(len > 8) {
-        len = 8; // ÏŞÖÆÎª8×Ö½Ú
+        len = 8; // é™åˆ¶ä¸º8å­—èŠ‚
     }
-    pTxHeader.DataLength = len << 16; // ¾­µäCANÄ£Ê½ÏÂÊı¾İ³¤¶ÈÅäÖÃ
+    pTxHeader.DataLength = len << 16; // ç»å…¸CANæ¨¡å¼ä¸‹æ•°æ®é•¿åº¦é…ç½®
     
     pTxHeader.ErrorStateIndicator = FDCAN_ESI_ACTIVE;
-    pTxHeader.BitRateSwitch = FDCAN_BRS_OFF; // ¾­µäCANÄ£Ê½¹Ø±Õ±ÈÌØÂÊÇĞ»»
-    pTxHeader.FDFormat = FDCAN_CLASSIC_CAN;   // ¾­µäCANÖ¡¸ñÊ½
+    pTxHeader.BitRateSwitch = FDCAN_BRS_OFF; // ç»å…¸CANæ¨¡å¼å…³é—­æ¯”ç‰¹ç‡åˆ‡æ¢
+    pTxHeader.FDFormat = FDCAN_CLASSIC_CAN;   // ç»å…¸CANå¸§æ ¼å¼
     pTxHeader.TxEventFifoControl = FDCAN_NO_TX_EVENTS;
     pTxHeader.MessageMarker = 0;
  
 	if(HAL_FDCAN_AddMessageToTxFifoQ(hfdcan, &pTxHeader, data) != HAL_OK) 
-		return 1; // Ê§°Ü
-	return 0; // ³É¹¦	
+		return 1; // å¤±è´¥
+	return 0; // æˆåŠŸ	
 }
 
 /**
- * @brief  MITFdbData: »ñÈ¡ MIT µç»ú·´À¡Êı¾İ£¨ÄÚÁª£©£¬º¬ËÙ¶ÈµÍÍ¨ÂË²¨
- * @note   vel ÔëÉù½üËÆÕıÏÒ£¬Ê¹ÓÃÒ»½×µÍÍ¨Æ½»¬
+ * @brief  MITFdbData: è·å– MIT ç”µæœºåé¦ˆæ•°æ®ï¼ˆå†…è”ï¼‰ï¼Œå«é€Ÿåº¦ä½é€šæ»¤æ³¢
+ * @note   vel å™ªå£°è¿‘ä¼¼æ­£å¼¦ï¼Œä½¿ç”¨ä¸€é˜¶ä½é€šå¹³æ»‘
  */
 static inline void MITFdbData(MITMeasure_t *MIT_measure, const uint8_t rx_data[8])
 {
@@ -158,7 +156,7 @@ static inline void MITFdbData(MITMeasure_t *MIT_measure, const uint8_t rx_data[8
 
     const float vel_raw = uint_to_float(MIT_measure->v_int, V_MIN, V_MAX, 12);
     const float alpha = 0.15f;
-    // Ò»½×µÍÍ¨ÂË²¨£¬Ö±½Ó²Ù×÷È«¾Ö¾²Ì¬±äÁ¿ mit_vel_lpf
+    // ä¸€é˜¶ä½é€šæ»¤æ³¢ï¼Œç›´æ¥æ“ä½œå…¨å±€é™æ€å˜é‡ mit_vel_lpf
     mit_vel_lpf = mit_vel_lpf + alpha * (vel_raw - mit_vel_lpf);
     MIT_measure->vel = mit_vel_lpf;
 
@@ -186,11 +184,11 @@ void Motor_MIT_MODE(FDCAN_HandleTypeDef *hcan, uint16_t id)
 /**
 ************************************************************************
 * @brief:      	fdcanx_receive(FDCAN_HandleTypeDef *hfdcan, uint16_t *rec_id, uint8_t *buf)
-* @param:       hfdcan£ºFDCAN¾ä±ú
-* @param:       rec_id£º½ÓÊÕµ½µÄID£¨À©Õ¹IDµÄ¸ß16Î»£©
-* @param:       buf£º½ÓÊÕÊı¾İ»º³åÇø
-* @retval:     	½ÓÊÕµ½µÄÊı¾İ³¤¶È
-* @details:    	½ÓÊÕÊı¾İ
+* @param:       hfdcanï¼šFDCANå¥æŸ„
+* @param:       rec_idï¼šæ¥æ”¶åˆ°çš„IDï¼ˆæ‰©å±•IDçš„é«˜16ä½ï¼‰
+* @param:       bufï¼šæ¥æ”¶æ•°æ®ç¼“å†²åŒº
+* @retval:     	æ¥æ”¶åˆ°çš„æ•°æ®é•¿åº¦
+* @details:    	æ¥æ”¶æ•°æ®
 ************************************************************************
 **/
 uint32_t rx1free_level;
@@ -200,25 +198,25 @@ uint8_t fdcan1_receive(hcan_t *hfdcan, uint16_t *rec_id, uint8_t *buf)
 	uint8_t len = 0;
 	rx1free_level = HAL_FDCAN_GetRxFifoFillLevel(&hfdcan1, FDCAN_CFG_RX_FIFO0);
 if (rx1free_level > 0) {
-    // FIFO »¹ÓĞ free_level ¸ö¿ÕÏĞ²ÛÎ»£¬¿ÉÒÔ°²È«½ÓÊÕĞÂ±¨ÎÄ
-    // ÀıÈç£¬¿ÉÒÔ¼ÌĞøÊ¹ÄÜ½ÓÊÕÖĞ¶Ï£¬»òÕß²»×öÌØÊâ´¦Àí
+    // FIFO è¿˜æœ‰ free_level ä¸ªç©ºé—²æ§½ä½ï¼Œå¯ä»¥å®‰å…¨æ¥æ”¶æ–°æŠ¥æ–‡
+    // ä¾‹å¦‚ï¼Œå¯ä»¥ç»§ç»­ä½¿èƒ½æ¥æ”¶ä¸­æ–­ï¼Œæˆ–è€…ä¸åšç‰¹æ®Šå¤„ç†
 } else {
-    // FIFO ÒÑÂú£¡ĞÂ±¨ÎÄ½«»áÒç³ö
-    // ¿ÉÒÔ²ÉÈ¡½ô¼±´ëÊ©£ºÌá¸ß¶ÁÈ¡ÆµÂÊ¡¢¶ªÆúÄ³Ğ©µÍÓÅÏÈ¼¶±¨ÎÄ¡¢»ò¼ÇÂ¼´íÎó
-    // ÀıÈç£ºÔİÊ±¹Ø±Õ½ÓÊÕÖĞ¶Ï£¬Ç¿ÖÆ¶ÁÈ¡ËùÓĞ±¨ÎÄºóÔÙ»Ö¸´
+    // FIFO å·²æ»¡ï¼æ–°æŠ¥æ–‡å°†ä¼šæº¢å‡º
+    // å¯ä»¥é‡‡å–ç´§æ€¥æªæ–½ï¼šæé«˜è¯»å–é¢‘ç‡ã€ä¸¢å¼ƒæŸäº›ä½ä¼˜å…ˆçº§æŠ¥æ–‡ã€æˆ–è®°å½•é”™è¯¯
+    // ä¾‹å¦‚ï¼šæš‚æ—¶å…³é—­æ¥æ”¶ä¸­æ–­ï¼Œå¼ºåˆ¶è¯»å–æ‰€æœ‰æŠ¥æ–‡åå†æ¢å¤
 }
 		if(HAL_FDCAN_GetRxMessage(hfdcan, FDCAN_RX_FIFO0, &pRxHeader, buf) == HAL_OK)
 		{
-			// ÌáÈ¡À©Õ¹IDµÄ¸ß16Î»×÷Îª½ÓÊÕID£¨±£³ÖÓëÔ­ÓĞ´úÂë¼æÈİ£©
+			// æå–æ‰©å±•IDçš„é«˜16ä½ä½œä¸ºæ¥æ”¶IDï¼ˆä¿æŒä¸åŸæœ‰ä»£ç å…¼å®¹ï¼‰
 			*rec_id = (uint16_t)(pRxHeader.Identifier >> 8);
 			
-			// ¾­µäCANÄ£Ê½ÏÂ£¬Êı¾İ³¤¶ÈÖ±½Ó¾ÍÊÇ×Ö½ÚÊı
+			// ç»å…¸CANæ¨¡å¼ä¸‹ï¼Œæ•°æ®é•¿åº¦ç›´æ¥å°±æ˜¯å­—èŠ‚æ•°
 			len = pRxHeader.DataLength >> 16;
 			if(len > 8) {
-				len = 8; // È·±£²»³¬¹ı8×Ö½Ú
+				len = 8; // ç¡®ä¿ä¸è¶…è¿‡8å­—èŠ‚
 			}
 			
-			return len; // ·µ»ØÊı¾İ³¤¶È
+			return len; // è¿”å›æ•°æ®é•¿åº¦
 		}
 	return 0;	
 }
@@ -230,35 +228,29 @@ uint8_t fdcan2_receive(hcan_t *hfdcan, uint16_t *rec_id, uint8_t *buf)
     
     if (HAL_FDCAN_GetRxMessage(hfdcan, FDCAN_RX_FIFO1, &pRxHeader, buf) == HAL_OK)
     {
-        // »ñÈ¡Êı¾İ³¤¶È£¨¾­µäCANÄ£Ê½³¤¶ÈÎ»ÓÚ¸ß16Î»£©
+        // è·å–æ•°æ®é•¿åº¦ï¼ˆç»å…¸CANæ¨¡å¼é•¿åº¦ä½äºé«˜16ä½ï¼‰
         len = pRxHeader.DataLength >> 16;
         if (len > 8) len = 8;
 
-        // ÎªÁË¼æÈİÔ­ÓĞ´úÂë£¬ÈÔ½«ÓÒÒÆ8Î»ºóµÄÖµ¸³¸ø rec_id
+        // ä¸ºäº†å…¼å®¹åŸæœ‰ä»£ç ï¼Œä»å°†å³ç§»8ä½åçš„å€¼èµ‹ç»™ rec_id
         *rec_id = (uint16_t)(pRxHeader.Identifier >> 8);
 
-        // ÌáÈ¡ÕæÊµµÄµç»ú ID
+        // æå–çœŸå®çš„ç”µæœº ID
         uint8_t motor_id;
         if (pRxHeader.IdType == FDCAN_STANDARD_ID) {
-            motor_id = (uint8_t)pRxHeader.Identifier;          // ±ê×¼ID£¬µç»úIDÔÚµÍ8Î»
+            motor_id = (uint8_t)pRxHeader.Identifier;          // æ ‡å‡†IDï¼Œç”µæœºIDåœ¨ä½8ä½
         } else {
-            motor_id = (uint8_t)(pRxHeader.Identifier >> 8);   // À©Õ¹ID£¬µç»úIDÔÚ¸ß8Î»
+            motor_id = (uint8_t)(pRxHeader.Identifier >> 8);   // æ‰©å±•IDï¼Œç”µæœºIDåœ¨é«˜8ä½
         }
 
-        // ¸ù¾İµç»ú ID ·ÖÁ÷´¦Àí
+        // æ ¹æ®ç”µæœº ID åˆ†æµå¤„ç†
         if (motor_id == 0x00) {
-            // MIT µç»ú·´À¡£¨ID=00£©
+            // MIT ç”µæœºåé¦ˆï¼ˆID=00ï¼‰
             MITFdbData(&MIT_MOTOR_MEASURE, buf); 
-            MotorCurrents[1].position = MIT_MOTOR_MEASURE.pos;
-            Get_theta(MotorCurrents, 1);
-            // ¸üĞÂ·½Ïò£¨ÓëÔ­Âß¼­±£³ÖÒ»ÖÂ£©
-            MotorCurrents[1].dir = (MotorCurrents[1].position >= 0) ? 0 : 1;
+            
         }
-        else if (motor_id == 0x01 || motor_id == 0x03) {
-            // ZDT µç»ú·´À¡£¨ID=1 »ò 3£©
-            process_zdt_can_frame(motor_id, buf, len);
-        }
-        // ÈçÓĞÆäËû ID ¿É¼ÌĞøÌí¼Ó·ÖÖ§
+
+        // å¦‚æœ‰å…¶ä»– ID å¯ç»§ç»­æ·»åŠ åˆ†æ”¯
 
         return len;
     }
@@ -268,10 +260,10 @@ uint8_t fdcan2_receive(hcan_t *hfdcan, uint16_t *rec_id, uint8_t *buf)
 /**
 ************************************************************************
 * @brief:      	can_SendCmd
-* @param:       cmd£ºÃüÁîÊı¾İ
-* @param:       len£ºÊı¾İ³¤¶È
+* @param:       cmdï¼šå‘½ä»¤æ•°æ®
+* @param:       lenï¼šæ•°æ®é•¿åº¦
 * @retval:     	void
-* @details:    	·¢ËÍCANÃüÁî£¨ÊÊÅäÔ­ÓĞZDTĞ­Òé£©
+* @details:    	å‘é€CANå‘½ä»¤ï¼ˆé€‚é…åŸæœ‰ZDTåè®®ï¼‰
 ************************************************************************
 **/
 uint32_t free_level;
@@ -281,77 +273,77 @@ void USER_can_SendCmd(FDCAN_HandleTypeDef *hfdcan, uint8_t *cmd, uint32_t len)
     uint8_t send_buffer[8] = {0};
     FDCAN_TxHeaderTypeDef pTxHeader;
 
-    // È¥³ıIDµØÖ·ºÍ¹¦ÄÜÂëºóµÄÊı¾İ³¤¶È
+    // å»é™¤IDåœ°å€å’ŒåŠŸèƒ½ç åçš„æ•°æ®é•¿åº¦
     j = len - 2;
 
-    // ·Ö°ü·¢ËÍ
+    // åˆ†åŒ…å‘é€
     while(i < j)
     {
-        // Ê£ÓàÊı¾İ³¤¶È
+        // å‰©ä½™æ•°æ®é•¿åº¦
         k = j - i;
 
-        // ÅäÖÃ·¢ËÍÍ·
-        pTxHeader.Identifier = ((uint32_t)cmd[0] << 8) | (uint32_t)packNum; // À©Õ¹ID¸ñÊ½
-        pTxHeader.IdType = FDCAN_EXTENDED_ID; // Ê¹ÓÃÀ©Õ¹ID
+        // é…ç½®å‘é€å¤´
+        pTxHeader.Identifier = ((uint32_t)cmd[0] << 8) | (uint32_t)packNum; // æ‰©å±•IDæ ¼å¼
+        pTxHeader.IdType = FDCAN_EXTENDED_ID; // ä½¿ç”¨æ‰©å±•ID
         pTxHeader.TxFrameType = FDCAN_DATA_FRAME;
         
-        // µÚÒ»¸ö×Ö½ÚÊÇ¹¦ÄÜÂë
+        // ç¬¬ä¸€ä¸ªå­—èŠ‚æ˜¯åŠŸèƒ½ç 
         send_buffer[0] = cmd[1];
         
-        // Ğ¡ÓÚ8×Ö½ÚÊı¾İ
+        // å°äº8å­—èŠ‚æ•°æ®
         if(k < 8)
         {
             for(l = 0; l < k; l++, i++) 
             { 
                 send_buffer[l + 1] = cmd[i + 2]; 
             }
-            pTxHeader.DataLength = (k + 1) << 16; // Êı¾İ³¤¶È
+            pTxHeader.DataLength = (k + 1) << 16; // æ•°æ®é•¿åº¦
         }
-        // ´óÓÚµÈÓÚ8×Ö½ÚÊı¾İ£¬·Ö°ü·¢ËÍ£¬Ã¿°ü×î¶à7¸öÊı¾İ×Ö½Ú
+        // å¤§äºç­‰äº8å­—èŠ‚æ•°æ®ï¼Œåˆ†åŒ…å‘é€ï¼Œæ¯åŒ…æœ€å¤š7ä¸ªæ•°æ®å­—èŠ‚
         else
         {
             for(l = 0; l < 7; l++, i++) 
             { 
                 send_buffer[l + 1] = cmd[i + 2]; 
             }
-            pTxHeader.DataLength = 8 << 16; // ¹Ì¶¨8×Ö½Ú
+            pTxHeader.DataLength = 8 << 16; // å›ºå®š8å­—èŠ‚
         }
         
         pTxHeader.ErrorStateIndicator = FDCAN_ESI_ACTIVE;
-        pTxHeader.BitRateSwitch = FDCAN_BRS_OFF; // ¾­µäCANÄ£Ê½¹Ø±Õ±ÈÌØÂÊÇĞ»»
-        pTxHeader.FDFormat = FDCAN_CLASSIC_CAN;   // ¾­µäCANÖ¡¸ñÊ½
+        pTxHeader.BitRateSwitch = FDCAN_BRS_OFF; // ç»å…¸CANæ¨¡å¼å…³é—­æ¯”ç‰¹ç‡åˆ‡æ¢
+        pTxHeader.FDFormat = FDCAN_CLASSIC_CAN;   // ç»å…¸CANå¸§æ ¼å¼
         pTxHeader.TxEventFifoControl = FDCAN_NO_TX_EVENTS;
         pTxHeader.MessageMarker = 0;
 
 		
 		free_level = HAL_FDCAN_GetTxFifoFreeLevel(hfdcan);
 		if (free_level > 0) {
-			// ÖÁÉÙÓĞÒ»¸ö¿ÕÏĞ²ÛÎ»£¬¿ÉÒÔÌí¼Ó±¨ÎÄ
-			// ·¢ËÍÊı¾İ
+			// è‡³å°‘æœ‰ä¸€ä¸ªç©ºé—²æ§½ä½ï¼Œå¯ä»¥æ·»åŠ æŠ¥æ–‡
+			// å‘é€æ•°æ®
 			if(HAL_FDCAN_AddMessageToTxFifoQ(hfdcan, &pTxHeader, send_buffer) != HAL_OK)
 			{
 				can_error_status = CAN_ERROR_SEND;
 			}
 		} else {
-			// FIFO ÒÑÂú£¬ÉÔºóÖØÊÔ»ò¶ªÆú
-			// ¿É¼ÇÂ¼´íÎó»ò´¥·¢ÖØ´«»úÖÆ
+			// FIFO å·²æ»¡ï¼Œç¨åé‡è¯•æˆ–ä¸¢å¼ƒ
+			// å¯è®°å½•é”™è¯¯æˆ–è§¦å‘é‡ä¼ æœºåˆ¶
 		}
         
         
-        // ¼ÇÂ¼·¢ËÍµÄ°üĞòºÅ
+        // è®°å½•å‘é€çš„åŒ…åºå·
         packNum++;
         
-        // Çå¿Õ·¢ËÍ»º³åÇø
+        // æ¸…ç©ºå‘é€ç¼“å†²åŒº
         memset(send_buffer, 0, sizeof(send_buffer));
     }
 }
 /**
 ************************************************************************
 * @brief:      	can_SendCmd
-* @param:       cmd£ºÃüÁîÊı¾İ
-* @param:       len£ºÊı¾İ³¤¶È
+* @param:       cmdï¼šå‘½ä»¤æ•°æ®
+* @param:       lenï¼šæ•°æ®é•¿åº¦
 * @retval:     	void
-* @details:    	·¢ËÍCANÃüÁî£¨ÊÊÅäÔ­ÓĞZDTĞ­Òé£©
+* @details:    	å‘é€CANå‘½ä»¤ï¼ˆé€‚é…åŸæœ‰ZDTåè®®ï¼‰
 ************************************************************************
 **/
 void can_SendCmd(uint8_t *cmd, uint32_t len)
@@ -360,74 +352,74 @@ void can_SendCmd(uint8_t *cmd, uint32_t len)
     uint8_t send_buffer[8] = {0};
     FDCAN_TxHeaderTypeDef pTxHeader;
 
-    // È¥³ıIDµØÖ·ºÍ¹¦ÄÜÂëºóµÄÊı¾İ³¤¶È
+    // å»é™¤IDåœ°å€å’ŒåŠŸèƒ½ç åçš„æ•°æ®é•¿åº¦
     j = len - 2;
 
-    // ·Ö°ü·¢ËÍ
+    // åˆ†åŒ…å‘é€
     while(i < j)
     {
-        // Ê£ÓàÊı¾İ³¤¶È
+        // å‰©ä½™æ•°æ®é•¿åº¦
         k = j - i;
 
-        // ÅäÖÃ·¢ËÍÍ·
-        pTxHeader.Identifier = ((uint32_t)cmd[0] << 8) | (uint32_t)packNum; // À©Õ¹ID¸ñÊ½
-        pTxHeader.IdType = FDCAN_EXTENDED_ID; // Ê¹ÓÃÀ©Õ¹ID
+        // é…ç½®å‘é€å¤´
+        pTxHeader.Identifier = ((uint32_t)cmd[0] << 8) | (uint32_t)packNum; // æ‰©å±•IDæ ¼å¼
+        pTxHeader.IdType = FDCAN_EXTENDED_ID; // ä½¿ç”¨æ‰©å±•ID
         pTxHeader.TxFrameType = FDCAN_DATA_FRAME;
         
-        // µÚÒ»¸ö×Ö½ÚÊÇ¹¦ÄÜÂë
+        // ç¬¬ä¸€ä¸ªå­—èŠ‚æ˜¯åŠŸèƒ½ç 
         send_buffer[0] = cmd[1];
         
-        // Ğ¡ÓÚ8×Ö½ÚÊı¾İ
+        // å°äº8å­—èŠ‚æ•°æ®
         if(k < 8)
         {
             for(l = 0; l < k; l++, i++) 
             { 
                 send_buffer[l + 1] = cmd[i + 2]; 
             }
-            pTxHeader.DataLength = (k + 1) << 16; // Êı¾İ³¤¶È
+            pTxHeader.DataLength = (k + 1) << 16; // æ•°æ®é•¿åº¦
         }
-        // ´óÓÚµÈÓÚ8×Ö½ÚÊı¾İ£¬·Ö°ü·¢ËÍ£¬Ã¿°ü×î¶à7¸öÊı¾İ×Ö½Ú
+        // å¤§äºç­‰äº8å­—èŠ‚æ•°æ®ï¼Œåˆ†åŒ…å‘é€ï¼Œæ¯åŒ…æœ€å¤š7ä¸ªæ•°æ®å­—èŠ‚
         else
         {
             for(l = 0; l < 7; l++, i++) 
             { 
                 send_buffer[l + 1] = cmd[i + 2]; 
             }
-            pTxHeader.DataLength = 8 << 16; // ¹Ì¶¨8×Ö½Ú
+            pTxHeader.DataLength = 8 << 16; // å›ºå®š8å­—èŠ‚
         }
         
         pTxHeader.ErrorStateIndicator = FDCAN_ESI_ACTIVE;
-        pTxHeader.BitRateSwitch = FDCAN_BRS_OFF; // ¾­µäCANÄ£Ê½¹Ø±Õ±ÈÌØÂÊÇĞ»»
-        pTxHeader.FDFormat = FDCAN_CLASSIC_CAN;   // ¾­µäCANÖ¡¸ñÊ½
+        pTxHeader.BitRateSwitch = FDCAN_BRS_OFF; // ç»å…¸CANæ¨¡å¼å…³é—­æ¯”ç‰¹ç‡åˆ‡æ¢
+        pTxHeader.FDFormat = FDCAN_CLASSIC_CAN;   // ç»å…¸CANå¸§æ ¼å¼
         pTxHeader.TxEventFifoControl = FDCAN_NO_TX_EVENTS;
         pTxHeader.MessageMarker = 0;
 
 		
 		free_level = HAL_FDCAN_GetTxFifoFreeLevel(&hfdcan1);
 		if (free_level > 0) {
-			// ÖÁÉÙÓĞÒ»¸ö¿ÕÏĞ²ÛÎ»£¬¿ÉÒÔÌí¼Ó±¨ÎÄ
-			// ·¢ËÍÊı¾İ
+			// è‡³å°‘æœ‰ä¸€ä¸ªç©ºé—²æ§½ä½ï¼Œå¯ä»¥æ·»åŠ æŠ¥æ–‡
+			// å‘é€æ•°æ®
 			if(HAL_FDCAN_AddMessageToTxFifoQ(&hfdcan1, &pTxHeader, send_buffer) != HAL_OK)
 			{
 				can_error_status = CAN_ERROR_SEND;
 			}
 		} else {
-			// FIFO ÒÑÂú£¬ÉÔºóÖØÊÔ»ò¶ªÆú
-			// ¿É¼ÇÂ¼´íÎó»ò´¥·¢ÖØ´«»úÖÆ
+			// FIFO å·²æ»¡ï¼Œç¨åé‡è¯•æˆ–ä¸¢å¼ƒ
+			// å¯è®°å½•é”™è¯¯æˆ–è§¦å‘é‡ä¼ æœºåˆ¶
 		}
         
         
-        // ¼ÇÂ¼·¢ËÍµÄ°üĞòºÅ
+        // è®°å½•å‘é€çš„åŒ…åºå·
         packNum++;
         
-        // Çå¿Õ·¢ËÍ»º³åÇø
+        // æ¸…ç©ºå‘é€ç¼“å†²åŒº
         memset(send_buffer, 0, sizeof(send_buffer));
     }
 }
 void fdcan1_rx_callback(void)
 {
-	len1 = fdcan1_receive(&hfdcan1, &rec_id1, rx_data1);  // »ñÈ¡Êµ¼ÊÊı¾İ³¤¶È
-    process_zdt_can_frame(rec_id1, rx_data1, len1);               // ½âÎö ZDT Êı¾İÖ¡
+	len1 = fdcan1_receive(&hfdcan1, &rec_id1, rx_data1);  // è·å–å®é™…æ•°æ®é•¿åº¦
+
 }
 void fdcan2_rx_callback(void)
 {
@@ -454,10 +446,10 @@ void HAL_FDCAN_ErrorCallback(FDCAN_HandleTypeDef *hfdcan)
 		
         uint32_t hal_error = HAL_FDCAN_GetError(hfdcan);
 		
-        /* Çå³ı¾É×´Ì¬£¨¿É¸ù¾İĞèÇóÑ¡ÔñÇå³ıÈ«²¿»ò±£ÁôÀÛ»ı×´Ì¬£© */
+        /* æ¸…é™¤æ—§çŠ¶æ€ï¼ˆå¯æ ¹æ®éœ€æ±‚é€‰æ‹©æ¸…é™¤å…¨éƒ¨æˆ–ä¿ç•™ç´¯ç§¯çŠ¶æ€ï¼‰ */
         can_error_status = CAN_ERROR_NONE;
         
-        /* Ó³Éä HAL ´íÎóµ½×Ô¶¨Òå×´Ì¬ */
+        /* æ˜ å°„ HAL é”™è¯¯åˆ°è‡ªå®šä¹‰çŠ¶æ€ */
         if (hal_error & FDCAN_IT_ERROR_WARNING)   can_error_status |= CAN_ERROR_WARNING;
         if (hal_error & FDCAN_IT_ERROR_PASSIVE)   can_error_status |= CAN_ERROR_PASSIVE;
         if (hal_error & FDCAN_IT_BUS_OFF)   can_error_status |= CAN_ERROR_BUS_OFF;
@@ -501,7 +493,7 @@ float _KP, float _KD, float _torq)
   TxHeader.TxFrameType = FDCAN_DATA_FRAME;  
   if(len<=8)	
 	{
-	  TxHeader.DataLength = len<<16;    // ·¢ËÍ³¤¶È£º8byte
+	  TxHeader.DataLength = len<<16;    // å‘é€é•¿åº¦ï¼š8byte
 	}
 	else  if(len==12)	
 	{
@@ -527,15 +519,15 @@ float _KP, float _KD, float _torq)
 		 TxHeader.DataLength =FDCAN_DLC_BYTES_64;
 	 }									
 	TxHeader.ErrorStateIndicator =  FDCAN_ESI_ACTIVE;
-  TxHeader.BitRateSwitch = FDCAN_BRS_OFF;//±ÈÌØÂÊÇĞ»»¹Ø±Õ£¬²»ÊÊÓÃÓÚ¾­µäCAN
+  TxHeader.BitRateSwitch = FDCAN_BRS_OFF;//æ¯”ç‰¹ç‡åˆ‡æ¢å…³é—­ï¼Œä¸é€‚ç”¨äºç»å…¸CAN
   TxHeader.FDFormat =  FDCAN_CLASSIC_CAN;            // CANFD
   TxHeader.TxEventFifoControl =  FDCAN_NO_TX_EVENTS;  
-  TxHeader.MessageMarker = 0;//ÏûÏ¢±ê¼Ç
+  TxHeader.MessageMarker = 0;//æ¶ˆæ¯æ ‡è®°
 
-   // ·¢ËÍCANÖ¸Áî
+   // å‘é€CANæŒ‡ä»¤
   if(HAL_FDCAN_AddMessageToTxFifoQ(hcan, &TxHeader, data) != HAL_OK)
   {
-       // ·¢ËÍÊ§°Ü´¦Àí
+       // å‘é€å¤±è´¥å¤„ç†
 //       Error_Handler();      
   }
 //	 HAL_FDCAN_AddMessageToTxFifoQ(hcan, &TxHeader, data);
