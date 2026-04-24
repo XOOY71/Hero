@@ -45,6 +45,7 @@ ctrlboard-h7_ws1812\gimbal_task.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx
 ctrlboard-h7_ws1812\gimbal_task.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_uart.h
 ctrlboard-h7_ws1812\gimbal_task.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_uart_ex.h
 ctrlboard-h7_ws1812\gimbal_task.o: D:\Keil5\ARM\ARMCC\Bin\..\include\string.h
+ctrlboard-h7_ws1812\gimbal_task.o: ../User/Devices/pid.h
 ctrlboard-h7_ws1812\gimbal_task.o: ..\User\APP\gimbal_behaviour.h
 ctrlboard-h7_ws1812\gimbal_task.o: ../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS/cmsis_os.h
 ctrlboard-h7_ws1812\gimbal_task.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/FreeRTOS.h

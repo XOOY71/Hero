@@ -11,6 +11,7 @@
 #include <math.h>
 #include <stddef.h>
 #include "vofa.h"
+
 gimbal_control_t gimbal_control;
 
 /* 模块私有线程句柄 */
@@ -21,6 +22,7 @@ static void gimbal_task(void const *pvParameters);
 
 #define GIMBAL_PI 3.14159265358979323846f
 #define GIMBAL_PID_DEFAULT_LIMIT 1000000.0f
+#define GIMBAL_CURRENT_CMD_LIMIT 30000.0f
 
 static float gimbal_wrap_angle(float angle)
 {
@@ -48,6 +50,12 @@ static float gimbal_clamp(float value, float min_value, float max_value)
     return value;
 }
 
+static int16_t gimbal_float_to_current(float current)
+{
+    current = gimbal_clamp(current, -GIMBAL_CURRENT_CMD_LIMIT, GIMBAL_CURRENT_CMD_LIMIT);
+    return (int16_t)current;
+}
+
 /* 对外初始化接口：由 freertos.c 调用 */
 void GimbalTask_Init(void)
 {
@@ -60,31 +68,31 @@ void GimbalTask_Init(void)
   * @param[in]      none
   * @retval         none
   */
-
 static void gimbal_task(void const *pvParameters)
 {
     (void)pvParameters;
 
-	vTaskDelay(GIMBAL_TASK_INIT_TIME);
-	gimbal_init(&gimbal_control);
-	while (1)
-	{												 
-    gimbal_set_mode(&gimbal_control);                      //设置云台控制模式
-    gimbal_mode_change_control_transit(&gimbal_control);   //控制模式切换 控制数据过渡
-    gimbal_feedback_update(&gimbal_control);               //云台数据反馈
-    gimbal_set_control(&gimbal_control);                   //云台控制量
-    gimbal_control_loop(&gimbal_control);                  //云台控制PID计算
-    gimbal_send_cmd(&gimbal_control);                      
-		
-		VOFA_Send6(gimbal_control.gimbal_rc_ctrl->rc.ch[0],
-								gimbal_control.gimbal_rc_ctrl->rc.ch[1],
-								gimbal_control.gimbal_rc_ctrl->rc.ch[2],
-								gimbal_control.gimbal_rc_ctrl->rc.ch[3],
-								0,
-								0);
-		
-		vTaskDelay(GIMBAL_CONTROL_TIME);
-	}
+    vTaskDelay(GIMBAL_TASK_INIT_TIME);
+    gimbal_init(&gimbal_control);
+
+    while (1)
+    {
+        gimbal_set_mode(&gimbal_control);                    // 设置云台控制模式
+        gimbal_feedback_update(&gimbal_control);             // 云台数据反馈
+        gimbal_mode_change_control_transit(&gimbal_control); // 控制模式切换 控制数据过渡
+        gimbal_set_control(&gimbal_control);                 // 云台控制量
+        gimbal_control_loop(&gimbal_control);                // 云台控制PID计算
+        gimbal_send_cmd(&gimbal_control);
+
+        VOFA_Send6(gimbal_control.gimbal_yaw_motor.absolute_angle_set,
+                   gimbal_control.gimbal_yaw_motor.absolute_angle,
+                   gimbal_control.gimbal_pitch_motor.absolute_angle_set,
+                   gimbal_control.gimbal_pitch_motor.absolute_angle,
+                   gimbal_control.gimbal_yaw_motor.given_current,
+                   gimbal_control.gimbal_pitch_motor.given_current);
+
+        vTaskDelay(GIMBAL_CONTROL_TIME);
+    }
 }
 
 /**
@@ -120,7 +128,14 @@ void gimbal_absolute_angle_limit(gimbal_motor_t *motor, float add)
         return;
     }
 
-    motor->absolute_angle_set = gimbal_wrap_angle(motor->absolute_angle_set + add);
+    if (motor == &gimbal_control.gimbal_yaw_motor)
+    {
+        motor->absolute_angle_set += add;
+    }
+    else
+    {
+        motor->absolute_angle_set = gimbal_wrap_angle(motor->absolute_angle_set + add);
+    }
 }
 
 /**
@@ -147,18 +162,29 @@ void gimbal_relative_angle_limit(gimbal_motor_t *motor, float add)
   */
 void gimbal_motor_absolute_angle_control(gimbal_motor_t *motor)
 {
+    float angle_get;
+    float angle_set;
+
     if (motor == 0)
     {
         return;
     }
 
-    motor->absolute_angle_set = gimbal_wrap_angle(motor->absolute_angle_set);
-    motor->absolute_angle = gimbal_wrap_angle(motor->absolute_angle);
+    if (motor == &gimbal_control.gimbal_yaw_motor)
+    {
+        angle_get = motor->absolute_angle;
+        angle_set = motor->absolute_angle_set;
+    }
+    else
+    {
+        angle_get = gimbal_wrap_angle(motor->absolute_angle);
+        angle_set = gimbal_wrap_angle(motor->absolute_angle_set);
+    }
 
-    motor->gyro_set = gimbal_pid_calc(&motor->absolute_angle_pid, motor->absolute_angle, motor->absolute_angle_set, motor->gyro);
+    motor->gyro_set = gimbal_pid_calc(&motor->absolute_angle_pid, angle_get, angle_set, motor->gyro);
     motor->current_set = gimbal_pid_calc(&motor->gyro_pid, motor->gyro, motor->gyro_set, 0.0f);
     motor->output = motor->current_set;
-    motor->given_current = (int16_t)(motor->output);
+    motor->given_current = gimbal_float_to_current(motor->output);
 }
 
 /**
@@ -176,7 +202,7 @@ void gimbal_motor_relative_angle_control(gimbal_motor_t *motor)
     motor->gyro_set = gimbal_pid_calc(&motor->relative_angle_pid, motor->relative_angle, motor->relative_angle_set, motor->gyro);
     motor->current_set = gimbal_pid_calc(&motor->gyro_pid, motor->gyro, motor->gyro_set, 0.0f);
     motor->output = motor->current_set;
-    motor->given_current = (int16_t)(motor->output);
+    motor->given_current = gimbal_float_to_current(motor->output);
 }
 
 /**
@@ -193,7 +219,7 @@ void gimbal_motor_raw_angle_control(gimbal_motor_t *motor)
 
     motor->current_set = motor->raw_cmd;
     motor->output = motor->raw_cmd;
-    motor->given_current = (int16_t)motor->output;
+    motor->given_current = gimbal_float_to_current(motor->output);
 }
 
 /**
@@ -204,24 +230,17 @@ void gimbal_motor_raw_angle_control(gimbal_motor_t *motor)
   */
 void gimbal_pid_init(gimbal_pid_t *pid, float kp, float ki, float kd)
 {
-    if (pid == 0)
+    float pid_param[3];
+
+    if (pid == NULL)
     {
         return;
     }
 
-    pid->kp = kp;
-    pid->ki = ki;
-    pid->kd = kd;
-
-    pid->set = 0.0f;
-    pid->get = 0.0f;
-    pid->err = 0.0f;
-    pid->last_err = 0.0f;
-    pid->iout = 0.0f;
-    pid->out = 0.0f;
-
-    pid->max_out = GIMBAL_PID_DEFAULT_LIMIT;
-    pid->max_iout = GIMBAL_PID_DEFAULT_LIMIT;
+    pid_param[0] = kp;
+    pid_param[1] = ki;
+    pid_param[2] = kd;
+    PID_init(pid, PID_POSITION, pid_param, GIMBAL_PID_DEFAULT_LIMIT, GIMBAL_PID_DEFAULT_LIMIT);
 }
 
 /**
@@ -231,17 +250,12 @@ void gimbal_pid_init(gimbal_pid_t *pid, float kp, float ki, float kd)
   */
 void gimbal_pid_clear(gimbal_pid_t *pid)
 {
-    if (pid == 0)
+    if (pid == NULL)
     {
         return;
     }
 
-    pid->set = 0.0f;
-    pid->get = 0.0f;
-    pid->err = 0.0f;
-    pid->last_err = 0.0f;
-    pid->iout = 0.0f;
-    pid->out = 0.0f;
+    PID_clear(pid);
 }
 
 /**
@@ -252,42 +266,12 @@ void gimbal_pid_clear(gimbal_pid_t *pid)
   */
 float gimbal_pid_calc(gimbal_pid_t *pid, float get, float set, float error_delta)
 {
-    float p_out;
-    float d_out;
+    (void)error_delta;
 
-    if (pid == 0)
+    if (pid == NULL)
     {
         return 0.0f;
     }
 
-    pid->get = get;
-    pid->set = set;
-    pid->err = set - get;
-
-    p_out = pid->kp * pid->err;
-    pid->iout += pid->ki * pid->err;
-
-    if (pid->max_iout > 0.0f)
-    {
-        pid->iout = gimbal_clamp(pid->iout, -pid->max_iout, pid->max_iout);
-    }
-
-    if (error_delta != 0.0f)
-    {
-        d_out = pid->kd * error_delta;
-    }
-    else
-    {
-        d_out = pid->kd * (pid->err - pid->last_err);
-    }
-
-    pid->out = p_out + pid->iout + d_out;
-
-    if (pid->max_out > 0.0f)
-    {
-        pid->out = gimbal_clamp(pid->out, -pid->max_out, pid->max_out);
-    }
-
-    pid->last_err = pid->err;
-    return pid->out;
+    return PID_Calc(pid, get, set);
 }

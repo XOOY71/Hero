@@ -1272,9 +1272,10 @@ ARM Macro Assembler    Page 20
 Command Line: --debug --xref --diag_suppress=9931 --cpu=Cortex-M7.fp.dp --apcs=
 interwork --depend=ctrlboard-h7_ws1812\startup_stm32h723xx.d -octrlboard-h7_ws1
 812\startup_stm32h723xx.o -I../Drivers/CMSIS/Include -I.\RTE\_CtrlBoard-H7_WS18
-12 -ID:\Keil5\ARM\PACK\ARM\CMSIS\6.1.0\CMSIS\Core\Include --predefine="__UVISIO
-N_VERSION SETA 540" --predefine="STM32H723xx SETA 1" --predefine="_RTE_ SETA 1"
- --list=startup_stm32h723xx.lst startup_stm32h723xx.s
+12 -ID:\Keil5\ARM\PACK\ARM\CMSIS-DSP\1.15.0\Include -ID:\Keil5\ARM\PACK\ARM\CMS
+IS-DSP\1.15.0\PrivateInclude -ID:\Keil5\ARM\PACK\ARM\CMSIS\6.1.0\CMSIS\Core\Inc
+lude --predefine="__UVISION_VERSION SETA 540" --predefine="STM32H723xx SETA 1" 
+--predefine="_RTE_ SETA 1" --list=startup_stm32h723xx.lst startup_stm32h723xx.s
 
 
 

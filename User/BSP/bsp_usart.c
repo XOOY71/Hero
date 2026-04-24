@@ -3,9 +3,8 @@
 #include "usart.h"
 #include "remote_control.h"
 #include "gimbal_task.h"
-
+#include "hwt_imu.h"
 //串口5，接收遥控数据
-
 
 
 //串口1，接收裁判系统数据
@@ -77,13 +76,12 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 		// 例如，将接收到的数据存入缓冲区或触发某种事件
 
 		// 继续接收下一个数据块
-		HAL_UART_Receive_IT(&huart7, usart7_buf, USART_RX_BUF_LENGHT * 2);
 	}
 	else if (huart->Instance == USART10) {
 
 	}
 }
-
+/*空闲中断回调*/
 void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef * huart, uint16_t Size)
 {
 	if(huart->Instance == USART1)
@@ -103,12 +101,16 @@ void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef * huart, uint16_t Size)
 
 		HAL_UARTEx_ReceiveToIdle_DMA(&huart5, remote_buff, SBUS_RX_BUF_NUM);
 	}
-	if(huart->Instance == UART7){
-
+	if(huart->Instance == UART7)
+	{
+		hwt101_rx_parse(usart7_buf, Size);
+		HAL_UARTEx_ReceiveToIdle_DMA(&huart7, usart7_buf, USART_RX_BUF_LENGHT);
 	}
 
-	if(huart->Instance == USART10){
-
+	if(huart->Instance == USART10)
+	{
+		hwt906_rx_parse(usart10_buf, Size);
+		HAL_UARTEx_ReceiveToIdle_DMA(&huart10, usart10_buf, USART_RX_BUF_LENGHT);
 	}
 	
 }
@@ -124,10 +126,15 @@ void HAL_UART_ErrorCallback(UART_HandleTypeDef * huart)
 		HAL_UARTEx_ReceiveToIdle_DMA(&huart5, remote_buff, SBUS_RX_BUF_NUM); // 接收发生错误后重启
 		memset(remote_buff, 0, SBUS_RX_BUF_NUM);							   // 清除接收缓存		
 	}
-	if(huart->Instance == UART7){
-
+	if(huart->Instance == UART7)
+	{
+		memset(usart7_buf, 0, USART_RX_BUF_LENGHT);
+    HAL_UARTEx_ReceiveToIdle_DMA(&huart7, usart7_buf, USART_RX_BUF_LENGHT);
 	}
-	if(huart->Instance == USART10){
+	if(huart->Instance == USART10)
+	{
+		memset(usart10_buf, 0, USART_RX_BUF_LENGHT);
+    HAL_UARTEx_ReceiveToIdle_DMA(&huart10, usart10_buf, USART_RX_BUF_LENGHT);
 
 	}
 }

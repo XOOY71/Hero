@@ -152,9 +152,6 @@ void gimbal_behaviour_mode_set(gimbal_control_t *control)
         return;
     }
 
-    /* TODO:
-     * behaviour state machine
-     */
     gimbal_behavour_set(control);
 
     switch (gimbal_behaviour)
@@ -175,11 +172,15 @@ void gimbal_behaviour_mode_set(gimbal_control_t *control)
         break;
 
     case GIMBAL_ABSOLUTE_ANGLE:
+        control->gimbal_yaw_motor.mode = GIMBAL_MOTOR_GYRO;
+        control->gimbal_pitch_motor.mode = GIMBAL_MOTOR_GYRO;
+        break;
+
+    case GIMBAL_RELATIVE_ANGLE:
         control->gimbal_yaw_motor.mode = GIMBAL_MOTOR_ENCODE;
         control->gimbal_pitch_motor.mode = GIMBAL_MOTOR_ENCODE;
         break;
 
-    case GIMBAL_RELATIVE_ANGLE:
     case GIMBAL_SPIN:
         control->gimbal_yaw_motor.mode = GIMBAL_MOTOR_GYRO;
         control->gimbal_pitch_motor.mode = GIMBAL_MOTOR_ENCODE;
@@ -287,7 +288,9 @@ void gimbal_behavour_set(gimbal_control_t *control)
         return;
     }
 
-    if (gimbal_behaviour == GIMBAL_CALI && control->gimbal_cali.step != 0U && control->gimbal_cali.step != GIMBAL_CALI_END_STEP)
+    if (gimbal_behaviour == GIMBAL_CALI &&
+        control->gimbal_cali.step != 0U &&
+        control->gimbal_cali.step != GIMBAL_CALI_END_STEP)
     {
         return;
     }
@@ -302,7 +305,7 @@ void gimbal_behavour_set(gimbal_control_t *control)
     if (gimbal_behaviour == GIMBAL_INIT)
     {
         if (fabsf(control->gimbal_yaw_motor.relative_angle - INIT_YAW_SET) < GIMBAL_INIT_ANGLE_ERROR &&
-            fabsf(control->gimbal_pitch_motor.absolute_angle - INIT_PITCH_SET) < GIMBAL_INIT_ANGLE_ERROR)
+            fabsf(control->gimbal_pitch_motor.relative_angle - INIT_PITCH_SET) < GIMBAL_INIT_ANGLE_ERROR)
         {
             if (init_stop_time < GIMBAL_INIT_STOP_TIME)
             {
@@ -358,7 +361,9 @@ void gimbal_behavour_set(gimbal_control_t *control)
     {
         gimbal_behaviour = GIMBAL_RELATIVE_ANGLE;
     }
-    if (last_gimbal_behaviour == GIMBAL_ZERO_FORCE && gimbal_behaviour != GIMBAL_ZERO_FORCE)
+
+    if (last_gimbal_behaviour == GIMBAL_ZERO_FORCE &&
+        gimbal_behaviour != GIMBAL_ZERO_FORCE)
     {
         gimbal_behaviour = GIMBAL_INIT;
     }
@@ -375,6 +380,7 @@ void gimbal_behavour_set(gimbal_control_t *control)
 void gimbal_zero_force_control(float *yaw, float *pitch, gimbal_control_t *control)
 {
     (void)control;
+
     if (yaw == 0 || pitch == 0)
     {
         return;
@@ -397,8 +403,8 @@ void gimbal_init_control(float *yaw, float *pitch, gimbal_control_t *control)
         return;
     }
 
-    *pitch = (INIT_PITCH_SET - control->gimbal_pitch_motor.absolute_angle) * GIMBAL_INIT_PITCH_SPEED;
     *yaw = (INIT_YAW_SET - control->gimbal_yaw_motor.relative_angle) * GIMBAL_INIT_YAW_SPEED;
+    *pitch = (INIT_PITCH_SET - control->gimbal_pitch_motor.relative_angle) * GIMBAL_INIT_PITCH_SPEED;
 }
 
 /**
@@ -480,6 +486,7 @@ void gimbal_relative_angle_control(float *yaw, float *pitch, gimbal_control_t *c
 void gimbal_motionless_control(float *yaw, float *pitch, gimbal_control_t *control)
 {
     (void)control;
+
     if (yaw == 0 || pitch == 0)
     {
         return;

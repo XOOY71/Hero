@@ -27,7 +27,7 @@
 /* USER CODE BEGIN Includes */
 
 #include "gimbal_task.h"
-
+#include "service_task.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -110,6 +110,7 @@ void MX_FREERTOS_Init(void) {
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
 	GimbalTask_Init();
+	ServiceTask_Init();
   /* USER CODE END RTOS_THREADS */
 
 }

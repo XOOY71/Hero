@@ -1,15 +1,17 @@
 #include "bsp_fdcan.h"
-
+#include "stdint.h"
 
 __IO CAN_t can = {0};
 __IO CAN_ErrorStatus can_error_status = CAN_ERROR_NONE;
 
-uint8_t len1,len2;
+uint8_t len1,len2,len3;
 
 uint8_t rx_data1[8] = {0};
 uint16_t rec_id1;
 uint8_t rx_data2[8] = {0};
 uint16_t rec_id2;
+uint8_t rx_data3[8] = {0};
+uint16_t rec_id3;
 
 uint8_t MOTOR_Data[8]={0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}; // 电机数据
 
@@ -36,8 +38,10 @@ void bsp_can_init(void)
 {
 	can1_filter_init();
 	can2_filter_init();
+	can3_filter_init();
 	HAL_FDCAN_Start(&hfdcan1);                               //启动FDCAN
 	HAL_FDCAN_Start(&hfdcan2);
+	HAL_FDCAN_Start(&hfdcan3);
 	HAL_FDCAN_ActivateNotification(&hfdcan1, 
                                FDCAN_IT_RX_FIFO0_NEW_MESSAGE |
                                FDCAN_IT_ERROR_WARNING |
@@ -47,6 +51,7 @@ void bsp_can_init(void)
                                FDCAN_IT_DATA_PROTOCOL_ERROR,
                                0);
 	HAL_FDCAN_ActivateNotification(&hfdcan2, FDCAN_IT_RX_FIFO1_NEW_MESSAGE, 0);
+	HAL_FDCAN_ActivateNotification(&hfdcan3, FDCAN_IT_RX_FIFO0_NEW_MESSAGE, 0);
 }
 
 /**
@@ -105,6 +110,31 @@ void can2_filter_init(void)
 		FDCAN_FILTER_REMOTE);
 		
 	HAL_FDCAN_ConfigFifoWatermark(&hfdcan2, FDCAN_CFG_RX_FIFO1, 1);
+}
+
+void can3_filter_init(void)
+{
+	FDCAN_FilterTypeDef fdcan_filter;
+	
+	fdcan_filter.IdType = FDCAN_EXTENDED_ID;                       // 改为扩展ID
+	fdcan_filter.FilterIndex = 0;                                  // 滤波器索引                   
+	fdcan_filter.FilterType = FDCAN_FILTER_MASK;                   
+	fdcan_filter.FilterConfig = FDCAN_FILTER_TO_RXFIFO0;           // 过滤器0关联到FIFO0  
+	fdcan_filter.FilterID1 = 0x0000;                               // 滤波器ID1
+	fdcan_filter.FilterID2 = 0x0000;                               // 滤波器ID2
+
+	HAL_FDCAN_ConfigFilter(&hfdcan3, &fdcan_filter);
+	
+	// 配置全局滤波器：拒绝所有不匹配的帧
+	HAL_FDCAN_ConfigGlobalFilter(&hfdcan3, 
+//		FDCAN_REJECT, 
+//		FDCAN_REJECT, 
+		FDCAN_ACCEPT_IN_RX_FIFO0,  // 接收所有标准帧
+		FDCAN_ACCEPT_IN_RX_FIFO0,  // 接收所有扩展帧
+		FDCAN_FILTER_REMOTE, 
+		FDCAN_FILTER_REMOTE);
+		
+	HAL_FDCAN_ConfigFifoWatermark(&hfdcan3, FDCAN_CFG_RX_FIFO0, 1);
 }
 /**
 ************************************************************************
@@ -257,165 +287,25 @@ uint8_t fdcan2_receive(hcan_t *hfdcan, uint16_t *rec_id, uint8_t *buf)
     return 0;   
 }
 
-/**
-************************************************************************
-* @brief:      	can_SendCmd
-* @param:       cmd：命令数据
-* @param:       len：数据长度
-* @retval:     	void
-* @details:    	发送CAN命令（适配原有ZDT协议）
-************************************************************************
-**/
-uint32_t free_level;
-void USER_can_SendCmd(FDCAN_HandleTypeDef *hfdcan, uint8_t *cmd, uint32_t len)
+uint8_t fdcan3_receive(hcan_t *hfdcan, uint16_t *rec_id, uint8_t *buf)
 {
-    uint8_t i = 0, j = 0, k = 0, l = 0, packNum = 0;
-    uint8_t send_buffer[8] = {0};
-    FDCAN_TxHeaderTypeDef pTxHeader;
+	FDCAN_RxHeaderTypeDef pRxHeader;
+	uint8_t len = 0;
 
-    // 去除ID地址和功能码后的数据长度
-    j = len - 2;
+	if(HAL_FDCAN_GetRxMessage(hfdcan, FDCAN_RX_FIFO0, &pRxHeader, buf) == HAL_OK)
+	{
+		*rec_id = (uint16_t)(pRxHeader.Identifier >> 8);
 
-    // 分包发送
-    while(i < j)
-    {
-        // 剩余数据长度
-        k = j - i;
-
-        // 配置发送头
-        pTxHeader.Identifier = ((uint32_t)cmd[0] << 8) | (uint32_t)packNum; // 扩展ID格式
-        pTxHeader.IdType = FDCAN_EXTENDED_ID; // 使用扩展ID
-        pTxHeader.TxFrameType = FDCAN_DATA_FRAME;
-        
-        // 第一个字节是功能码
-        send_buffer[0] = cmd[1];
-        
-        // 小于8字节数据
-        if(k < 8)
-        {
-            for(l = 0; l < k; l++, i++) 
-            { 
-                send_buffer[l + 1] = cmd[i + 2]; 
-            }
-            pTxHeader.DataLength = (k + 1) << 16; // 数据长度
-        }
-        // 大于等于8字节数据，分包发送，每包最多7个数据字节
-        else
-        {
-            for(l = 0; l < 7; l++, i++) 
-            { 
-                send_buffer[l + 1] = cmd[i + 2]; 
-            }
-            pTxHeader.DataLength = 8 << 16; // 固定8字节
-        }
-        
-        pTxHeader.ErrorStateIndicator = FDCAN_ESI_ACTIVE;
-        pTxHeader.BitRateSwitch = FDCAN_BRS_OFF; // 经典CAN模式关闭比特率切换
-        pTxHeader.FDFormat = FDCAN_CLASSIC_CAN;   // 经典CAN帧格式
-        pTxHeader.TxEventFifoControl = FDCAN_NO_TX_EVENTS;
-        pTxHeader.MessageMarker = 0;
-
-		
-		free_level = HAL_FDCAN_GetTxFifoFreeLevel(hfdcan);
-		if (free_level > 0) {
-			// 至少有一个空闲槽位，可以添加报文
-			// 发送数据
-			if(HAL_FDCAN_AddMessageToTxFifoQ(hfdcan, &pTxHeader, send_buffer) != HAL_OK)
-			{
-				can_error_status = CAN_ERROR_SEND;
-			}
-		} else {
-			// FIFO 已满，稍后重试或丢弃
-			// 可记录错误或触发重传机制
+		len = pRxHeader.DataLength >> 16;
+		if(len > 8) {
+			len = 8;
 		}
-        
-        
-        // 记录发送的包序号
-        packNum++;
-        
-        // 清空发送缓冲区
-        memset(send_buffer, 0, sizeof(send_buffer));
-    }
+
+		return len;
+	}
+	return 0;
 }
-/**
-************************************************************************
-* @brief:      	can_SendCmd
-* @param:       cmd：命令数据
-* @param:       len：数据长度
-* @retval:     	void
-* @details:    	发送CAN命令（适配原有ZDT协议）
-************************************************************************
-**/
-void can_SendCmd(uint8_t *cmd, uint32_t len)
-{
-    uint8_t i = 0, j = 0, k = 0, l = 0, packNum = 0;
-    uint8_t send_buffer[8] = {0};
-    FDCAN_TxHeaderTypeDef pTxHeader;
 
-    // 去除ID地址和功能码后的数据长度
-    j = len - 2;
-
-    // 分包发送
-    while(i < j)
-    {
-        // 剩余数据长度
-        k = j - i;
-
-        // 配置发送头
-        pTxHeader.Identifier = ((uint32_t)cmd[0] << 8) | (uint32_t)packNum; // 扩展ID格式
-        pTxHeader.IdType = FDCAN_EXTENDED_ID; // 使用扩展ID
-        pTxHeader.TxFrameType = FDCAN_DATA_FRAME;
-        
-        // 第一个字节是功能码
-        send_buffer[0] = cmd[1];
-        
-        // 小于8字节数据
-        if(k < 8)
-        {
-            for(l = 0; l < k; l++, i++) 
-            { 
-                send_buffer[l + 1] = cmd[i + 2]; 
-            }
-            pTxHeader.DataLength = (k + 1) << 16; // 数据长度
-        }
-        // 大于等于8字节数据，分包发送，每包最多7个数据字节
-        else
-        {
-            for(l = 0; l < 7; l++, i++) 
-            { 
-                send_buffer[l + 1] = cmd[i + 2]; 
-            }
-            pTxHeader.DataLength = 8 << 16; // 固定8字节
-        }
-        
-        pTxHeader.ErrorStateIndicator = FDCAN_ESI_ACTIVE;
-        pTxHeader.BitRateSwitch = FDCAN_BRS_OFF; // 经典CAN模式关闭比特率切换
-        pTxHeader.FDFormat = FDCAN_CLASSIC_CAN;   // 经典CAN帧格式
-        pTxHeader.TxEventFifoControl = FDCAN_NO_TX_EVENTS;
-        pTxHeader.MessageMarker = 0;
-
-		
-		free_level = HAL_FDCAN_GetTxFifoFreeLevel(&hfdcan1);
-		if (free_level > 0) {
-			// 至少有一个空闲槽位，可以添加报文
-			// 发送数据
-			if(HAL_FDCAN_AddMessageToTxFifoQ(&hfdcan1, &pTxHeader, send_buffer) != HAL_OK)
-			{
-				can_error_status = CAN_ERROR_SEND;
-			}
-		} else {
-			// FIFO 已满，稍后重试或丢弃
-			// 可记录错误或触发重传机制
-		}
-        
-        
-        // 记录发送的包序号
-        packNum++;
-        
-        // 清空发送缓冲区
-        memset(send_buffer, 0, sizeof(send_buffer));
-    }
-}
 void fdcan1_rx_callback(void)
 {
 	len1 = fdcan1_receive(&hfdcan1, &rec_id1, rx_data1);  // 获取实际数据长度
@@ -425,12 +315,20 @@ void fdcan2_rx_callback(void)
 {
 	len2 = fdcan2_receive(&hfdcan2, &rec_id2, rx_data2);
 }
+void fdcan3_rx_callback(void)
+{
+	len3 = fdcan3_receive(&hfdcan3, &rec_id3, rx_data3);
+}
 
 void HAL_FDCAN_RxFifo0Callback(FDCAN_HandleTypeDef *hfdcan, uint32_t RxFifo0ITs)
 {
     if(hfdcan == &hfdcan1)
 	{
 		fdcan1_rx_callback();
+	}
+    else if(hfdcan == &hfdcan3)
+	{
+		fdcan3_rx_callback();
 	}
 }
 void HAL_FDCAN_RxFifo1Callback(FDCAN_HandleTypeDef *hfdcan, uint32_t RxFifo0ITs)
@@ -534,8 +432,6 @@ float _KP, float _KD, float _torq)
 	 return 0;
 
 }
- 
- 
  float uint_to_float(int x_int, float x_min, float x_max, int bits){
  float span = x_max - x_min;
  float offset = x_min;

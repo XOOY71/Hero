@@ -69,18 +69,19 @@ typedef enum {
 /* 声明全局错误状态变量 */
 extern __IO CAN_ErrorStatus can_error_status;
 
-// 添加ZDT兼容接收函数声明
-void ZDT_Compatible_Receive_Data(uint8_t *rxCmd, uint8_t *rxCount);
 
 void bsp_can_init(void);
 void can1_filter_init(void);
 void can2_filter_init(void);
+void can3_filter_init(void);
 uint8_t fdcanx_send_data(hcan_t *hfdcan, uint16_t id, uint8_t *data, uint32_t len);
 uint8_t fdcan1_receive(hcan_t *hfdcan, uint16_t *rec_id, uint8_t *buf);
 uint8_t fdcan2_receive(hcan_t *hfdcan, uint16_t *rec_id, uint8_t *buf);
+uint8_t fdcan3_receive(hcan_t *hfdcan, uint16_t *rec_id, uint8_t *buf);
 void fdcan1_rx_callback(void);
-void can_SendCmd(uint8_t *cmd, uint32_t len);
-void USER_can_SendCmd(FDCAN_HandleTypeDef *hfdcan, uint8_t *cmd, uint32_t len);
+void fdcan2_rx_callback(void);
+void fdcan3_rx_callback(void);
+
 //void fdcan2_rx_callback(void);
 //void fdcan3_rx_callback(void);
  uint8_t canx_send_data(FDCAN_HandleTypeDef *hcan, uint16_t id, uint8_t *data, uint32_t len);
@@ -92,4 +93,3 @@ extern float uint_to_float(int x_int, float x_min, float x_max, int bits);
 extern int float_to_uint(float x, float x_min, float x_max, int bits);
 
 #endif /* __BSP_FDCAN_H_ */
-

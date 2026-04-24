@@ -7,14 +7,24 @@ uint8_t r = 1;
 uint8_t g = 1;
 uint8_t b = 1;
 
-void ws2812_task(void){
-	WS2812_Ctrl(r, g, b);
+void ws2812_task(void)
+{
+    static uint16_t ws_cnt = 0;
+
+    ws_cnt++;
+    if (ws_cnt < 100)
+    {
+        return;
+    }
+    ws_cnt = 0;
+
+    WS2812_Ctrl(r, g, b);
     r++;
     g += 5;
     b += 10;
-    vTaskDelay(1);
-    r++;g++;b++;
-    vTaskDelay(100);
+    r++;
+    g++;
+    b++;
 }
 
 void beep_test(void)
@@ -50,9 +60,10 @@ typedef struct {
 
 // 开机提示音：从1kHz到4kHz的细致音阶
 static const Note_t power_on_melody[] = {
-    {3000, 200},   // 滴
-	{3500, 200},   // 滴
-	{4000, 400},   // 滴）
+    {1000, 100},   // 滴
+	{2000, 100},   // 滴
+	{3000, 200},   // 滴）
+	{1000, 50},   // 滴）
     {0, 0}
 };
 

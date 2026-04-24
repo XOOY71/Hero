@@ -6,6 +6,7 @@
   */
 
 #include "yaw_pitch_direct.h"
+#include "hwt_imu.h"
 #include <string.h>
 
 #ifndef INS_YAW_ADDRESS_OFFSET
@@ -116,6 +117,8 @@
 #define PITCH_MIN_RELATIVE_ANGLE -0.8f
 #endif
 
+#define YAW_PITCH_DIRECT_PI 3.14159265358979323846f
+
 int16_t yaw_can_set_current = 0;
 int16_t pitch_can_set_current = 0;
 int16_t shoot_can_set_current = 0;
@@ -135,6 +138,19 @@ __attribute__((weak)) void gimbal_platform_send_current(int16_t yaw_current, int
     (void)yaw_current;
     (void)pitch_current;
     (void)trigger_current;
+}
+
+static float yaw_pitch_direct_wrap_angle(float angle)
+{
+    while (angle > YAW_PITCH_DIRECT_PI)
+    {
+        angle -= 2.0f * YAW_PITCH_DIRECT_PI;
+    }
+    while (angle < -YAW_PITCH_DIRECT_PI)
+    {
+        angle += 2.0f * YAW_PITCH_DIRECT_PI;
+    }
+    return angle;
 }
 
 static void gimbal_total_pid_clear(gimbal_control_t *control)
@@ -222,6 +238,9 @@ void gimbal_set_mode(gimbal_control_t *control)
   */
 void gimbal_feedback_update(gimbal_control_t *control)
 {
+    float chassis_yaw = 0.0f;
+    float yaw_relative = 0.0f;
+
     if (control == 0)
     {
         return;
@@ -229,18 +248,61 @@ void gimbal_feedback_update(gimbal_control_t *control)
 
     if (control->gimbal_INT_angle_point != 0)
     {
-        control->gimbal_yaw_motor.absolute_angle = control->gimbal_INT_angle_point[INS_YAW_ADDRESS_OFFSET];
-        control->gimbal_pitch_motor.absolute_angle = control->gimbal_INT_angle_point[INS_PITCH_ADDRESS_OFFSET];
+        control->gimbal_yaw_motor.absolute_angle =
+            control->gimbal_INT_angle_point[INS_YAW_ADDRESS_OFFSET];
+        control->gimbal_pitch_motor.absolute_angle =
+            control->gimbal_INT_angle_point[INS_PITCH_ADDRESS_OFFSET];
+
+        chassis_yaw = hwt101_get_yaw_total_rad();
+
+        if (control->gimbal_yaw_motor.angle_offset_init == 0u)
+        {
+            control->gimbal_yaw_motor.angle_offset =
+                control->gimbal_yaw_motor.absolute_angle - chassis_yaw;
+
+            control->gimbal_yaw_motor.relative_angle = 0.0f;
+            control->gimbal_yaw_motor.relative_angle_set = 0.0f;
+            control->gimbal_yaw_motor.absolute_angle_set =
+                control->gimbal_yaw_motor.absolute_angle;
+            control->gimbal_yaw_motor.angle_offset_init = 1u;
+        }
+        else
+        {
+            yaw_relative =
+                control->gimbal_yaw_motor.absolute_angle -
+                chassis_yaw -
+                control->gimbal_yaw_motor.angle_offset;
+
+            control->gimbal_yaw_motor.relative_angle =
+                yaw_pitch_direct_wrap_angle(yaw_relative);
+        }
+
+        if (control->gimbal_pitch_motor.angle_offset_init == 0u)
+        {
+            control->gimbal_pitch_motor.angle_offset =
+                control->gimbal_pitch_motor.absolute_angle;
+
+            control->gimbal_pitch_motor.relative_angle = 0.0f;
+            control->gimbal_pitch_motor.relative_angle_set = 0.0f;
+            control->gimbal_pitch_motor.absolute_angle_set =
+                control->gimbal_pitch_motor.absolute_angle;
+            control->gimbal_pitch_motor.angle_offset_init = 1u;
+        }
+        else
+        {
+            control->gimbal_pitch_motor.relative_angle =
+                control->gimbal_pitch_motor.absolute_angle -
+                control->gimbal_pitch_motor.angle_offset;
+        }
     }
 
     if (control->gimbal_INT_gyro_point != 0)
     {
-        control->gimbal_yaw_motor.gyro = control->gimbal_INT_gyro_point[INS_GYRO_Z_ADDRESS_OFFSET];
-        control->gimbal_pitch_motor.gyro = control->gimbal_INT_gyro_point[INS_GYRO_Y_ADDRESS_OFFSET];
+        control->gimbal_yaw_motor.gyro =
+            control->gimbal_INT_gyro_point[INS_GYRO_Z_ADDRESS_OFFSET];
+        control->gimbal_pitch_motor.gyro =
+            control->gimbal_INT_gyro_point[INS_GYRO_Y_ADDRESS_OFFSET];
     }
-
-    control->gimbal_yaw_motor.relative_angle = control->gimbal_yaw_motor.absolute_angle;
-    control->gimbal_pitch_motor.relative_angle = control->gimbal_pitch_motor.absolute_angle;
 }
 
 /**

@@ -46,3 +46,5 @@ ctrlboard-h7_ws1812\bsp_usart.o: ../Core/Inc/usart.h
 ctrlboard-h7_ws1812\bsp_usart.o: ..\User\BSP\remote_control.h
 ctrlboard-h7_ws1812\bsp_usart.o: ../User/APP/gimbal_task.h
 ctrlboard-h7_ws1812\bsp_usart.o: D:\Keil5\ARM\ARMCC\Bin\..\include\stdbool.h
+ctrlboard-h7_ws1812\bsp_usart.o: ../User/Devices/pid.h
+ctrlboard-h7_ws1812\bsp_usart.o: ../User/Devices/hwt_imu.h

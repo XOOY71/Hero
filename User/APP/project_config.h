@@ -8,6 +8,15 @@ extern "C" {
 /* =========================================================
  * Global project constants
  * ========================================================= */
+ /* 代码类型 调试或者发布*/
+#define debug   0
+#define release 1
+/* 超级电容开关 */
+#define Cap_off 0X00
+#define Cap_on  0X01
+
+#define ROBOT_MODE        debug
+#define ROBOT_CAP         Cap_off
 /*云台*/
 #define PITCH_GYRO_ABSOLUTE_PID_KP					15.0f
 #define PITCH_GYRO_ABSOLUTE_PID_KI					0.0f
@@ -88,13 +97,28 @@ extern "C" {
 #define GIMBAL_MOTIONLESS_RC_DEADLINE 10
 #define GIMBAL_MOTIONLESS_TIME_MAX    3000
 
-#define INIT_YAW_SET    0.0f
-#define INIT_PITCH_SET  0.0f
+#define INIT_YAW_SET    							0.0f
+#define INIT_PITCH_SET  							0.0f
 
 /*串口*/
-#define USART_RX_BUF_LENGHT     512
-#define REFEREE_FIFO_BUF_LENGTH 1024
-#define REF_PROTOCOL_FRAME_MAX_SIZE 192
+#define USART_RX_BUF_LENGHT     			64
+#define REFEREE_FIFO_BUF_LENGTH 			1024
+#define REF_PROTOCOL_FRAME_MAX_SIZE 	192
+
+
+#define DM_YAW_CAN_ID									0X01
+#define DM_PIT_CAN_ID									0X02
+
+#define DM_YAW_MASTER_ID							0X51
+#define DM_PIT_MASTER_ID							0X52
+
+
+#define CAN_FRIC1_ID									0X201
+#define CAN_FRIC2_ID									0X202
+#define CAN_FRIC3_ID									0X203
+#define CAN_STRUM_ID									0X204
+
+
 /* =========================================================
  * Compiler / utility macros
  * ========================================================= */

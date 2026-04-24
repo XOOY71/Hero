@@ -13,6 +13,8 @@
 
 #include "project_config.h"
 #include "remote_control.h"
+#include "pid.h"
+
 typedef enum
 {
     GIMBAL_MOTOR_RAW = 0,
@@ -24,23 +26,7 @@ typedef enum
 #define GIMBAL_MOTOR_ENCONDE GIMBAL_MOTOR_ENCODE
 #endif
 
-typedef struct
-{
-    float kp;
-    float ki;
-    float kd;
-
-    float set;
-    float get;
-    float err;
-    float last_err;
-
-    float iout;
-    float out;
-
-    float max_out;
-    float max_iout;
-} gimbal_pid_t;
+typedef pid_type_def gimbal_pid_t;
 
 typedef struct
 {
@@ -52,6 +38,9 @@ typedef struct
 
     float absolute_angle;
     float absolute_angle_set;
+
+    float angle_offset;
+    uint8_t angle_offset_init;
 
     float gyro;
     float gyro_set;
@@ -69,9 +58,10 @@ typedef struct
     gimbal_pid_t relative_angle_pid;
     gimbal_pid_t gyro_pid;
 } gimbal_motor_t;
+
 typedef struct
 {
-	  float max_yaw;
+    float max_yaw;
     float min_yaw;
     float max_pitch;
     float min_pitch;
@@ -81,6 +71,7 @@ typedef struct
     uint16_t min_pitch_ecd;
     uint8_t step;
 } gimbal_step_cali_t;
+
 typedef struct
 {
     const RC_ctrl_t *gimbal_rc_ctrl;
@@ -89,7 +80,7 @@ typedef struct
     gimbal_motor_t gimbal_yaw_motor;
     gimbal_motor_t gimbal_pitch_motor;
     gimbal_step_cali_t gimbal_cali;
-}gimbal_control_t;
+} gimbal_control_t;
 
 extern gimbal_control_t gimbal_control;
 extern int16_t yaw_can_set_current;
