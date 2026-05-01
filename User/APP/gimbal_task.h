@@ -171,5 +171,5 @@ void gimbal_mode_change_control_transit(gimbal_control_t *control);
 void gimbal_set_control(gimbal_control_t *control);
 void gimbal_control_loop(gimbal_control_t *control);
 void gimbal_send_cmd(gimbal_control_t *control);
-
+void gimbal_test(void);
 #endif

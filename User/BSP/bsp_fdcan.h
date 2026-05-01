@@ -7,22 +7,9 @@
 #define hcan_t FDCAN_HandleTypeDef
 
 
-//支持MIT协议才用
-#define P_MIN -12.5663704f		//位置最小值
-#define P_MAX 12.5663704f		//位置最大值
-#define V_MIN -45			//速度最小值
-#define V_MAX 45			//速度最大值
-#define KP_MIN 0.0		//Kp最小值
-#define KP_MAX 500.0	//Kp最大值
-#define KD_MIN 0.0		//Kd最小值
-#define KD_MAX 5.0		//Kd最大值
-//需要根据每个电机的不同来选择
-//所以建议在送入发送函数之前进行限幅，
-#define T_MIN -100.0f			//转矩最大值
-#define T_MAX 100.0f			//转矩最小值
-
 typedef struct
 {
+	__packed struct{
     //原始数据
     int id;
     int state;
@@ -39,9 +26,29 @@ typedef struct
     float Kd;
     float t_mos; //mos温度
     float t_motor; //电机温度
-		
-		float motor_t;//计算出的电机力矩
 		uint32_t last_fdb_time; //电机反馈时间
+	}fdb;
+	__packed struct
+	{
+		float KP;
+		float KD;
+		float POS;
+		float VEL;
+		float TOR;
+	}set;
+	__packed struct
+	{
+	float	P_min;
+	float	P_max;
+	float	V_min;
+	float	V_max;
+	float	KP_min;
+	float	KP_max;
+	float	KD_min;
+	float	KD_max;
+	float	T_min;
+	float	T_max;
+	}param;
 } MITMeasure_t;
 
 typedef struct {
@@ -65,6 +72,17 @@ typedef enum {
     CAN_ERROR_CRC          = 0x100,  // CRC错误
 	CAN_ERROR_SEND		   = 0x200,  //发送失败
 } CAN_ErrorStatus;
+//rm motor data
+//dji电机结构体
+typedef struct
+{
+    uint16_t ecd;
+    int16_t speed_rpm;
+    int16_t given_current;
+    uint8_t temperate;
+    int16_t last_ecd;
+		uint32_t last_fdb_time;
+} motor_measure_t;
 
 /* 声明全局错误状态变量 */
 extern __IO CAN_ErrorStatus can_error_status;

@@ -7,6 +7,7 @@
 
 #include "yaw_pitch_direct.h"
 #include "hwt_imu.h"
+#include "bsp_fdcan.h"
 #include <string.h>
 
 #ifndef INS_YAW_ADDRESS_OFFSET
@@ -214,6 +215,8 @@ void gimbal_init(gimbal_control_t *control)
     control->gimbal_pitch_motor.absolute_angle_set = control->gimbal_pitch_motor.absolute_angle;
     control->gimbal_pitch_motor.relative_angle_set = control->gimbal_pitch_motor.relative_angle;
     control->gimbal_pitch_motor.gyro_set = control->gimbal_pitch_motor.gyro;
+		
+		Motor_ENABLE(&hfdcan2, 2);
 }
 
 /**
@@ -449,4 +452,10 @@ void gimbal_send_cmd(gimbal_control_t *control)
     yaw_can_set_current = control->gimbal_yaw_motor.given_current;
     pitch_can_set_current = control->gimbal_pitch_motor.given_current;
     gimbal_platform_send_current(yaw_can_set_current, pitch_can_set_current, shoot_can_set_current);
+}
+
+float test_fequa = -0.8f;
+void gimbal_test(void)
+{
+	CAN_cmd_MIT(&hfdcan2, 2, 0, 0, 0, 0, test_fequa);
 }

@@ -1,5 +1,6 @@
 #include "bsp_fdcan.h"
 #include "stdint.h"
+#include "project_config.h"
 
 __IO CAN_t can = {0};
 __IO CAN_ErrorStatus can_error_status = CAN_ERROR_NONE;
@@ -20,12 +21,13 @@ uint8_t MOTOR_Save_zero[8]={0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFE}; // 
 uint8_t RS_MOTOR_PRE_MODE[8]={0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x00, 0xFD}; // 灵足电机私有模式
 uint8_t RS_MOTOR_MIT_MODE[8]={0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x02, 0xFD}; // 灵足电机私有模式
 // MIT 速度滤波缓冲（抑制近似正弦噪声）
-static float mit_vel_lpf = 0.0f;
+static float mit_vel_lpf[4] = {0.0f};
+motor_measure_t DJI_MOTOR_MEASURE[8];
 
 /*
   MIT 电机反馈帧结构体
 */
-MITMeasure_t MIT_MOTOR_MEASURE;   // 单个电机反馈结构体
+MITMeasure_t MIT_MOTOR_MEASURE[4];   // 单个电机反馈结构体
 /**
 ************************************************************************
 * @brief:      	bsp_can_init(void)
@@ -66,7 +68,7 @@ void can1_filter_init(void)
 {
 	FDCAN_FilterTypeDef fdcan_filter;
 	
-	fdcan_filter.IdType = FDCAN_EXTENDED_ID;                       // 改为扩展ID
+	fdcan_filter.IdType = FDCAN_STANDARD_ID;                       // 改为扩展ID
 	fdcan_filter.FilterIndex = 0;                                  // 滤波器索引                   
 	fdcan_filter.FilterType = FDCAN_FILTER_MASK;                   
 	fdcan_filter.FilterConfig = FDCAN_FILTER_TO_RXFIFO0;           // 过滤器0关联到FIFO0  
@@ -91,7 +93,7 @@ void can2_filter_init(void)
 {
 	FDCAN_FilterTypeDef fdcan_filter;
 	
-	fdcan_filter.IdType = FDCAN_EXTENDED_ID;                       // 改为扩展ID
+	fdcan_filter.IdType = FDCAN_STANDARD_ID;                       // 改为扩展ID
 	fdcan_filter.FilterIndex = 0;                                  // 滤波器索引                   
 	fdcan_filter.FilterType = FDCAN_FILTER_MASK;                   
 	fdcan_filter.FilterConfig = FDCAN_FILTER_TO_RXFIFO1;           // 过滤器0关联到FIFO0  
@@ -116,7 +118,7 @@ void can3_filter_init(void)
 {
 	FDCAN_FilterTypeDef fdcan_filter;
 	
-	fdcan_filter.IdType = FDCAN_EXTENDED_ID;                       // 改为扩展ID
+	fdcan_filter.IdType = FDCAN_STANDARD_ID;                       // 改为扩展ID
 	fdcan_filter.FilterIndex = 0;                                  // 滤波器索引                   
 	fdcan_filter.FilterType = FDCAN_FILTER_MASK;                   
 	fdcan_filter.FilterConfig = FDCAN_FILTER_TO_RXFIFO0;           // 过滤器0关联到FIFO0  
@@ -135,6 +137,83 @@ void can3_filter_init(void)
 		FDCAN_FILTER_REMOTE);
 		
 	HAL_FDCAN_ConfigFifoWatermark(&hfdcan3, FDCAN_CFG_RX_FIFO0, 1);
+}
+
+// dji motor data read（宏改为内联函数）
+static inline void get_motor_measure(motor_measure_t *ptr, const uint8_t data[8])
+{
+    ptr->last_ecd = ptr->ecd;
+    ptr->ecd = (uint16_t)((data[0] << 8) | data[1]);
+    ptr->speed_rpm = (uint16_t)((data[2] << 8) | data[3]);
+    ptr->given_current = (uint16_t)((data[4] << 8) | data[5]);
+    ptr->temperate = data[6];
+}
+static inline int8_t get_mit_motor_index(uint32_t can_id)
+{
+    switch(can_id)
+    {
+        case DM_YAW_MASTER_ID: return 0;
+        case DM_PIT_MASTER_ID: return 1;
+        default: return -1;
+    }
+}
+
+static inline int8_t get_dji_motor_index(uint32_t can_id)
+{
+    switch(can_id)
+    {
+        case CAN_FRIC1_ID: return 0;
+        case CAN_FRIC2_ID: return 1;
+        case CAN_FRIC3_ID: return 2;
+        case CAN_STRUM_ID:  return 3;
+        default: return -1;
+    }
+}
+static uint32_t fdcan_len_to_dlc(uint32_t len)
+{
+    switch(len)
+    {
+        case 0:  return FDCAN_DLC_BYTES_0;
+        case 1:  return FDCAN_DLC_BYTES_1;
+        case 2:  return FDCAN_DLC_BYTES_2;
+        case 3:  return FDCAN_DLC_BYTES_3;
+        case 4:  return FDCAN_DLC_BYTES_4;
+        case 5:  return FDCAN_DLC_BYTES_5;
+        case 6:  return FDCAN_DLC_BYTES_6;
+        case 7:  return FDCAN_DLC_BYTES_7;
+        case 8:  return FDCAN_DLC_BYTES_8;
+        case 12: return FDCAN_DLC_BYTES_12;
+        case 16: return FDCAN_DLC_BYTES_16;
+        case 20: return FDCAN_DLC_BYTES_20;
+        case 24: return FDCAN_DLC_BYTES_24;
+        case 32: return FDCAN_DLC_BYTES_32;
+        case 48: return FDCAN_DLC_BYTES_48;
+        case 64: return FDCAN_DLC_BYTES_64;
+        default: return FDCAN_DLC_BYTES_8;
+    }
+}
+static uint8_t fdcan_dlc_to_len(uint32_t dlc)
+{
+    switch(dlc)
+    {
+        case FDCAN_DLC_BYTES_0:  return 0;
+        case FDCAN_DLC_BYTES_1:  return 1;
+        case FDCAN_DLC_BYTES_2:  return 2;
+        case FDCAN_DLC_BYTES_3:  return 3;
+        case FDCAN_DLC_BYTES_4:  return 4;
+        case FDCAN_DLC_BYTES_5:  return 5;
+        case FDCAN_DLC_BYTES_6:  return 6;
+        case FDCAN_DLC_BYTES_7:  return 7;
+        case FDCAN_DLC_BYTES_8:  return 8;
+        case FDCAN_DLC_BYTES_12: return 12;
+        case FDCAN_DLC_BYTES_16: return 16;
+        case FDCAN_DLC_BYTES_20: return 20;
+        case FDCAN_DLC_BYTES_24: return 24;
+        case FDCAN_DLC_BYTES_32: return 32;
+        case FDCAN_DLC_BYTES_48: return 48;
+        case FDCAN_DLC_BYTES_64: return 64;
+        default: return 0;
+    }
 }
 /**
 ************************************************************************
@@ -158,7 +237,7 @@ uint8_t fdcanx_send_data(hcan_t *hfdcan, uint16_t id, uint8_t *data, uint32_t le
     if(len > 8) {
         len = 8; // 限制为8字节
     }
-    pTxHeader.DataLength = len << 16; // 经典CAN模式下数据长度配置
+    pTxHeader.DataLength = fdcan_len_to_dlc(len); // 经典CAN模式下数据长度配置
     
     pTxHeader.ErrorStateIndicator = FDCAN_ESI_ACTIVE;
     pTxHeader.BitRateSwitch = FDCAN_BRS_OFF; // 经典CAN模式关闭比特率切换
@@ -170,29 +249,33 @@ uint8_t fdcanx_send_data(hcan_t *hfdcan, uint16_t id, uint8_t *data, uint32_t le
 		return 1; // 失败
 	return 0; // 成功	
 }
-
 /**
  * @brief  MITFdbData: 获取 MIT 电机反馈数据（内联），含速度低通滤波
  * @note   vel 噪声近似正弦，使用一阶低通平滑
  */
-static inline void MITFdbData(MITMeasure_t *MIT_measure, const uint8_t rx_data[8])
+static inline void MITFdbData(MITMeasure_t *MIT_measure, const uint8_t rx_data[8], uint8_t index)
 {
-    MIT_measure->id = (rx_data[0]) & 0x0F;
-    MIT_measure->state = (rx_data[0]) >> 4;
-    MIT_measure->p_int = ((rx_data[1] << 8) | rx_data[2]);
-    MIT_measure->v_int = ((rx_data[3] << 4) | (rx_data[4] >> 4));
-    MIT_measure->t_int = (((rx_data[4] & 0xF) << 8) | rx_data[5]);
-    MIT_measure->pos = uint_to_float(MIT_measure->p_int, P_MIN, P_MAX, 16);
+    if(index >= 4)
+    {
+        index = 0;
+    }
 
-    const float vel_raw = uint_to_float(MIT_measure->v_int, V_MIN, V_MAX, 12);
+    MIT_measure->fdb.id = (rx_data[0]) & 0x0F;
+    MIT_measure->fdb.state = (rx_data[0]) >> 4;
+    MIT_measure->fdb.p_int = ((rx_data[1] << 8) | rx_data[2]);
+    MIT_measure->fdb.v_int = ((rx_data[3] << 4) | (rx_data[4] >> 4));
+    MIT_measure->fdb.t_int = (((rx_data[4] & 0xF) << 8) | rx_data[5]);
+    MIT_measure->fdb.pos = uint_to_float(MIT_measure->fdb.p_int, P_MIN, P_MAX, 16);
+
+    const float vel_raw = uint_to_float(MIT_measure->fdb.v_int, V_MIN, V_MAX, 12);
     const float alpha = 0.15f;
     // 一阶低通滤波，直接操作全局静态变量 mit_vel_lpf
-    mit_vel_lpf = mit_vel_lpf + alpha * (vel_raw - mit_vel_lpf);
-    MIT_measure->vel = mit_vel_lpf;
+    mit_vel_lpf[index] = mit_vel_lpf[index] + alpha * (vel_raw - mit_vel_lpf[index]);
+    MIT_measure->fdb.vel = mit_vel_lpf[index];
 
-    MIT_measure->tor = uint_to_float(MIT_measure->t_int, T_MIN, T_MAX, 12);
-    MIT_measure->t_mos = (float)(rx_data[6]);
-    MIT_measure->t_motor = (float)(rx_data[7]);
+    MIT_measure->fdb.tor = uint_to_float(MIT_measure->fdb.t_int, T_MIN, T_MAX, 12);
+    MIT_measure->fdb.t_mos = (float)(rx_data[6]);
+    MIT_measure->fdb.t_motor = (float)(rx_data[7]);
 }
 
 
@@ -221,70 +304,89 @@ void Motor_MIT_MODE(FDCAN_HandleTypeDef *hcan, uint16_t id)
 * @details:    	接收数据
 ************************************************************************
 **/
+uint8_t can1_cnt = 0;
+uint8_t can2_cnt = 0;
 uint32_t rx1free_level;
 uint8_t fdcan1_receive(hcan_t *hfdcan, uint16_t *rec_id, uint8_t *buf)
 {	
 	FDCAN_RxHeaderTypeDef pRxHeader;
 	uint8_t len = 0;
-	rx1free_level = HAL_FDCAN_GetRxFifoFillLevel(&hfdcan1, FDCAN_CFG_RX_FIFO0);
-if (rx1free_level > 0) {
-    // FIFO 还有 free_level 个空闲槽位，可以安全接收新报文
-    // 例如，可以继续使能接收中断，或者不做特殊处理
-} else {
-    // FIFO 已满！新报文将会溢出
-    // 可以采取紧急措施：提高读取频率、丢弃某些低优先级报文、或记录错误
-    // 例如：暂时关闭接收中断，强制读取所有报文后再恢复
-}
-		if(HAL_FDCAN_GetRxMessage(hfdcan, FDCAN_RX_FIFO0, &pRxHeader, buf) == HAL_OK)
+
+	if(HAL_FDCAN_GetRxMessage(hfdcan, FDCAN_RX_FIFO0, &pRxHeader, buf) == HAL_OK)
+	{
+		*rec_id = (uint16_t)pRxHeader.Identifier;
+
+		len = fdcan_dlc_to_len(pRxHeader.DataLength);
+		if(len > 8)
 		{
-			// 提取扩展ID的高16位作为接收ID（保持与原有代码兼容）
-			*rec_id = (uint16_t)(pRxHeader.Identifier >> 8);
-			
-			// 经典CAN模式下，数据长度直接就是字节数
-			len = pRxHeader.DataLength >> 16;
-			if(len > 8) {
-				len = 8; // 确保不超过8字节
-			}
-			
-			return len; // 返回数据长度
+			len = 8;
 		}
-	return 0;	
+	}
+
+	return len;
 }
 
 uint8_t fdcan2_receive(hcan_t *hfdcan, uint16_t *rec_id, uint8_t *buf)
-{   
-    FDCAN_RxHeaderTypeDef pRxHeader;
-    uint8_t len = 0;
-    
-    if (HAL_FDCAN_GetRxMessage(hfdcan, FDCAN_RX_FIFO1, &pRxHeader, buf) == HAL_OK)
-    {
-        // 获取数据长度（经典CAN模式长度位于高16位）
-        len = pRxHeader.DataLength >> 16;
-        if (len > 8) len = 8;
+{ 
+	FDCAN_RxHeaderTypeDef pRxHeader;  
+	uint8_t len = 0;
 
-        // 为了兼容原有代码，仍将右移8位后的值赋给 rec_id
-        *rec_id = (uint16_t)(pRxHeader.Identifier >> 8);
+	if(HAL_FDCAN_GetRxMessage(hfdcan, FDCAN_RX_FIFO1, &pRxHeader, buf) == HAL_OK)
+	{
+		uint32_t fdb_time = HAL_GetTick();
 
-        // 提取真实的电机 ID
-        uint8_t motor_id;
-        if (pRxHeader.IdType == FDCAN_STANDARD_ID) {
-            motor_id = (uint8_t)pRxHeader.Identifier;          // 标准ID，电机ID在低8位
-        } else {
-            motor_id = (uint8_t)(pRxHeader.Identifier >> 8);   // 扩展ID，电机ID在高8位
-        }
+		*rec_id = (uint16_t)pRxHeader.Identifier;
 
-        // 根据电机 ID 分流处理
-        if (motor_id == 0x00) {
-            // MIT 电机反馈（ID=00）
-            MITFdbData(&MIT_MOTOR_MEASURE, buf); 
-            
-        }
+		len = fdcan_dlc_to_len(pRxHeader.DataLength);
+		if(len > 8)
+		{
+			len = 8;
+		}
 
-        // 如有其他 ID 可继续添加分支
+		switch (pRxHeader.Identifier)
+		{
+			case DM_YAW_MASTER_ID:
+			case DM_PIT_MASTER_ID:
+			{
+				//get motor id
+				int8_t motor_index = get_mit_motor_index(pRxHeader.Identifier);
+				if(motor_index < 0 || motor_index >= 4)
+				{
+					return len;
+				}
 
-        return len;
-    }
-    return 0;   
+				can1_cnt = (uint8_t)motor_index;
+				MITFdbData(&MIT_MOTOR_MEASURE[can1_cnt], buf, can1_cnt);
+				MIT_MOTOR_MEASURE[can1_cnt].fdb.last_fdb_time = fdb_time;
+				break;
+			}
+			case CAN_FRIC1_ID:
+			case CAN_FRIC2_ID:
+			case CAN_FRIC3_ID:
+			case CAN_STRUM_ID:
+			{
+				//get motor id
+				int8_t motor_index = get_dji_motor_index(pRxHeader.Identifier);
+				if(motor_index < 0 || motor_index >= 8)
+				{
+					return len;
+				}
+
+				can2_cnt = (uint8_t)motor_index;
+				get_motor_measure(&DJI_MOTOR_MEASURE[can2_cnt], buf);
+
+				DJI_MOTOR_MEASURE[can2_cnt].last_fdb_time = fdb_time;
+				break;
+			}
+
+			default:
+			{
+				break;
+			}
+		}
+	}
+
+	return len;
 }
 
 uint8_t fdcan3_receive(hcan_t *hfdcan, uint16_t *rec_id, uint8_t *buf)
@@ -296,7 +398,7 @@ uint8_t fdcan3_receive(hcan_t *hfdcan, uint16_t *rec_id, uint8_t *buf)
 	{
 		*rec_id = (uint16_t)(pRxHeader.Identifier >> 8);
 
-		len = pRxHeader.DataLength >> 16;
+		len = fdcan_dlc_to_len(pRxHeader.DataLength);
 		if(len > 8) {
 			len = 8;
 		}
@@ -391,7 +493,7 @@ float _KP, float _KD, float _torq)
   TxHeader.TxFrameType = FDCAN_DATA_FRAME;  
   if(len<=8)	
 	{
-	  TxHeader.DataLength = len<<16;    // 发送长度：8byte
+			TxHeader.DataLength = fdcan_len_to_dlc(len);
 	}
 	else  if(len==12)	
 	{

@@ -46,10 +46,10 @@ void MX_FDCAN1_Init(void)
   hfdcan1.Init.AutoRetransmission = ENABLE;
   hfdcan1.Init.TransmitPause = DISABLE;
   hfdcan1.Init.ProtocolException = ENABLE;
-  hfdcan1.Init.NominalPrescaler = 1;
+  hfdcan1.Init.NominalPrescaler = 5;
   hfdcan1.Init.NominalSyncJumpWidth = 20;
-  hfdcan1.Init.NominalTimeSeg1 = 59;
-  hfdcan1.Init.NominalTimeSeg2 = 20;
+  hfdcan1.Init.NominalTimeSeg1 = 14;
+  hfdcan1.Init.NominalTimeSeg2 = 5;
   hfdcan1.Init.DataPrescaler = 1;
   hfdcan1.Init.DataSyncJumpWidth = 2;
   hfdcan1.Init.DataTimeSeg1 = 13;
@@ -94,10 +94,10 @@ void MX_FDCAN2_Init(void)
   hfdcan2.Init.AutoRetransmission = ENABLE;
   hfdcan2.Init.TransmitPause = DISABLE;
   hfdcan2.Init.ProtocolException = ENABLE;
-  hfdcan2.Init.NominalPrescaler = 1;
+  hfdcan2.Init.NominalPrescaler = 5;
   hfdcan2.Init.NominalSyncJumpWidth = 20;
-  hfdcan2.Init.NominalTimeSeg1 = 59;
-  hfdcan2.Init.NominalTimeSeg2 = 20;
+  hfdcan2.Init.NominalTimeSeg1 = 14;
+  hfdcan2.Init.NominalTimeSeg2 = 5;
   hfdcan2.Init.DataPrescaler = 1;
   hfdcan2.Init.DataSyncJumpWidth = 2;
   hfdcan2.Init.DataTimeSeg1 = 13;

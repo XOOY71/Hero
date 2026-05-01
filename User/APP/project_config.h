@@ -118,6 +118,19 @@ extern "C" {
 #define CAN_FRIC3_ID									0X203
 #define CAN_STRUM_ID									0X204
 
+//支持MIT协议才用
+#define P_MIN -12.5663704f		//位置最小值
+#define P_MAX 12.5663704f		//位置最大值
+#define V_MIN -30			//速度最小值
+#define V_MAX 30			//速度最大值
+#define KP_MIN 0.0		//Kp最小值
+#define KP_MAX 500.0	//Kp最大值
+#define KD_MIN 0.0		//Kd最小值
+#define KD_MAX 5.0		//Kd最大值
+//需要根据每个电机的不同来选择
+//所以建议在送入发送函数之前进行限幅，
+#define T_MIN -10.0f			//转矩最大值
+#define T_MAX 10.0f			//转矩最小值
 
 /* =========================================================
  * Compiler / utility macros

@@ -84,6 +84,8 @@ static void gimbal_task(void const *pvParameters)
         gimbal_control_loop(&gimbal_control);                // 云台控制PID计算
         gimbal_send_cmd(&gimbal_control);
 
+			gimbal_test();
+			
         VOFA_Send6(gimbal_control.gimbal_yaw_motor.absolute_angle_set,
                    gimbal_control.gimbal_yaw_motor.absolute_angle,
                    gimbal_control.gimbal_pitch_motor.absolute_angle_set,

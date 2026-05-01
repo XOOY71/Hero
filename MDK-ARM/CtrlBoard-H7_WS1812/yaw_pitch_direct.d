@@ -49,3 +49,5 @@ ctrlboard-h7_ws1812\yaw_pitch_direct.o: D:\Keil5\ARM\ARMCC\Bin\..\include\string
 ctrlboard-h7_ws1812\yaw_pitch_direct.o: ../User/Devices/pid.h
 ctrlboard-h7_ws1812\yaw_pitch_direct.o: ..\User\APP\gimbal_behaviour.h
 ctrlboard-h7_ws1812\yaw_pitch_direct.o: ../User/Devices/hwt_imu.h
+ctrlboard-h7_ws1812\yaw_pitch_direct.o: ../User/BSP/bsp_fdcan.h
+ctrlboard-h7_ws1812\yaw_pitch_direct.o: ../Core/Inc/fdcan.h
