@@ -7,11 +7,13 @@
 #define HWT_RAD_TO_DEG      (180.0f / HWT_PI)
 #define HWT_GYRO_RANGE_DPS  2000.0f
 #define HWT_ANGLE_RANGE_DEG 180.0f
+#define HWT_ACCEL_RANGE_G   16.0f
+#define HWT_GRAVITY_MPS2    9.8f
 
 uint8_t imu101_rx_buf[IMU101_RX_BUF_LEN];
 uint8_t imu906_rx_buf[IMU906_RX_BUF_LEN];
 
-/* ¸Ä³ÉÈ«¾Ö±äÁ¿£¬·½±ãµ÷ÊÔÆ÷Ö±½Ó¼à²â */
+/* ä½¿ç”¨å…¨å±€å˜é‡ï¼Œæ–¹ä¾¿è°ƒè¯•å™¨ç›´æŽ¥ç›‘æµ‹ */
 hwt_imu_info_t hwt101_info;
 hwt_imu_info_t hwt906_info;
 
@@ -24,14 +26,17 @@ typedef struct
 static hwt_parser_t s_hwt101_parser;
 static hwt_parser_t s_hwt906_parser;
 
-/* 101£ºµ×ÅÌÖ»Òªyaw£¬µ¼³öÁ¬Ðøyaw */
+/* 101ï¼šåº•ç›˜åªéœ€è¦ yawï¼Œå¯¼å‡ºè¿žç»­ yaw */
 static float s_hwt101_chassis_yaw[1];
 
-/* 906£ºÔÆÌ¨ÒªÁ¬Ðøyaw + pitch */
+/* 906ï¼šäº‘å°å¯¼å‡ºè¿žç»­ yaw å’Œ pitch */
 static float s_hwt906_gimbal_angle[2];
 
-/* 906£ºÔÆÌ¨½ÇËÙ¶È */
+/* 906ï¼šäº‘å°è§’é€Ÿåº¦ */
 static float s_hwt906_gimbal_gyro[3];
+
+/* 906ï¼šäº‘å°çº¿åŠ é€Ÿåº¦ï¼Œå•ä½ m/s^2 */
+static float s_hwt906_gimbal_accel[3];
 
 static int16_t hwt_read_s16_le(const uint8_t *p)
 {
@@ -92,14 +97,14 @@ static void hwt_update_export_data(hwt_imu_info_t *imu, uint8_t is_hwt906)
 {
     if (is_hwt906 != 0u)
     {
-        /* ÔÆÌ¨½Ç¶ÈÊä³ö£º
-         * [0] = Á¬Ðøyaw(rad)
+        /* äº‘å°è§’åº¦è¾“å‡ºï¼š
+         * [0] = è¿žç»­ yaw(rad)
          * [1] = pitch(rad)
          */
         s_hwt906_gimbal_angle[HWT_GIMBAL_YAW_INDEX] = imu->angle.yaw_total_rad;
         s_hwt906_gimbal_angle[HWT_GIMBAL_PITCH_INDEX] = imu->angle.rad[HWT_AXIS_PITCH];
 
-        /* ÔÆÌ¨½ÇËÙ¶ÈÊä³ö£º
+        /* äº‘å°è§’é€Ÿåº¦è¾“å‡ºï¼š
          * [0] = wx(rad/s)
          * [1] = wy(rad/s)
          * [2] = wz(rad/s)
@@ -107,10 +112,19 @@ static void hwt_update_export_data(hwt_imu_info_t *imu, uint8_t is_hwt906)
         s_hwt906_gimbal_gyro[HWT_AXIS_ROLL]  = imu->gyro.radps[HWT_AXIS_ROLL];
         s_hwt906_gimbal_gyro[HWT_AXIS_PITCH] = imu->gyro.radps[HWT_AXIS_PITCH];
         s_hwt906_gimbal_gyro[HWT_AXIS_YAW]   = imu->gyro.radps[HWT_AXIS_YAW];
+
+        /* 906 çš„ 0x51 å¸§çº¿åŠ é€Ÿåº¦è¾“å‡ºï¼š
+         * [0] = ax(m/s^2)
+         * [1] = ay(m/s^2)
+         * [2] = az(m/s^2)
+         */
+        s_hwt906_gimbal_accel[HWT_AXIS_ROLL]  = imu->accel.mps2[HWT_AXIS_ROLL];
+        s_hwt906_gimbal_accel[HWT_AXIS_PITCH] = imu->accel.mps2[HWT_AXIS_PITCH];
+        s_hwt906_gimbal_accel[HWT_AXIS_YAW]   = imu->accel.mps2[HWT_AXIS_YAW];
     }
     else
     {
-        /* µ×ÅÌµ¼³ö101Á¬Ðøyaw */
+        /* åº•ç›˜å¯¼å‡º 101 è¿žç»­ yaw */
         s_hwt101_chassis_yaw[0] = imu->angle.yaw_total_rad;
     }
 }
@@ -133,6 +147,25 @@ static void hwt_parse_gyro_frame(hwt_imu_info_t *imu, const uint8_t *frame)
     }
 
     imu->gyro.updated = 1u;
+}
+
+static void hwt_parse_accel_frame(hwt_imu_info_t *imu, const uint8_t *frame)
+{
+    uint8_t axis;
+
+    imu->accel.raw[HWT_AXIS_ROLL]  = hwt_read_s16_le(&frame[2]);
+    imu->accel.raw[HWT_AXIS_PITCH] = hwt_read_s16_le(&frame[4]);
+    imu->accel.raw[HWT_AXIS_YAW]   = hwt_read_s16_le(&frame[6]);
+    imu->accel.temp_raw = hwt_read_s16_le(&frame[8]);
+    imu->accel.temp_c = ((float)imu->accel.temp_raw) / 100.0f;
+
+    for (axis = 0; axis < 3u; axis++)
+    {
+        imu->accel.g[axis] = ((float)imu->accel.raw[axis]) / 32768.0f * HWT_ACCEL_RANGE_G;
+        imu->accel.mps2[axis] = imu->accel.g[axis] * HWT_GRAVITY_MPS2;
+    }
+
+    imu->accel.updated = 1u;
 }
 
 static void hwt_parse_angle_frame(hwt_imu_info_t *imu, const uint8_t *frame)
@@ -167,6 +200,13 @@ static void hwt_handle_frame(hwt_imu_info_t *imu, const uint8_t *frame, uint8_t 
 
     switch (frame[1])
     {
+    case HWT_TYPE_ACCEL:
+        if (is_hwt906 != 0u)
+        {
+            hwt_parse_accel_frame(imu, frame);
+        }
+        break;
+
     case HWT_TYPE_GYRO:
         hwt_parse_gyro_frame(imu, frame);
         break;
@@ -237,6 +277,7 @@ void hwt_imu_init(void)
     memset(s_hwt101_chassis_yaw, 0, sizeof(s_hwt101_chassis_yaw));
     memset(s_hwt906_gimbal_angle, 0, sizeof(s_hwt906_gimbal_angle));
     memset(s_hwt906_gimbal_gyro, 0, sizeof(s_hwt906_gimbal_gyro));
+    memset(s_hwt906_gimbal_accel, 0, sizeof(s_hwt906_gimbal_accel));
 }
 
 void hwt101_rx_parse(const uint8_t *data, uint16_t len)
@@ -324,6 +365,11 @@ const float *hwt906_get_gimbal_gyro_point(void)
     return s_hwt906_gimbal_gyro;
 }
 
+const float *hwt906_get_gimbal_accel_point(void)
+{
+    return s_hwt906_gimbal_accel;
+}
+
 void hwt101_clear_update_flag(void)
 {
     hwt101_info.angle.updated = 0u;
@@ -334,6 +380,7 @@ void hwt906_clear_update_flag(void)
 {
     hwt906_info.angle.updated = 0u;
     hwt906_info.gyro.updated = 0u;
+    hwt906_info.accel.updated = 0u;
 }
 
 const float *get_INS_angle_point(void)
@@ -344,4 +391,9 @@ const float *get_INS_angle_point(void)
 const float *get_gyro_data_point(void)
 {
     return hwt906_get_gimbal_gyro_point();
+}
+
+const float *get_accel_data_point(void)
+{
+    return hwt906_get_gimbal_accel_point();
 }

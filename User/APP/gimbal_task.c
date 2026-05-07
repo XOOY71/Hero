@@ -7,6 +7,8 @@
 
 #include "gimbal_task.h"
 #include "gimbal_behaviour.h"
+#include "gravity_comp.h"
+#include "shoot_task.h"
 #include "cmsis_os.h"
 #include <math.h>
 #include <stddef.h>
@@ -22,7 +24,6 @@ static void gimbal_task(void const *pvParameters);
 
 #define GIMBAL_PI 3.14159265358979323846f
 #define GIMBAL_PID_DEFAULT_LIMIT 1000000.0f
-#define GIMBAL_CURRENT_CMD_LIMIT 30000.0f
 
 static float gimbal_wrap_angle(float angle)
 {
@@ -50,10 +51,9 @@ static float gimbal_clamp(float value, float min_value, float max_value)
     return value;
 }
 
-static int16_t gimbal_float_to_current(float current)
+static float gimbal_float_to_torque_cmd(float output)
 {
-    current = gimbal_clamp(current, -GIMBAL_CURRENT_CMD_LIMIT, GIMBAL_CURRENT_CMD_LIMIT);
-    return (int16_t)current;
+    return gimbal_clamp(output, T_MIN, T_MAX);
 }
 
 /* 对外初始化接口：由 freertos.c 调用 */
@@ -74,6 +74,7 @@ static void gimbal_task(void const *pvParameters)
 
     vTaskDelay(GIMBAL_TASK_INIT_TIME);
     gimbal_init(&gimbal_control);
+    shoot_task_init();
 
     while (1)
     {
@@ -82,16 +83,18 @@ static void gimbal_task(void const *pvParameters)
         gimbal_mode_change_control_transit(&gimbal_control); // 控制模式切换 控制数据过渡
         gimbal_set_control(&gimbal_control);                 // 云台控制量
         gimbal_control_loop(&gimbal_control);                // 云台控制PID计算
-        gimbal_send_cmd(&gimbal_control);
+        gravity_comp_execute(&gimbal_control);							 // 重力前馈
+        gimbal_send_cmd(&gimbal_control);								 	 // send指令
+//        shoot_task_loop();
 
-			gimbal_test();
-			
-        VOFA_Send6(gimbal_control.gimbal_yaw_motor.absolute_angle_set,
-                   gimbal_control.gimbal_yaw_motor.absolute_angle,
-                   gimbal_control.gimbal_pitch_motor.absolute_angle_set,
+//        gimbal_test();
+
+        VOFA_Send6(gimbal_control.gimbal_yaw_motor.absolute_angle,
+                   gimbal_control.gimbal_yaw_motor.gyro,
+                   gimbal_control.gimbal_yaw_motor.gyro_accel,
                    gimbal_control.gimbal_pitch_motor.absolute_angle,
-                   gimbal_control.gimbal_yaw_motor.given_current,
-                   gimbal_control.gimbal_pitch_motor.given_current);
+                   gimbal_control.gimbal_pitch_motor.gyro,
+                   gimbal_control.gimbal_pitch_motor.gyro_accel);
 
         vTaskDelay(GIMBAL_CONTROL_TIME);
     }
@@ -119,7 +122,7 @@ const gimbal_motor_t *get_pitch_motor_point(void)
 
 /**
   * @brief          云台控制模式:GIMBAL_MOTOR_GYRO，更新绝对角目标
-  * @param[out]     motor:yaw电机或者pitch电机
+  * @param[out]     motor:yaw电机或pitch电机
   * @param[in]      add:角度增量
   * @retval         none
   */
@@ -142,7 +145,7 @@ void gimbal_absolute_angle_limit(gimbal_motor_t *motor, float add)
 
 /**
   * @brief          云台控制模式:GIMBAL_MOTOR_ENCODE，更新相对角目标
-  * @param[out]     motor:yaw电机或者pitch电机
+  * @param[out]     motor:yaw电机或pitch电机
   * @param[in]      add:角度增量
   * @retval         none
   */
@@ -159,7 +162,7 @@ void gimbal_relative_angle_limit(gimbal_motor_t *motor, float add)
 
 /**
   * @brief          云台控制模式:GIMBAL_MOTOR_GYRO
-  * @param[out]     motor:yaw电机或者pitch电机
+  * @param[out]     motor:yaw电机或pitch电机
   * @retval         none
   */
 void gimbal_motor_absolute_angle_control(gimbal_motor_t *motor)
@@ -186,12 +189,12 @@ void gimbal_motor_absolute_angle_control(gimbal_motor_t *motor)
     motor->gyro_set = gimbal_pid_calc(&motor->absolute_angle_pid, angle_get, angle_set, motor->gyro);
     motor->current_set = gimbal_pid_calc(&motor->gyro_pid, motor->gyro, motor->gyro_set, 0.0f);
     motor->output = motor->current_set;
-    motor->given_current = gimbal_float_to_current(motor->output);
+    motor->given_current = gimbal_float_to_torque_cmd(motor->output);
 }
 
 /**
   * @brief          云台控制模式:GIMBAL_MOTOR_ENCODE
-  * @param[out]     motor:yaw电机或者pitch电机
+  * @param[out]     motor:yaw电机或pitch电机
   * @retval         none
   */
 void gimbal_motor_relative_angle_control(gimbal_motor_t *motor)
@@ -204,12 +207,12 @@ void gimbal_motor_relative_angle_control(gimbal_motor_t *motor)
     motor->gyro_set = gimbal_pid_calc(&motor->relative_angle_pid, motor->relative_angle, motor->relative_angle_set, motor->gyro);
     motor->current_set = gimbal_pid_calc(&motor->gyro_pid, motor->gyro, motor->gyro_set, 0.0f);
     motor->output = motor->current_set;
-    motor->given_current = gimbal_float_to_current(motor->output);
+    motor->given_current = gimbal_float_to_torque_cmd(motor->output);
 }
 
 /**
   * @brief          云台控制模式:GIMBAL_MOTOR_RAW
-  * @param[out]     motor:yaw电机或者pitch电机
+  * @param[out]     motor:yaw电机或pitch电机
   * @retval         none
   */
 void gimbal_motor_raw_angle_control(gimbal_motor_t *motor)
@@ -221,7 +224,7 @@ void gimbal_motor_raw_angle_control(gimbal_motor_t *motor)
 
     motor->current_set = motor->raw_cmd;
     motor->output = motor->raw_cmd;
-    motor->given_current = gimbal_float_to_current(motor->output);
+    motor->given_current = gimbal_float_to_torque_cmd(motor->output);
 }
 
 /**

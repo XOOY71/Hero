@@ -86,6 +86,7 @@ typedef struct
 
 /* 声明全局错误状态变量 */
 extern __IO CAN_ErrorStatus can_error_status;
+extern MITMeasure_t MIT_MOTOR_MEASURE[4];
 
 
 void bsp_can_init(void);

@@ -23,7 +23,7 @@ void ServiceTask_Init(void)
 
 
 /**
-  * @brief          æ¨¡å—ç§æœ‰ä»»åŠ¡ä¸»æµç¨‹
+  * @brief          Ä£¿éË½ÓĞÈÎÎñÖ÷Á÷³Ì
   * @param[in]      none
   * @retval         none
   */

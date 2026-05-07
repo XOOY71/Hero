@@ -1559,6 +1559,11 @@
               <FileType>1</FileType>
               <FilePath>..\User\APP\service_task.c</FilePath>
             </File>
+            <File>
+              <FileName>shoot_task.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\User\APP\shoot_task.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -1608,6 +1613,16 @@
               <FileName>hwt_imu.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\User\Devices\hwt_imu.c</FilePath>
+            </File>
+            <File>
+              <FileName>gravity_comp.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\User\Devices\gravity_comp.c</FilePath>
+            </File>
+            <File>
+              <FileName>adrc.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\User\Devices\adrc.c</FilePath>
             </File>
           </Files>
         </Group>

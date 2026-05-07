@@ -14,6 +14,7 @@
 #include "project_config.h"
 #include "remote_control.h"
 #include "pid.h"
+#include "gravity_comp.h"
 
 typedef enum
 {
@@ -44,11 +45,14 @@ typedef struct
 
     float gyro;
     float gyro_set;
+    float gyro_last;
+    float gyro_accel;
+    uint8_t gyro_update_init;
 
     float raw_cmd;
     float output;
     float current_set;
-    int16_t given_current;
+    float given_current;
 
     float max_relative_angle;
     float min_relative_angle;
@@ -72,19 +76,21 @@ typedef struct
     uint8_t step;
 } gimbal_step_cali_t;
 
-typedef struct
+typedef struct gimbal_control_t
 {
     const RC_ctrl_t *gimbal_rc_ctrl;
     const float *gimbal_INT_angle_point;
     const float *gimbal_INT_gyro_point;
+    const float *gimbal_INT_accel_point;
     gimbal_motor_t gimbal_yaw_motor;
     gimbal_motor_t gimbal_pitch_motor;
     gimbal_step_cali_t gimbal_cali;
+    gravity_comp_t gimbal_pitch_gravity_comp;
 } gimbal_control_t;
 
 extern gimbal_control_t gimbal_control;
-extern int16_t yaw_can_set_current;
-extern int16_t pitch_can_set_current;
+extern float yaw_can_set_current;
+extern float pitch_can_set_current;
 extern int16_t shoot_can_set_current;
 
 void GimbalTask_Init(void);

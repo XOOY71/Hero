@@ -60,4 +60,5 @@ ctrlboard-h7_ws1812\freertos.o: ../User/BSP/remote_control.h
 ctrlboard-h7_ws1812\freertos.o: ../User/BSP/bsp_usart.h
 ctrlboard-h7_ws1812\freertos.o: D:\Keil5\ARM\ARMCC\Bin\..\include\string.h
 ctrlboard-h7_ws1812\freertos.o: ../User/Devices/pid.h
+ctrlboard-h7_ws1812\freertos.o: ../User/Devices/gravity_comp.h
 ctrlboard-h7_ws1812\freertos.o: ../User/APP/service_task.h

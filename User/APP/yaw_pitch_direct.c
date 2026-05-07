@@ -119,9 +119,10 @@
 #endif
 
 #define YAW_PITCH_DIRECT_PI 3.14159265358979323846f
+#define GIMBAL_PITCH_MIT_INDEX 1u
 
-int16_t yaw_can_set_current = 0;
-int16_t pitch_can_set_current = 0;
+float yaw_can_set_current = 0.0f;
+float pitch_can_set_current = 0.0f;
 int16_t shoot_can_set_current = 0;
 
 __attribute__((weak)) const float *get_INS_angle_point(void)
@@ -134,11 +135,27 @@ __attribute__((weak)) const float *get_gyro_data_point(void)
     return 0;
 }
 
-__attribute__((weak)) void gimbal_platform_send_current(int16_t yaw_current, int16_t pitch_current, int16_t trigger_current)
+__attribute__((weak)) const float *get_accel_data_point(void)
 {
-    (void)yaw_current;
-    (void)pitch_current;
-    (void)trigger_current;
+    return 0;
+}
+
+static float gimbal_mit_clamp(float value, float min_value, float max_value)
+{
+    if (value > max_value)
+    {
+        return max_value;
+    }
+    if (value < min_value)
+    {
+        return min_value;
+    }
+    return value;
+}
+
+static float gimbal_output_to_mit_torque(float output)
+{
+    return gimbal_mit_clamp(output, T_MIN, T_MAX);
 }
 
 static float yaw_pitch_direct_wrap_angle(float angle)
@@ -176,6 +193,8 @@ static void gimbal_total_pid_clear(gimbal_control_t *control)
   */
 void gimbal_init(gimbal_control_t *control)
 {
+    gravity_comp_param_t gravity_comp_param;
+
     if (control == 0)
     {
         return;
@@ -186,6 +205,7 @@ void gimbal_init(gimbal_control_t *control)
     control->gimbal_rc_ctrl = get_remote_control_point();
     control->gimbal_INT_angle_point = get_INS_angle_point();
     control->gimbal_INT_gyro_point = get_gyro_data_point();
+    control->gimbal_INT_accel_point = get_accel_data_point();
 
     control->gimbal_yaw_motor.mode = GIMBAL_MOTOR_RAW;
     control->gimbal_yaw_motor.last_mode = GIMBAL_MOTOR_RAW;
@@ -215,8 +235,19 @@ void gimbal_init(gimbal_control_t *control)
     control->gimbal_pitch_motor.absolute_angle_set = control->gimbal_pitch_motor.absolute_angle;
     control->gimbal_pitch_motor.relative_angle_set = control->gimbal_pitch_motor.relative_angle;
     control->gimbal_pitch_motor.gyro_set = control->gimbal_pitch_motor.gyro;
+
+    gravity_comp_param.mass_kg = 1.5f;
+    gravity_comp_param.com_forward_m = 0.04f;
+    gravity_comp_param.com_up_m = 0.02f;
+    gravity_comp_param.gravity_mps2 = GRAVITY_COMP_DEFAULT_GRAVITY;
+    control->gimbal_pitch_gravity_comp.output_scale = 1.0f;
+    control->gimbal_pitch_gravity_comp.output_limit = T_MAX;
+    gravity_comp_init(&control->gimbal_pitch_gravity_comp, &gravity_comp_param);
 		
-		Motor_ENABLE(&hfdcan2, 2);
+    Motor_MIT_MODE(&hfdcan2, DM_YAW_CAN_ID);
+    Motor_MIT_MODE(&hfdcan2, DM_PIT_CAN_ID);
+    Motor_ENABLE(&hfdcan2, DM_YAW_CAN_ID);
+    Motor_ENABLE(&hfdcan2, DM_PIT_CAN_ID);
 }
 
 /**
@@ -243,6 +274,10 @@ void gimbal_feedback_update(gimbal_control_t *control)
 {
     float chassis_yaw = 0.0f;
     float yaw_relative = 0.0f;
+    float pitch_motor_pos = 0.0f;
+    float yaw_gyro_last = 0.0f;
+    float pitch_gyro_last = 0.0f;
+    const float control_dt = (float)GIMBAL_CONTROL_TIME * 0.001f;
 
     if (control == 0)
     {
@@ -253,8 +288,7 @@ void gimbal_feedback_update(gimbal_control_t *control)
     {
         control->gimbal_yaw_motor.absolute_angle =
             control->gimbal_INT_angle_point[INS_YAW_ADDRESS_OFFSET];
-        control->gimbal_pitch_motor.absolute_angle =
-            control->gimbal_INT_angle_point[INS_PITCH_ADDRESS_OFFSET];
+        pitch_motor_pos = MIT_MOTOR_MEASURE[GIMBAL_PITCH_MIT_INDEX].fdb.pos;
 
         chassis_yaw = hwt101_get_yaw_total_rad();
 
@@ -283,8 +317,9 @@ void gimbal_feedback_update(gimbal_control_t *control)
         if (control->gimbal_pitch_motor.angle_offset_init == 0u)
         {
             control->gimbal_pitch_motor.angle_offset =
-                control->gimbal_pitch_motor.absolute_angle;
+                pitch_motor_pos;
 
+            control->gimbal_pitch_motor.absolute_angle = 0.0f;
             control->gimbal_pitch_motor.relative_angle = 0.0f;
             control->gimbal_pitch_motor.relative_angle_set = 0.0f;
             control->gimbal_pitch_motor.absolute_angle_set =
@@ -293,18 +328,52 @@ void gimbal_feedback_update(gimbal_control_t *control)
         }
         else
         {
+            /* MIT pitch 电机正方向与机械 pitch 正方向相反：
+             * 上电机械零位为 0，抬头为正。
+             */
+            control->gimbal_pitch_motor.absolute_angle =
+                control->gimbal_pitch_motor.angle_offset -
+                pitch_motor_pos;
             control->gimbal_pitch_motor.relative_angle =
-                control->gimbal_pitch_motor.absolute_angle -
-                control->gimbal_pitch_motor.angle_offset;
+                control->gimbal_pitch_motor.absolute_angle;
         }
     }
 
     if (control->gimbal_INT_gyro_point != 0)
     {
+        yaw_gyro_last = control->gimbal_yaw_motor.gyro;
+        pitch_gyro_last = control->gimbal_pitch_motor.gyro;
+
         control->gimbal_yaw_motor.gyro =
             control->gimbal_INT_gyro_point[INS_GYRO_Z_ADDRESS_OFFSET];
         control->gimbal_pitch_motor.gyro =
             control->gimbal_INT_gyro_point[INS_GYRO_Y_ADDRESS_OFFSET];
+
+        if (control->gimbal_yaw_motor.gyro_update_init == 0u)
+        {
+            control->gimbal_yaw_motor.gyro_last = control->gimbal_yaw_motor.gyro;
+            control->gimbal_yaw_motor.gyro_accel = 0.0f;
+            control->gimbal_yaw_motor.gyro_update_init = 1u;
+        }
+        else
+        {
+            control->gimbal_yaw_motor.gyro_last = yaw_gyro_last;
+            control->gimbal_yaw_motor.gyro_accel =
+                (control->gimbal_yaw_motor.gyro - yaw_gyro_last) / control_dt;
+        }
+
+        if (control->gimbal_pitch_motor.gyro_update_init == 0u)
+        {
+            control->gimbal_pitch_motor.gyro_last = control->gimbal_pitch_motor.gyro;
+            control->gimbal_pitch_motor.gyro_accel = 0.0f;
+            control->gimbal_pitch_motor.gyro_update_init = 1u;
+        }
+        else
+        {
+            control->gimbal_pitch_motor.gyro_last = pitch_gyro_last;
+            control->gimbal_pitch_motor.gyro_accel =
+                (control->gimbal_pitch_motor.gyro - pitch_gyro_last) / control_dt;
+        }
     }
 }
 
@@ -444,6 +513,9 @@ void gimbal_control_loop(gimbal_control_t *control)
   */
 void gimbal_send_cmd(gimbal_control_t *control)
 {
+    float yaw_cmd_torque;
+    float pitch_cmd_torque;
+
     if (control == 0)
     {
         return;
@@ -451,7 +523,12 @@ void gimbal_send_cmd(gimbal_control_t *control)
 
     yaw_can_set_current = control->gimbal_yaw_motor.given_current;
     pitch_can_set_current = control->gimbal_pitch_motor.given_current;
-    gimbal_platform_send_current(yaw_can_set_current, pitch_can_set_current, shoot_can_set_current);
+
+    yaw_cmd_torque = gimbal_output_to_mit_torque(yaw_can_set_current);
+    pitch_cmd_torque = gimbal_output_to_mit_torque(pitch_can_set_current);
+
+    CAN_cmd_MIT(&hfdcan2, DM_YAW_CAN_ID, 0.0f, 0.0f, 0.0f, 0.0f, yaw_cmd_torque);
+    CAN_cmd_MIT(&hfdcan2, DM_PIT_CAN_ID, 0.0f, 0.0f, 0.0f, 0.0f, pitch_cmd_torque);
 }
 
 float test_fequa = -0.8f;
