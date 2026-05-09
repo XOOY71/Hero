@@ -45,14 +45,13 @@ ctrlboard-h7_ws1812\gimbal_task.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx
 ctrlboard-h7_ws1812\gimbal_task.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_uart.h
 ctrlboard-h7_ws1812\gimbal_task.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_uart_ex.h
 ctrlboard-h7_ws1812\gimbal_task.o: D:\Keil5\ARM\ARMCC\Bin\..\include\string.h
-ctrlboard-h7_ws1812\gimbal_task.o: ../User/Devices/pid.h
-ctrlboard-h7_ws1812\gimbal_task.o: ../User/Devices/gravity_comp.h
+ctrlboard-h7_ws1812\gimbal_task.o: ..\User\Algorithm\pid.h
+ctrlboard-h7_ws1812\gimbal_task.o: ..\User\Algorithm\gravity_comp.h
 ctrlboard-h7_ws1812\gimbal_task.o: ..\User\APP\gimbal_behaviour.h
 ctrlboard-h7_ws1812\gimbal_task.o: ..\User\APP\shoot_task.h
-ctrlboard-h7_ws1812\gimbal_task.o: ../User/Devices/adrc.h
+ctrlboard-h7_ws1812\gimbal_task.o: ..\User\Algorithm\adrc.h
 ctrlboard-h7_ws1812\gimbal_task.o: ../User/BSP/bsp_fdcan.h
 ctrlboard-h7_ws1812\gimbal_task.o: ../Core/Inc/fdcan.h
-ctrlboard-h7_ws1812\gimbal_task.o: ../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS/cmsis_os.h
 ctrlboard-h7_ws1812\gimbal_task.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/FreeRTOS.h
 ctrlboard-h7_ws1812\gimbal_task.o: ../Core/Inc/FreeRTOSConfig.h
 ctrlboard-h7_ws1812\gimbal_task.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/projdefs.h
@@ -62,6 +61,7 @@ ctrlboard-h7_ws1812\gimbal_task.o: ../Middlewares/Third_Party/FreeRTOS/Source/po
 ctrlboard-h7_ws1812\gimbal_task.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/mpu_wrappers.h
 ctrlboard-h7_ws1812\gimbal_task.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/task.h
 ctrlboard-h7_ws1812\gimbal_task.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/list.h
+ctrlboard-h7_ws1812\gimbal_task.o: ../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS/cmsis_os.h
 ctrlboard-h7_ws1812\gimbal_task.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/timers.h
 ctrlboard-h7_ws1812\gimbal_task.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/queue.h
 ctrlboard-h7_ws1812\gimbal_task.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/semphr.h

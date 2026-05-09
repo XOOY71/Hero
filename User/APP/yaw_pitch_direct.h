@@ -59,7 +59,4 @@ void gimbal_control_loop(gimbal_control_t *control);
   * @retval         none
   */
 void gimbal_send_cmd(gimbal_control_t *control);
-
-
-void gimbal_test(void);
 #endif

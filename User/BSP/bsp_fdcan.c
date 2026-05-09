@@ -268,7 +268,7 @@ static inline void MITFdbData(MITMeasure_t *MIT_measure, const uint8_t rx_data[8
     MIT_measure->fdb.pos = uint_to_float(MIT_measure->fdb.p_int, P_MIN, P_MAX, 16);
 
     const float vel_raw = uint_to_float(MIT_measure->fdb.v_int, V_MIN, V_MAX, 12);
-    const float alpha = 0.15f;
+    const float alpha = 1.0f;
     // 一阶低通滤波，直接操作全局静态变量 mit_vel_lpf
     mit_vel_lpf[index] = mit_vel_lpf[index] + alpha * (vel_raw - mit_vel_lpf[index]);
     MIT_measure->fdb.vel = mit_vel_lpf[index];

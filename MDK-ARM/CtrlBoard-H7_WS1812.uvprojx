@@ -340,7 +340,7 @@
               <MiscControls></MiscControls>
               <Define>USE_HAL_DRIVER,STM32H723xx,USE_PWR_LDO_SUPPLY</Define>
               <Undefine></Undefine>
-              <IncludePath>../Core/Inc;../Drivers/STM32H7xx_HAL_Driver/Inc;../Drivers/STM32H7xx_HAL_Driver/Inc/Legacy;../Drivers/CMSIS/Device/ST/STM32H7xx/Include;../Drivers/CMSIS/Include;../Middlewares/Third_Party/FreeRTOS/Source/include;../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS;../Middlewares/Third_Party/FreeRTOS/Source/portable/RVDS/ARM_CM4F;../User/APP;../User/BSP;../User/Devices</IncludePath>
+              <IncludePath>../Core/Inc;../Drivers/STM32H7xx_HAL_Driver/Inc;../Drivers/STM32H7xx_HAL_Driver/Inc/Legacy;../Drivers/CMSIS/Device/ST/STM32H7xx/Include;../Drivers/CMSIS/Include;../Middlewares/Third_Party/FreeRTOS/Source/include;../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS;../Middlewares/Third_Party/FreeRTOS/Source/portable/RVDS/ARM_CM4F;../User/APP;../User/BSP;../User/Devices;..\User\Algorithm</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -1590,11 +1590,6 @@
           <GroupName>Devices</GroupName>
           <Files>
             <File>
-              <FileName>CRC8_CRC16.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\User\Devices\CRC8_CRC16.c</FilePath>
-            </File>
-            <File>
               <FileName>vofa.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\User\Devices\vofa.c</FilePath>
@@ -1605,24 +1600,54 @@
               <FilePath>..\User\Devices\ws2812.c</FilePath>
             </File>
             <File>
-              <FileName>pid.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\User\Devices\pid.c</FilePath>
-            </File>
-            <File>
               <FileName>hwt_imu.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\User\Devices\hwt_imu.c</FilePath>
             </File>
-            <File>
-              <FileName>gravity_comp.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\User\Devices\gravity_comp.c</FilePath>
-            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>Algorithm</GroupName>
+          <Files>
             <File>
               <FileName>adrc.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\User\Devices\adrc.c</FilePath>
+              <FilePath>..\User\Algorithm\adrc.c</FilePath>
+            </File>
+            <File>
+              <FileName>adrc.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\User\Algorithm\adrc.h</FilePath>
+            </File>
+            <File>
+              <FileName>CRC8_CRC16.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\User\Algorithm\CRC8_CRC16.c</FilePath>
+            </File>
+            <File>
+              <FileName>CRC8_CRC16.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\User\Algorithm\CRC8_CRC16.h</FilePath>
+            </File>
+            <File>
+              <FileName>gravity_comp.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\User\Algorithm\gravity_comp.c</FilePath>
+            </File>
+            <File>
+              <FileName>gravity_comp.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\User\Algorithm\gravity_comp.h</FilePath>
+            </File>
+            <File>
+              <FileName>pid.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\User\Algorithm\pid.c</FilePath>
+            </File>
+            <File>
+              <FileName>pid.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\User\Algorithm\pid.h</FilePath>
             </File>
           </Files>
         </Group>

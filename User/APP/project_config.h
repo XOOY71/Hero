@@ -1,141 +1,155 @@
 #ifndef PROJECT_CONFIG_H
 #define PROJECT_CONFIG_H
-//#include "project_config.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-/* =========================================================
- * Global project constants
- * ========================================================= */
- /* 代码类型 调试或者发布*/
+/* ========================= 机器人全局配置 ========================= */
+/* 代码运行模式 */
 #define debug   0
 #define release 1
+
 /* 超级电容开关 */
 #define Cap_off 0X00
 #define Cap_on  0X01
 
-#define ROBOT_MODE        debug
-#define ROBOT_CAP         Cap_off
-/*云台*/
-#define PITCH_GYRO_ABSOLUTE_PID_KP					15.0f
-#define PITCH_GYRO_ABSOLUTE_PID_KI					0.0f
-#define PITCH_GYRO_ABSOLUTE_PID_KD					0.0f
-#define PITCH_GYRO_ABSOLUTE_PID_MAX_OUT 		10.0f
-#define PITCH_GYRO_ABSOLUTE_PID_MAX_IOUT		0.0f
+#define ROBOT_MODE        debug     // 当前代码模式：debug/release
+#define ROBOT_CAP         Cap_off   // 当前超级电容状态
 
-#define YAW_GYRO_ABSOLUTE_PID_KP      			56.0f
-#define YAW_GYRO_ABSOLUTE_PID_KI      			0.0f
-#define YAW_GYRO_ABSOLUTE_PID_KD      			0.5f
-#define YAW_GYRO_ABSOLUTE_PID_MAX_OUT 			10.0f
-#define YAW_GYRO_ABSOLUTE_PID_MAX_IOUT			0.0f
-			
-#define PITCH_ENCODE_RELATIVE_PID_KP				38.0f
-#define PITCH_ENCODE_RELATIVE_PID_KI				0.0f
-#define PITCH_ENCODE_RELATIVE_PID_KD				0.3f
-#define PITCH_ENCODE_RELATIVE_PID_MAX_OUT	  10.0f
-#define PITCH_ENCODE_RELATIVE_PID_MAX_IOUT  0.0f
-				
-#define YAW_ENCODE_RELATIVE_PID_KP 					28.0f
-#define YAW_ENCODE_RELATIVE_PID_KI 					0.0f
-#define YAW_ENCODE_RELATIVE_PID_KD 					0.5f
-#define YAW_ENCODE_RELATIVE_PID_MAX_OUT			10.0f
-#define YAW_ENCODE_RELATIVE_PID_MAX_IOUT		0.0f
+/* ========================= 云台角度 PID 参数 ========================= */
+/* pitch 轴陀螺仪绝对角控制 PID */
+#define PITCH_GYRO_ABSOLUTE_PID_KP         4.0f
+#define PITCH_GYRO_ABSOLUTE_PID_KI         0.0f
+#define PITCH_GYRO_ABSOLUTE_PID_KD         0.05f
+#define PITCH_GYRO_ABSOLUTE_PID_MAX_OUT    1.0f
+#define PITCH_GYRO_ABSOLUTE_PID_MAX_IOUT   0.0f
 
-#define FEEDFORWARD_GAIN        						0.00f
-#define PITCH_SPEED_PID_KP      						3000.0f
-#define PITCH_SPEED_PID_KI      						80.0f
-#define PITCH_SPEED_PID_KD      						0.0f
-#define PITCH_SPEED_PID_MAX_OUT 						30000.0f
-#define PITCH_SPEED_PID_MAX_IOUT						10000.0f
+/* yaw 轴陀螺仪绝对角控制 PID */
+#define YAW_GYRO_ABSOLUTE_PID_KP           2.0f
+#define YAW_GYRO_ABSOLUTE_PID_KI           0.0f
+#define YAW_GYRO_ABSOLUTE_PID_KD           0.6f
+#define YAW_GYRO_ABSOLUTE_PID_MAX_OUT      0.8f
+#define YAW_GYRO_ABSOLUTE_PID_MAX_IOUT     0.0f
 
-#define YAW_SPEED_PID_KP      							4500.0f
-#define YAW_SPEED_PID_KI      							80.0f
-#define YAW_SPEED_PID_KD      							0.0f
-#define YAW_SPEED_PID_MAX_OUT 							30000.0f
-#define YAW_SPEED_PID_MAX_IOUT							10000.0f
+/* pitch 轴编码器相对角控制 PID */
+#define PITCH_ENCODE_RELATIVE_PID_KP       2.5f
+#define PITCH_ENCODE_RELATIVE_PID_KI       0.0f
+#define PITCH_ENCODE_RELATIVE_PID_KD       0.2f
+#define PITCH_ENCODE_RELATIVE_PID_MAX_OUT  0.5f
+#define PITCH_ENCODE_RELATIVE_PID_MAX_IOUT 0.0f
 
-//电机输出方向取反，顺带可以解决电机颤抖的bug
-#define YAW_CURRENT_SET_POLARITY					(-1)
-#define PITCH_CURRENT_SET_POLARITY				( 1)
+/* yaw 轴编码器相对角控制 PID */
+#define YAW_ENCODE_RELATIVE_PID_KP         1.5f
+#define YAW_ENCODE_RELATIVE_PID_KI         0.0f
+#define YAW_ENCODE_RELATIVE_PID_KD         0.2f
+#define YAW_ENCODE_RELATIVE_PID_MAX_OUT    0.8f
+#define YAW_ENCODE_RELATIVE_PID_MAX_IOUT   0.0f
 
-#define GIMBAL_ANGLE_Z_RC_SEN         0.000002f
-#define GIMBAL_TASK_INIT_TIME         200
-#define YAW_CHANNEL                   2
-#define PITCH_CHANNEL                 3
-#define GIMBAL_MODE_CHANNEL           0
-#define WZ_CHANNEL                    2
-#define TURN_KEYBOARD                 KEY_PRESSED_OFFSET_F
-#define TURN_SPEED                    0.04f
-#define TEST_KEYBOARD                 KEY_PRESSED_OFFSET_B
-#define RC_DEADBAND                   10
-#define YAW_RC_SEN                    -0.000005f
-#define PITCH_RC_SEN                  -0.000006f
-#define YAW_MOUSE_SEN                 0.00006f
-#define PITCH_MOUSE_SEN               0.00006f
-#define YAW_ENCODE_SEN                0.01f
-#define PITCH_ENCODE_SEN              0.01f
-#define GIMBAL_CONTROL_TIME           1
-#define GIMBAL_TEST_MODE              0
-#define HALF_ECD_RANGE                4096
-#define ECD_RANGE                     8191
-#define GIMBAL_INIT_ANGLE_ERROR       0.1f
-#define GIMBAL_INIT_STOP_TIME         100
-#define GIMBAL_INIT_TIME              6000
-#define GIMBAL_CALI_REDUNDANT_ANGLE   0.1f
-#define GIMBAL_INIT_PITCH_SPEED       0.004f
-#define GIMBAL_INIT_YAW_SPEED         0.005f
-#define GIMBAL_CALI_MOTOR_SET         8000
-#define GIMBAL_CALI_STEP_TIME         2000
-#define GIMBAL_CALI_GYRO_LIMIT        0.1f
-#define GIMBAL_CALI_PITCH_MAX_STEP    1
-#define GIMBAL_CALI_PITCH_MIN_STEP    2
-#define GIMBAL_CALI_YAW_MAX_STEP      3
-#define GIMBAL_CALI_YAW_MIN_STEP      4
-#define GIMBAL_CALI_START_STEP        GIMBAL_CALI_PITCH_MAX_STEP
-#define GIMBAL_CALI_END_STEP          5
-#define GIMBAL_MOTIONLESS_RC_DEADLINE 10
-#define GIMBAL_MOTIONLESS_TIME_MAX    3000
+/* ========================= 云台前馈与输出配置 ========================= */
+#define YAW_CURRENT_SET_POLARITY           (-1)   // yaw 输出方向极性
+#define PITCH_CURRENT_SET_POLARITY         ( 1)   // pitch 输出方向极性
+#define YAW_REF_ACCEL_RAMP_TIME            0.01f  // yaw 参考速度追踪时间，越小响应越快
+#define PITCH_REF_ACCEL_RAMP_TIME          0.01f  // pitch 参考速度追踪时间，越小响应越快
+#define YAW_REF_VEL_FILTER_ALPHA           0.05f  // yaw 目标角差分速度低通系数，越小前馈越平滑
+#define YAW_REF_ACCEL_LIMIT                100.0f // yaw 惯量前馈参考加速度限幅，防止遥控输入跳变产生力矩尖峰
 
-#define INIT_YAW_SET    							0.0f
-#define INIT_PITCH_SET  							0.0f
+/* 惯量前馈：torque_ff = J * alpha_ref */
+#define YAW_INERTIA_KGM2                   0.013  // yaw 转动惯量 J，单位 kg*m^2
 
-/*串口*/
-#define USART_RX_BUF_LENGHT     			64
-#define REFEREE_FIFO_BUF_LENGTH 			1024
-#define REF_PROTOCOL_FRAME_MAX_SIZE 	192
+#define PITCH_EQ_MASS_KG                   1.5f   // pitch 重力补偿使用的等效质量
+#define PITCH_INERTIA_KGM2                 0.00245 // pitch 转动惯量 J，单位 kg*m^2
 
+/* ========================= 遥控器/鼠标输入配置 ========================= */
+#define GIMBAL_ANGLE_Z_RC_SEN              0.0000005f // 小陀螺/底盘旋转角速度输入灵敏度
+#define YAW_CHANNEL                        2          // yaw 遥控通道
+#define PITCH_CHANNEL                      3          // pitch 遥控通道
+#define GIMBAL_MODE_CHANNEL                0          // 云台模式切换通道
+#define WZ_CHANNEL                         2          // 底盘旋转通道
+#define TURN_KEYBOARD                      KEY_PRESSED_OFFSET_F // 小陀螺按键
+#define TURN_SPEED                         0.04f      // 小陀螺旋转速度
+#define TEST_KEYBOARD                      KEY_PRESSED_OFFSET_B // 测试按键
+#define RC_DEADBAND                        10         // 遥控器死区
+#define YAW_RC_SEN                         -0.000005f // yaw 遥控灵敏度
+#define PITCH_RC_SEN                       -0.000003f // pitch 遥控灵敏度
+#define YAW_MOUSE_SEN                      0.00006f   // yaw 鼠标灵敏度
+#define PITCH_MOUSE_SEN                    -0.00006f  // pitch 鼠标灵敏度
+#define YAW_ENCODE_SEN                     0.01f      // yaw 编码器模式输入灵敏度
+#define PITCH_ENCODE_SEN                   0.01f      // pitch 编码器模式输入灵敏度
 
-#define DM_YAW_CAN_ID									0X01
-#define DM_PIT_CAN_ID									0X02
+/* ========================= 云台任务与反馈索引配置 ========================= */
+#define GIMBAL_TASK_INIT_TIME              200    // 云台任务启动延时，单位 ms
+#define GIMBAL_CONTROL_TIME                1      // 云台控制周期，单位 ms
+#define INS_YAW_ADDRESS_OFFSET             0      // INS yaw 角数组索引
+#define INS_PITCH_ADDRESS_OFFSET           1      // INS pitch 角数组索引
+#define INS_GYRO_X_ADDRESS_OFFSET          0      // INS gyro x 索引
+#define INS_GYRO_Y_ADDRESS_OFFSET          1      // INS gyro y 索引
+#define INS_GYRO_Z_ADDRESS_OFFSET          2      // INS gyro z 索引
+#define GIMBAL_PITCH_MIT_INDEX             1u     // MIT 电机反馈数组中 pitch 电机索引
 
-#define DM_YAW_MASTER_ID							0X51
-#define DM_PIT_MASTER_ID							0X52
+/* ========================= 云台机械限位与初始化配置 ========================= */
+#define YAW_MAX_RELATIVE_ANGLE             3.1415926f  // yaw 相对角上限
+#define YAW_MIN_RELATIVE_ANGLE            -3.1415926f  // yaw 相对角下限
+#define PITCH_MAX_RELATIVE_ANGLE          -0.02f       // pitch 软件上限，机械上限约 0，保留安全余量
+#define PITCH_MIN_RELATIVE_ANGLE          -0.7f        // pitch 软件下限，机械下限约 -0.717，保留安全余量
+#define PITCH_SOFT_LIMIT_BUFFER_ANGLE      0.12f       // pitch 距离软件限位小于该角度时开始柔性衰减输入和输出
+#define PITCH_SOFT_LIMIT_MIN_OUTPUT_SCALE  0.0f        // pitch 到达软件限位时，继续撞限位方向的最小输出比例
+#define HALF_ECD_RANGE                     4096        // 编码器半量程
+#define ECD_RANGE                          8191        // 编码器总量程
+#define GIMBAL_INIT_ANGLE_ERROR            0.1f        // 初始化目标角允许误差
+#define GIMBAL_INIT_STOP_TIME              100         // 初始化停止判定时间
+#define GIMBAL_INIT_TIME                   6000        // 初始化总超时时间
+#define GIMBAL_CALI_REDUNDANT_ANGLE        0.1f        // 校准冗余角度
+#define GIMBAL_INIT_PITCH_SPEED            0.004f      // pitch 初始化速度
+#define GIMBAL_INIT_YAW_SPEED              0.005f      // yaw 初始化速度
+#define GIMBAL_CALI_MOTOR_SET              8000        // 校准时电机输出
+#define GIMBAL_CALI_STEP_TIME              2000        // 校准步骤持续时间
+#define GIMBAL_CALI_GYRO_LIMIT             0.1f        // 校准静止角速度阈值
+#define GIMBAL_CALI_PITCH_MAX_STEP         1           // pitch 最大角校准步骤
+#define GIMBAL_CALI_PITCH_MIN_STEP         2           // pitch 最小角校准步骤
+#define GIMBAL_CALI_YAW_MAX_STEP           3           // yaw 最大角校准步骤
+#define GIMBAL_CALI_YAW_MIN_STEP           4           // yaw 最小角校准步骤
+#define GIMBAL_CALI_START_STEP             GIMBAL_CALI_PITCH_MAX_STEP
+#define GIMBAL_CALI_END_STEP               5
+#define GIMBAL_MOTIONLESS_RC_DEADLINE      10          // 进入静止行为的遥控死区阈值
+#define GIMBAL_MOTIONLESS_TIME_MAX         3000        // 静止行为最大保持时间
 
+#define INIT_YAW_SET                       0.0f        // yaw 初始化目标角
+#define INIT_PITCH_SET                     0.0f        // pitch 初始化目标角
 
-#define CAN_FRIC1_ID									0X201
-#define CAN_FRIC2_ID									0X202
-#define CAN_FRIC3_ID									0X203
-#define CAN_STRUM_ID									0X204
+/* ========================= pitch 重力补偿配置 ========================= */
+#define PITCH_GRAVITY_COMP_MASS_KG         PITCH_EQ_MASS_KG // pitch 重力补偿质量
+#define PITCH_GRAVITY_COMP_COM_FORWARD_M   0.04f            // 质心前向距离
+#define PITCH_GRAVITY_COMP_COM_UP_M        0.02f            // 质心上向距离
+#define PITCH_GRAVITY_COMP_OUTPUT_LIMIT    (T_MAX / 5.0f)   // 重力补偿输出限幅
 
-//支持MIT协议才用
-#define P_MIN -12.5663704f		//位置最小值
-#define P_MAX 12.5663704f		//位置最大值
-#define V_MIN -30			//速度最小值
-#define V_MAX 30			//速度最大值
-#define KP_MIN 0.0		//Kp最小值
-#define KP_MAX 500.0	//Kp最大值
-#define KD_MIN 0.0		//Kd最小值
-#define KD_MAX 5.0		//Kd最大值
-//需要根据每个电机的不同来选择
-//所以建议在送入发送函数之前进行限幅，
-#define T_MIN -10.0f			//转矩最大值
-#define T_MAX 10.0f			//转矩最小值
+/* ========================= 串口与裁判系统配置 ========================= */
+#define USART_RX_BUF_LENGHT                64    // 串口接收缓冲区长度
+#define REFEREE_FIFO_BUF_LENGTH            1024  // 裁判系统 FIFO 长度
+#define REF_PROTOCOL_FRAME_MAX_SIZE        192   // 裁判系统最大帧长
 
-/* =========================================================
- * Compiler / utility macros
- * ========================================================= */
+/* ========================= CAN 电机 ID 配置 ========================= */
+#define DM_YAW_CAN_ID                       0X01  // yaw 达妙电机发送 ID
+#define DM_PIT_CAN_ID                       0X02  // pitch 达妙电机发送 ID
+#define DM_YAW_MASTER_ID                    0X51  // yaw 达妙电机反馈 ID
+#define DM_PIT_MASTER_ID                    0X52  // pitch 达妙电机反馈 ID
 
+#define CAN_FRIC1_ID                        0X201 // 摩擦轮 1 电机 ID
+#define CAN_FRIC2_ID                        0X202 // 摩擦轮 2 电机 ID
+#define CAN_FRIC3_ID                        0X203 // 摩擦轮 3 电机 ID
+#define CAN_STRUM_ID                        0X204 // 拨弹电机 ID
+
+/* ========================= MIT 协议参数范围 ========================= */
+#define P_MIN                              -12.5663704f // 位置最小值
+#define P_MAX                               12.5663704f // 位置最大值
+#define V_MIN                              -30          // 速度最小值
+#define V_MAX                               30          // 速度最大值
+#define KP_MIN                              0.0         // Kp 最小值
+#define KP_MAX                              500.0       // Kp 最大值
+#define KD_MIN                              0.0         // Kd 最小值
+#define KD_MAX                              5.0         // Kd 最大值
+#define T_MIN                              -10.0f       // 力矩最小值
+#define T_MAX                               10.0f       // 力矩最大值
 
 #ifdef __cplusplus
 }

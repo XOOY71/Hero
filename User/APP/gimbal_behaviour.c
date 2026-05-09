@@ -162,7 +162,7 @@ void gimbal_behaviour_mode_set(gimbal_control_t *control)
         break;
 
     case GIMBAL_INIT:
-        control->gimbal_yaw_motor.mode = GIMBAL_MOTOR_ENCODE;
+        control->gimbal_yaw_motor.mode = GIMBAL_MOTOR_GYRO;
         control->gimbal_pitch_motor.mode = GIMBAL_MOTOR_ENCODE;
         break;
 
@@ -173,11 +173,11 @@ void gimbal_behaviour_mode_set(gimbal_control_t *control)
 
     case GIMBAL_ABSOLUTE_ANGLE:
         control->gimbal_yaw_motor.mode = GIMBAL_MOTOR_GYRO;
-        control->gimbal_pitch_motor.mode = GIMBAL_MOTOR_GYRO;
+        control->gimbal_pitch_motor.mode = GIMBAL_MOTOR_ENCODE;
         break;
 
     case GIMBAL_RELATIVE_ANGLE:
-        control->gimbal_yaw_motor.mode = GIMBAL_MOTOR_ENCODE;
+        control->gimbal_yaw_motor.mode = GIMBAL_MOTOR_GYRO;
         control->gimbal_pitch_motor.mode = GIMBAL_MOTOR_ENCODE;
         break;
 

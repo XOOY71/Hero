@@ -8,6 +8,11 @@ static VOFA_JustFloatFrame_t s_vofa_frame =
 
 void VOFA_Send6(float ch0, float ch1, float ch2, float ch3, float ch4, float ch5)
 {
+    if (huart1.gState != HAL_UART_STATE_READY)
+    {
+        return;
+    }
+
     s_vofa_frame.fdata[0] = ch0;
     s_vofa_frame.fdata[1] = ch1;
     s_vofa_frame.fdata[2] = ch2;

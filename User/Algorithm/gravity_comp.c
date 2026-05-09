@@ -57,8 +57,8 @@ void gravity_comp_init_default(gravity_comp_t *comp)
     param.com_up_m = 0.02f;
     param.gravity_mps2 = GRAVITY_COMP_DEFAULT_GRAVITY;
 
-    comp->output_scale = 1.0f;
-    comp->output_limit = T_MAX;
+    comp->output_scale = OUTPUT_SCALE;
+    comp->output_limit = T_MAX/10;
 
     gravity_comp_init(comp, &param);
 }
@@ -88,21 +88,13 @@ float gravity_comp_calc_torque_with_param(const gravity_comp_param_t *param, flo
     gravity = (param->gravity_mps2 > 0.0f) ? param->gravity_mps2 : GRAVITY_COMP_DEFAULT_GRAVITY;
 
     /*
-     * 坐标约定：
-     * 1. pitch = 0 时，机构前向为 +x，竖直向上为 +z。
-     * 2. pitch_rad > 0 表示抬头旋转。
-     * 3. 返回值表示抵消重力所需的补偿力矩。
-     *
-     * 重力绕 pitch 轴产生的力矩可写为：
-     * tau_g = m * g * x_world
-     *
-     * 其中 x_world 是质心相对支点在世界前向上的投影：
-     * x_world = x * cos(theta) - z * sin(theta)
-     *
-     * 因此补偿力矩取反号：
-     * tau_comp = -m * g * (x * cos(theta) - z * sin(theta))
+     * 右手系 pitch 约定：
+     * 1. pitch = 0 时，质心前向为 +x，竖直向上为 +z。
+     * 2. 从 +y 方向看，抬头是顺时针，pitch_rad 为负。
+     * 3. x_world = x*cos(theta) + z*sin(theta)。
+     * 4. tau_comp = -m*g*x_world。
      */
-    horizontal_distance = param->com_forward_m * cosf(pitch_rad) -
+    horizontal_distance = param->com_forward_m * cosf(pitch_rad) +
                           param->com_up_m * sinf(pitch_rad);
 
     return -param->mass_kg * gravity * horizontal_distance;
