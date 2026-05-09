@@ -43,7 +43,8 @@ volatile gimbal_behaviour_e gimbal_behaviour = GIMBAL_ZERO_FORCE;
 #endif
 
 #ifndef GIMBAL_SPIN_SPEED
-#define GIMBAL_SPIN_SPEED 0.03f
+#define GIMBAL_SPIN_SPEED 0.0f
+//#define GIMBAL_SPIN_SPEED 0.03f
 #endif
 
 #ifndef INIT_YAW_SET

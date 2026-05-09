@@ -22,15 +22,19 @@
 #endif
 
 #ifndef SHOOT_FRIC_TARGET_SPEED_RPM
-#define SHOOT_FRIC_TARGET_SPEED_RPM 4500.0f
+#define SHOOT_FRIC_TARGET_SPEED_RPM 5730
+#endif
+
+#ifndef SHOOT_FRIC_WHEEL_RADIUS_M
+#define SHOOT_FRIC_WHEEL_RADIUS_M 0.02f
 #endif
 
 #ifndef SHOOT_FRIC_MAX_CURRENT
-#define SHOOT_FRIC_MAX_CURRENT 16000.0f
+#define SHOOT_FRIC_MAX_CURRENT 16000
 #endif
 
 #ifndef SHOOT_FRIC_OUTPUT_RATE_LIMIT
-#define SHOOT_FRIC_OUTPUT_RATE_LIMIT 40000.0f
+#define SHOOT_FRIC_OUTPUT_RATE_LIMIT 40000
 #endif
 
 #ifndef SHOOT_FRIC_RESPONSE_TIME_S
@@ -38,19 +42,19 @@
 #endif
 
 #ifndef SHOOT_FRIC_FEEDBACK_RANGE_RPM
-#define SHOOT_FRIC_FEEDBACK_RANGE_RPM 7000.0f
+#define SHOOT_FRIC_FEEDBACK_RANGE_RPM 7000
 #endif
 
 #ifndef SHOOT_FRIC_B0
-#define SHOOT_FRIC_B0 35.0f
+#define SHOOT_FRIC_B0 30
 #endif
 
 #ifndef SHOOT_FRIC_OBSERVER_RATIO
-#define SHOOT_FRIC_OBSERVER_RATIO 4.0f
+#define SHOOT_FRIC_OBSERVER_RATIO 4
 #endif
 
 #ifndef SHOOT_FRIC_ERROR_LINEAR_ZONE
-#define SHOOT_FRIC_ERROR_LINEAR_ZONE 80.0f
+#define SHOOT_FRIC_ERROR_LINEAR_ZONE 80
 #endif
 
 #ifndef SHOOT_FRIC_ALPHA1
@@ -70,15 +74,15 @@
 #endif
 
 #ifndef SHOOT_FRIC1_DIRECTION
-#define SHOOT_FRIC1_DIRECTION 1.0f
+#define SHOOT_FRIC1_DIRECTION 1
 #endif
 
 #ifndef SHOOT_FRIC2_DIRECTION
-#define SHOOT_FRIC2_DIRECTION -1.0f
+#define SHOOT_FRIC2_DIRECTION -1
 #endif
 
 #ifndef SHOOT_FRIC3_DIRECTION
-#define SHOOT_FRIC3_DIRECTION 1.0f
+#define SHOOT_FRIC3_DIRECTION 1
 #endif
 
 typedef enum
@@ -92,6 +96,7 @@ typedef struct
     const motor_measure_t *measure;
     adrc_type_def speed_adrc;
     float speed_rpm;
+    float speed_mps;
     float speed_set_rpm;
     float direction;
     int16_t give_current;

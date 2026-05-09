@@ -192,22 +192,22 @@ static void gimbal_task(void const *pvParameters)
         gimbal_pitch_soft_limit_output(&gimbal_control);
         gravity_comp_execute(&gimbal_control);
         gimbal_send_cmd(&gimbal_control);
-//        shoot_task_loop();
+        shoot_task_loop();
 
         /* VOFA ch0~ch5:
-         * ch0: yaw absolute_angle_set [rad]
-         * ch1: yaw angle absolute_angle [rad]
-         * ch2: yaw angular velocity gyro [rad/s]
-         * ch3: yaw angular acceleration gyro_accel [rad/s^2]
-         * ch4: yaw raw RC channel value before deadband/sensitivity
-         * ch5: yaw actual feedback torque fdb.tor from MIT motor
+         * ch0: friction wheel 1 linear speed [m/s]
+         * ch1: friction wheel 2 linear speed [m/s]
+         * ch2: friction wheel 3 linear speed [m/s]
+         * ch3: fric1 ADRC ESO state z1
+         * ch4: fric1 ADRC ESO disturbance z2
+         * ch5: fric1 ADRC output current command
          */
-        VOFA_Send6(gimbal_control.gimbal_yaw_motor.absolute_angle_set,
-                   gimbal_control.gimbal_yaw_motor.absolute_angle,
-                   gimbal_control.gimbal_yaw_motor.ref_accel,
-                   gimbal_control.gimbal_yaw_motor.pid_torque,
-                   gimbal_control.gimbal_yaw_motor.ff_torque,
-                   MIT_MOTOR_MEASURE[GIMBAL_YAW_MIT_INDEX].fdb.tor);
+        VOFA_Send6(shoot_task_control.fric1.speed_mps,
+                   shoot_task_control.fric2.speed_mps,
+                   shoot_task_control.fric3.speed_mps,
+                   shoot_task_control.fric1.speed_adrc.core.z1,
+                   shoot_task_control.fric1.speed_adrc.core.z2,
+                   shoot_task_control.fric1.speed_adrc.out);
 
         vTaskDelayUntil(&last_wake_time, GIMBAL_CONTROL_TIME);
     }
