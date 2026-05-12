@@ -1755,7 +1755,7 @@ I (../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_uart_ex.h)(0x69DF8BA7)
 I (D:\Keil5\ARM\ARMCC\include\string.h)(0x588B8344)
 I (..\User\Algorithm\pid.h)(0x69DFC251)
 I (..\User\Algorithm\gravity_comp.h)(0x69FF5903)
-F (..\User\APP\gimbal_task.c)(0x69FF7A33)(--c99 --gnu -c --cpu Cortex-M7.fp.dp -g -O3 --apcs=interwork --split_sections -I ../Core/Inc -I ../Drivers/STM32H7xx_HAL_Driver/Inc -I ../Drivers/STM32H7xx_HAL_Driver/Inc/Legacy -I ../Drivers/CMSIS/Device/ST/STM32H7xx/Include -I ../Drivers/CMSIS/Include -I ../Middlewares/Third_Party/FreeRTOS/Source/include -I ../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS -I ../Middlewares/Third_Party/FreeRTOS/Source/portable/RVDS/ARM_CM4F -I ../User/APP -I ../User/BSP -I ../User/Devices -I ..\User\Algorithm-I.\RTE\_CtrlBoard-H7_WS1812-ID:\Keil5\ARM\PACK\ARM\CMSIS-DSP\1.15.0\Include-ID:\Keil5\ARM\PACK\ARM\CMSIS-DSP\1.15.0\PrivateInclude-ID:\Keil5\ARM\PACK\ARM\CMSIS\6.1.0\CMSIS\Core\Include-D__UVISION_VERSION="540" -DSTM32H723xx -D_RTE_ -DUSE_HAL_DRIVER -DSTM32H723xx -DUSE_PWR_LDO_SUPPLY-o ctrlboard-h7_ws1812\gimbal_task.o --omf_browse ctrlboard-h7_ws1812\gimbal_task.crf --depend ctrlboard-h7_ws1812\gimbal_task.d)
+F (..\User\APP\gimbal_task.c)(0x6A005742)(--c99 --gnu -c --cpu Cortex-M7.fp.dp -g -O3 --apcs=interwork --split_sections -I ../Core/Inc -I ../Drivers/STM32H7xx_HAL_Driver/Inc -I ../Drivers/STM32H7xx_HAL_Driver/Inc/Legacy -I ../Drivers/CMSIS/Device/ST/STM32H7xx/Include -I ../Drivers/CMSIS/Include -I ../Middlewares/Third_Party/FreeRTOS/Source/include -I ../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS -I ../Middlewares/Third_Party/FreeRTOS/Source/portable/RVDS/ARM_CM4F -I ../User/APP -I ../User/BSP -I ../User/Devices -I ..\User\Algorithm-I.\RTE\_CtrlBoard-H7_WS1812-ID:\Keil5\ARM\PACK\ARM\CMSIS-DSP\1.15.0\Include-ID:\Keil5\ARM\PACK\ARM\CMSIS-DSP\1.15.0\PrivateInclude-ID:\Keil5\ARM\PACK\ARM\CMSIS\6.1.0\CMSIS\Core\Include-D__UVISION_VERSION="540" -DSTM32H723xx -D_RTE_ -DUSE_HAL_DRIVER -DSTM32H723xx -DUSE_PWR_LDO_SUPPLY-o ctrlboard-h7_ws1812\gimbal_task.o --omf_browse ctrlboard-h7_ws1812\gimbal_task.crf --depend ctrlboard-h7_ws1812\gimbal_task.d)
 I (..\User\APP\gimbal_task.h)(0x69FF3D19)
 I (D:\Keil5\ARM\ARMCC\include\stdint.h)(0x691DDF33)
 I (D:\Keil5\ARM\ARMCC\include\stdbool.h)(0x588B8344)
@@ -1804,7 +1804,7 @@ I (D:\Keil5\ARM\ARMCC\include\string.h)(0x588B8344)
 I (..\User\Algorithm\pid.h)(0x69DFC251)
 I (..\User\Algorithm\gravity_comp.h)(0x69FF5903)
 I (..\User\APP\gimbal_behaviour.h)(0x69DFEB9F)
-I (..\User\APP\shoot_task.h)(0x69FF8C05)
+I (..\User\APP\shoot_task.h)(0x6A00571C)
 I (..\User\Algorithm\adrc.h)(0x69D0F3B6)
 I (../User/BSP/bsp_fdcan.h)(0x69FC9EC7)
 I (../Core/Inc/fdcan.h)(0x69DF8BAE)
@@ -1844,8 +1844,8 @@ I (../Middlewares/Third_Party/FreeRTOS/Source/include/semphr.h)(0x69DF8B32)
 I (../Middlewares/Third_Party/FreeRTOS/Source/include/event_groups.h)(0x69DF8B32)
 I (..\User\APP\safewarning.h)(0x69DFB53F)
 I (../User/Devices/hwt_imu.h)(0x69FCA636)
-F (..\User\APP\shoot_task.c)(0x69FF7A24)(--c99 --gnu -c --cpu Cortex-M7.fp.dp -g -O3 --apcs=interwork --split_sections -I ../Core/Inc -I ../Drivers/STM32H7xx_HAL_Driver/Inc -I ../Drivers/STM32H7xx_HAL_Driver/Inc/Legacy -I ../Drivers/CMSIS/Device/ST/STM32H7xx/Include -I ../Drivers/CMSIS/Include -I ../Middlewares/Third_Party/FreeRTOS/Source/include -I ../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS -I ../Middlewares/Third_Party/FreeRTOS/Source/portable/RVDS/ARM_CM4F -I ../User/APP -I ../User/BSP -I ../User/Devices -I ..\User\Algorithm-I.\RTE\_CtrlBoard-H7_WS1812-ID:\Keil5\ARM\PACK\ARM\CMSIS-DSP\1.15.0\Include-ID:\Keil5\ARM\PACK\ARM\CMSIS-DSP\1.15.0\PrivateInclude-ID:\Keil5\ARM\PACK\ARM\CMSIS\6.1.0\CMSIS\Core\Include-D__UVISION_VERSION="540" -DSTM32H723xx -D_RTE_ -DUSE_HAL_DRIVER -DSTM32H723xx -DUSE_PWR_LDO_SUPPLY-o ctrlboard-h7_ws1812\shoot_task.o --omf_browse ctrlboard-h7_ws1812\shoot_task.crf --depend ctrlboard-h7_ws1812\shoot_task.d)
-I (..\User\APP\shoot_task.h)(0x69FF8C05)
+F (..\User\APP\shoot_task.c)(0x6A00571C)(--c99 --gnu -c --cpu Cortex-M7.fp.dp -g -O3 --apcs=interwork --split_sections -I ../Core/Inc -I ../Drivers/STM32H7xx_HAL_Driver/Inc -I ../Drivers/STM32H7xx_HAL_Driver/Inc/Legacy -I ../Drivers/CMSIS/Device/ST/STM32H7xx/Include -I ../Drivers/CMSIS/Include -I ../Middlewares/Third_Party/FreeRTOS/Source/include -I ../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS -I ../Middlewares/Third_Party/FreeRTOS/Source/portable/RVDS/ARM_CM4F -I ../User/APP -I ../User/BSP -I ../User/Devices -I ..\User\Algorithm-I.\RTE\_CtrlBoard-H7_WS1812-ID:\Keil5\ARM\PACK\ARM\CMSIS-DSP\1.15.0\Include-ID:\Keil5\ARM\PACK\ARM\CMSIS-DSP\1.15.0\PrivateInclude-ID:\Keil5\ARM\PACK\ARM\CMSIS\6.1.0\CMSIS\Core\Include-D__UVISION_VERSION="540" -DSTM32H723xx -D_RTE_ -DUSE_HAL_DRIVER -DSTM32H723xx -DUSE_PWR_LDO_SUPPLY-o ctrlboard-h7_ws1812\shoot_task.o --omf_browse ctrlboard-h7_ws1812\shoot_task.crf --depend ctrlboard-h7_ws1812\shoot_task.d)
+I (..\User\APP\shoot_task.h)(0x6A00571C)
 I (D:\Keil5\ARM\ARMCC\include\stdbool.h)(0x588B8344)
 I (D:\Keil5\ARM\ARMCC\include\stdint.h)(0x691DDF33)
 I (..\User\Algorithm\adrc.h)(0x69D0F3B6)

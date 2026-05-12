@@ -20,11 +20,22 @@ static void shoot_task_update_feedback(shoot_task_control_t *control);
 static void shoot_task_control_friction(shoot_task_control_t *control);
 static void shoot_task_stop_friction(shoot_task_control_t *control);
 static void shoot_task_send_friction_current(int16_t fric1_current, int16_t fric2_current, int16_t fric3_current);
-static void shoot_task_motor_init(shoot_task_motor_t *motor, const motor_measure_t *measure, float direction);
+static void shoot_task_motor_init(shoot_task_motor_t *motor,
+                                  const motor_measure_t *measure,
+                                  float direction,
+                                  float b0,
+                                  float response_time_s,
+                                  float observer_ratio,
+                                  float output_rate_limit);
 static void shoot_task_motor_reset(shoot_task_motor_t *motor);
 static void shoot_task_motor_hot_reset(shoot_task_motor_t *motor);
 static int16_t shoot_task_motor_calc(shoot_task_motor_t *motor, float target_speed_rpm);
 static bool shoot_task_motor_ready(const shoot_task_motor_t *motor, uint32_t now);
+static bool shoot_task_motor_should_trigger_feedforward(const shoot_task_motor_t *motor,
+                                                        float trigger_drop_rpm,
+                                                        float min_speed_ratio);
+static void shoot_task_motor_apply_feedforward(shoot_task_motor_t *motor);
+static void shoot_task_update_history(shoot_task_control_t *control);
 
 /**
  * @brief 初始化射击任务控制对象。
@@ -82,9 +93,27 @@ static void shoot_task_init_control(shoot_task_control_t *control)
     control->last_mode = SHOOT_TASK_STOP;
 
     /* 绑定三路摩擦轮电机反馈并初始化各自速度控制器。 */
-    shoot_task_motor_init(&control->fric1, &DJI_MOTOR_MEASURE[0], SHOOT_FRIC1_DIRECTION);
-    shoot_task_motor_init(&control->fric2, &DJI_MOTOR_MEASURE[1], SHOOT_FRIC2_DIRECTION);
-    shoot_task_motor_init(&control->fric3, &DJI_MOTOR_MEASURE[2], SHOOT_FRIC3_DIRECTION);
+    shoot_task_motor_init(&control->fric1,
+                          &DJI_MOTOR_MEASURE[0],
+                          SHOOT_FRIC1_DIRECTION,
+                          SHOOT_FRIC1_B0,
+                          SHOOT_FRIC1_RESPONSE_TIME_S,
+                          SHOOT_FRIC1_OBSERVER_RATIO,
+                          SHOOT_FRIC1_OUTPUT_RATE_LIMIT);
+    shoot_task_motor_init(&control->fric2,
+                          &DJI_MOTOR_MEASURE[1],
+                          SHOOT_FRIC2_DIRECTION,
+                          SHOOT_FRIC2_B0,
+                          SHOOT_FRIC2_RESPONSE_TIME_S,
+                          SHOOT_FRIC2_OBSERVER_RATIO,
+                          SHOOT_FRIC2_OUTPUT_RATE_LIMIT);
+    shoot_task_motor_init(&control->fric3,
+                          &DJI_MOTOR_MEASURE[2],
+                          SHOOT_FRIC3_DIRECTION,
+                          SHOOT_FRIC3_B0,
+                          SHOOT_FRIC3_RESPONSE_TIME_S,
+                          SHOOT_FRIC3_OBSERVER_RATIO,
+                          SHOOT_FRIC3_OUTPUT_RATE_LIMIT);
 }
 
 /**
@@ -208,6 +237,16 @@ static void shoot_task_control_friction(shoot_task_control_t *control)
         shoot_task_motor_hot_reset(&control->fric1);
         shoot_task_motor_hot_reset(&control->fric2);
         shoot_task_motor_hot_reset(&control->fric3);
+        control->fric1.ff_ticks = 0U;
+        control->fric1.ff_cooldown_ticks = 0U;
+        control->fric1.ff_current = 0;
+        control->fric2.ff_ticks = 0U;
+        control->fric2.ff_cooldown_ticks = 0U;
+        control->fric2.ff_current = 0;
+        control->fric3.ff_ticks = 0U;
+        control->fric3.ff_cooldown_ticks = 0U;
+        control->fric3.ff_current = 0;
+        shoot_task_update_history(control);
     }
 
     /* 三路摩擦轮统一给定目标转速。 */
@@ -220,10 +259,70 @@ static void shoot_task_control_friction(shoot_task_control_t *control)
     control->fric2.give_current = shoot_task_motor_calc(&control->fric2, control->fric2.speed_set_rpm);
     control->fric3.give_current = shoot_task_motor_calc(&control->fric3, control->fric3.speed_set_rpm);
 
+    if ((control->fric1.ff_cooldown_ticks == 0U) &&
+        shoot_task_motor_should_trigger_feedforward(&control->fric1,
+                                                    SHOOT_FRIC1_FF_TRIGGER_DROP_RPM,
+                                                    SHOOT_FRIC1_FF_MIN_SPEED_RATIO))
+    {
+        control->fric1.ff_current = SHOOT_FRIC1_FF_CURRENT;
+        control->fric1.ff_ticks = SHOOT_FRIC1_FF_DURATION_MS;
+        control->fric1.ff_cooldown_ticks = SHOOT_FRIC1_FF_COOLDOWN_MS;
+    }
+
+    if ((control->fric2.ff_cooldown_ticks == 0U) &&
+        shoot_task_motor_should_trigger_feedforward(&control->fric2,
+                                                    SHOOT_FRIC2_FF_TRIGGER_DROP_RPM,
+                                                    SHOOT_FRIC2_FF_MIN_SPEED_RATIO))
+    {
+        control->fric2.ff_current = SHOOT_FRIC2_FF_CURRENT;
+        control->fric2.ff_ticks = SHOOT_FRIC2_FF_DURATION_MS;
+        control->fric2.ff_cooldown_ticks = SHOOT_FRIC2_FF_COOLDOWN_MS;
+    }
+
+    if ((control->fric3.ff_cooldown_ticks == 0U) &&
+        shoot_task_motor_should_trigger_feedforward(&control->fric3,
+                                                    SHOOT_FRIC3_FF_TRIGGER_DROP_RPM,
+                                                    SHOOT_FRIC3_FF_MIN_SPEED_RATIO))
+    {
+        control->fric3.ff_current = SHOOT_FRIC3_FF_CURRENT;
+        control->fric3.ff_ticks = SHOOT_FRIC3_FF_DURATION_MS;
+        control->fric3.ff_cooldown_ticks = SHOOT_FRIC3_FF_COOLDOWN_MS;
+    }
+
+    if (control->fric1.ff_ticks > 0U)
+    {
+        shoot_task_motor_apply_feedforward(&control->fric1);
+        control->fric1.ff_ticks--;
+    }
+    if (control->fric2.ff_ticks > 0U)
+    {
+        shoot_task_motor_apply_feedforward(&control->fric2);
+        control->fric2.ff_ticks--;
+    }
+    if (control->fric3.ff_ticks > 0U)
+    {
+        shoot_task_motor_apply_feedforward(&control->fric3);
+        control->fric3.ff_ticks--;
+    }
+
+    if (control->fric1.ff_cooldown_ticks > 0U)
+    {
+        control->fric1.ff_cooldown_ticks--;
+    }
+    if (control->fric2.ff_cooldown_ticks > 0U)
+    {
+        control->fric2.ff_cooldown_ticks--;
+    }
+    if (control->fric3.ff_cooldown_ticks > 0U)
+    {
+        control->fric3.ff_cooldown_ticks--;
+    }
+
     /* 将三路电流打包后通过 CAN 下发。 */
     shoot_task_send_friction_current(control->fric1.give_current,
                                      control->fric2.give_current,
                                      control->fric3.give_current);
+    shoot_task_update_history(control);
 }
 
 /**
@@ -244,6 +343,15 @@ static void shoot_task_stop_friction(shoot_task_control_t *control)
     control->fric1.give_current = 0;
     control->fric2.give_current = 0;
     control->fric3.give_current = 0;
+    control->fric1.ff_ticks = 0U;
+    control->fric1.ff_cooldown_ticks = 0U;
+    control->fric1.ff_current = 0;
+    control->fric2.ff_ticks = 0U;
+    control->fric2.ff_cooldown_ticks = 0U;
+    control->fric2.ff_current = 0;
+    control->fric3.ff_ticks = 0U;
+    control->fric3.ff_cooldown_ticks = 0U;
+    control->fric3.ff_current = 0;
 
     if (control->last_mode != SHOOT_TASK_STOP)
     {
@@ -287,7 +395,13 @@ static void shoot_task_send_friction_current(int16_t fric1_current, int16_t fric
  * @param measure 电机反馈数据指针。
  * @param direction 电机方向系数，通常为 1 或 -1。
  */
-static void shoot_task_motor_init(shoot_task_motor_t *motor, const motor_measure_t *measure, float direction)
+static void shoot_task_motor_init(shoot_task_motor_t *motor,
+                                  const motor_measure_t *measure,
+                                  float direction,
+                                  float b0,
+                                  float response_time_s,
+                                  float observer_ratio,
+                                  float output_rate_limit)
 {
     adrc_param_t param;
 
@@ -303,12 +417,12 @@ static void shoot_task_motor_init(shoot_task_motor_t *motor, const motor_measure
 
     /* 配置速度环 ADRC 参数。 */
     param.sample_time_s = (float)SHOOT_CONTROL_TIME * 0.001f;
-    param.b0 = SHOOT_FRIC_B0;
-    param.controller_bandwidth = 5.0f / SHOOT_FRIC_RESPONSE_TIME_S;
-    param.observer_bandwidth_ratio = SHOOT_FRIC_OBSERVER_RATIO;
+    param.b0 = b0;
+    param.controller_bandwidth = 5.0f / response_time_s;
+    param.observer_bandwidth_ratio = observer_ratio;
     param.tracking_gain = 0.0f;
     param.max_out = SHOOT_FRIC_MAX_CURRENT;
-    param.output_rate_limit = SHOOT_FRIC_OUTPUT_RATE_LIMIT;
+    param.output_rate_limit = output_rate_limit;
     param.error_linear_zone = SHOOT_FRIC_ERROR_LINEAR_ZONE;
     param.alpha1 = SHOOT_FRIC_ALPHA1;
     param.alpha2 = SHOOT_FRIC_ALPHA2;
@@ -381,6 +495,69 @@ static int16_t shoot_task_motor_calc(shoot_task_motor_t *motor, float target_spe
     }
 
     return (int16_t)current_output;
+}
+
+static bool shoot_task_motor_should_trigger_feedforward(const shoot_task_motor_t *motor,
+                                                        float trigger_drop_rpm,
+                                                        float min_speed_ratio)
+{
+#if (SHOOT_FRIC_FF_ENABLE == 0)
+    (void)motor;
+    (void)trigger_drop_rpm;
+    (void)min_speed_ratio;
+    return false;
+#else
+    const float min_speed = SHOOT_FRIC_TARGET_SPEED_RPM * min_speed_ratio;
+    const float speed_drop = motor->last_speed_rpm - motor->speed_rpm;
+
+    if (motor == NULL)
+    {
+        return false;
+    }
+
+    return ((motor->last_speed_rpm >= min_speed) &&
+            (speed_drop >= trigger_drop_rpm));
+#endif
+}
+
+static void shoot_task_motor_apply_feedforward(shoot_task_motor_t *motor)
+{
+#if (SHOOT_FRIC_FF_ENABLE != 0)
+    if (motor == NULL)
+    {
+        return;
+    }
+
+    {
+        int32_t boosted_current = (int32_t)motor->give_current + (int32_t)(motor->ff_current * motor->direction);
+
+        if (boosted_current > SHOOT_FRIC_MAX_CURRENT)
+        {
+            boosted_current = SHOOT_FRIC_MAX_CURRENT;
+        }
+        else if (boosted_current < -SHOOT_FRIC_MAX_CURRENT)
+        {
+            boosted_current = -SHOOT_FRIC_MAX_CURRENT;
+        }
+
+        motor->give_current = (int16_t)boosted_current;
+    }
+#else
+    (void)motor;
+#endif
+}
+
+
+static void shoot_task_update_history(shoot_task_control_t *control)
+{
+    if (control == NULL)
+    {
+        return;
+    }
+
+    control->fric1.last_speed_rpm = control->fric1.speed_rpm;
+    control->fric2.last_speed_rpm = control->fric2.speed_rpm;
+    control->fric3.last_speed_rpm = control->fric3.speed_rpm;
 }
 
 /**

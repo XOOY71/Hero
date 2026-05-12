@@ -195,19 +195,19 @@ static void gimbal_task(void const *pvParameters)
         shoot_task_loop();
 
         /* VOFA ch0~ch5:
-         * ch0: friction wheel 1 linear speed [m/s]
-         * ch1: friction wheel 2 linear speed [m/s]
-         * ch2: friction wheel 3 linear speed [m/s]
-         * ch3: fric1 ADRC ESO state z1
-         * ch4: fric1 ADRC ESO disturbance z2
-         * ch5: fric1 ADRC output current command
+         * ch0: friction wheel 1 speed [rpm]
+         * ch1: friction wheel 2 speed [rpm]
+         * ch2: friction wheel 3 speed [rpm]
+         * ch3: friction wheel 1 feedforward current
+         * ch4: friction wheel 2 feedforward current
+         * ch5: friction wheel 3 feedforward current
          */
-        VOFA_Send6(shoot_task_control.fric1.speed_mps,
-                   shoot_task_control.fric2.speed_mps,
-                   shoot_task_control.fric3.speed_mps,
-                   shoot_task_control.fric1.speed_adrc.core.z1,
-                   shoot_task_control.fric1.speed_adrc.core.z2,
-                   shoot_task_control.fric1.speed_adrc.out);
+        VOFA_Send6(shoot_task_control.fric1.speed_rpm ,
+                   shoot_task_control.fric2.speed_rpm,
+                   shoot_task_control.fric3.speed_rpm,
+                   (float)(shoot_task_control.fric1.ff_ticks > 0U ? shoot_task_control.fric1.ff_current : 0),
+                   (float)(shoot_task_control.fric2.ff_ticks > 0U ? shoot_task_control.fric2.ff_current : 0),
+                   (float)(shoot_task_control.fric3.ff_ticks > 0U ? shoot_task_control.fric3.ff_current : 0));
 
         vTaskDelayUntil(&last_wake_time, GIMBAL_CONTROL_TIME);
     }
