@@ -28,6 +28,8 @@
 
 #include "gimbal_task.h"
 #include "service_task.h"
+#include "auto_aim.h"
+#include "comm_bridge.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -58,6 +60,7 @@ osThreadId defaultTaskHandle;
 
 void StartDefaultTask(void const * argument);
 
+extern void MX_USB_DEVICE_Init(void);
 void MX_FREERTOS_Init(void); /* (MISRA C 2004 rule 8.1) */
 
 /* GetIdleTaskMemory prototype (linked to static allocation support) */
@@ -109,6 +112,8 @@ void MX_FREERTOS_Init(void) {
 
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
+	CommBridge_Init();
+	AutoAimTask_Init();
 	GimbalTask_Init();
 	ServiceTask_Init();
   /* USER CODE END RTOS_THREADS */
@@ -124,6 +129,8 @@ void MX_FREERTOS_Init(void) {
 /* USER CODE END Header_StartDefaultTask */
 void StartDefaultTask(void const * argument)
 {
+  /* init code for USB_DEVICE */
+  MX_USB_DEVICE_Init();
   /* USER CODE BEGIN StartDefaultTask */
   /* Infinite loop */
   for(;;)

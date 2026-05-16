@@ -144,8 +144,8 @@ static inline void get_motor_measure(motor_measure_t *ptr, const uint8_t data[8]
 {
     ptr->last_ecd = ptr->ecd;
     ptr->ecd = (uint16_t)((data[0] << 8) | data[1]);
-    ptr->speed_rpm = (uint16_t)((data[2] << 8) | data[3]);
-    ptr->given_current = (uint16_t)((data[4] << 8) | data[5]);
+    ptr->speed_rpm = (int16_t)((data[2] << 8) | data[3]);
+    ptr->given_current = (int16_t)((data[4] << 8) | data[5]);
     ptr->temperate = data[6];
 }
 static inline int8_t get_mit_motor_index(uint32_t can_id)

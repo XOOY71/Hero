@@ -21,21 +21,37 @@ Target DLL:      CMSIS_AGDI.dll V1.33.18.0
 Dialog DLL:      TCM.DLL V1.56.4.0
  
 <h2>Project:</h2>
-C:\Users\huang\Desktop\RM\2027Ó¢ÐÛ\ÐÂÓ¢ÐÛ´úÂë\Hero\MDK-ARM\CtrlBoard-H7_WS1812.uvprojx
-Project File Date:  05/09/2026
+D:\RM\2027Ó¢ÐÛ\ÐÂÓ¢ÐÛ´úÂë\Hero\MDK-ARM\CtrlBoard-H7_WS1812.uvprojx
+Project File Date:  05/16/2026
 
 <h2>Output:</h2>
 *** Using Compiler 'V5.06 update 5 (build 528)', folder: 'D:\Keil5\ARM\ARMCC\Bin'
 Build target 'CtrlBoard-H7_WS1812'
-compiling shoot_task.c...
+compiling yaw_pitch_direct.c...
+..\User\APP\auto_aim.h(7): error:  #5: cannot open source input file "struct_typedef.h": No such file or directory
+  #include "struct_typedef.h"
+..\User\APP\yaw_pitch_direct.c: 0 warnings, 1 error
 compiling gimbal_task.c...
-..\User\APP\gimbal_task.c(26): warning:  #550-D: variable "gimbalTaskHandle"  was set but never used
-  static osThreadId gimbalTaskHandle = NULL;
-..\User\APP\gimbal_task.c: 1 warning, 0 errors
-linking...
-Program Size: Code=47300 RO-data=1476 RW-data=308 ZI-data=24012  
-FromELF: creating hex file...
-"CtrlBoard-H7_WS1812\CtrlBoard-H7_WS1812.axf" - 0 Error(s), 1 Warning(s).
+..\User\APP\auto_aim.h(7): error:  #5: cannot open source input file "struct_typedef.h": No such file or directory
+  #include "struct_typedef.h"
+..\User\APP\gimbal_task.c: 0 warnings, 1 error
+compiling auto_aim.c...
+..\User\APP\auto_aim.h(7): error:  #5: cannot open source input file "struct_typedef.h": No such file or directory
+  #include "struct_typedef.h"
+..\User\APP\auto_aim.c: 0 warnings, 1 error
+compiling gimbal_channel.c...
+../User/APP/auto_aim.h(7): error:  #5: cannot open source input file "struct_typedef.h": No such file or directory
+  #include "struct_typedef.h"
+..\User\Communication\channel\gimbal\gimbal_channel.c: 0 warnings, 1 error
+compiling freertos.c...
+../User/APP/auto_aim.h(7): error:  #5: cannot open source input file "struct_typedef.h": No such file or directory
+  #include "struct_typedef.h"
+../Core/Src/freertos.c: 0 warnings, 1 error
+compiling comm_bridge.c...
+..\User\APP\auto_aim.h(7): error:  #5: cannot open source input file "struct_typedef.h": No such file or directory
+  #include "struct_typedef.h"
+..\User\APP\comm_bridge.c: 0 warnings, 1 error
+"CtrlBoard-H7_WS1812\CtrlBoard-H7_WS1812.axf" - 6 Error(s), 0 Warning(s).
 
 <h2>Software Packages used:</h2>
 
@@ -68,41 +84,42 @@ Package Vendor: Keil
       Include file:  CMSIS/Core/Include/tz_context.h
 
    * Component: ARM::CMSIS:DSP&Source@1.15.0
+      Include file:  Include/arm_const_structs.h
+      Include file:  Include/arm_const_structs_f16.h
       Include file:  Include/arm_math.h
       Include file:  Include/arm_math_f16.h
-      Include file:  Include/arm_common_tables_f16.h
-      Include file:  Include/arm_const_structs_f16.h
       Include file:  Include/arm_common_tables.h
-      Include file:  Include/arm_const_structs.h
-      Source file:   Source/SVMFunctions/SVMFunctions.c
-      Source file:   Source/CommonTables/CommonTables.c
-      Source file:   Source/TransformFunctions/TransformFunctions.c
-      Source file:   Source/BasicMathFunctions/BasicMathFunctionsF16.c
-      Source file:   Source/MatrixFunctions/MatrixFunctions.c
-      Source file:   Source/SupportFunctions/SupportFunctions.c
+      Include file:  Include/arm_common_tables_f16.h
+      Source file:   Source/InterpolationFunctions/InterpolationFunctionsF16.c
+      Source file:   Source/InterpolationFunctions/InterpolationFunctions.c
+      Source file:   Source/StatisticsFunctions/StatisticsFunctionsF16.c
       Source file:   Source/BasicMathFunctions/BasicMathFunctions.c
       Source file:   Source/FilteringFunctions/FilteringFunctions.c
-      Source file:   Source/ControllerFunctions/ControllerFunctions.c
-      Source file:   Source/TransformFunctions/TransformFunctionsF16.c
-      Source file:   Source/InterpolationFunctions/InterpolationFunctionsF16.c
-      Source file:   Source/StatisticsFunctions/StatisticsFunctionsF16.c
-      Source file:   Source/InterpolationFunctions/InterpolationFunctions.c
-      Source file:   Source/SupportFunctions/SupportFunctionsF16.c
-      Source file:   Source/CommonTables/CommonTablesF16.c
-      Source file:   Source/FastMathFunctions/FastMathFunctionsF16.c
-      Source file:   Source/DistanceFunctions/DistanceFunctionsF16.c
-      Source file:   Source/ComplexMathFunctions/ComplexMathFunctionsF16.c
+      Source file:   Source/StatisticsFunctions/StatisticsFunctions.c
       Source file:   Source/FilteringFunctions/FilteringFunctionsF16.c
       Source file:   Source/MatrixFunctions/MatrixFunctionsF16.c
+      Source file:   Source/FastMathFunctions/FastMathFunctionsF16.c
+      Source file:   Source/DistanceFunctions/DistanceFunctionsF16.c
+      Source file:   Source/SupportFunctions/SupportFunctionsF16.c
+      Source file:   Source/SupportFunctions/SupportFunctions.c
       Source file:   Source/BayesFunctions/BayesFunctionsF16.c
-      Source file:   Source/SVMFunctions/SVMFunctionsF16.c
-      Source file:   Source/DistanceFunctions/DistanceFunctions.c
-      Source file:   Source/FastMathFunctions/FastMathFunctions.c
       Source file:   Source/QuaternionMathFunctions/QuaternionMathFunctions.c
+      Source file:   Source/SVMFunctions/SVMFunctionsF16.c
+      Source file:   Source/CommonTables/CommonTables.c
+      Source file:   Source/DistanceFunctions/DistanceFunctions.c
       Source file:   Source/BayesFunctions/BayesFunctions.c
-      Source file:   Source/StatisticsFunctions/StatisticsFunctions.c
+      Source file:   Source/SVMFunctions/SVMFunctions.c
+      Source file:   Source/CommonTables/CommonTablesF16.c
+      Source file:   Source/TransformFunctions/TransformFunctionsF16.c
+      Source file:   Source/MatrixFunctions/MatrixFunctions.c
+      Source file:   Source/FastMathFunctions/FastMathFunctions.c
+      Source file:   Source/ControllerFunctions/ControllerFunctions.c
+      Source file:   Source/BasicMathFunctions/BasicMathFunctionsF16.c
       Source file:   Source/ComplexMathFunctions/ComplexMathFunctions.c
-Build Time Elapsed:  00:00:05
+      Source file:   Source/TransformFunctions/TransformFunctions.c
+      Source file:   Source/ComplexMathFunctions/ComplexMathFunctionsF16.c
+Target not created.
+Build Time Elapsed:  00:00:09
 </pre>
 </body>
 </html>

@@ -1,46 +1,30 @@
 #ifndef _AUTO_AIM_H
 #define _AUTO_AIM_H
 
-#include "main.h"
-#include "gimbal_task.h"
-#include "gimbal_behaviour.h"
-#include "bsp_usart.h"
-#include "message_task.h"
-#include "shoot.h"
-// [SYNC_FROM_H] Header synced from H:\DM-balanceV1\User\APP (adds control tick prototype)
+#include <stdint.h>
+
+#include "remote_control.h"
+#include "struct_typedef.h"
 
 // timing (ms)
 #define AIM_INIT_TIME     500
 #define AUTO_AIM_TIMEOUT  2000
 #define AUTO_AIM_TIME     1
-#define PRESS_TIME        500
 
 /* uproto tick ownership: prefer comm_app task to tick protocol. */
-/* uproto tick职责：优先由comm_app任务驱动协议栈。 */
 #ifndef AUTO_AIM_UPROTO_TICK_ENABLE
 #define AUTO_AIM_UPROTO_TICK_ENABLE 0
 #endif
 
 // simple bounds for received yaw/pitch
-//#define MAX_VAL   0.0025f
 #define MAX_VAL   0.001f
-#define MIN_VAL  -MAX_VAL
+#define MIN_VAL  (-MAX_VAL)
 
 #define MAX_YAW   MAX_VAL
 #define MIN_YAW   MIN_VAL
 
 #define MAX_PITCH MAX_VAL
 #define MIN_PITCH MIN_VAL
-
-typedef union {
-    int16_t  int16;
-    uint8_t  bytes[2];
-} int16_bytes_t;
-
-typedef union {
-    fp32     fp32;
-    uint8_t  bytes[4];
-} fp32_bytes_t;
 
 typedef enum {
     AIM_OFF = 0x00,
@@ -68,11 +52,16 @@ typedef struct {
     const RC_ctrl_t *aim_rc;
 } auto_aim_t;
 
+/*
+ * Host control chain:
+ * USB CDC RX -> uproto/MUX -> gimbal_channel DELTA callback ->
+ * auto_aim_apply_delta_udeg() -> auto_aim task shaping ->
+ * aim.receive.{yaw,pitch} incremental radians -> gimbal control loop consumes.
+ */
 extern auto_aim_t aim;
 
+void AutoAimTask_Init(void);
 extern void auto_aim_task(void const *pvParameters);
-extern void auto_aim_loop(auto_aim_t *aim_loop);
-extern void send_to_minipc(void);
 
 // Bridge: apply host delta in micro-degree (udeg)
 void auto_aim_apply_delta_udeg(int32_t dyaw_udeg,

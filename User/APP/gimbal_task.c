@@ -6,6 +6,7 @@
   */
 
 #include "gimbal_task.h"
+#include "auto_aim.h"
 #include "gimbal_behaviour.h"
 #include "gravity_comp.h"
 #include "shoot_task.h"
@@ -39,6 +40,24 @@ static float gimbal_wrap_angle(float angle)
         angle += 2.0f * GIMBAL_PI;
     }
     return angle;
+}
+
+static float gimbal_take_auto_aim_bias(gimbal_motor_t *motor)
+{
+    float bias = 0.0f;
+
+    if (motor == &gimbal_control.gimbal_yaw_motor)
+    {
+        bias = aim.receive.yaw;
+        aim.receive.yaw = 0.0f;
+    }
+    else if (motor == &gimbal_control.gimbal_pitch_motor)
+    {
+        bias = aim.receive.pitch;
+        aim.receive.pitch = 0.0f;
+    }
+
+    return bias;
 }
 
 static float gimbal_clamp(float value, float min_value, float max_value)
@@ -225,6 +244,8 @@ const gimbal_motor_t *get_pitch_motor_point(void)
 
 void gimbal_absolute_angle_limit(gimbal_motor_t *motor, float add)
 {
+    const float bias = gimbal_take_auto_aim_bias(motor);
+
     if (motor == 0)
     {
         return;
@@ -232,12 +253,12 @@ void gimbal_absolute_angle_limit(gimbal_motor_t *motor, float add)
 
     if (motor == &gimbal_control.gimbal_yaw_motor)
     {
-        motor->absolute_angle_set += add;
+        motor->absolute_angle_set += add + bias;
     }
     else
     {
         motor->absolute_angle_set =
-            gimbal_clamp(motor->absolute_angle_set + add,
+            gimbal_clamp(motor->absolute_angle_set + add + bias,
                          motor->min_relative_angle,
                          motor->max_relative_angle);
     }

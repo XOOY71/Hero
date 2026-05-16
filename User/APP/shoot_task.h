@@ -24,7 +24,7 @@
 
 /* ========================= 摩擦轮目标与保护配置 ========================= */
 #ifndef SHOOT_FRIC_TARGET_SPEED_RPM
-#define SHOOT_FRIC_TARGET_SPEED_RPM 5730  // 三路摩擦轮统一目标转速，单位 rpm
+#define SHOOT_FRIC_TARGET_SPEED_RPM 3820  // 三路摩擦轮统一目标转速，单位 rpm
 #endif
 
 #ifndef SHOOT_FRIC_WHEEL_RADIUS_M
@@ -32,7 +32,23 @@
 #endif
 
 #ifndef SHOOT_FRIC_MAX_CURRENT
-#define SHOOT_FRIC_MAX_CURRENT 6000       // 三路摩擦轮电流限幅，单位 mA
+#define SHOOT_FRIC_MAX_CURRENT 5       // 三路摩擦轮电流限幅，单位 A
+#endif
+
+#ifndef SHOOT_FRIC_CURRENT_CMD_FULL_SCALE
+#define SHOOT_FRIC_CURRENT_CMD_FULL_SCALE 16384.0f
+#endif
+
+#ifndef SHOOT_FRIC_CURRENT_FULL_SCALE_A
+#define SHOOT_FRIC_CURRENT_FULL_SCALE_A 20.0f
+#endif
+
+#ifndef SHOOT_FRIC_OUTPUT_TORQUE_CONSTANT_NM_PER_A
+#define SHOOT_FRIC_OUTPUT_TORQUE_CONSTANT_NM_PER_A 0.3f
+#endif
+
+#ifndef SHOOT_FRIC_REDUCTION_RATIO
+#define SHOOT_FRIC_REDUCTION_RATIO (3591.0f / 187.0f)
 #endif
 
 #ifndef SHOOT_FRIC_FEEDBACK_RANGE_RPM
@@ -54,11 +70,11 @@
  * OUTPUT_RATE_LIMIT 越大，电流爬升越快；太大时电流尖峰更明显
  */
 #ifndef SHOOT_FRIC1_B0
-#define SHOOT_FRIC1_B0 2.75659568f
+#define SHOOT_FRIC1_B0 15000.0f
 #endif
 
 #ifndef SHOOT_FRIC1_RESPONSE_TIME_S
-#define SHOOT_FRIC1_RESPONSE_TIME_S 0.01369442f
+#define SHOOT_FRIC1_RESPONSE_TIME_S 0.01469442f
 #endif
 
 #ifndef SHOOT_FRIC1_OBSERVER_RATIO
@@ -66,16 +82,16 @@
 #endif
 
 #ifndef SHOOT_FRIC1_OUTPUT_RATE_LIMIT
-#define SHOOT_FRIC1_OUTPUT_RATE_LIMIT 300000
+#define SHOOT_FRIC1_OUTPUT_RATE_LIMIT 300
 #endif
 
 /* ========================= fric2 ADRC 参数 ========================= */
 #ifndef SHOOT_FRIC2_B0
-#define SHOOT_FRIC2_B0 2.75659568f
+#define SHOOT_FRIC2_B0 15000.0f
 #endif
 
 #ifndef SHOOT_FRIC2_RESPONSE_TIME_S
-#define SHOOT_FRIC2_RESPONSE_TIME_S 0.01369442f
+#define SHOOT_FRIC2_RESPONSE_TIME_S 0.01469442f
 #endif
 
 #ifndef SHOOT_FRIC2_OBSERVER_RATIO
@@ -83,12 +99,12 @@
 #endif
 
 #ifndef SHOOT_FRIC2_OUTPUT_RATE_LIMIT
-#define SHOOT_FRIC2_OUTPUT_RATE_LIMIT 300000
+#define SHOOT_FRIC2_OUTPUT_RATE_LIMIT 300
 #endif
 
 /* ========================= fric3 ADRC 参数 ========================= */
 #ifndef SHOOT_FRIC3_B0
-#define SHOOT_FRIC3_B0 3.75659568f
+#define SHOOT_FRIC3_B0 15000.0f
 #endif
 
 #ifndef SHOOT_FRIC3_RESPONSE_TIME_S
@@ -100,12 +116,12 @@
 #endif
 
 #ifndef SHOOT_FRIC3_OUTPUT_RATE_LIMIT
-#define SHOOT_FRIC3_OUTPUT_RATE_LIMIT 300000
+#define SHOOT_FRIC3_OUTPUT_RATE_LIMIT 300
 #endif
 
 /* ========================= ADRC 非线性项配置 ========================= */
 #ifndef SHOOT_FRIC_ERROR_LINEAR_ZONE
-#define SHOOT_FRIC_ERROR_LINEAR_ZONE 390  // fal 线性区间，增大后小误差段更平缓
+#define SHOOT_FRIC_ERROR_LINEAR_ZONE 120  // fal 线性区间，增大后小误差段更平缓
 #endif
 
 #ifndef SHOOT_FRIC_ALPHA1
@@ -130,7 +146,7 @@
 #endif
 
 #ifndef SHOOT_FRIC1_FF_CURRENT
-#define SHOOT_FRIC1_FF_CURRENT 4200        // fric1 固定前馈电流，单位 mA
+#define SHOOT_FRIC1_FF_CURRENT 1        // fric1 固定前馈电流，单位 mA
 #endif
 
 #ifndef SHOOT_FRIC1_FF_DURATION_MS
@@ -150,7 +166,7 @@
 #endif
 
 #ifndef SHOOT_FRIC2_FF_CURRENT
-#define SHOOT_FRIC2_FF_CURRENT 4200        // fric2 固定前馈电流，单位 mA
+#define SHOOT_FRIC2_FF_CURRENT 1        // fric2 固定前馈电流，单位 mA
 #endif
 
 #ifndef SHOOT_FRIC2_FF_DURATION_MS
@@ -170,7 +186,7 @@
 #endif
 
 #ifndef SHOOT_FRIC3_FF_CURRENT
-#define SHOOT_FRIC3_FF_CURRENT 4200        // fric3 固定前馈电流，单位 mA
+#define SHOOT_FRIC3_FF_CURRENT 1        // fric3 固定前馈电流，单位 mA
 #endif
 
 #ifndef SHOOT_FRIC3_FF_DURATION_MS
@@ -213,6 +229,11 @@ typedef struct
     uint16_t ff_cooldown_ticks;
     int16_t ff_current;
     int16_t give_current;
+    int16_t given_current;
+    float give_current_a;
+    float given_current_a;
+    float give_input_torque_nm;
+    float given_input_torque_nm;
 } shoot_task_motor_t;
 
 typedef struct

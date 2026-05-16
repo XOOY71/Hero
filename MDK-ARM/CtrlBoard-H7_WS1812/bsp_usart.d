@@ -40,12 +40,15 @@ ctrlboard-h7_ws1812\bsp_usart.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_h
 ctrlboard-h7_ws1812\bsp_usart.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_tim_ex.h
 ctrlboard-h7_ws1812\bsp_usart.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_uart.h
 ctrlboard-h7_ws1812\bsp_usart.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_uart_ex.h
+ctrlboard-h7_ws1812\bsp_usart.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_pcd.h
+ctrlboard-h7_ws1812\bsp_usart.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_ll_usb.h
+ctrlboard-h7_ws1812\bsp_usart.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_pcd_ex.h
 ctrlboard-h7_ws1812\bsp_usart.o: D:\Keil5\ARM\ARMCC\Bin\..\include\string.h
 ctrlboard-h7_ws1812\bsp_usart.o: ../User/APP/project_config.h
 ctrlboard-h7_ws1812\bsp_usart.o: ../Core/Inc/usart.h
 ctrlboard-h7_ws1812\bsp_usart.o: ..\User\BSP\remote_control.h
 ctrlboard-h7_ws1812\bsp_usart.o: ../User/APP/gimbal_task.h
 ctrlboard-h7_ws1812\bsp_usart.o: D:\Keil5\ARM\ARMCC\Bin\..\include\stdbool.h
-ctrlboard-h7_ws1812\bsp_usart.o: ..\User\Algorithm\pid.h
-ctrlboard-h7_ws1812\bsp_usart.o: ..\User\Algorithm\gravity_comp.h
+ctrlboard-h7_ws1812\bsp_usart.o: ../User/Algorithm/pid.h
+ctrlboard-h7_ws1812\bsp_usart.o: ../User/Algorithm/gravity_comp.h
 ctrlboard-h7_ws1812\bsp_usart.o: ../User/Devices/hwt_imu.h

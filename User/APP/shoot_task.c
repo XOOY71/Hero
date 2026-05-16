@@ -30,6 +30,9 @@ static void shoot_task_motor_init(shoot_task_motor_t *motor,
 static void shoot_task_motor_reset(shoot_task_motor_t *motor);
 static void shoot_task_motor_hot_reset(shoot_task_motor_t *motor);
 static int16_t shoot_task_motor_calc(shoot_task_motor_t *motor, float target_speed_rpm);
+static float shoot_task_current_cmd_to_current_a(int16_t current_cmd);
+static float shoot_task_current_cmd_to_input_torque_nm(int16_t current_cmd);
+static void shoot_task_motor_update_current_physics(shoot_task_motor_t *motor);
 static bool shoot_task_motor_ready(const shoot_task_motor_t *motor, uint32_t now);
 static bool shoot_task_motor_should_trigger_feedforward(const shoot_task_motor_t *motor,
                                                         float trigger_drop_rpm,
@@ -206,6 +209,10 @@ static void shoot_task_update_feedback(shoot_task_control_t *control)
         control->fric3.speed_rpm = (float)control->fric3.measure->speed_rpm * control->fric3.direction;
         control->fric3.speed_mps = control->fric3.speed_rpm * SHOOT_FRIC_RPM_TO_MPS;
     }
+
+    shoot_task_motor_update_current_physics(&control->fric1);
+    shoot_task_motor_update_current_physics(&control->fric2);
+    shoot_task_motor_update_current_physics(&control->fric3);
 }
 
 /**
@@ -319,6 +326,10 @@ static void shoot_task_control_friction(shoot_task_control_t *control)
     }
 
     /* 将三路电流打包后通过 CAN 下发。 */
+    shoot_task_motor_update_current_physics(&control->fric1);
+    shoot_task_motor_update_current_physics(&control->fric2);
+    shoot_task_motor_update_current_physics(&control->fric3);
+
     shoot_task_send_friction_current(control->fric1.give_current,
                                      control->fric2.give_current,
                                      control->fric3.give_current);
@@ -343,6 +354,9 @@ static void shoot_task_stop_friction(shoot_task_control_t *control)
     control->fric1.give_current = 0;
     control->fric2.give_current = 0;
     control->fric3.give_current = 0;
+    shoot_task_motor_update_current_physics(&control->fric1);
+    shoot_task_motor_update_current_physics(&control->fric2);
+    shoot_task_motor_update_current_physics(&control->fric3);
     control->fric1.ff_ticks = 0U;
     control->fric1.ff_cooldown_ticks = 0U;
     control->fric1.ff_current = 0;
@@ -463,6 +477,40 @@ static void shoot_task_motor_hot_reset(shoot_task_motor_t *motor)
                    motor->speed_rpm,
                    SHOOT_FRIC_TARGET_SPEED_RPM,
                    (float)motor->give_current * motor->direction);
+}
+
+static float shoot_task_current_cmd_to_current_a(int16_t current_cmd)
+{
+    return ((float)current_cmd / SHOOT_FRIC_CURRENT_CMD_FULL_SCALE) * SHOOT_FRIC_CURRENT_FULL_SCALE_A;
+}
+
+static float shoot_task_current_cmd_to_input_torque_nm(int16_t current_cmd)
+{
+    const float output_torque_nm = shoot_task_current_cmd_to_current_a(current_cmd) *
+                                   SHOOT_FRIC_OUTPUT_TORQUE_CONSTANT_NM_PER_A;
+
+    return output_torque_nm / SHOOT_FRIC_REDUCTION_RATIO;
+}
+
+static void shoot_task_motor_update_current_physics(shoot_task_motor_t *motor)
+{
+    int16_t given_current = 0;
+
+    if (motor == NULL)
+    {
+        return;
+    }
+
+    if (motor->measure != NULL)
+    {
+        given_current = motor->measure->given_current;
+    }
+
+    motor->given_current = given_current;
+    motor->give_current_a = shoot_task_current_cmd_to_current_a(motor->give_current);
+    motor->given_current_a = shoot_task_current_cmd_to_current_a(given_current);
+    motor->give_input_torque_nm = shoot_task_current_cmd_to_input_torque_nm(motor->give_current);
+    motor->given_input_torque_nm = shoot_task_current_cmd_to_input_torque_nm(given_current);
 }
 
 /**

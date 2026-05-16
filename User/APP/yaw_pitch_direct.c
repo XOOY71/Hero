@@ -6,6 +6,7 @@
   */
 
 #include "yaw_pitch_direct.h"
+#include "auto_aim.h"
 #include "hwt_imu.h"
 #include "bsp_fdcan.h"
 #include "cmsis_os.h"
@@ -56,6 +57,24 @@ static float gimbal_mit_clamp(float value, float min_value, float max_value)
 static float gimbal_output_to_mit_torque(float output)
 {
     return gimbal_mit_clamp(output, T_MIN, T_MAX);
+}
+
+static float gimbal_take_auto_aim_bias(gimbal_motor_t *motor)
+{
+    float bias = 0.0f;
+
+    if (motor == &gimbal_control.gimbal_yaw_motor)
+    {
+        bias = aim.receive.yaw;
+        aim.receive.yaw = 0.0f;
+    }
+    else if (motor == &gimbal_control.gimbal_pitch_motor)
+    {
+        bias = aim.receive.pitch;
+        aim.receive.pitch = 0.0f;
+    }
+
+    return bias;
 }
 
 static void gimbal_feedforward_clear(gimbal_motor_t *motor)
@@ -503,7 +522,8 @@ void gimbal_set_control(gimbal_control_t *control)
     }
     else if (control->gimbal_yaw_motor.mode == GIMBAL_MOTOR_ENCODE)
     {
-        control->gimbal_yaw_motor.relative_angle_set += add_yaw;
+        control->gimbal_yaw_motor.relative_angle_set +=
+            add_yaw + gimbal_take_auto_aim_bias(&control->gimbal_yaw_motor);
         gimbal_feedforward_track_target(&control->gimbal_yaw_motor,
                                         control->gimbal_yaw_motor.relative_angle_set);
     }
@@ -522,7 +542,9 @@ void gimbal_set_control(gimbal_control_t *control)
     {
         add_pitch = gimbal_feedforward_update(&control->gimbal_pitch_motor, add_pitch);
         control->gimbal_pitch_motor.relative_angle_set =
-            gimbal_mit_clamp(control->gimbal_pitch_motor.relative_angle_set + add_pitch,
+            gimbal_mit_clamp(control->gimbal_pitch_motor.relative_angle_set +
+                                 add_pitch +
+                                 gimbal_take_auto_aim_bias(&control->gimbal_pitch_motor),
                              control->gimbal_pitch_motor.min_relative_angle,
                              control->gimbal_pitch_motor.max_relative_angle);
     }

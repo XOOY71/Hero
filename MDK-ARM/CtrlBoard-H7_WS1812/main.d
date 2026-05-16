@@ -39,6 +39,9 @@ ctrlboard-h7_ws1812\main.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_ti
 ctrlboard-h7_ws1812\main.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_tim_ex.h
 ctrlboard-h7_ws1812\main.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_uart.h
 ctrlboard-h7_ws1812\main.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_uart_ex.h
+ctrlboard-h7_ws1812\main.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_pcd.h
+ctrlboard-h7_ws1812\main.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_ll_usb.h
+ctrlboard-h7_ws1812\main.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_pcd_ex.h
 ctrlboard-h7_ws1812\main.o: ../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS/cmsis_os.h
 ctrlboard-h7_ws1812\main.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/FreeRTOS.h
 ctrlboard-h7_ws1812\main.o: ../Core/Inc/FreeRTOSConfig.h
@@ -58,11 +61,16 @@ ctrlboard-h7_ws1812\main.o: ../Core/Inc/fdcan.h
 ctrlboard-h7_ws1812\main.o: ../Core/Inc/spi.h
 ctrlboard-h7_ws1812\main.o: ../Core/Inc/tim.h
 ctrlboard-h7_ws1812\main.o: ../Core/Inc/usart.h
+ctrlboard-h7_ws1812\main.o: ../USB_DEVICE/App/usb_device.h
+ctrlboard-h7_ws1812\main.o: ../Middlewares/ST/STM32_USB_Device_Library/Core/Inc/usbd_def.h
+ctrlboard-h7_ws1812\main.o: ../USB_DEVICE/Target/usbd_conf.h
+ctrlboard-h7_ws1812\main.o: D:\Keil5\ARM\ARMCC\Bin\..\include\stdio.h
+ctrlboard-h7_ws1812\main.o: D:\Keil5\ARM\ARMCC\Bin\..\include\stdlib.h
+ctrlboard-h7_ws1812\main.o: D:\Keil5\ARM\ARMCC\Bin\..\include\string.h
 ctrlboard-h7_ws1812\main.o: ../Core/Inc/gpio.h
 ctrlboard-h7_ws1812\main.o: ../User/BSP/bsp_fdcan.h
 ctrlboard-h7_ws1812\main.o: D:\Keil5\ARM\ARMCC\Bin\..\include\stdbool.h
 ctrlboard-h7_ws1812\main.o: ../User/BSP/bsp_usart.h
-ctrlboard-h7_ws1812\main.o: D:\Keil5\ARM\ARMCC\Bin\..\include\string.h
 ctrlboard-h7_ws1812\main.o: ../User/APP/project_config.h
 ctrlboard-h7_ws1812\main.o: ../User/Devices/ws2812.h
 ctrlboard-h7_ws1812\main.o: ../User/APP/safewarning.h
