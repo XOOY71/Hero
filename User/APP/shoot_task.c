@@ -8,6 +8,7 @@
 /* 摩擦轮电机 CAN 电流指令 ID。 */
 #define SHOOT_FRICTION_CMD_ID 0x200U
 #define SHOOT_FRIC_RPM_TO_MPS (2.0f * 3.14159265358979323846f * SHOOT_FRIC_WHEEL_RADIUS_M / 60.0f)
+#define SHOOT_FRIC_MA_PER_A 1000.0f
 
 extern motor_measure_t DJI_MOTOR_MEASURE[8];
 
@@ -29,10 +30,15 @@ static void shoot_task_motor_init(shoot_task_motor_t *motor,
                                   float output_rate_limit);
 static void shoot_task_motor_reset(shoot_task_motor_t *motor);
 static void shoot_task_motor_hot_reset(shoot_task_motor_t *motor);
-static int16_t shoot_task_motor_calc(shoot_task_motor_t *motor, float target_speed_rpm);
-static float shoot_task_current_cmd_to_current_a(int16_t current_cmd);
-static float shoot_task_current_cmd_to_input_torque_nm(int16_t current_cmd);
+static float shoot_task_motor_calc(shoot_task_motor_t *motor, float target_speed_rpm);
+static float shoot_task_limit_current_a(float current_a);
+static int16_t shoot_task_current_a_to_current_ma(float current_a);
+static float shoot_task_current_ma_to_current_a(int16_t current_ma);
+static int16_t shoot_task_current_ma_to_esc_cmd(int16_t current_ma);
+static float shoot_task_feedback_cmd_to_current_a(int16_t current_cmd);
+static float shoot_task_current_a_to_input_torque_nm(float current_a);
 static void shoot_task_motor_update_current_physics(shoot_task_motor_t *motor);
+static void shoot_task_motor_finalize_current(shoot_task_motor_t *motor);
 static bool shoot_task_motor_ready(const shoot_task_motor_t *motor, uint32_t now);
 static bool shoot_task_motor_should_trigger_feedforward(const shoot_task_motor_t *motor,
                                                         float trigger_drop_rpm,
@@ -261,10 +267,10 @@ static void shoot_task_control_friction(shoot_task_control_t *control)
     control->fric2.speed_set_rpm = SHOOT_FRIC_TARGET_SPEED_RPM;
     control->fric3.speed_set_rpm = SHOOT_FRIC_TARGET_SPEED_RPM;
 
-    /* 计算各电机闭环输出电流。 */
-    control->fric1.give_current = shoot_task_motor_calc(&control->fric1, control->fric1.speed_set_rpm);
-    control->fric2.give_current = shoot_task_motor_calc(&control->fric2, control->fric2.speed_set_rpm);
-    control->fric3.give_current = shoot_task_motor_calc(&control->fric3, control->fric3.speed_set_rpm);
+    /* 计算各电机闭环输出电流，单位 A。 */
+    control->fric1.give_current_a = shoot_task_motor_calc(&control->fric1, control->fric1.speed_set_rpm);
+    control->fric2.give_current_a = shoot_task_motor_calc(&control->fric2, control->fric2.speed_set_rpm);
+    control->fric3.give_current_a = shoot_task_motor_calc(&control->fric3, control->fric3.speed_set_rpm);
 
     if ((control->fric1.ff_cooldown_ticks == 0U) &&
         shoot_task_motor_should_trigger_feedforward(&control->fric1,
@@ -325,6 +331,10 @@ static void shoot_task_control_friction(shoot_task_control_t *control)
         control->fric3.ff_cooldown_ticks--;
     }
 
+    shoot_task_motor_finalize_current(&control->fric1);
+    shoot_task_motor_finalize_current(&control->fric2);
+    shoot_task_motor_finalize_current(&control->fric3);
+
     /* 将三路电流打包后通过 CAN 下发。 */
     shoot_task_motor_update_current_physics(&control->fric1);
     shoot_task_motor_update_current_physics(&control->fric2);
@@ -354,6 +364,9 @@ static void shoot_task_stop_friction(shoot_task_control_t *control)
     control->fric1.give_current = 0;
     control->fric2.give_current = 0;
     control->fric3.give_current = 0;
+    control->fric1.give_current_a = 0.0f;
+    control->fric2.give_current_a = 0.0f;
+    control->fric3.give_current_a = 0.0f;
     shoot_task_motor_update_current_physics(&control->fric1);
     shoot_task_motor_update_current_physics(&control->fric2);
     shoot_task_motor_update_current_physics(&control->fric3);
@@ -381,21 +394,24 @@ static void shoot_task_stop_friction(shoot_task_control_t *control)
 
 /**
  * @brief 发送三路摩擦轮电流指令。
- * @param fric1_current 摩擦轮 1 电流。
- * @param fric2_current 摩擦轮 2 电流。
- * @param fric3_current 摩擦轮 3 电流。
+ * @param fric1_current 摩擦轮 1 电流，单位 mA。
+ * @param fric2_current 摩擦轮 2 电流，单位 mA。
+ * @param fric3_current 摩擦轮 3 电流，单位 mA。
  */
 static void shoot_task_send_friction_current(int16_t fric1_current, int16_t fric2_current, int16_t fric3_current)
 {
     uint8_t data[8];
+    int16_t fric1_cmd = shoot_task_current_ma_to_esc_cmd(fric1_current);
+    int16_t fric2_cmd = shoot_task_current_ma_to_esc_cmd(fric2_current);
+    int16_t fric3_cmd = shoot_task_current_ma_to_esc_cmd(fric3_current);
 
-    /* 按高字节在前的格式打包三路 16 位电流命令。 */
-    data[0] = (uint8_t)((uint16_t)fric1_current >> 8);
-    data[1] = (uint8_t)fric1_current;
-    data[2] = (uint8_t)((uint16_t)fric2_current >> 8);
-    data[3] = (uint8_t)fric2_current;
-    data[4] = (uint8_t)((uint16_t)fric3_current >> 8);
-    data[5] = (uint8_t)fric3_current;
+    /* 按高字节在前的格式打包三路 16 位电调原始电流命令。 */
+    data[0] = (uint8_t)((uint16_t)fric1_cmd >> 8);
+    data[1] = (uint8_t)fric1_cmd;
+    data[2] = (uint8_t)((uint16_t)fric2_cmd >> 8);
+    data[3] = (uint8_t)fric2_cmd;
+    data[4] = (uint8_t)((uint16_t)fric3_cmd >> 8);
+    data[5] = (uint8_t)fric3_cmd;
     data[6] = 0U;
     data[7] = 0U;
 
@@ -476,18 +492,53 @@ static void shoot_task_motor_hot_reset(shoot_task_motor_t *motor)
     ADRC_hot_reset(&motor->speed_adrc,
                    motor->speed_rpm,
                    SHOOT_FRIC_TARGET_SPEED_RPM,
-                   (float)motor->give_current * motor->direction);
+                   motor->give_current_a * motor->direction);
 }
 
-static float shoot_task_current_cmd_to_current_a(int16_t current_cmd)
+static float shoot_task_limit_current_a(float current_a)
+{
+    if (current_a > SHOOT_FRIC_MAX_CURRENT)
+    {
+        current_a = SHOOT_FRIC_MAX_CURRENT;
+    }
+    else if (current_a < -SHOOT_FRIC_MAX_CURRENT)
+    {
+        current_a = -SHOOT_FRIC_MAX_CURRENT;
+    }
+
+    return current_a;
+}
+
+static int16_t shoot_task_current_a_to_current_ma(float current_a)
+{
+    float current_ma;
+
+    current_ma = current_a * SHOOT_FRIC_MA_PER_A;
+    return (int16_t)((current_ma >= 0.0f) ? (current_ma + 0.5f) : (current_ma - 0.5f));
+}
+
+static float shoot_task_current_ma_to_current_a(int16_t current_ma)
+{
+    return (float)current_ma / SHOOT_FRIC_MA_PER_A;
+}
+
+static int16_t shoot_task_current_ma_to_esc_cmd(int16_t current_ma)
+{
+    const float current_a = shoot_task_current_ma_to_current_a(current_ma);
+    const float current_cmd = (current_a / SHOOT_FRIC_CURRENT_FULL_SCALE_A) *
+                              SHOOT_FRIC_CURRENT_CMD_FULL_SCALE;
+
+    return (int16_t)((current_cmd >= 0.0f) ? (current_cmd + 0.5f) : (current_cmd - 0.5f));
+}
+
+static float shoot_task_feedback_cmd_to_current_a(int16_t current_cmd)
 {
     return ((float)current_cmd / SHOOT_FRIC_CURRENT_CMD_FULL_SCALE) * SHOOT_FRIC_CURRENT_FULL_SCALE_A;
 }
 
-static float shoot_task_current_cmd_to_input_torque_nm(int16_t current_cmd)
+static float shoot_task_current_a_to_input_torque_nm(float current_a)
 {
-    const float output_torque_nm = shoot_task_current_cmd_to_current_a(current_cmd) *
-                                   SHOOT_FRIC_OUTPUT_TORQUE_CONSTANT_NM_PER_A;
+    const float output_torque_nm = current_a * SHOOT_FRIC_OUTPUT_TORQUE_CONSTANT_NM_PER_A;
 
     return output_torque_nm / SHOOT_FRIC_REDUCTION_RATIO;
 }
@@ -507,21 +558,31 @@ static void shoot_task_motor_update_current_physics(shoot_task_motor_t *motor)
     }
 
     motor->given_current = given_current;
-    motor->give_current_a = shoot_task_current_cmd_to_current_a(motor->give_current);
-    motor->given_current_a = shoot_task_current_cmd_to_current_a(given_current);
-    motor->give_input_torque_nm = shoot_task_current_cmd_to_input_torque_nm(motor->give_current);
-    motor->given_input_torque_nm = shoot_task_current_cmd_to_input_torque_nm(given_current);
+    motor->given_current_a = shoot_task_feedback_cmd_to_current_a(given_current);
+    motor->give_input_torque_nm = shoot_task_current_a_to_input_torque_nm(motor->give_current_a);
+    motor->given_input_torque_nm = shoot_task_current_a_to_input_torque_nm(motor->given_current_a);
+}
+
+static void shoot_task_motor_finalize_current(shoot_task_motor_t *motor)
+{
+    if (motor == NULL)
+    {
+        return;
+    }
+
+    motor->give_current_a = shoot_task_limit_current_a(motor->give_current_a);
+    motor->give_current = shoot_task_current_a_to_current_ma(motor->give_current_a);
 }
 
 /**
  * @brief 计算单个摩擦轮所需输出电流。
  * @param motor 电机控制对象指针。
  * @param target_speed_rpm 目标转速，单位 rpm。
- * @return 量化后的电流输出值。
+ * @return 电流输出值，单位 A。
  */
-static int16_t shoot_task_motor_calc(shoot_task_motor_t *motor, float target_speed_rpm)
+static float shoot_task_motor_calc(shoot_task_motor_t *motor, float target_speed_rpm)
 {
-    float current_output;
+    float current_output_a;
 
     if (motor == NULL)
     {
@@ -529,20 +590,10 @@ static int16_t shoot_task_motor_calc(shoot_task_motor_t *motor, float target_spe
     }
 
     /* 先按统一正方向计算控制量，再恢复到电机实际安装方向。 */
-    current_output = ADRC_Calc(&motor->speed_adrc, motor->speed_rpm, target_speed_rpm);
-    current_output *= motor->direction;
+    current_output_a = ADRC_Calc(&motor->speed_adrc, motor->speed_rpm, target_speed_rpm);
+    current_output_a *= motor->direction;
 
-    /* 对输出电流做限幅，防止超过驱动允许范围。 */
-    if (current_output > SHOOT_FRIC_MAX_CURRENT)
-    {
-        current_output = SHOOT_FRIC_MAX_CURRENT;
-    }
-    else if (current_output < -SHOOT_FRIC_MAX_CURRENT)
-    {
-        current_output = -SHOOT_FRIC_MAX_CURRENT;
-    }
-
-    return (int16_t)current_output;
+    return current_output_a;
 }
 
 static bool shoot_task_motor_should_trigger_feedforward(const shoot_task_motor_t *motor,
@@ -577,18 +628,8 @@ static void shoot_task_motor_apply_feedforward(shoot_task_motor_t *motor)
     }
 
     {
-        int32_t boosted_current = (int32_t)motor->give_current + (int32_t)(motor->ff_current * motor->direction);
-
-        if (boosted_current > SHOOT_FRIC_MAX_CURRENT)
-        {
-            boosted_current = SHOOT_FRIC_MAX_CURRENT;
-        }
-        else if (boosted_current < -SHOOT_FRIC_MAX_CURRENT)
-        {
-            boosted_current = -SHOOT_FRIC_MAX_CURRENT;
-        }
-
-        motor->give_current = (int16_t)boosted_current;
+        motor->give_current_a += (float)motor->ff_current * motor->direction;
+        motor->give_current_a = shoot_task_limit_current_a(motor->give_current_a);
     }
 #else
     (void)motor;

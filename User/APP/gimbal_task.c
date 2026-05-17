@@ -80,12 +80,19 @@ static float gimbal_float_to_torque_cmd(float output)
 
 static float gimbal_calc_feedforward(gimbal_motor_t *motor)
 {
+    float velocity_torque = 0.0f;
+
     if (motor == 0)
     {
         return 0.0f;
     }
 
-    motor->ff_torque = motor->inertia_kgm2 * motor->ref_accel;
+    if (motor == &gimbal_control.gimbal_pitch_motor)
+    {
+        velocity_torque = PITCH_VELOCITY_FF_GAIN * motor->ref_vel;
+    }
+
+    motor->ff_torque = velocity_torque + motor->inertia_kgm2 * motor->ref_accel;
 
     return motor->ff_torque;
 }
@@ -106,20 +113,25 @@ static float gimbal_calc_feedback_torque(gimbal_motor_t *motor, gimbal_pid_t *an
     return motor->pid_torque;
 }
 
-static float gimbal_calc_yaw_angle_speed_torque(gimbal_motor_t *motor, float angle_error)
+static float gimbal_calc_angle_speed_torque(gimbal_motor_t *motor, gimbal_pid_t *pid, float angle_error)
 {
-    gimbal_pid_t *pid;
     float speed_error;
     float output;
 
-    if (motor == 0)
+    if (motor == 0 || pid == 0)
     {
         return 0.0f;
     }
 
-    pid = &motor->absolute_angle_pid;
     motor->gyro_set = motor->ref_vel;
-    speed_error = motor->gyro_set - motor->gyro;
+    if (motor == &gimbal_control.gimbal_pitch_motor)
+    {
+        speed_error = motor->gyro_set - motor->relative_speed;
+    }
+    else
+    {
+        speed_error = motor->gyro_set - motor->gyro;
+    }
 
     pid->set = angle_error;
     pid->fdb = 0.0f;
@@ -138,50 +150,14 @@ static float gimbal_calc_yaw_angle_speed_torque(gimbal_motor_t *motor, float ang
     return motor->pid_torque;
 }
 
-static void gimbal_pitch_soft_limit_output(gimbal_control_t *control)
+static float gimbal_calc_yaw_angle_speed_torque(gimbal_motor_t *motor, float angle_error)
 {
-    gimbal_motor_t *motor;
-    float distance_to_limit;
-    float scale;
-
-    if (control == 0 || PITCH_SOFT_LIMIT_BUFFER_ANGLE <= 0.0f)
+    if (motor == 0)
     {
-        return;
+        return 0.0f;
     }
 
-    motor = &control->gimbal_pitch_motor;
-
-    if (motor->given_current > 0.0f)
-    {
-        distance_to_limit = motor->max_relative_angle - motor->relative_angle;
-    }
-    else if (motor->given_current < 0.0f)
-    {
-        distance_to_limit = motor->relative_angle - motor->min_relative_angle;
-    }
-    else
-    {
-        return;
-    }
-
-    if (distance_to_limit >= PITCH_SOFT_LIMIT_BUFFER_ANGLE)
-    {
-        return;
-    }
-
-    if (distance_to_limit <= 0.0f)
-    {
-        scale = PITCH_SOFT_LIMIT_MIN_OUTPUT_SCALE;
-    }
-    else
-    {
-        scale = distance_to_limit / PITCH_SOFT_LIMIT_BUFFER_ANGLE;
-        scale = gimbal_clamp(scale, PITCH_SOFT_LIMIT_MIN_OUTPUT_SCALE, 1.0f);
-    }
-
-    motor->given_current *= scale;
-    motor->output = motor->given_current;
-    motor->current_set = motor->given_current;
+    return gimbal_calc_angle_speed_torque(motor, &motor->absolute_angle_pid, angle_error);
 }
 
 void GimbalTask_Init(void)
@@ -208,26 +184,30 @@ static void gimbal_task(void const *pvParameters)
         gimbal_mode_change_control_transit(&gimbal_control);
         gimbal_set_control(&gimbal_control);
         gimbal_control_loop(&gimbal_control);
-        gimbal_pitch_soft_limit_output(&gimbal_control);
         gravity_comp_execute(&gimbal_control);
         gimbal_send_cmd(&gimbal_control);
         shoot_task_loop();
 
-        /* VOFA ch0~ch5:
-         * ch0: friction wheel 1 speed [rpm]
-         * ch1: friction wheel 2 speed [rpm]
-         * ch2: friction wheel 3 speed [rpm]
-         * ch3: friction wheel 1 feedforward current
-         * ch4: friction wheel 2 feedforward current
-         * ch5: friction wheel 3 feedforward current
+        /* VOFA 通道说明：
+         * ch0：pitch 实际位置角，单位 rad
+         * ch1：pitch 目标位置角，单位 rad
+         * ch2：pitch 编码器差分速度，单位 rad/s
+         * ch3：pitch PID 输出力矩，单位 N*m
+         * ch4：pitch 前馈输出力矩，单位 N*m
+         * ch5：pitch 最终输出力矩，单位 N*m
          */
-        VOFA_Send6(shoot_task_control.fric1.speed_rpm ,
-                   shoot_task_control.fric2.speed_rpm,
-                   shoot_task_control.fric3.speed_rpm,
-                   (float)(shoot_task_control.fric1.ff_ticks > 0U ? shoot_task_control.fric1.ff_current : 0),
-                   (float)(shoot_task_control.fric2.ff_ticks > 0U ? shoot_task_control.fric2.ff_current : 0),
-                   (float)(shoot_task_control.fric3.ff_ticks > 0U ? shoot_task_control.fric3.ff_current : 0));
-
+//        VOFA_Send6(gimbal_control.gimbal_pitch_motor.relative_angle,
+//                   gimbal_control.gimbal_pitch_motor.relative_angle_set,
+//                   gimbal_control.gimbal_pitch_motor.relative_speed,
+//                   gimbal_control.gimbal_pitch_motor.pid_torque,
+//                   gimbal_control.gimbal_pitch_motor.ff_torque,
+//                   gimbal_control.gimbal_pitch_motor.given_current);
+//        VOFA_Send6(gimbal_control.gimbal_yaw_motor.relative_angle,
+//                   gimbal_control.gimbal_yaw_motor.relative_angle_set,
+//                   gimbal_control.gimbal_yaw_motor.gyro,
+//                   gimbal_control.gimbal_yaw_motor.gyro_accel,
+//                   gimbal_control.gimbal_yaw_motor.ff_torque,
+//                   gimbal_control.gimbal_yaw_motor.given_current);
         vTaskDelayUntil(&last_wake_time, GIMBAL_CONTROL_TIME);
     }
 }
@@ -309,7 +289,9 @@ void gimbal_motor_relative_angle_control(gimbal_motor_t *motor)
     }
     else
     {
-        gimbal_calc_feedback_torque(motor, &motor->relative_angle_pid, motor->relative_angle, motor->relative_angle_set);
+        gimbal_calc_angle_speed_torque(motor,
+                                       &motor->relative_angle_pid,
+                                       motor->relative_angle_set - motor->relative_angle);
     }
 
     motor->current_set = motor->pid_torque + gimbal_calc_feedforward(motor);

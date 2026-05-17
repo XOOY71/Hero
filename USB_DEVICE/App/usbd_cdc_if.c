@@ -415,8 +415,23 @@ static int8_t CDC_TransmitCplt_HS(uint8_t *Buf, uint32_t *Len, uint8_t epnum)
   uint8_t result = USBD_OK;
   /* USER CODE BEGIN 14 */
   UNUSED(Buf);
-  UNUSED(Len);
   UNUSED(epnum);
+  if (Len != NULL && *Len > 0U)
+  {
+    uint16_t sent_len = (*Len > 0xFFFFU) ? 0xFFFFU : (uint16_t)(*Len);
+
+    __disable_irq();
+    if (sent_len >= usb_tx_count)
+    {
+      usb_tx_count = 0U;
+    }
+    else
+    {
+      usb_tx_count = (uint16_t)(usb_tx_count - sent_len);
+    }
+    __enable_irq();
+  }
+  start_usb_tx_if_idle();
   /* USER CODE END 14 */
   return result;
 }

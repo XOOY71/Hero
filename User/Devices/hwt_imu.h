@@ -24,6 +24,7 @@ extern "C" {
  */
 #define HWT_GIMBAL_YAW_INDEX    0u
 #define HWT_GIMBAL_PITCH_INDEX  1u
+#define HWT_GIMBAL_ROLL_INDEX   2u
 
 #define IMU101_RX_BUF_LEN  64
 #define IMU906_RX_BUF_LEN  64

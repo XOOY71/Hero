@@ -66,3 +66,4 @@ ctrlboard-h7_ws1812\freertos.o: ../User/Algorithm/pid.h
 ctrlboard-h7_ws1812\freertos.o: ../User/Algorithm/gravity_comp.h
 ctrlboard-h7_ws1812\freertos.o: ../User/APP/service_task.h
 ctrlboard-h7_ws1812\freertos.o: ../User/APP/auto_aim.h
+ctrlboard-h7_ws1812\freertos.o: ../User/APP/comm_bridge.h

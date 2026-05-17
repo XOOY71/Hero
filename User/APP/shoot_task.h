@@ -146,7 +146,7 @@
 #endif
 
 #ifndef SHOOT_FRIC1_FF_CURRENT
-#define SHOOT_FRIC1_FF_CURRENT 1        // fric1 固定前馈电流，单位 mA
+#define SHOOT_FRIC1_FF_CURRENT 1        // fric1 固定前馈电流，单位 A
 #endif
 
 #ifndef SHOOT_FRIC1_FF_DURATION_MS
@@ -166,7 +166,7 @@
 #endif
 
 #ifndef SHOOT_FRIC2_FF_CURRENT
-#define SHOOT_FRIC2_FF_CURRENT 1        // fric2 固定前馈电流，单位 mA
+#define SHOOT_FRIC2_FF_CURRENT 1        // fric2 固定前馈电流，单位 A
 #endif
 
 #ifndef SHOOT_FRIC2_FF_DURATION_MS
@@ -186,7 +186,7 @@
 #endif
 
 #ifndef SHOOT_FRIC3_FF_CURRENT
-#define SHOOT_FRIC3_FF_CURRENT 1        // fric3 固定前馈电流，单位 mA
+#define SHOOT_FRIC3_FF_CURRENT 1        // fric3 固定前馈电流，单位 A
 #endif
 
 #ifndef SHOOT_FRIC3_FF_DURATION_MS
@@ -227,9 +227,9 @@ typedef struct
     float direction;
     uint16_t ff_ticks;
     uint16_t ff_cooldown_ticks;
-    int16_t ff_current;
-    int16_t give_current;
-    int16_t given_current;
+    int16_t ff_current;              // 前馈补偿电流，单位 A
+    int16_t give_current;            // 最终发送给电机的电流，单位 mA
+    int16_t given_current;           // 电机反馈中的电流原始值
     float give_current_a;
     float given_current_a;
     float give_input_torque_nm;

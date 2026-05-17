@@ -81,9 +81,9 @@ typedef struct
 
 typedef struct
 {
-    fp32 buf[5];
+    float buf[5];
     uint8_t idx;
-    fp32 last_out;
+    float last_out;
     uint8_t zero_hold_cnt;
 } median_filter5_t;
 
@@ -214,6 +214,7 @@ static void auto_aim_set(auto_aim_t *aim_set)
 {
     static bool press_r = false;
     static bool last_press_r = false;
+    static uint8_t r_switch_enable = AIM_OFF;
 
     if (aim_set == NULL || aim_set->aim_rc == NULL)
     {
@@ -233,9 +234,15 @@ static void auto_aim_set(auto_aim_t *aim_set)
     press_r = ((aim_set->aim_rc->key.v & KEY_PRESSED_OFFSET_R) != 0U);
     if (press_r && !last_press_r)
     {
-        aim_set->auto_aim_flag = (aim_set->auto_aim_flag == AIM_OFF) ? AIM_ON : AIM_OFF;
+        r_switch_enable = (r_switch_enable == AIM_OFF) ? AIM_ON : AIM_OFF;
     }
     last_press_r = press_r;
+
+#if AUTO_AIM_SOFTWARE_SWITCH_ENABLE
+    aim_set->auto_aim_flag = AIM_ON;
+#else
+    aim_set->auto_aim_flag = r_switch_enable;
+#endif
 }
 
 static void auto_aim_feedback_update(auto_aim_t *aim_update)

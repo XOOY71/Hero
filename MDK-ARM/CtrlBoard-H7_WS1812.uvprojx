@@ -1758,6 +1758,11 @@
               <FilePath>..\User\Communication\core\uproto.c</FilePath>
             </File>
             <File>
+              <FileName>platform_stm32.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\User\Communication\example\device\platform_stm32.c</FilePath>
+            </File>
+            <File>
               <FileName>gimbal_channel.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\User\Communication\channel\gimbal\gimbal_channel.c</FilePath>
@@ -1848,9 +1853,6 @@
               <FilePath>..\User\Algorithm\pid.h</FilePath>
             </File>
           </Files>
-        </Group>
-        <Group>
-          <GroupName>::CMSIS</GroupName>
         </Group>
         <Group>
           <GroupName>Application/User/USB_DEVICE/App</GroupName>
@@ -2521,6 +2523,9 @@
               </FileOption>
             </File>
           </Files>
+        </Group>
+        <Group>
+          <GroupName>::CMSIS</GroupName>
         </Group>
       </Groups>
     </Target>

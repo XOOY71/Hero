@@ -36,6 +36,9 @@ typedef struct
 
     float relative_angle;            // 相对角度反馈值
     float relative_angle_set;        // 相对角度目标值
+    float relative_angle_last;       // 上一次相对角度反馈值
+    float relative_speed;            // 相对角编码器差分速度
+    uint8_t relative_speed_update_init; // 相对角速度差分初始化标志
 
     float absolute_angle;            // 绝对角度反馈值
     float absolute_angle_set;        // 绝对角度目标值

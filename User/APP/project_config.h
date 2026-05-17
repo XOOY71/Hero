@@ -33,14 +33,14 @@ extern "C" {
 #define YAW_GYRO_ABSOLUTE_PID_MAX_IOUT     0.0f
 
 /* pitch 轴编码器相对角控制 PID */
-#define PITCH_ENCODE_RELATIVE_PID_KP       2.5f
+#define PITCH_ENCODE_RELATIVE_PID_KP       2.0f
 #define PITCH_ENCODE_RELATIVE_PID_KI       0.0f
 #define PITCH_ENCODE_RELATIVE_PID_KD       0.2f
-#define PITCH_ENCODE_RELATIVE_PID_MAX_OUT  0.5f
+#define PITCH_ENCODE_RELATIVE_PID_MAX_OUT  0.8f
 #define PITCH_ENCODE_RELATIVE_PID_MAX_IOUT 0.0f
 
 /* yaw 轴编码器相对角控制 PID */
-#define YAW_ENCODE_RELATIVE_PID_KP         1.5f
+#define YAW_ENCODE_RELATIVE_PID_KP         1.8f
 #define YAW_ENCODE_RELATIVE_PID_KI         0.0f
 #define YAW_ENCODE_RELATIVE_PID_KD         0.2f
 #define YAW_ENCODE_RELATIVE_PID_MAX_OUT    0.8f
@@ -50,9 +50,11 @@ extern "C" {
 #define YAW_CURRENT_SET_POLARITY           (-1)   // yaw 输出方向极性
 #define PITCH_CURRENT_SET_POLARITY         ( 1)   // pitch 输出方向极性
 #define YAW_REF_ACCEL_RAMP_TIME            0.01f  // yaw 参考速度追踪时间，越小响应越快
-#define PITCH_REF_ACCEL_RAMP_TIME          0.01f  // pitch 参考速度追踪时间，越小响应越快
+#define PITCH_REF_ACCEL_RAMP_TIME          0.001f  // pitch 参考速度追踪时间，越小响应越快
 #define YAW_REF_VEL_FILTER_ALPHA           0.05f  // yaw 目标角差分速度低通系数，越小前馈越平滑
 #define YAW_REF_ACCEL_LIMIT                100.0f // yaw 惯量前馈参考加速度限幅，防止遥控输入跳变产生力矩尖峰
+#define PITCH_RELATIVE_SPEED_FILTER_ALPHA  0.20f  // pitch 编码器差分速度低通系数
+#define PITCH_VELOCITY_FF_GAIN             0.08f  // pitch 速度前馈系数，单位 N*m/(rad/s)
 
 /* 惯量前馈：torque_ff = J * alpha_ref */
 #define YAW_INERTIA_KGM2                   0.013  // yaw 转动惯量 J，单位 kg*m^2
@@ -71,7 +73,7 @@ extern "C" {
 #define TEST_KEYBOARD                      KEY_PRESSED_OFFSET_B // 测试按键
 #define RC_DEADBAND                        10         // 遥控器死区
 #define YAW_RC_SEN                         -0.000005f // yaw 遥控灵敏度
-#define PITCH_RC_SEN                       -0.000003f // pitch 遥控灵敏度
+#define PITCH_RC_SEN                       -0.000006f // pitch 遥控灵敏度
 #define YAW_MOUSE_SEN                      0.00006f   // yaw 鼠标灵敏度
 #define PITCH_MOUSE_SEN                    -0.00006f  // pitch 鼠标灵敏度
 #define YAW_ENCODE_SEN                     0.01f      // yaw 编码器模式输入灵敏度
@@ -90,10 +92,8 @@ extern "C" {
 /* ========================= 云台机械限位与初始化配置 ========================= */
 #define YAW_MAX_RELATIVE_ANGLE             3.1415926f  // yaw 相对角上限
 #define YAW_MIN_RELATIVE_ANGLE            -3.1415926f  // yaw 相对角下限
-#define PITCH_MAX_RELATIVE_ANGLE          -0.02f       // pitch 软件上限，机械上限约 0，保留安全余量
-#define PITCH_MIN_RELATIVE_ANGLE          -0.7f        // pitch 软件下限，机械下限约 -0.717，保留安全余量
-#define PITCH_SOFT_LIMIT_BUFFER_ANGLE      0.12f       // pitch 距离软件限位小于该角度时开始柔性衰减输入和输出
-#define PITCH_SOFT_LIMIT_MIN_OUTPUT_SCALE  0.0f        // pitch 到达软件限位时，继续撞限位方向的最小输出比例
+#define PITCH_MAX_RELATIVE_ANGLE           0.0f        // pitch 软件上限，单位 rad
+#define PITCH_MIN_RELATIVE_ANGLE          -0.71f       // pitch 软件下限，单位 rad
 #define HALF_ECD_RANGE                     4096        // 编码器半量程
 #define ECD_RANGE                          8191        // 编码器总量程
 #define GIMBAL_INIT_ANGLE_ERROR            0.1f        // 初始化目标角允许误差

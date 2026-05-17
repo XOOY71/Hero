@@ -30,7 +30,7 @@ static hwt_parser_t s_hwt906_parser;
 static float s_hwt101_chassis_yaw[1];
 
 /* 906：云台导出连续 yaw 和 pitch */
-static float s_hwt906_gimbal_angle[2];
+static float s_hwt906_gimbal_angle[3];
 
 /* 906：云台角速度 */
 static float s_hwt906_gimbal_gyro[3];
@@ -103,6 +103,7 @@ static void hwt_update_export_data(hwt_imu_info_t *imu, uint8_t is_hwt906)
          */
         s_hwt906_gimbal_angle[HWT_GIMBAL_YAW_INDEX] = imu->angle.yaw_total_rad;
         s_hwt906_gimbal_angle[HWT_GIMBAL_PITCH_INDEX] = imu->angle.rad[HWT_AXIS_PITCH];
+        s_hwt906_gimbal_angle[HWT_GIMBAL_ROLL_INDEX] = imu->angle.rad[HWT_AXIS_ROLL];
 
         /* 云台角速度输出：
          * [0] = wx(rad/s)
