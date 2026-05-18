@@ -153,9 +153,6 @@ static auto_aim_ctrl_t s_auto_aim_ctrl = {0};
 #ifndef AA_EPS_OMEGA_RAD
 #define AA_EPS_OMEGA_RAD (3.0f * PI / 180.0f)
 #endif
-#ifndef AUTO_AIM_ERR_LPF_ALPHA
-#define AUTO_AIM_ERR_LPF_ALPHA 0.1f
-#endif
 
 //自瞄增益
 // basic tuning (can be adjusted during testing)
@@ -188,9 +185,6 @@ static float s_last_err_yaw = 0.0f;
 static float s_last_err_pitch = 0.0f;
 static float s_err_d_yaw = 0.0f;
 static float s_err_d_pitch = 0.0f;
-static float s_err_lpf_yaw = 0.0f;
-static float s_err_lpf_pitch = 0.0f;
-static uint8_t s_err_lpf_init = 0U;
 static volatile float s_yaw_delta_accum = 0.0f;
 static volatile float s_pitch_delta_accum = 0.0f;
 
@@ -288,10 +282,6 @@ void auto_aim_init(auto_aim_t *aim_init)
     aim_init->receive.pitch = 0.0f;
     aim_init->receive.shoot_delay = 0.0f;
     aim_init->receive.yaw = 0.0f;
-    aim_init->err_rad_lpf.yaw = 0.0f;
-    aim_init->err_rad_lpf.pitch = 0.0f;
-    aim_init->err_deg.yaw = 0.0f;
-    aim_init->err_deg.pitch = 0.0f;
 
     aim_init->aim_rc = get_remote_control_point();
 		
@@ -392,33 +382,8 @@ void auto_aim_apply_delta_udeg(int32_t dyaw_udeg,
 		
     // Interpret host command directly as “需要转动的误差”（正误差 → 正向转动）
     // [SYNC_FROM_H] Host deltas now feed internal controller instead of direct motor commands
-    aim.err_deg.yaw = (float)dyaw_udeg / 1000000.0f;
-    aim.err_deg.pitch = (float)dpitch_udeg / 1000000.0f;
-
     s_auto_aim_ctrl.yaw_axis.err_rad   = dyaw_rad;
     s_auto_aim_ctrl.pitch_axis.err_rad = dpitch_rad;
-
-    if (s_err_lpf_init == 0U)
-    {
-        s_err_lpf_yaw = dyaw_rad;
-        s_err_lpf_pitch = dpitch_rad;
-        s_err_lpf_init = 1U;
-    }
-    else
-    {
-        s_err_lpf_yaw =
-            AUTO_AIM_ERR_LPF_ALPHA * dyaw_rad +
-            (1.0f - AUTO_AIM_ERR_LPF_ALPHA) * s_err_lpf_yaw;
-        s_err_lpf_pitch =
-            AUTO_AIM_ERR_LPF_ALPHA * dpitch_rad +
-            (1.0f - AUTO_AIM_ERR_LPF_ALPHA) * s_err_lpf_pitch;
-    }
-
-    if (aim.auto_aim_flag == AIM_ON)
-    {
-        aim.err_rad_lpf.yaw = s_err_lpf_yaw;
-        aim.err_rad_lpf.pitch = s_err_lpf_pitch;
-    }
 
     // keep auto-aim online / alive
     aim.last_fdb = HAL_GetTick();
