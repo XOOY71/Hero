@@ -15,7 +15,10 @@
 #include "usbd_core.h"
 
 #include "usart.h"
+#include "comm_app_config.h"
+#if defined(TFMINI_ENABLE) && (TFMINI_ENABLE == 1)
 #include "bsp_tfmini.h"
+#endif
 #include "../../channel/camera/camera_channel.h"
 #include "../../channel/camera/camera_config.h"
 #include "../../channel/gimbal/gimbal_channel.h"
@@ -26,13 +29,12 @@
 #include "../../core/platform.h"
 #include "../../core/uproto.h"
 #include "../shared/protocol_ids.h" /* 引入统一的 MUX 消息类型与通道号 */
-#include "INS_task.h"
 #include "bsp_dwt.h"
 #include "bsp_tim24.h"
 #include "gimbal_task.h"
+#include "hwt_imu.h"
 #include "auto_aim.h"
 #include "remote_control.h"
-#include "referee.h"
 
 /* 任务配置与通道参数统一放在 comm_app_config.h 中（见 comm_app.h） */
 
@@ -57,10 +59,26 @@ static uint32_t g_tfmini_seq = 0;
 static uint64_t g_tfmini_last_pub_us = 0;
 #endif
 
-/* referee globals provided by referee.c */
-extern game_status_t game_status;
-extern robot_status_t robot_status;
-extern projectile_allowance_t projectile_allowance;
+typedef struct {
+    int32_t robot_id;
+    int32_t game_stage;
+    int32_t enemy_team;
+    int32_t fire_allowed;
+    uint16_t status;
+} comm_referee_snapshot_t;
+
+__weak uint8_t comm_referee_get_snapshot(comm_referee_snapshot_t *out, uint32_t stale_timeout_ms)
+{
+    (void)stale_timeout_ms;
+    if(!out)
+        return 0u;
+    out->robot_id = 0;
+    out->game_stage = 0;
+    out->enemy_team = 0;
+    out->fire_allowed = 0;
+    out->status = GIMBAL_REFEREE_STATUS_NOT_READY | GIMBAL_REFEREE_STATUS_TIMEOUT;
+    return 0u;
+}
 
 #ifndef COMM_HOST_CMD_TIMEOUT_MS
 #define COMM_HOST_CMD_TIMEOUT_MS 120u
@@ -293,7 +311,7 @@ void comm_camera_trigger_poll(void) {
 void comm_app_task(void const *arg) {
     (void)arg;
     extern USBD_HandleTypeDef hUsbDeviceHS;
-		MX_USB_DEVICE_Init();
+    MX_USB_DEVICE_Init();
 #if defined(TFMINI_ENABLE) && (TFMINI_ENABLE == 1)
     /* Init TFmini RX early; do not wait for USB enumeration. */
     tfmini_uart_init(&huart10);
@@ -356,11 +374,11 @@ static bool gimbal_get_state(gimbal_state_t *out, void *user) {
         return false;
     const gimbal_motor_t *yaw = get_yaw_motor_point();
     const gimbal_motor_t *pit = get_pitch_motor_point();
-    fp32 *imu = get_INS_angle_point();
+    const float *imu = get_INS_angle_point();
     const float INV_PI = 0.31830988618379067154f; /* 1/pi */
     if(yaw && pit) {
-        out->enc_yaw = (int32_t)(yaw->radian_of_ecd * 180000000.0f * INV_PI);
-        out->enc_pitch = (int32_t)(pit->radian_of_ecd * 180000000.0f * INV_PI);
+        out->enc_yaw = (int32_t)(yaw->relative_angle * 180000000.0f * INV_PI);
+        out->enc_pitch = (int32_t)(pit->relative_angle * 180000000.0f * INV_PI);
     } else {
         out->enc_yaw = 0;
         out->enc_pitch = 0;
@@ -568,33 +586,15 @@ static void comm_publish_referee(uint64_t now_us)
     }
 
     gimbal_referee_t msg;
-    uint16_t status = 0u;
-    const uint8_t rid = robot_status.robot_id;
-    msg.robot_id = (int32_t)rid;
-    msg.game_stage = (int32_t)game_status.game_progress;
+    comm_referee_snapshot_t snap;
+    (void)comm_referee_get_snapshot(&snap, COMM_REFEREE_STALE_TIMEOUT_MS);
+    msg.robot_id = snap.robot_id;
+    msg.game_stage = snap.game_stage;
+    msg.enemy_team = snap.enemy_team;
+    msg.fire_allowed = snap.fire_allowed;
+    uint16_t status = snap.status;
 
-    if(rid >= 1u && rid <= 99u) {
-        msg.enemy_team = 2; /* enemy is blue */
-    } else if(rid >= 100u) {
-        msg.enemy_team = 1; /* enemy is red */
-    } else {
-        msg.enemy_team = 0;
-    }
-
-    if(referee_data_available(COMM_REFEREE_STALE_TIMEOUT_MS)) {
-        status |= GIMBAL_REFEREE_STATUS_VALID;
-        msg.fire_allowed =
-          ((robot_status.power_management_shooter_output != 0u) &&
-           ((projectile_allowance.projectile_allowance_17mm > 0u) ||
-            (projectile_allowance.projectile_allowance_42mm > 0u))) ? 1 : 0;
-    } else {
-        status |= GIMBAL_REFEREE_STATUS_NOT_READY;
-        status |= GIMBAL_REFEREE_STATUS_TIMEOUT;
-        msg.fire_allowed = 0;
-        msg.enemy_team = 0;
-    }
-
-    if(!((rid >= 1u && rid <= 99u) || (rid >= 100u && rid <= 199u))) {
+    if(!((snap.robot_id >= 1 && snap.robot_id <= 99) || (snap.robot_id >= 100 && snap.robot_id <= 199))) {
         status |= GIMBAL_REFEREE_STATUS_ERROR;
     }
     msg.status = status;

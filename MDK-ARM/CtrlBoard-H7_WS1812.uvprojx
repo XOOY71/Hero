@@ -340,7 +340,7 @@
               <MiscControls></MiscControls>
               <Define>USE_HAL_DRIVER,STM32H723xx,USE_PWR_LDO_SUPPLY</Define>
               <Undefine></Undefine>
-              <IncludePath>../Core/Inc;../Drivers/STM32H7xx_HAL_Driver/Inc;../Drivers/STM32H7xx_HAL_Driver/Inc/Legacy;../Drivers/CMSIS/Device/ST/STM32H7xx/Include;../Drivers/CMSIS/Include;../Middlewares/Third_Party/FreeRTOS/Source/include;../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS;../Middlewares/Third_Party/FreeRTOS/Source/portable/RVDS/ARM_CM4F;../User/APP;../User/BSP;../User/Devices;../User/Algorithm;../USB_DEVICE/App;../USB_DEVICE/Target;../Middlewares/ST/STM32_USB_Device_Library/Core/Inc;../Middlewares/ST/STM32_USB_Device_Library/Class/CDC/Inc</IncludePath>
+              <IncludePath>../Core/Inc;../Drivers/STM32H7xx_HAL_Driver/Inc;../Drivers/STM32H7xx_HAL_Driver/Inc/Legacy;../Drivers/CMSIS/Device/ST/STM32H7xx/Include;../Drivers/CMSIS/Include;../Middlewares/Third_Party/FreeRTOS/Source/include;../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS;../Middlewares/Third_Party/FreeRTOS/Source/portable/RVDS/ARM_CM4F;../User/APP;../User/BSP;../User/Devices;../User/Algorithm;../User/Communication/core;../User/Communication/channel/gimbal;../User/Communication/channel/camera;../User/Communication/channel/time_sync;../User/Communication/example/device;../User/Communication/example/shared;../USB_DEVICE/App;../USB_DEVICE/Target;../Middlewares/ST/STM32_USB_Device_Library/Core/Inc;../Middlewares/ST/STM32_USB_Device_Library/Class/CDC/Inc</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -1708,11 +1708,6 @@
               <FilePath>..\User\APP\auto_aim.c</FilePath>
             </File>
             <File>
-              <FileName>comm_bridge.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\User\APP\comm_bridge.c</FilePath>
-            </File>
-            <File>
               <FileName>target_curve.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\User\APP\target_curve.c</FilePath>
@@ -1763,9 +1758,29 @@
               <FilePath>..\User\Communication\example\device\platform_stm32.c</FilePath>
             </File>
             <File>
+              <FileName>comm_app.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\User\Communication\example\device\comm_app.c</FilePath>
+            </File>
+            <File>
+              <FileName>usb_cdc_port.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\User\Communication\example\device\usb_cdc_port.c</FilePath>
+            </File>
+            <File>
               <FileName>gimbal_channel.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\User\Communication\channel\gimbal\gimbal_channel.c</FilePath>
+            </File>
+            <File>
+              <FileName>camera_channel.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\User\Communication\channel\camera\camera_channel.c</FilePath>
+            </File>
+            <File>
+              <FileName>time_sync_channel.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\User\Communication\channel\time_sync\time_sync_channel.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -1786,6 +1801,11 @@
               <FileName>remote_control.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\User\BSP\remote_control.c</FilePath>
+            </File>
+            <File>
+              <FileName>bsp_tim24.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\User\BSP\bsp_tim24.c</FilePath>
             </File>
           </Files>
         </Group>

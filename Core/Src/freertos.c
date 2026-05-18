@@ -29,7 +29,7 @@
 #include "gimbal_task.h"
 #include "service_task.h"
 #include "auto_aim.h"
-#include "comm_bridge.h"
+#include "comm_app.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -111,9 +111,10 @@ void MX_FREERTOS_Init(void) {
   defaultTaskHandle = osThreadCreate(osThread(defaultTask), NULL);
 
   /* USER CODE BEGIN RTOS_THREADS */
-  /* add threads, ... */
-	CommBridge_Init();
-	AutoAimTask_Init();
+	/* add threads, ... */
+	osThreadDef(auto_aim, auto_aim_task, osPriorityNormal, 0, 256);
+	osThreadCreate(osThread(auto_aim), NULL);
+	comm_app_start();
 	GimbalTask_Init();
 	ServiceTask_Init();
   /* USER CODE END RTOS_THREADS */
@@ -130,7 +131,6 @@ void MX_FREERTOS_Init(void) {
 void StartDefaultTask(void const * argument)
 {
   /* init code for USB_DEVICE */
-  MX_USB_DEVICE_Init();
   /* USER CODE BEGIN StartDefaultTask */
   /* Infinite loop */
   for(;;)

@@ -16,15 +16,16 @@ uint32_t usb_cdc_port_write(void *user, const uint8_t *data, uint32_t len)
     if (!data || len == 0) return 0u;
     if (hUsbDeviceHS.dev_state != USBD_STATE_CONFIGURED) return 0u;
 
-    /* CDC HS bulk IN max packet typically 512. We submit up to 512 bytes at once. */
-    uint16_t to_send = (len > 512u) ? 512u : (uint16_t)len;
-
-    /* If busy, report 0 (non-blocking). Caller may retry later. */
-    uint8_t res = CDC_Transmit_HS((uint8_t*)data, to_send);
-    if (res == USBD_OK) {
-        return (uint32_t)to_send;
+    uint32_t accepted = 0u;
+    while (accepted < len) {
+        uint16_t chunk = ((len - accepted) > 512u) ? 512u : (uint16_t)(len - accepted);
+        uint8_t res = CDC_Transmit_HS((uint8_t *)(data + accepted), chunk);
+        if (res != USBD_OK) {
+            break;
+        }
+        accepted += chunk;
     }
-    return 0u;
+    return accepted;
 }
 
 static void usb_cdc_port_flush(void *user)

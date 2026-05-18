@@ -74,3 +74,6 @@ ctrlboard-h7_ws1812\main.o: ../User/BSP/bsp_usart.h
 ctrlboard-h7_ws1812\main.o: ../User/APP/project_config.h
 ctrlboard-h7_ws1812\main.o: ../User/Devices/ws2812.h
 ctrlboard-h7_ws1812\main.o: ../User/APP/safewarning.h
+ctrlboard-h7_ws1812\main.o: ../User/Communication/core/uproto.h
+ctrlboard-h7_ws1812\main.o: ../User/Communication/example/device/usb_cdc_port.h
+ctrlboard-h7_ws1812\main.o: ../User/BSP/bsp_tim24.h

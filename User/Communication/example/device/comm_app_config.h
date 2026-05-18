@@ -57,11 +57,48 @@ extern "C" {
 
 /* ========== TFmini 上报配置 ========== */
 #ifndef TFMINI_ENABLE
-#define TFMINI_ENABLE 1                   /**< 1 启用TFmini上报，0 禁用 */
+#define TFMINI_ENABLE 0                   /**< 1 启用TFmini上报，0 禁用 */
 #endif
 
 #ifndef TFMINI_PUB_PERIOD_MS
 #define TFMINI_PUB_PERIOD_MS 20u          /**< TFmini发布周期（毫秒） */
+#endif
+
+/* ========== 主机底盘/射击命令注入到遥控器的默认映射 ========== */
+#ifndef CHASSIS_X_CHANNEL
+#define CHASSIS_X_CHANNEL 0
+#endif
+
+#ifndef CHASSIS_Y_CHANNEL
+#define CHASSIS_Y_CHANNEL 1
+#endif
+
+#ifndef CHASSIS_WZ_CHANNEL
+#define CHASSIS_WZ_CHANNEL 2
+#endif
+
+#ifndef CHASSIS_MODE_CHANNEL
+#define CHASSIS_MODE_CHANNEL 0
+#endif
+
+#ifndef CHASSIS_FOLLOW_CHANNEL
+#define CHASSIS_FOLLOW_CHANNEL 1
+#endif
+
+#ifndef CHASSIS_VX_RC_SEN
+#define CHASSIS_VX_RC_SEN 0.006f
+#endif
+
+#ifndef CHASSIS_VY_RC_SEN
+#define CHASSIS_VY_RC_SEN 0.006f
+#endif
+
+#ifndef SHOOT_ON_KEYBOARD
+#define SHOOT_ON_KEYBOARD KEY_PRESSED_OFFSET_Z
+#endif
+
+#ifndef SHOOT_OFF_KEYBOARD
+#define SHOOT_OFF_KEYBOARD KEY_PRESSED_OFFSET_X
 #endif
 
 #ifdef __cplusplus

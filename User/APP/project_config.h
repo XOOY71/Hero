@@ -26,17 +26,17 @@ extern "C" {
 #define PITCH_GYRO_ABSOLUTE_PID_MAX_IOUT   0.0f
 
 /* yaw 轴陀螺仪绝对角控制 PID */
-#define YAW_GYRO_ABSOLUTE_PID_KP           2.0f
+#define YAW_GYRO_ABSOLUTE_PID_KP           4.0f
 #define YAW_GYRO_ABSOLUTE_PID_KI           0.0f
-#define YAW_GYRO_ABSOLUTE_PID_KD           0.6f
-#define YAW_GYRO_ABSOLUTE_PID_MAX_OUT      0.8f
+#define YAW_GYRO_ABSOLUTE_PID_KD           0.14f
+#define YAW_GYRO_ABSOLUTE_PID_MAX_OUT      3.0f
 #define YAW_GYRO_ABSOLUTE_PID_MAX_IOUT     0.0f
 
 /* pitch 轴编码器相对角控制 PID */
-#define PITCH_ENCODE_RELATIVE_PID_KP       2.0f
+#define PITCH_ENCODE_RELATIVE_PID_KP       4.8f
 #define PITCH_ENCODE_RELATIVE_PID_KI       0.0f
-#define PITCH_ENCODE_RELATIVE_PID_KD       0.2f
-#define PITCH_ENCODE_RELATIVE_PID_MAX_OUT  0.8f
+#define PITCH_ENCODE_RELATIVE_PID_KD       0.32f
+#define PITCH_ENCODE_RELATIVE_PID_MAX_OUT  3.0f
 #define PITCH_ENCODE_RELATIVE_PID_MAX_IOUT 0.0f
 
 /* yaw 轴编码器相对角控制 PID */
@@ -49,12 +49,12 @@ extern "C" {
 /* ========================= 云台前馈与输出配置 ========================= */
 #define YAW_CURRENT_SET_POLARITY           (-1)   // yaw 输出方向极性
 #define PITCH_CURRENT_SET_POLARITY         ( 1)   // pitch 输出方向极性
-#define YAW_REF_ACCEL_RAMP_TIME            0.01f  // yaw 参考速度追踪时间，越小响应越快
-#define PITCH_REF_ACCEL_RAMP_TIME          0.001f  // pitch 参考速度追踪时间，越小响应越快
+#define YAW_REF_ACCEL_RAMP_TIME            0.008f  // yaw 参考速度追踪时间，越小响应越快
+#define PITCH_REF_ACCEL_RAMP_TIME          0.008f  // pitch 参考速度追踪时间，越小响应越快
 #define YAW_REF_VEL_FILTER_ALPHA           0.05f  // yaw 目标角差分速度低通系数，越小前馈越平滑
 #define YAW_REF_ACCEL_LIMIT                100.0f // yaw 惯量前馈参考加速度限幅，防止遥控输入跳变产生力矩尖峰
 #define PITCH_RELATIVE_SPEED_FILTER_ALPHA  0.20f  // pitch 编码器差分速度低通系数
-#define PITCH_VELOCITY_FF_GAIN             0.08f  // pitch 速度前馈系数，单位 N*m/(rad/s)
+#define PITCH_VELOCITY_FF_GAIN             0.24f  // pitch 速度前馈系数，单位 N*m/(rad/s)
 
 /* 惯量前馈：torque_ff = J * alpha_ref */
 #define YAW_INERTIA_KGM2                   0.013  // yaw 转动惯量 J，单位 kg*m^2
@@ -90,8 +90,8 @@ extern "C" {
 #define GIMBAL_PITCH_MIT_INDEX             1u     // MIT 电机反馈数组中 pitch 电机索引
 
 /* ========================= 云台机械限位与初始化配置 ========================= */
-#define YAW_MAX_RELATIVE_ANGLE             3.1415926f  // yaw 相对角上限
-#define YAW_MIN_RELATIVE_ANGLE            -3.1415926f  // yaw 相对角下限
+#define YAW_MAX_RELATIVE_ANGLE             1.5707963f  // yaw 相对角上限
+#define YAW_MIN_RELATIVE_ANGLE            -1.5707963f  // yaw 相对角下限
 #define PITCH_MAX_RELATIVE_ANGLE           0.0f        // pitch 软件上限，单位 rad
 #define PITCH_MIN_RELATIVE_ANGLE          -0.71f       // pitch 软件下限，单位 rad
 #define HALF_ECD_RANGE                     4096        // 编码器半量程

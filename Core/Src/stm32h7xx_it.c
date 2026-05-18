@@ -75,6 +75,7 @@ extern UART_HandleTypeDef huart7;
 extern UART_HandleTypeDef huart1;
 extern UART_HandleTypeDef huart10;
 extern TIM_HandleTypeDef htim23;
+extern TIM_HandleTypeDef htim24;
 
 /* USER CODE BEGIN EV */
 
@@ -498,6 +499,20 @@ void TIM23_IRQHandler(void)
   /* USER CODE BEGIN TIM23_IRQn 1 */
 
   /* USER CODE END TIM23_IRQn 1 */
+}
+
+/**
+  * @brief This function handles TIM24 global interrupt.
+  */
+void TIM24_IRQHandler(void)
+{
+  /* USER CODE BEGIN TIM24_IRQn 0 */
+
+  /* USER CODE END TIM24_IRQn 0 */
+  HAL_TIM_IRQHandler(&htim24);
+  /* USER CODE BEGIN TIM24_IRQn 1 */
+
+  /* USER CODE END TIM24_IRQn 1 */
 }
 
 /* USER CODE BEGIN 1 */

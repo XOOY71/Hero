@@ -46,16 +46,7 @@ static float gimbal_take_auto_aim_bias(gimbal_motor_t *motor)
 {
     float bias = 0.0f;
 
-    if (motor == &gimbal_control.gimbal_yaw_motor)
-    {
-        bias = aim.receive.yaw;
-        aim.receive.yaw = 0.0f;
-    }
-    else if (motor == &gimbal_control.gimbal_pitch_motor)
-    {
-        bias = aim.receive.pitch;
-        aim.receive.pitch = 0.0f;
-    }
+    (void)motor;
 
     return bias;
 }
@@ -196,12 +187,12 @@ static void gimbal_task(void const *pvParameters)
          * ch4：pitch 前馈输出力矩，单位 N*m
          * ch5：pitch 最终输出力矩，单位 N*m
          */
-//        VOFA_Send6(gimbal_control.gimbal_pitch_motor.relative_angle,
-//                   gimbal_control.gimbal_pitch_motor.relative_angle_set,
-//                   gimbal_control.gimbal_pitch_motor.relative_speed,
-//                   gimbal_control.gimbal_pitch_motor.pid_torque,
-//                   gimbal_control.gimbal_pitch_motor.ff_torque,
-//                   gimbal_control.gimbal_pitch_motor.given_current);
+        VOFA_Send6(gimbal_control.gimbal_pitch_motor.relative_angle,
+                   gimbal_control.gimbal_pitch_motor.relative_angle_set,
+                   gimbal_control.gimbal_pitch_motor.relative_speed,
+                   gimbal_control.gimbal_pitch_motor.pid_torque,
+                   gimbal_control.gimbal_pitch_motor.ff_torque,
+                   gimbal_control.gimbal_pitch_motor.given_current);
 //        VOFA_Send6(gimbal_control.gimbal_yaw_motor.relative_angle,
 //                   gimbal_control.gimbal_yaw_motor.relative_angle_set,
 //                   gimbal_control.gimbal_yaw_motor.gyro,

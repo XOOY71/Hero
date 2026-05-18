@@ -54,5 +54,6 @@ ctrlboard-h7_ws1812\usbd_cdc_if.o: ../Middlewares/ST/STM32_USB_Device_Library/Co
 ctrlboard-h7_ws1812\usbd_cdc_if.o: ../Middlewares/ST/STM32_USB_Device_Library/Core/Inc/usbd_ioreq.h
 ctrlboard-h7_ws1812\usbd_cdc_if.o: ../Middlewares/ST/STM32_USB_Device_Library/Core/Inc/usbd_ctlreq.h
 ctrlboard-h7_ws1812\usbd_cdc_if.o: ../User/Algorithm/crc8_crc16.h
-ctrlboard-h7_ws1812\usbd_cdc_if.o: ../USB_DEVICE/App/..\\..\\User\\Communication\\core\\uproto.h
+ctrlboard-h7_ws1812\usbd_cdc_if.o: ../User/Communication/example/device/usb_cdc_port.h
+ctrlboard-h7_ws1812\usbd_cdc_if.o: ../User/Communication/core/uproto.h
 ctrlboard-h7_ws1812\usbd_cdc_if.o: D:\Keil5\ARM\ARMCC\Bin\..\include\stdbool.h

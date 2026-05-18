@@ -34,6 +34,9 @@
 #include "string.h"
 #include "ws2812.h"
 #include "safewarning.h"
+#include "uproto.h"
+#include "usb_cdc_port.h"
+#include "bsp_tim24.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -67,11 +70,12 @@ void SystemClock_Config(void);
 void PeriphCommonClock_Config(void);
 void MX_FREERTOS_Init(void);
 /* USER CODE BEGIN PFP */
-
+void proto_init_from_main(void);
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+uproto_context_t proto_ctx;
 
 /* USER CODE END 0 */
 
@@ -119,6 +123,7 @@ int main(void)
   MX_UART5_Init();
   MX_USART10_UART_Init();
   MX_SPI2_Init();
+  MX_TIM24_Init();
   /* USER CODE BEGIN 2 */
 //  	Servo_Mapping_Init();
 	bsp_can_init();
@@ -129,6 +134,8 @@ int main(void)
 	HAL_UARTEx_ReceiveToIdle_DMA(&huart10, usart10_buf, sizeof(usart10_buf)*2);
 
 	HAL_Delay (1000);
+	tim24_timebase_init();
+	proto_init_from_main();
 //	HAL_TIM_Base_Start_IT(&htim6);
 	// 播放开机提示音
 
@@ -248,6 +255,35 @@ void PeriphCommonClock_Config(void)
 
 /* USER CODE BEGIN 4 */
 
+static uint32_t proto_time_now(void *user)
+{
+  (void)user;
+  return HAL_GetTick();
+}
+
+void proto_init_from_main(void)
+{
+  uproto_port_ops_t port_ops;
+  usb_cdc_port_get_ops(&port_ops);
+
+  uproto_time_ops_t time_ops = {
+    .now_ms = proto_time_now,
+    .user = NULL,
+  };
+
+  uproto_config_t cfg = {
+    .handshake_timeout_ms = 0,
+    .heartbeat_interval_ms = 0,
+    .default_timeout_ms = 3000,
+    .default_retries = 3,
+    .enable_auto_handshake = false,
+    .event_cb = NULL,
+    .event_user = NULL,
+  };
+
+  uproto_init(&proto_ctx, &port_ops, &time_ops, &cfg);
+}
+
 /* USER CODE END 4 */
 
 /**
@@ -271,6 +307,10 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
     HAL_IncTick();
   }
   /* USER CODE BEGIN Callback 1 */
+	if (htim->Instance == TIM24) 
+	{
+		tim24_timebase_on_overflow();
+	}
 
   /* USER CODE END Callback 1 */
 }

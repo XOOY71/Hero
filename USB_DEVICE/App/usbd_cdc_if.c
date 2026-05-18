@@ -23,7 +23,7 @@
 
 /* USER CODE BEGIN INCLUDE */
 #include "crc8_crc16.h"
-#include "..\\..\\User\\Communication\\core\\uproto.h" 
+#include "usb_cdc_port.h"
 
 /* USER CODE END INCLUDE */
 
@@ -64,12 +64,12 @@
 
 /* USER CODE BEGIN PRIVATE_DEFINES */
 
-/* TX 闂冪喎鍨径褍鐨敍灞藉讲閹稿娓剁憰浣界殶閺佽揪绱欏▔銊﹀�? RAM 閸楃姷鏁ら敍? */
+/* TX 闂冪喎鍨径褍鐨敍灞藉讲閹稿娓剁憰浣界殶閺佽揪绱欏▔銊﹀�? RAM 閸楃姷鏁ら敍? */
 #ifndef USB_TX_RING_SIZE
 #define USB_TX_RING_SIZE 2048
 #endif
 
-/* �???婢堆傜濞嗏?冲絺闁胶娈戦崚鍡欏闂?鍨閿涘湣TU閿涘�?绱濋幐澶愭付鐠嬪啯鏆ｉ妴鍌涙暈閹?? USB FS/HS 闂勬劕鍩楅敍鍫滅伐婵?? 512 �??? 64�??? */
+/* �???婢堆傜濞嗏?冲絺闁胶娈戦崚鍡欏闂?鍨閿涘湣TU閿涘�?绱濋幐澶愭付鐠嬪啯鏆ｉ妴鍌涙暈閹?? USB FS/HS 闂勬劕鍩楅敍鍫滅伐婵?? 512 �??? 64�??? */
 #ifndef USB_TX_CHUNK_MAX
 #define USB_TX_CHUNK_MAX 512
 #endif
@@ -108,15 +108,15 @@ uint8_t UserTxBufferHS[APP_TX_DATA_SIZE];
 
 /* USER CODE BEGIN PRIVATE_VARIABLES */
 
-//usb閹恒儲鏁归弫鎵�?,閸欐�??浣烘畱閸忋劌�?潻娆庣�?
+//usb閹恒儲鏁归弫鎵�?,閸欐�??浣烘畱閸忋劌�?潻娆庣�?
 uint8_t usb_buf[USB_SIZE];
-uint16_t usb_buf_len = 0; // 瑜版挸澧犲鍙夋暪閸掍即鏆辨�??
-static uint8_t  printf_buf[2];   // 1 鐎涙濡弫鐗堝�? + 1 閸楃姳缍?
-static volatile uint8_t tx_done = 1; // 閸欐�??浣哥暚閹存劖鐖ｈ�??
+uint16_t usb_buf_len = 0; // 瑜版挸澧犲鍙夋暪閸掍即鏆辨�??
+static uint8_t  printf_buf[2];   // 1 鐎涙濡弫鐗堝�? + 1 閸楃姳缍?
+static volatile uint8_t tx_done = 1; // 閸欐�??浣哥暚閹存劖鐖ｈ�??
 
 static uint8_t  usb_tx_ring[USB_TX_RING_SIZE];
-static volatile uint16_t usb_tx_wpos = 0;   // 娑撳绔存稉顏勫晸閸忋儰缍呯�??
-static volatile uint16_t usb_tx_count = 0;  // 闂冪喎鍨稉顓炲嚒閺堝鐡ч懞鍌涙�?
+static volatile uint16_t usb_tx_wpos = 0;   // 娑撳绔存稉顏勫晸閸忋儰缍呯�??
+static volatile uint16_t usb_tx_count = 0;  // 闂冪喎鍨稉顓炲嚒閺堝鐡ч懞鍌涙�?
 
 /* USER CODE END PRIVATE_VARIABLES */
 
@@ -133,7 +133,6 @@ extern USBD_HandleTypeDef hUsbDeviceHS;
 
 /* USER CODE BEGIN EXPORTED_VARIABLES */
 
-extern uproto_context_t proto_ctx;
 
 /* USER CODE END EXPORTED_VARIABLES */
 
@@ -155,26 +154,26 @@ static int8_t CDC_TransmitCplt_HS(uint8_t *pbuf, uint32_t *Len, uint8_t epnum);
 /* USER CODE BEGIN PRIVATE_FUNCTIONS_DECLARATION */
 
 
-/* 閸愬懘鍎撮敍姘愁�?缁犳缍嬮崜宥堫嚢娴ｅ秶鐤嗛敍鍫㈩儑�???娑擃亜绶熼崣�???浣哥摟閼哄�?�娈戞担宥囩枂閿?? */
+/* 閸愬懘鍎撮敍姘愁�?缁犳缍嬮崜宥堫嚢娴ｅ秶鐤嗛敍鍫㈩儑�???娑擃亜绶熼崣�???浣哥摟閼哄�?�娈戞担宥囩枂閿?? */
 static inline uint16_t usb_tx_read_pos(void)
 {
-    // 鐠囩粯�?�氶�?? = 閸愭瑦�?�氶�?? - count (mod ring size)
+    // 鐠囩粯�?�氶�?? = 閸愭瑦�?�氶�?? - count (mod ring size)
     uint16_t r = (usb_tx_wpos + USB_TX_RING_SIZE - usb_tx_count) % USB_TX_RING_SIZE;
     return r;
 }
 
-/* 閸愬懘鍎撮敍姘�? USB 缁屾椽妫介弮鏈电矤闂冪喎鍨崣鎴??浣风瑓娑??濞堢绱欓棃鐐烘▎婵夌儑�?? */
+/* 閸愬懘鍎撮敍姘�? USB 缁屾椽妫介弮鏈电矤闂冪喎鍨崣鎴??浣风瑓娑??濞堢绱欓棃鐐烘▎婵夌儑�?? */
 static void start_usb_tx_if_idle(void)
 {
     USBD_CDC_HandleTypeDef *hcdc = (USBD_CDC_HandleTypeDef*)hUsbDeviceHS.pClassData;
     if (hcdc == NULL) return;
 
-    /* 婵�?��?�鐏夋径鏍啎閺勫墽銇氳箛娆欑礉閻╁瓨甯存潻鏂挎�?閿涘牆鐨㈤悽鍗炵暚閹存劕娲栫拫鍐埛缂侇厼褰傞柅渚婄�? */
+    /* 婵�?��?�鐏夋径鏍啎閺勫墽銇氳箛娆欑礉閻╁瓨甯存潻鏂挎�?閿涘牆鐨㈤悽鍗炵暚閹存劕娲栫拫鍐埛缂侇厼褰傞柅渚婄�? */
     if (hcdc->TxState != 0) {
         return;
     }
 
-    /* 閸欐牕鍤憰浣稿絺闁胶娈戦梹鍨閿涘牆鏁栭柌蹇氱箾缂侇厾娈戞�??濞堢绱? */
+    /* 閸欐牕鍤憰浣稿絺闁胶娈戦梹鍨閿涘牆鏁栭柌蹇氱箾缂侇厾娈戞�??濞堢绱? */
     __disable_irq();
     uint16_t count = usb_tx_count;
     if (count == 0) {
@@ -183,7 +182,7 @@ static void start_usb_tx_if_idle(void)
     }
     uint16_t read_pos = usb_tx_read_pos();
     uint16_t first_chunk = (uint16_t)((USB_TX_RING_SIZE - read_pos) < count ? (USB_TX_RING_SIZE - read_pos) : count);
-    /* 闂勬劕鍩楅崡鏇燁偧閸欐垿?浣规付婢堆囨毐鎼达讣绱欓柆鍨帳鐡掑懓绻? USB MTU�??? */
+    /* 闂勬劕鍩楅崡鏇燁偧閸欐垿?浣规付婢堆囨毐鎼达讣绱欓柆鍨帳鐡掑懓绻? USB MTU�??? */
     uint16_t send_len = (first_chunk > USB_TX_CHUNK_MAX) ? USB_TX_CHUNK_MAX : first_chunk;
     __enable_irq();
 
@@ -192,8 +191,8 @@ static void start_usb_tx_if_idle(void)
     USBD_CDC_TransmitPacket(&hUsbDeviceHS);
 }
 
-/* proto_port_write閿涙艾鐨? data 閸忋儵妲﹂敍灞肩瑝闂冭�??
-   鏉╂柨娲�??圭偤妾崗銉╂Е閻ㄥ嫬鐡ч懞鍌涙殶閿涘牆褰查懗钘夌毈�??? len閿涘苯缍嬮梼鐔峰灙缁屾椽妫挎稉宥堝喕閺冭绱氶妴?
+/* proto_port_write閿涙艾鐨? data 閸忋儵妲﹂敍灞肩瑝闂冭�??
+   鏉╂柨娲�??圭偤妾崗銉╂Е閻ㄥ嫬鐡ч懞鍌涙殶閿涘牆褰查懗钘夌毈�??? len閿涘苯缍嬮梼鐔峰灙缁屾椽妫挎稉宥堝喕閺冭绱氶妴?
 */
 static size_t proto_port_write(void *user, const uint8_t *data, size_t len)
 {
@@ -204,7 +203,7 @@ static size_t proto_port_write(void *user, const uint8_t *data, size_t len)
     uint16_t free_space = (uint16_t)(USB_TX_RING_SIZE - usb_tx_count);
     if (free_space == 0) {
         __enable_irq();
-        return 0; // 闂冪喎鍨⿰鈽呯礉娑撱垹�??
+        return 0; // 闂冪喎鍨⿰鈽呯礉娑撱垹�??
     }
 
     /* 鐏忎粙鍣洪崘娆忓弳閸忋劑鍎撮敍灞肩稻閼汇儳鈹栭梻缈犵瑝鐡掑啿褰ч崘娆忓弳閼宠棄顔愮痪宕囨畱 */
@@ -227,7 +226,7 @@ static size_t proto_port_write(void *user, const uint8_t *data, size_t len)
     usb_tx_count = (uint16_t)(usb_tx_count + to_write);
     __enable_irq();
 
-    /* 婵�?��?�鐏? USB 缁屾椽妫介敍�?冃曢崣鎴濆絺闁緤绱欐导姘躬鐎瑰本鍨氶崶鐐剁殶闁插瞼鎴风紒顓ㄧ�? */
+    /* 婵�?��?�鐏? USB 缁屾椽妫介敍�?冃曢崣鎴濆絺闁緤绱欐导姘躬鐎瑰本鍨氶崶鐐剁殶闁插瞼鎴风紒顓ㄧ�? */
     start_usb_tx_if_idle();
 
     return (size_t)to_write;
@@ -369,7 +368,7 @@ static int8_t CDC_Receive_HS(uint8_t* Buf, uint32_t *Len)
   /* USER CODE BEGIN 11 */
   /* Directly feed raw USB bytes to uproto; do not pre-filter/clear Buf */
   if (Len && *Len) {
-    uproto_on_rx_bytes(&proto_ctx, Buf, *Len);
+    usb_cdc_port_on_rx(Buf, *Len);
   }
   USBD_CDC_SetRxBuffer(&hUsbDeviceHS, &Buf[0]);
   USBD_CDC_ReceivePacket(&hUsbDeviceHS);
@@ -415,42 +414,27 @@ static int8_t CDC_TransmitCplt_HS(uint8_t *Buf, uint32_t *Len, uint8_t epnum)
   uint8_t result = USBD_OK;
   /* USER CODE BEGIN 14 */
   UNUSED(Buf);
+  UNUSED(Len);
   UNUSED(epnum);
-  if (Len != NULL && *Len > 0U)
-  {
-    uint16_t sent_len = (*Len > 0xFFFFU) ? 0xFFFFU : (uint16_t)(*Len);
-
-    __disable_irq();
-    if (sent_len >= usb_tx_count)
-    {
-      usb_tx_count = 0U;
-    }
-    else
-    {
-      usb_tx_count = (uint16_t)(usb_tx_count - sent_len);
-    }
-    __enable_irq();
+  __disable_irq();
+  if (usb_tx_count > 0) {
+    uint16_t sent = usb_tx_count;
+    uint16_t read_pos = usb_tx_read_pos();
+    uint16_t first_chunk = (uint16_t)((USB_TX_RING_SIZE - read_pos) < sent ? (USB_TX_RING_SIZE - read_pos) : sent);
+    sent = (first_chunk > USB_TX_CHUNK_MAX) ? USB_TX_CHUNK_MAX : first_chunk;
+    usb_tx_count = (uint16_t)(usb_tx_count - sent);
   }
+  __enable_irq();
   start_usb_tx_if_idle();
   /* USER CODE END 14 */
   return result;
 }
 
 /* USER CODE BEGIN PRIVATE_FUNCTIONS_IMPLEMENTATION */
-uint32_t usbd_cdc_port_write(void *user, const uint8_t *data, uint32_t len)
-{
-  if (hUsbDeviceHS.dev_state != USBD_STATE_CONFIGURED)
-  {
-    return 0U;
-  }
-
-  return (uint32_t)proto_port_write(user, data, (size_t)len);
-}
-
 int __io_putchar(int ch)
 {
 	
-    if (hUsbDeviceHS.dev_state != USBD_STATE_CONFIGURED) return ch; // 閺堫亜姘ㄧ紒顏嗘纯閹恒儰�??
+    if (hUsbDeviceHS.dev_state != USBD_STATE_CONFIGURED) return ch; // 閺堫亜姘ㄧ紒顏嗘纯閹恒儰�??
     printf_buf[0] = (uint8_t)ch;
     tx_done = 0;
     CDC_Transmit_HS(&printf_buf[0], 1); // 閹绘劒姘﹂崡鏇炵摟閼??
