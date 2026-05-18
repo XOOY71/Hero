@@ -199,7 +199,7 @@ static void gimbal_yaw_absolute_angle_limit(gimbal_control_t *control, float add
                          yaw_motor->max_relative_angle);
 
     relative_angle_set_out =
-        gimbal_mit_clamp(yaw_remote_relative_angle_set + aim.err_rad_lpf.yaw,
+        gimbal_mit_clamp(yaw_remote_relative_angle_set + AUTO_AIM_YAW_GAIN * aim.err_rad_lpf.yaw,
                          yaw_motor->min_relative_angle,
                          yaw_motor->max_relative_angle);
 
@@ -234,7 +234,7 @@ static void gimbal_pitch_relative_angle_limit(gimbal_control_t *control, float a
                          pitch_motor->max_relative_angle);
 
     relative_angle_set_out =
-        gimbal_mit_clamp(pitch_remote_relative_angle_set + aim.err_rad_lpf.pitch,
+        gimbal_mit_clamp(pitch_remote_relative_angle_set + AUTO_AIM_PIT_GAIN * aim.err_rad_lpf.pitch,
                          pitch_motor->min_relative_angle,
                          pitch_motor->max_relative_angle);
 

@@ -62,8 +62,14 @@ typedef struct {
 } aim_err_rad_t;
 
 typedef struct {
+    float yaw;
+    float pitch;
+} aim_err_deg_t;
+
+typedef struct {
     received_data    receive;
     aim_err_rad_t    err_rad_lpf;
+    aim_err_deg_t    err_deg;
 
     uint8_t          online;
     uint8_t          auto_aim_flag;   // 0: off, 1: on

@@ -290,6 +290,8 @@ void auto_aim_init(auto_aim_t *aim_init)
     aim_init->receive.yaw = 0.0f;
     aim_init->err_rad_lpf.yaw = 0.0f;
     aim_init->err_rad_lpf.pitch = 0.0f;
+    aim_init->err_deg.yaw = 0.0f;
+    aim_init->err_deg.pitch = 0.0f;
 
     aim_init->aim_rc = get_remote_control_point();
 		
@@ -390,6 +392,9 @@ void auto_aim_apply_delta_udeg(int32_t dyaw_udeg,
 		
     // Interpret host command directly as “需要转动的误差”（正误差 → 正向转动）
     // [SYNC_FROM_H] Host deltas now feed internal controller instead of direct motor commands
+    aim.err_deg.yaw = (float)dyaw_udeg / 1000000.0f;
+    aim.err_deg.pitch = (float)dpitch_udeg / 1000000.0f;
+
     s_auto_aim_ctrl.yaw_axis.err_rad   = dyaw_rad;
     s_auto_aim_ctrl.pitch_axis.err_rad = dpitch_rad;
 

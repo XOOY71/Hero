@@ -3,7 +3,7 @@
 <title>Static Call Graph - [CtrlBoard-H7_WS1812\CtrlBoard-H7_WS1812.axf]</title></head>
 <body><HR>
 <H1>Static Call Graph for image CtrlBoard-H7_WS1812\CtrlBoard-H7_WS1812.axf</H1><HR>
-<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 5060528: Last Updated: Mon May 18 22:07:15 2026
+<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 5060528: Last Updated: Tue May 19 01:16:06 2026
 <BR><P>
 <H3>Maximum Stack Usage =        940 bytes + Unknown(Functions without stacksize, Cycles, Untraceable Function Pointers)</H3><H3>
 Call chain for Maximum Stack Depth:</H3>
@@ -3391,7 +3391,7 @@ Global Symbols
 <LI><a href="#[222]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__hardfp_cosf
 </UL>
 
-<P><STRONG><a name="[230]"></a>auto_aim_apply_delta_udeg</STRONG> (Thumb, 156 bytes, Stack size 8 bytes, auto_aim.o(i.auto_aim_apply_delta_udeg))
+<P><STRONG><a name="[230]"></a>auto_aim_apply_delta_udeg</STRONG> (Thumb, 188 bytes, Stack size 8 bytes, auto_aim.o(i.auto_aim_apply_delta_udeg))
 <BR><BR>[Stack]<UL><LI>Max Depth = 8<LI>Call Chain = auto_aim_apply_delta_udeg
 </UL>
 <BR>[Calls]<UL><LI><a href="#[111]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_GetTick
@@ -3399,7 +3399,7 @@ Global Symbols
 <BR>[Called By]<UL><LI><a href="#[cb]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;on_rx
 </UL>
 
-<P><STRONG><a name="[237]"></a>auto_aim_feedback_update</STRONG> (Thumb, 100 bytes, Stack size 8 bytes, auto_aim.o(i.auto_aim_feedback_update))
+<P><STRONG><a name="[237]"></a>auto_aim_feedback_update</STRONG> (Thumb, 102 bytes, Stack size 8 bytes, auto_aim.o(i.auto_aim_feedback_update))
 <BR><BR>[Stack]<UL><LI>Max Depth = 16<LI>Call Chain = auto_aim_feedback_update &rArr; auto_aim_reset_delta_accum
 </UL>
 <BR>[Calls]<UL><LI><a href="#[111]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_GetTick
@@ -3408,7 +3408,7 @@ Global Symbols
 <BR>[Called By]<UL><LI><a href="#[c0]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;auto_aim_task
 </UL>
 
-<P><STRONG><a name="[238]"></a>auto_aim_init</STRONG> (Thumb, 58 bytes, Stack size 8 bytes, auto_aim.o(i.auto_aim_init))
+<P><STRONG><a name="[238]"></a>auto_aim_init</STRONG> (Thumb, 72 bytes, Stack size 8 bytes, auto_aim.o(i.auto_aim_init))
 <BR><BR>[Stack]<UL><LI>Max Depth = 8<LI>Call Chain = auto_aim_init
 </UL>
 <BR>[Calls]<UL><LI><a href="#[239]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;get_remote_control_point
@@ -3426,7 +3426,7 @@ Global Symbols
 <LI><a href="#[231]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;auto_aim_control_tick_internal
 </UL>
 
-<P><STRONG><a name="[23c]"></a>auto_aim_set</STRONG> (Thumb, 40 bytes, Stack size 0 bytes, auto_aim.o(i.auto_aim_set))
+<P><STRONG><a name="[23c]"></a>auto_aim_set</STRONG> (Thumb, 44 bytes, Stack size 0 bytes, auto_aim.o(i.auto_aim_set))
 <BR><BR>[Called By]<UL><LI><a href="#[c0]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;auto_aim_task
 </UL>
 
@@ -3855,7 +3855,7 @@ Global Symbols
 <LI><a href="#[290]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;gimbal_init
 </UL>
 
-<P><STRONG><a name="[290]"></a>gimbal_init</STRONG> (Thumb, 406 bytes, Stack size 48 bytes, yaw_pitch_direct.o(i.gimbal_init))
+<P><STRONG><a name="[290]"></a>gimbal_init</STRONG> (Thumb, 410 bytes, Stack size 48 bytes, yaw_pitch_direct.o(i.gimbal_init))
 <BR><BR>[Stack]<UL><LI>Max Depth = 140<LI>Call Chain = gimbal_init &rArr; Motor_MIT_MODE &rArr; canx_send_data &rArr; HAL_FDCAN_AddMessageToTxFifoQ &rArr; FDCAN_CopyMessageToRAM
 </UL>
 <BR>[Calls]<UL><LI><a href="#[239]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;get_remote_control_point
@@ -4825,7 +4825,7 @@ Local Symbols
 <BR><BR>[Called By]<UL><LI><a href="#[231]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;auto_aim_control_tick_internal
 </UL>
 
-<P><STRONG><a name="[231]"></a>auto_aim_control_tick_internal</STRONG> (Thumb, 628 bytes, Stack size 96 bytes, auto_aim.o(i.auto_aim_control_tick_internal))
+<P><STRONG><a name="[231]"></a>auto_aim_control_tick_internal</STRONG> (Thumb, 632 bytes, Stack size 96 bytes, auto_aim.o(i.auto_aim_control_tick_internal))
 <BR><BR>[Stack]<UL><LI>Max Depth = 104<LI>Call Chain = auto_aim_control_tick_internal &rArr; mf5_update
 </UL>
 <BR>[Calls]<UL><LI><a href="#[111]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_GetTick
@@ -4873,7 +4873,7 @@ Local Symbols
 <BR>[Called By]<UL><LI><a href="#[2a0]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;gimbal_send_cmd
 </UL>
 
-<P><STRONG><a name="[29e]"></a>gimbal_pitch_relative_angle_limit</STRONG> (Thumb, 84 bytes, Stack size 16 bytes, yaw_pitch_direct.o(i.gimbal_pitch_relative_angle_limit))
+<P><STRONG><a name="[29e]"></a>gimbal_pitch_relative_angle_limit</STRONG> (Thumb, 88 bytes, Stack size 16 bytes, yaw_pitch_direct.o(i.gimbal_pitch_relative_angle_limit))
 <BR><BR>[Stack]<UL><LI>Max Depth = 16<LI>Call Chain = gimbal_pitch_relative_angle_limit
 </UL>
 <BR>[Calls]<UL><LI><a href="#[28a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;gimbal_mit_clamp
@@ -4881,7 +4881,7 @@ Local Symbols
 <BR>[Called By]<UL><LI><a href="#[2a1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;gimbal_set_control
 </UL>
 
-<P><STRONG><a name="[2a3]"></a>gimbal_yaw_absolute_angle_limit</STRONG> (Thumb, 132 bytes, Stack size 24 bytes, yaw_pitch_direct.o(i.gimbal_yaw_absolute_angle_limit))
+<P><STRONG><a name="[2a3]"></a>gimbal_yaw_absolute_angle_limit</STRONG> (Thumb, 136 bytes, Stack size 24 bytes, yaw_pitch_direct.o(i.gimbal_yaw_absolute_angle_limit))
 <BR><BR>[Stack]<UL><LI>Max Depth = 24<LI>Call Chain = gimbal_yaw_absolute_angle_limit
 </UL>
 <BR>[Calls]<UL><LI><a href="#[289]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;hwt101_get_yaw_total_rad
@@ -4922,7 +4922,7 @@ Local Symbols
 <LI><a href="#[286]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;gimbal_motor_absolute_angle_control
 </UL>
 
-<P><STRONG><a name="[298]"></a>gimbal_calc_feedforward</STRONG> (Thumb, 44 bytes, Stack size 0 bytes, gimbal_task.o(i.gimbal_calc_feedforward))
+<P><STRONG><a name="[298]"></a>gimbal_calc_feedforward</STRONG> (Thumb, 52 bytes, Stack size 0 bytes, gimbal_task.o(i.gimbal_calc_feedforward))
 <BR><BR>[Called By]<UL><LI><a href="#[287]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;gimbal_motor_relative_angle_control
 <LI><a href="#[286]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;gimbal_motor_absolute_angle_control
 </UL>
@@ -5242,7 +5242,7 @@ Local Symbols
 <BR>[Called By]<UL><LI><a href="#[ca]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;comm_app_task
 </UL>
 
-<P><STRONG><a name="[261]"></a>comm_autoaim_enabled</STRONG> (Thumb, 12 bytes, Stack size 0 bytes, comm_app.o(i.comm_autoaim_enabled))
+<P><STRONG><a name="[261]"></a>comm_autoaim_enabled</STRONG> (Thumb, 14 bytes, Stack size 0 bytes, comm_app.o(i.comm_autoaim_enabled))
 <BR><BR>[Called By]<UL><LI><a href="#[c6]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;gimbal_on_fire
 <LI><a href="#[c7]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;gimbal_on_chassis
 <LI><a href="#[25f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;comm_apply_host_controls

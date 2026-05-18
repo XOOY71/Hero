@@ -26,30 +26,31 @@ extern "C" {
 #define PITCH_GYRO_ABSOLUTE_PID_MAX_IOUT   0.0f
 
 /* yaw 轴陀螺仪绝对角控制 PID */
-#define YAW_GYRO_ABSOLUTE_PID_KP           4.0f
+#define YAW_GYRO_ABSOLUTE_PID_KP           8.4f
 #define YAW_GYRO_ABSOLUTE_PID_KI           0.0f
-#define YAW_GYRO_ABSOLUTE_PID_KD           0.24f
-#define YAW_GYRO_ABSOLUTE_PID_MAX_OUT      3.0f
+#define YAW_GYRO_ABSOLUTE_PID_KD           0.75f
+#define YAW_GYRO_ABSOLUTE_PID_MAX_OUT      1.2f
 #define YAW_GYRO_ABSOLUTE_PID_MAX_IOUT     0.0f
 
 /* pitch 轴编码器相对角控制 PID */
-#define PITCH_ENCODE_RELATIVE_PID_KP       5.8f
+#define PITCH_ENCODE_RELATIVE_PID_KP       8.8f
 #define PITCH_ENCODE_RELATIVE_PID_KI       0.0f
-#define PITCH_ENCODE_RELATIVE_PID_KD       0.6f
-#define PITCH_ENCODE_RELATIVE_PID_MAX_OUT  3.0f
+#define PITCH_ENCODE_RELATIVE_PID_KD       0.82f
+#define PITCH_ENCODE_RELATIVE_PID_MAX_OUT  1.2f
 #define PITCH_ENCODE_RELATIVE_PID_MAX_IOUT 0.0f
 
 /* yaw 轴编码器相对角控制 PID */
-#define YAW_ENCODE_RELATIVE_PID_KP         1.8f
+#define YAW_ENCODE_RELATIVE_PID_KP         4.8f
 #define YAW_ENCODE_RELATIVE_PID_KI         0.0f
 #define YAW_ENCODE_RELATIVE_PID_KD         0.2f
 #define YAW_ENCODE_RELATIVE_PID_MAX_OUT    0.8f
 #define YAW_ENCODE_RELATIVE_PID_MAX_IOUT   0.0f
 
 /* ========================= 云台前馈与输出配置 ========================= */
-#define YAW_REF_VEL_FILTER_ALPHA           0.05f  // yaw 目标角差分速度低通系数，越小前馈越平滑
+#define YAW_REF_VEL_FILTER_ALPHA           0.001f  // yaw 目标角差分速度低通系数，越小前馈越平滑
 #define YAW_REF_ACCEL_LIMIT                100.0f // yaw 惯量前馈参考加速度限幅，防止遥控输入跳变产生力矩尖峰
-#define PITCH_RELATIVE_SPEED_FILTER_ALPHA  0.20f  // pitch 编码器差分速度低通系数
+#define PITCH_RELATIVE_SPEED_FILTER_ALPHA  0.1f  // pitch 编码器差分速度低通系数
+#define YAW_VELOCITY_FF_GAIN               0.000f   // yaw velocity feedforward gain, N*m/(rad/s)
 #define PITCH_VELOCITY_FF_GAIN             0.24f  // pitch 速度前馈系数，单位 N*m/(rad/s)
 
 /* 惯量前馈：torque_ff = J * alpha_ref */
@@ -57,6 +58,10 @@ extern "C" {
 
 #define PITCH_EQ_MASS_KG                   1.5f   // pitch 重力补偿使用的等效质量
 #define PITCH_INERTIA_KGM2                 0.00245 // pitch 转动惯量 J，单位 kg*m^2
+
+/* ========================= 遥控器/鼠标输入配置 ========================= */
+#define AUTO_AIM_YAW_GAIN									2
+#define AUTO_AIM_PIT_GAIN									2
 
 /* ========================= 遥控器/鼠标输入配置 ========================= */
 #define GIMBAL_ANGLE_Z_RC_SEN              0.0000005f // 小陀螺/底盘旋转角速度输入灵敏度
