@@ -115,7 +115,7 @@ static auto_aim_ctrl_t s_auto_aim_ctrl = {0};
 #define AA_KV_YAW 14.0f
 #endif
 #ifndef AA_KV_PITCH
-#define AA_KV_PITCH (-8.5f)
+#define AA_KV_PITCH (-12.5f)
 #endif
 #ifndef AA_KD_YAW
 #define AA_KD_YAW 0.02f
