@@ -13,29 +13,12 @@
 #include <math.h>
 #include <string.h>
 
+extern auto_aim_t aim;
+
 #define YAW_PITCH_DIRECT_PI 3.14159265358979323846f
 
 #ifndef GIMBAL_MIT_FEEDBACK_INIT_DELAY
 #define GIMBAL_MIT_FEEDBACK_INIT_DELAY 100U
-#endif
-
-#ifndef GIMBAL_AUTO_AIM_YAW_KP
-#define GIMBAL_AUTO_AIM_YAW_KP 14.0f
-#endif
-#ifndef GIMBAL_AUTO_AIM_PITCH_KP
-#define GIMBAL_AUTO_AIM_PITCH_KP 8.5f
-#endif
-#ifndef GIMBAL_AUTO_AIM_YAW_MAX_SPEED
-#define GIMBAL_AUTO_AIM_YAW_MAX_SPEED (720.0f * YAW_PITCH_DIRECT_PI / 180.0f)
-#endif
-#ifndef GIMBAL_AUTO_AIM_PITCH_MAX_SPEED
-#define GIMBAL_AUTO_AIM_PITCH_MAX_SPEED (720.0f * YAW_PITCH_DIRECT_PI / 180.0f)
-#endif
-#ifndef GIMBAL_AUTO_AIM_YAW_MAX_ACCEL
-#define GIMBAL_AUTO_AIM_YAW_MAX_ACCEL (6000.0f * YAW_PITCH_DIRECT_PI / 180.0f)
-#endif
-#ifndef GIMBAL_AUTO_AIM_PITCH_MAX_ACCEL
-#define GIMBAL_AUTO_AIM_PITCH_MAX_ACCEL (6000.0f * YAW_PITCH_DIRECT_PI / 180.0f)
 #endif
 
 float yaw_can_set_current = 0.0f;
@@ -46,8 +29,10 @@ static float yaw_ref_target_last = 0.0f;
 static uint8_t yaw_ref_target_init = 0u;
 static float pitch_ref_target_last = 0.0f;
 static uint8_t pitch_ref_target_init = 0u;
-static float yaw_auto_aim_target_vel = 0.0f;
-static float pitch_auto_aim_target_vel = 0.0f;
+static float yaw_remote_relative_angle_set = 0.0f;
+static uint8_t yaw_remote_relative_angle_init = 0u;
+static float pitch_remote_relative_angle_set = 0.0f;
+static uint8_t pitch_remote_relative_angle_init = 0u;
 
 __attribute__((weak)) const float *get_INS_angle_point(void)
 {
@@ -63,8 +48,6 @@ __attribute__((weak)) const float *get_accel_data_point(void)
 {
     return 0;
 }
-
-static void gimbal_auto_aim_clear_target_vel(gimbal_motor_t *motor);
 
 static float gimbal_mit_clamp(float value, float min_value, float max_value)
 {
@@ -95,17 +78,20 @@ static void gimbal_feedforward_clear(gimbal_motor_t *motor)
     motor->ref_vel_last = 0.0f;
     motor->ref_accel = 0.0f;
     motor->ff_torque = 0.0f;
-    gimbal_auto_aim_clear_target_vel(motor);
 
     if (motor == &gimbal_control.gimbal_yaw_motor)
     {
         yaw_ref_target_last = 0.0f;
         yaw_ref_target_init = 0u;
+        yaw_remote_relative_angle_set = 0.0f;
+        yaw_remote_relative_angle_init = 0u;
     }
     else if (motor == &gimbal_control.gimbal_pitch_motor)
     {
         pitch_ref_target_last = 0.0f;
         pitch_ref_target_init = 0u;
+        pitch_remote_relative_angle_set = 0.0f;
+        pitch_remote_relative_angle_init = 0u;
     }
 }
 
@@ -181,62 +167,12 @@ static float yaw_pitch_direct_wrap_angle(float angle)
     return angle;
 }
 
-static float gimbal_auto_aim_plan_target(float target_set,
-                                         float desired_target,
-                                         float *target_vel,
-                                         float kp,
-                                         float max_speed,
-                                         float max_accel,
-                                         float dt)
-{
-    float err;
-    float vel_cmd;
-    float vel_delta;
-    float vel_delta_max;
-    float step;
-
-    if (target_vel == 0 || dt <= 0.0f)
-    {
-        return target_set;
-    }
-
-    err = desired_target - target_set;
-    vel_cmd = gimbal_mit_clamp(kp * err, -max_speed, max_speed);
-    vel_delta_max = max_accel * dt;
-    vel_delta = gimbal_mit_clamp(vel_cmd - *target_vel,
-                                 -vel_delta_max,
-                                  vel_delta_max);
-    *target_vel += vel_delta;
-
-    step = *target_vel * dt;
-    if ((err > 0.0f && step > err) || (err < 0.0f && step < err))
-    {
-        step = err;
-        *target_vel = 0.0f;
-    }
-
-    return target_set + step;
-}
-
-static void gimbal_auto_aim_clear_target_vel(gimbal_motor_t *motor)
-{
-    if (motor == &gimbal_control.gimbal_yaw_motor)
-    {
-        yaw_auto_aim_target_vel = 0.0f;
-    }
-    else if (motor == &gimbal_control.gimbal_pitch_motor)
-    {
-        pitch_auto_aim_target_vel = 0.0f;
-    }
-}
-
 static void gimbal_yaw_absolute_angle_limit(gimbal_control_t *control, float add)
 {
     gimbal_motor_t *yaw_motor;
     float chassis_yaw;
     float relative_angle_set;
-    float desired_relative_angle;
-    const float control_dt = (float)GIMBAL_CONTROL_TIME * 0.001f;
+    float relative_angle_set_out;
 
     if (control == 0)
     {
@@ -250,48 +186,34 @@ static void gimbal_yaw_absolute_angle_limit(gimbal_control_t *control, float add
         chassis_yaw -
         yaw_motor->angle_offset;
 
-    if (auto_aim_is_active())
+    if (yaw_remote_relative_angle_init == 0u)
     {
-        desired_relative_angle =
-            yaw_motor->relative_angle +
-            auto_aim_get_yaw_err_rad() +
-            add;
-        desired_relative_angle =
-            gimbal_mit_clamp(desired_relative_angle,
-                             yaw_motor->min_relative_angle,
-                             yaw_motor->max_relative_angle);
-        relative_angle_set =
-            gimbal_auto_aim_plan_target(relative_angle_set,
-                                        desired_relative_angle,
-                                        &yaw_auto_aim_target_vel,
-                                        GIMBAL_AUTO_AIM_YAW_KP,
-                                        GIMBAL_AUTO_AIM_YAW_MAX_SPEED,
-                                        GIMBAL_AUTO_AIM_YAW_MAX_ACCEL,
-                                        control_dt);
-    }
-    else
-    {
-        yaw_auto_aim_target_vel = 0.0f;
-        relative_angle_set += add;
+        yaw_remote_relative_angle_set = relative_angle_set;
+        yaw_remote_relative_angle_init = 1u;
     }
 
-    relative_angle_set =
-        gimbal_mit_clamp(relative_angle_set,
+    yaw_remote_relative_angle_set += add;
+    yaw_remote_relative_angle_set =
+        gimbal_mit_clamp(yaw_remote_relative_angle_set,
                          yaw_motor->min_relative_angle,
                          yaw_motor->max_relative_angle);
 
-    yaw_motor->relative_angle_set = relative_angle_set;
+    relative_angle_set_out =
+        gimbal_mit_clamp(yaw_remote_relative_angle_set + aim.err_rad_lpf.yaw,
+                         yaw_motor->min_relative_angle,
+                         yaw_motor->max_relative_angle);
+
+    yaw_motor->relative_angle_set = relative_angle_set_out;
     yaw_motor->absolute_angle_set =
         chassis_yaw +
         yaw_motor->angle_offset +
-        relative_angle_set;
+        relative_angle_set_out;
 }
 
 static void gimbal_pitch_relative_angle_limit(gimbal_control_t *control, float add)
 {
     gimbal_motor_t *pitch_motor;
-    float desired_relative_angle;
-    const float control_dt = (float)GIMBAL_CONTROL_TIME * 0.001f;
+    float relative_angle_set_out;
 
     if (control == 0)
     {
@@ -299,35 +221,24 @@ static void gimbal_pitch_relative_angle_limit(gimbal_control_t *control, float a
     }
 
     pitch_motor = &control->gimbal_pitch_motor;
-    if (auto_aim_is_active())
+    if (pitch_remote_relative_angle_init == 0u)
     {
-        desired_relative_angle =
-            pitch_motor->relative_angle +
-            auto_aim_get_pitch_err_rad() +
-            add;
-        desired_relative_angle =
-            gimbal_mit_clamp(desired_relative_angle,
-                             pitch_motor->min_relative_angle,
-                             pitch_motor->max_relative_angle);
-        pitch_motor->relative_angle_set =
-            gimbal_auto_aim_plan_target(pitch_motor->relative_angle_set,
-                                        desired_relative_angle,
-                                        &pitch_auto_aim_target_vel,
-                                        GIMBAL_AUTO_AIM_PITCH_KP,
-                                        GIMBAL_AUTO_AIM_PITCH_MAX_SPEED,
-                                        GIMBAL_AUTO_AIM_PITCH_MAX_ACCEL,
-                                        control_dt);
-    }
-    else
-    {
-        pitch_auto_aim_target_vel = 0.0f;
-        pitch_motor->relative_angle_set += add;
+        pitch_remote_relative_angle_set = pitch_motor->relative_angle_set;
+        pitch_remote_relative_angle_init = 1u;
     }
 
-    pitch_motor->relative_angle_set =
-        gimbal_mit_clamp(pitch_motor->relative_angle_set,
+    pitch_remote_relative_angle_set += add;
+    pitch_remote_relative_angle_set =
+        gimbal_mit_clamp(pitch_remote_relative_angle_set,
                          pitch_motor->min_relative_angle,
                          pitch_motor->max_relative_angle);
+
+    relative_angle_set_out =
+        gimbal_mit_clamp(pitch_remote_relative_angle_set + aim.err_rad_lpf.pitch,
+                         pitch_motor->min_relative_angle,
+                         pitch_motor->max_relative_angle);
+
+    pitch_motor->relative_angle_set = relative_angle_set_out;
 }
 
 static void gimbal_total_pid_clear(gimbal_control_t *control)
@@ -647,7 +558,6 @@ void gimbal_set_control(gimbal_control_t *control)
 
     if (control->gimbal_yaw_motor.mode == GIMBAL_MOTOR_RAW)
     {
-        auto_aim_reset_delta_accum();
         gimbal_feedforward_clear(&control->gimbal_yaw_motor);
         control->gimbal_yaw_motor.raw_cmd = add_yaw;
     }
@@ -666,7 +576,6 @@ void gimbal_set_control(gimbal_control_t *control)
 
     if (control->gimbal_pitch_motor.mode == GIMBAL_MOTOR_RAW)
     {
-        auto_aim_reset_delta_accum();
         gimbal_feedforward_clear(&control->gimbal_pitch_motor);
         control->gimbal_pitch_motor.raw_cmd = add_pitch;
     }

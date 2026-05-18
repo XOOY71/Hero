@@ -191,8 +191,8 @@ static void gimbal_task(void const *pvParameters)
                    gimbal_control.gimbal_pitch_motor.relative_angle_set,
                    gimbal_control.gimbal_pitch_motor.relative_speed,
                    gimbal_control.gimbal_pitch_motor.pid_torque,
-                   gimbal_control.gimbal_pitch_motor.ff_torque,
-                   gimbal_control.gimbal_pitch_motor.given_current);
+                   aim.err_rad_lpf.yaw,
+                   aim.err_rad_lpf.pitch);
 //        VOFA_Send6(gimbal_control.gimbal_yaw_motor.relative_angle,
 //                   gimbal_control.gimbal_yaw_motor.relative_angle_set,
 //                   gimbal_control.gimbal_yaw_motor.gyro,
