@@ -28,14 +28,14 @@ extern "C" {
 /* yaw 轴陀螺仪绝对角控制 PID */
 #define YAW_GYRO_ABSOLUTE_PID_KP           4.0f
 #define YAW_GYRO_ABSOLUTE_PID_KI           0.0f
-#define YAW_GYRO_ABSOLUTE_PID_KD           0.14f
+#define YAW_GYRO_ABSOLUTE_PID_KD           0.24f
 #define YAW_GYRO_ABSOLUTE_PID_MAX_OUT      3.0f
 #define YAW_GYRO_ABSOLUTE_PID_MAX_IOUT     0.0f
 
 /* pitch 轴编码器相对角控制 PID */
-#define PITCH_ENCODE_RELATIVE_PID_KP       4.8f
+#define PITCH_ENCODE_RELATIVE_PID_KP       5.8f
 #define PITCH_ENCODE_RELATIVE_PID_KI       0.0f
-#define PITCH_ENCODE_RELATIVE_PID_KD       0.32f
+#define PITCH_ENCODE_RELATIVE_PID_KD       0.6f
 #define PITCH_ENCODE_RELATIVE_PID_MAX_OUT  3.0f
 #define PITCH_ENCODE_RELATIVE_PID_MAX_IOUT 0.0f
 
@@ -47,10 +47,6 @@ extern "C" {
 #define YAW_ENCODE_RELATIVE_PID_MAX_IOUT   0.0f
 
 /* ========================= 云台前馈与输出配置 ========================= */
-#define YAW_CURRENT_SET_POLARITY           (-1)   // yaw 输出方向极性
-#define PITCH_CURRENT_SET_POLARITY         ( 1)   // pitch 输出方向极性
-#define YAW_REF_ACCEL_RAMP_TIME            0.008f  // yaw 参考速度追踪时间，越小响应越快
-#define PITCH_REF_ACCEL_RAMP_TIME          0.008f  // pitch 参考速度追踪时间，越小响应越快
 #define YAW_REF_VEL_FILTER_ALPHA           0.05f  // yaw 目标角差分速度低通系数，越小前馈越平滑
 #define YAW_REF_ACCEL_LIMIT                100.0f // yaw 惯量前馈参考加速度限幅，防止遥控输入跳变产生力矩尖峰
 #define PITCH_RELATIVE_SPEED_FILTER_ALPHA  0.20f  // pitch 编码器差分速度低通系数
