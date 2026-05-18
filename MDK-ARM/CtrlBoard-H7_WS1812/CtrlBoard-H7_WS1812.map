@@ -6484,265 +6484,265 @@ Image Symbol Table
     gimbal_feedforward_clear                 0x0800d591   Thumb Code    68  yaw_pitch_direct.o(i.gimbal_feedforward_clear)
     i.gimbal_feedforward_track_target        0x0800d5e4   Section        0  yaw_pitch_direct.o(i.gimbal_feedforward_track_target)
     gimbal_feedforward_track_target          0x0800d5e5   Thumb Code   168  yaw_pitch_direct.o(i.gimbal_feedforward_track_target)
-    i.gimbal_float_to_torque_cmd             0x0800d6a8   Section        0  gimbal_task.o(i.gimbal_float_to_torque_cmd)
-    gimbal_float_to_torque_cmd               0x0800d6a9   Thumb Code    12  gimbal_task.o(i.gimbal_float_to_torque_cmd)
-    i.gimbal_get_state                       0x0800d6b4   Section        0  comm_app.o(i.gimbal_get_state)
-    gimbal_get_state                         0x0800d6b5   Thumb Code   172  comm_app.o(i.gimbal_get_state)
-    i.gimbal_init                            0x0800d768   Section        0  yaw_pitch_direct.o(i.gimbal_init)
-    i.gimbal_init_control                    0x0800d950   Section        0  gimbal_behaviour.o(i.gimbal_init_control)
-    i.gimbal_mailbox_set                     0x0800d988   Section        0  gimbal_channel.o(i.gimbal_mailbox_set)
-    i.gimbal_mit_clamp                       0x0800d9b0   Section        0  yaw_pitch_direct.o(i.gimbal_mit_clamp)
-    gimbal_mit_clamp                         0x0800d9b1   Thumb Code    32  yaw_pitch_direct.o(i.gimbal_mit_clamp)
-    i.gimbal_mode_change_control_transit     0x0800d9d0   Section        0  yaw_pitch_direct.o(i.gimbal_mode_change_control_transit)
-    i.gimbal_motionless_control              0x0800da78   Section        0  gimbal_behaviour.o(i.gimbal_motionless_control)
-    i.gimbal_motor_absolute_angle_control    0x0800da94   Section        0  gimbal_task.o(i.gimbal_motor_absolute_angle_control)
-    i.gimbal_motor_raw_angle_control         0x0800db0c   Section        0  gimbal_task.o(i.gimbal_motor_raw_angle_control)
-    i.gimbal_motor_relative_angle_control    0x0800db38   Section        0  gimbal_task.o(i.gimbal_motor_relative_angle_control)
-    i.gimbal_on_chassis                      0x0800db9c   Section        0  comm_app.o(i.gimbal_on_chassis)
-    gimbal_on_chassis                        0x0800db9d   Thumb Code    44  comm_app.o(i.gimbal_on_chassis)
-    i.gimbal_on_delta                        0x0800dbcc   Section        0  comm_app.o(i.gimbal_on_delta)
-    gimbal_on_delta                          0x0800dbcd   Thumb Code    44  comm_app.o(i.gimbal_on_delta)
-    i.gimbal_on_fire                         0x0800dbf8   Section        0  comm_app.o(i.gimbal_on_fire)
-    gimbal_on_fire                           0x0800dbf9   Thumb Code   130  comm_app.o(i.gimbal_on_fire)
-    i.gimbal_on_referee_query                0x0800dc80   Section        0  comm_app.o(i.gimbal_on_referee_query)
-    gimbal_on_referee_query                  0x0800dc81   Thumb Code    10  comm_app.o(i.gimbal_on_referee_query)
-    i.gimbal_output_to_mit_torque            0x0800dc90   Section        0  yaw_pitch_direct.o(i.gimbal_output_to_mit_torque)
-    gimbal_output_to_mit_torque              0x0800dc91   Thumb Code    12  yaw_pitch_direct.o(i.gimbal_output_to_mit_torque)
-    i.gimbal_pid_calc                        0x0800dc9c   Section        0  gimbal_task.o(i.gimbal_pid_calc)
-    i.gimbal_pid_clear                       0x0800dcac   Section        0  gimbal_task.o(i.gimbal_pid_clear)
-    i.gimbal_pid_init                        0x0800dcb6   Section        0  gimbal_task.o(i.gimbal_pid_init)
-    i.gimbal_pitch_relative_angle_limit      0x0800dcd4   Section        0  yaw_pitch_direct.o(i.gimbal_pitch_relative_angle_limit)
-    gimbal_pitch_relative_angle_limit        0x0800dcd5   Thumb Code    88  yaw_pitch_direct.o(i.gimbal_pitch_relative_angle_limit)
-    i.gimbal_read_manual_input               0x0800dd34   Section        0  gimbal_behaviour.o(i.gimbal_read_manual_input)
-    gimbal_read_manual_input                 0x0800dd35   Thumb Code   146  gimbal_behaviour.o(i.gimbal_read_manual_input)
-    i.gimbal_relative_angle_control          0x0800dddc   Section        0  gimbal_behaviour.o(i.gimbal_relative_angle_control)
-    i.gimbal_send_cmd                        0x0800ddf0   Section        0  yaw_pitch_direct.o(i.gimbal_send_cmd)
-    i.gimbal_set_control                     0x0800de78   Section        0  yaw_pitch_direct.o(i.gimbal_set_control)
-    i.gimbal_set_mode                        0x0800df28   Section        0  yaw_pitch_direct.o(i.gimbal_set_mode)
-    i.gimbal_spin_control                    0x0800df34   Section        0  gimbal_behaviour.o(i.gimbal_spin_control)
-    i.gimbal_task                            0x0800df70   Section        0  gimbal_task.o(i.gimbal_task)
-    gimbal_task                              0x0800df71   Thumb Code   112  gimbal_task.o(i.gimbal_task)
-    i.gimbal_wrap_angle                      0x0800dfe8   Section        0  gimbal_task.o(i.gimbal_wrap_angle)
-    gimbal_wrap_angle                        0x0800dfe9   Thumb Code    40  gimbal_task.o(i.gimbal_wrap_angle)
-    i.gimbal_yaw_absolute_angle_limit        0x0800e01c   Section        0  yaw_pitch_direct.o(i.gimbal_yaw_absolute_angle_limit)
-    gimbal_yaw_absolute_angle_limit          0x0800e01d   Thumb Code   136  yaw_pitch_direct.o(i.gimbal_yaw_absolute_angle_limit)
-    i.gimbal_zero_force_control              0x0800e0ac   Section        0  gimbal_behaviour.o(i.gimbal_zero_force_control)
-    i.gravity_comp_calc_torque               0x0800e0c8   Section        0  gravity_comp.o(i.gravity_comp_calc_torque)
-    i.gravity_comp_calc_torque_with_param    0x0800e0d8   Section        0  gravity_comp.o(i.gravity_comp_calc_torque_with_param)
-    i.gravity_comp_execute                   0x0800e148   Section        0  gravity_comp.o(i.gravity_comp_execute)
-    i.gravity_comp_init                      0x0800e1a4   Section        0  gravity_comp.o(i.gravity_comp_init)
-    i.hwt101_get_yaw_total_rad               0x0800e1fc   Section        0  hwt_imu.o(i.hwt101_get_yaw_total_rad)
-    i.hwt101_rx_parse                        0x0800e208   Section        0  hwt_imu.o(i.hwt101_rx_parse)
-    i.hwt906_rx_parse                        0x0800e220   Section        0  hwt_imu.o(i.hwt906_rx_parse)
-    i.hwt_handle_frame                       0x0800e238   Section        0  hwt_imu.o(i.hwt_handle_frame)
-    hwt_handle_frame                         0x0800e239   Thumb Code   468  hwt_imu.o(i.hwt_handle_frame)
-    i.hwt_imu_init                           0x0800e42c   Section        0  hwt_imu.o(i.hwt_imu_init)
-    i.hwt_parse_stream                       0x0800e474   Section        0  hwt_imu.o(i.hwt_parse_stream)
-    hwt_parse_stream                         0x0800e475   Thumb Code    96  hwt_imu.o(i.hwt_parse_stream)
-    i.hwt_update_yaw_total                   0x0800e4d4   Section        0  hwt_imu.o(i.hwt_update_yaw_total)
-    hwt_update_yaw_total                     0x0800e4d5   Thumb Code   110  hwt_imu.o(i.hwt_update_yaw_total)
-    i.main                                   0x0800e554   Section        0  main.o(i.main)
-    i.makeFreeRtosPriority                   0x0800e600   Section        0  cmsis_os.o(i.makeFreeRtosPriority)
-    makeFreeRtosPriority                     0x0800e601   Thumb Code    14  cmsis_os.o(i.makeFreeRtosPriority)
-    i.mf5_reset                              0x0800e610   Section        0  auto_aim.o(i.mf5_reset)
-    mf5_reset                                0x0800e611   Thumb Code    38  auto_aim.o(i.mf5_reset)
-    i.mf5_update                             0x0800e63c   Section        0  auto_aim.o(i.mf5_update)
-    i.mux_decode                             0x0800e734   Section        0  comm.o(i.mux_decode)
-    i.mux_encode                             0x0800e7a4   Section        0  comm.o(i.mux_encode)
-    i.now_us                                 0x0800e80a   Section        0  time_sync_channel.o(i.now_us)
-    now_us                                   0x0800e80b   Thumb Code    16  time_sync_channel.o(i.now_us)
-    i.on_mux_rx                              0x0800e81a   Section        0  comm.o(i.on_mux_rx)
-    on_mux_rx                                0x0800e81b   Thumb Code    56  comm.o(i.on_mux_rx)
-    i.on_rx                                  0x0800e852   Section        0  gimbal_channel.o(i.on_rx)
-    on_rx                                    0x0800e853   Thumb Code   260  gimbal_channel.o(i.on_rx)
-    i.on_rx                                  0x0800e956   Section        0  time_sync_channel.o(i.on_rx)
-    on_rx                                    0x0800e957   Thumb Code   416  time_sync_channel.o(i.on_rx)
-    i.on_tick                                0x0800eaf6   Section        0  gimbal_channel.o(i.on_tick)
-    on_tick                                  0x0800eaf7   Thumb Code    88  gimbal_channel.o(i.on_tick)
-    i.on_tick                                0x0800eb4e   Section        0  time_sync_channel.o(i.on_tick)
-    on_tick                                  0x0800eb4f   Thumb Code   168  time_sync_channel.o(i.on_tick)
-    i.osDelay                                0x0800ebf6   Section        0  cmsis_os.o(i.osDelay)
-    i.osKernelStart                          0x0800ec04   Section        0  cmsis_os.o(i.osKernelStart)
-    i.osThreadCreate                         0x0800ec0e   Section        0  cmsis_os.o(i.osThreadCreate)
-    i.platform_memcpy                        0x0800ec62   Section        0  platform_stm32.o(i.platform_memcpy)
-    i.platform_memmove                       0x0800ec74   Section        0  platform_stm32.o(i.platform_memmove)
-    i.platform_memset                        0x0800eca4   Section        0  platform_stm32.o(i.platform_memset)
-    i.proto_init_from_main                   0x0800ecb8   Section        0  main.o(i.proto_init_from_main)
-    i.proto_time_now                         0x0800ecf0   Section        0  main.o(i.proto_time_now)
-    proto_time_now                           0x0800ecf1   Thumb Code     4  main.o(i.proto_time_now)
-    i.prvAddCurrentTaskToDelayedList         0x0800ecf4   Section        0  tasks.o(i.prvAddCurrentTaskToDelayedList)
-    prvAddCurrentTaskToDelayedList           0x0800ecf5   Thumb Code   102  tasks.o(i.prvAddCurrentTaskToDelayedList)
-    i.prvAddNewTaskToReadyList               0x0800ed64   Section        0  tasks.o(i.prvAddNewTaskToReadyList)
-    prvAddNewTaskToReadyList                 0x0800ed65   Thumb Code   194  tasks.o(i.prvAddNewTaskToReadyList)
-    i.prvDeleteTCB                           0x0800ee34   Section        0  tasks.o(i.prvDeleteTCB)
-    prvDeleteTCB                             0x0800ee35   Thumb Code    52  tasks.o(i.prvDeleteTCB)
-    i.prvHeapInit                            0x0800ee68   Section        0  heap_4.o(i.prvHeapInit)
-    prvHeapInit                              0x0800ee69   Thumb Code    70  heap_4.o(i.prvHeapInit)
-    i.prvIdleTask                            0x0800eeb8   Section        0  tasks.o(i.prvIdleTask)
-    prvIdleTask                              0x0800eeb9   Thumb Code    82  tasks.o(i.prvIdleTask)
-    i.prvInitialiseNewTask                   0x0800ef18   Section        0  tasks.o(i.prvInitialiseNewTask)
-    prvInitialiseNewTask                     0x0800ef19   Thumb Code   154  tasks.o(i.prvInitialiseNewTask)
-    i.prvInsertBlockIntoFreeList             0x0800efb4   Section        0  heap_4.o(i.prvInsertBlockIntoFreeList)
-    prvInsertBlockIntoFreeList               0x0800efb5   Thumb Code    72  heap_4.o(i.prvInsertBlockIntoFreeList)
-    i.prvResetNextTaskUnblockTime            0x0800f000   Section        0  tasks.o(i.prvResetNextTaskUnblockTime)
-    prvResetNextTaskUnblockTime              0x0800f001   Thumb Code    26  tasks.o(i.prvResetNextTaskUnblockTime)
-    i.prvTaskExitError                       0x0800f020   Section        0  port.o(i.prvTaskExitError)
-    prvTaskExitError                         0x0800f021   Thumb Code    36  port.o(i.prvTaskExitError)
-    i.pvPortMalloc                           0x0800f048   Section        0  heap_4.o(i.pvPortMalloc)
-    i.pxPortInitialiseStack                  0x0800f124   Section        0  port.o(i.pxPortInitialiseStack)
-    i.sbus_to_rc                             0x0800f154   Section        0  remote_control.o(i.sbus_to_rc)
-    i.service_task                           0x0800f1f0   Section        0  service_task.o(i.service_task)
-    service_task                             0x0800f1f1   Thumb Code    48  service_task.o(i.service_task)
-    i.setup_channels                         0x0800f224   Section        0  comm_app.o(i.setup_channels)
-    setup_channels                           0x0800f225   Thumb Code   206  comm_app.o(i.setup_channels)
-    i.shoot_task_control_friction            0x0800f300   Section        0  shoot_task.o(i.shoot_task_control_friction)
-    shoot_task_control_friction              0x0800f301   Thumb Code   498  shoot_task.o(i.shoot_task_control_friction)
-    i.shoot_task_current_a_to_input_torque_nm 0x0800f500   Section        0  shoot_task.o(i.shoot_task_current_a_to_input_torque_nm)
-    shoot_task_current_a_to_input_torque_nm  0x0800f501   Thumb Code    18  shoot_task.o(i.shoot_task_current_a_to_input_torque_nm)
-    i.shoot_task_current_ma_to_esc_cmd       0x0800f51c   Section        0  shoot_task.o(i.shoot_task_current_ma_to_esc_cmd)
-    shoot_task_current_ma_to_esc_cmd         0x0800f51d   Thumb Code    68  shoot_task.o(i.shoot_task_current_ma_to_esc_cmd)
-    i.shoot_task_init                        0x0800f568   Section        0  shoot_task.o(i.shoot_task_init)
-    i.shoot_task_init_control                0x0800f574   Section        0  shoot_task.o(i.shoot_task_init_control)
-    shoot_task_init_control                  0x0800f575   Thumb Code   152  shoot_task.o(i.shoot_task_init_control)
-    i.shoot_task_limit_current_a             0x0800f61c   Section        0  shoot_task.o(i.shoot_task_limit_current_a)
-    shoot_task_limit_current_a               0x0800f61d   Thumb Code    32  shoot_task.o(i.shoot_task_limit_current_a)
-    i.shoot_task_loop                        0x0800f644   Section        0  shoot_task.o(i.shoot_task_loop)
-    i.shoot_task_motor_apply_feedforward     0x0800f670   Section        0  shoot_task.o(i.shoot_task_motor_apply_feedforward)
-    shoot_task_motor_apply_feedforward       0x0800f671   Thumb Code    44  shoot_task.o(i.shoot_task_motor_apply_feedforward)
-    i.shoot_task_motor_calc                  0x0800f69c   Section        0  shoot_task.o(i.shoot_task_motor_calc)
-    shoot_task_motor_calc                    0x0800f69d   Thumb Code    36  shoot_task.o(i.shoot_task_motor_calc)
-    i.shoot_task_motor_finalize_current      0x0800f6c4   Section        0  shoot_task.o(i.shoot_task_motor_finalize_current)
-    shoot_task_motor_finalize_current        0x0800f6c5   Thumb Code    64  shoot_task.o(i.shoot_task_motor_finalize_current)
-    i.shoot_task_motor_hot_reset             0x0800f708   Section        0  shoot_task.o(i.shoot_task_motor_hot_reset)
-    shoot_task_motor_hot_reset               0x0800f709   Thumb Code    32  shoot_task.o(i.shoot_task_motor_hot_reset)
-    i.shoot_task_motor_init                  0x0800f72c   Section        0  shoot_task.o(i.shoot_task_motor_init)
-    shoot_task_motor_init                    0x0800f72d   Thumb Code   138  shoot_task.o(i.shoot_task_motor_init)
-    i.shoot_task_motor_ready                 0x0800f7c4   Section        0  shoot_task.o(i.shoot_task_motor_ready)
-    shoot_task_motor_ready                   0x0800f7c5   Thumb Code    28  shoot_task.o(i.shoot_task_motor_ready)
-    i.shoot_task_motor_reset                 0x0800f7e0   Section        0  shoot_task.o(i.shoot_task_motor_reset)
-    shoot_task_motor_reset                   0x0800f7e1   Thumb Code    20  shoot_task.o(i.shoot_task_motor_reset)
-    i.shoot_task_motor_should_trigger_feedforward 0x0800f7f8   Section        0  shoot_task.o(i.shoot_task_motor_should_trigger_feedforward)
-    shoot_task_motor_should_trigger_feedforward 0x0800f7f9   Thumb Code    50  shoot_task.o(i.shoot_task_motor_should_trigger_feedforward)
-    i.shoot_task_motor_update_current_physics 0x0800f830   Section        0  shoot_task.o(i.shoot_task_motor_update_current_physics)
-    shoot_task_motor_update_current_physics  0x0800f831   Thumb Code    76  shoot_task.o(i.shoot_task_motor_update_current_physics)
-    i.shoot_task_send_friction_current       0x0800f880   Section        0  shoot_task.o(i.shoot_task_send_friction_current)
-    shoot_task_send_friction_current         0x0800f881   Thumb Code    82  shoot_task.o(i.shoot_task_send_friction_current)
-    i.shoot_task_set_mode                    0x0800f8d8   Section        0  shoot_task.o(i.shoot_task_set_mode)
-    shoot_task_set_mode                      0x0800f8d9   Thumb Code    80  shoot_task.o(i.shoot_task_set_mode)
-    i.shoot_task_stop_friction               0x0800f92c   Section        0  shoot_task.o(i.shoot_task_stop_friction)
-    shoot_task_stop_friction                 0x0800f92d   Thumb Code   156  shoot_task.o(i.shoot_task_stop_friction)
-    i.shoot_task_update_feedback             0x0800f9cc   Section        0  shoot_task.o(i.shoot_task_update_feedback)
-    shoot_task_update_feedback               0x0800f9cd   Thumb Code   152  shoot_task.o(i.shoot_task_update_feedback)
-    i.shoot_task_update_history              0x0800fa68   Section        0  shoot_task.o(i.shoot_task_update_history)
-    shoot_task_update_history                0x0800fa69   Thumb Code    30  shoot_task.o(i.shoot_task_update_history)
-    i.stream_on_rx                           0x0800fa88   Section        0  comm_app.o(i.stream_on_rx)
-    stream_on_rx                             0x0800fa89   Thumb Code    32  comm_app.o(i.stream_on_rx)
-    i.sync_now_us                            0x0800faac   Section        0  comm_app.o(i.sync_now_us)
-    sync_now_us                              0x0800faad   Thumb Code     6  comm_app.o(i.sync_now_us)
-    i.tim24_timebase_init                    0x0800fab8   Section        0  bsp_tim24.o(i.tim24_timebase_init)
-    i.tim24_timebase_now_us                  0x0800fad8   Section        0  bsp_tim24.o(i.tim24_timebase_now_us)
-    i.tim24_timebase_on_overflow             0x0800fb10   Section        0  bsp_tim24.o(i.tim24_timebase_on_overflow)
-    i.time_sync_channel_init                 0x0800fb20   Section        0  time_sync_channel.o(i.time_sync_channel_init)
-    i.time_sync_channel_init_ex              0x0800fbc4   Section        0  time_sync_channel.o(i.time_sync_channel_init_ex)
-    i.time_sync_channel_now_us               0x0800fbf6   Section        0  time_sync_channel.o(i.time_sync_channel_now_us)
-    i.uint_to_float                          0x0800fc18   Section        0  bsp_fdcan.o(i.uint_to_float)
-    i.uproto_complete_transaction            0x0800fc40   Section        0  uproto.o(i.uproto_complete_transaction)
-    uproto_complete_transaction              0x0800fc41   Thumb Code    32  uproto.o(i.uproto_complete_transaction)
-    i.uproto_decode_frame                    0x0800fc60   Section        0  uproto.o(i.uproto_decode_frame)
-    uproto_decode_frame                      0x0800fc61   Thumb Code   142  uproto.o(i.uproto_decode_frame)
-    i.uproto_encode_frame                    0x0800fcee   Section        0  uproto.o(i.uproto_encode_frame)
-    uproto_encode_frame                      0x0800fcef   Thumb Code   146  uproto.o(i.uproto_encode_frame)
-    i.uproto_find_transaction                0x0800fd80   Section        0  uproto.o(i.uproto_find_transaction)
-    uproto_find_transaction                  0x0800fd81   Thumb Code    48  uproto.o(i.uproto_find_transaction)
-    i.uproto_fire_event                      0x0800fdb0   Section        0  uproto.o(i.uproto_fire_event)
-    uproto_fire_event                        0x0800fdb1   Thumb Code    12  uproto.o(i.uproto_fire_event)
-    i.uproto_handle_frame                    0x0800fdbc   Section        0  uproto.o(i.uproto_handle_frame)
-    uproto_handle_frame                      0x0800fdbd   Thumb Code   286  uproto.o(i.uproto_handle_frame)
-    i.uproto_init                            0x0800fef0   Section        0  uproto.o(i.uproto_init)
-    i.uproto_now                             0x0800ff4c   Section        0  uproto.o(i.uproto_now)
-    uproto_now                               0x0800ff4d   Thumb Code    12  uproto.o(i.uproto_now)
-    i.uproto_on_rx_bytes                     0x0800ff58   Section        0  uproto.o(i.uproto_on_rx_bytes)
-    i.uproto_process_rx_buffer               0x0800ff98   Section        0  uproto.o(i.uproto_process_rx_buffer)
-    uproto_process_rx_buffer                 0x0800ff99   Thumb Code   208  uproto.o(i.uproto_process_rx_buffer)
-    i.uproto_register_handler                0x08010074   Section        0  uproto.o(i.uproto_register_handler)
-    i.uproto_send_frame                      0x080100bc   Section        0  uproto.o(i.uproto_send_frame)
-    uproto_send_frame                        0x080100bd   Thumb Code    94  uproto.o(i.uproto_send_frame)
-    i.uproto_send_notify                     0x0801011a   Section        0  uproto.o(i.uproto_send_notify)
-    i.uproto_send_request                    0x08010136   Section        0  uproto.o(i.uproto_send_request)
-    i.uproto_tick                            0x08010204   Section        0  uproto.o(i.uproto_tick)
-    i.usb_cdc_port_bind_uproto               0x08010304   Section        0  usb_cdc_port.o(i.usb_cdc_port_bind_uproto)
-    i.usb_cdc_port_flush                     0x08010310   Section        0  usb_cdc_port.o(i.usb_cdc_port_flush)
-    usb_cdc_port_flush                       0x08010311   Thumb Code     2  usb_cdc_port.o(i.usb_cdc_port_flush)
-    i.usb_cdc_port_get_mtu                   0x08010312   Section        0  usb_cdc_port.o(i.usb_cdc_port_get_mtu)
-    usb_cdc_port_get_mtu                     0x08010313   Thumb Code     6  usb_cdc_port.o(i.usb_cdc_port_get_mtu)
-    i.usb_cdc_port_get_ops                   0x08010318   Section        0  usb_cdc_port.o(i.usb_cdc_port_get_ops)
-    i.usb_cdc_port_on_rx                     0x0801033c   Section        0  usb_cdc_port.o(i.usb_cdc_port_on_rx)
-    i.usb_cdc_port_write                     0x0801035c   Section        0  usb_cdc_port.o(i.usb_cdc_port_write)
-    i.usb_tx_read_pos                        0x080103a4   Section        0  usbd_cdc_if.o(i.usb_tx_read_pos)
-    usb_tx_read_pos                          0x080103a5   Thumb Code    28  usbd_cdc_if.o(i.usb_tx_read_pos)
-    i.uxListRemove                           0x080103c4   Section        0  list.o(i.uxListRemove)
-    i.vApplicationGetIdleTaskMemory          0x080103ec   Section        0  freertos.o(i.vApplicationGetIdleTaskMemory)
-    i.vListInitialise                        0x08010404   Section        0  list.o(i.vListInitialise)
-    i.vListInitialiseItem                    0x0801041a   Section        0  list.o(i.vListInitialiseItem)
-    i.vListInsert                            0x08010420   Section        0  list.o(i.vListInsert)
-    i.vListInsertEnd                         0x08010450   Section        0  list.o(i.vListInsertEnd)
-    i.vPortEnterCritical                     0x08010468   Section        0  port.o(i.vPortEnterCritical)
-    i.vPortExitCritical                      0x080104a8   Section        0  port.o(i.vPortExitCritical)
-    i.vPortFree                              0x080104d0   Section        0  heap_4.o(i.vPortFree)
-    i.vPortSetupTimerInterrupt               0x08010534   Section        0  port.o(i.vPortSetupTimerInterrupt)
-    i.vTaskDelay                             0x08010558   Section        0  tasks.o(i.vTaskDelay)
-    i.vTaskDelayUntil                        0x080105a4   Section        0  tasks.o(i.vTaskDelayUntil)
-    i.vTaskStartScheduler                    0x08010630   Section        0  tasks.o(i.vTaskStartScheduler)
-    i.vTaskSuspendAll                        0x0801069c   Section        0  tasks.o(i.vTaskSuspendAll)
-    i.vTaskSwitchContext                     0x080106ac   Section        0  tasks.o(i.vTaskSwitchContext)
-    i.write_u16_le                           0x08010708   Section        0  uproto.o(i.write_u16_le)
-    write_u16_le                             0x08010709   Thumb Code     8  uproto.o(i.write_u16_le)
-    i.ws2812_task                            0x08010710   Section        0  safewarning.o(i.ws2812_task)
-    i.xPortStartScheduler                    0x08010748   Section        0  port.o(i.xPortStartScheduler)
-    i.xTaskCreate                            0x0801083c   Section        0  tasks.o(i.xTaskCreate)
-    i.xTaskCreateStatic                      0x08010896   Section        0  tasks.o(i.xTaskCreateStatic)
-    i.xTaskGetTickCount                      0x080108ec   Section        0  tasks.o(i.xTaskGetTickCount)
-    i.xTaskIncrementTick                     0x080108f8   Section        0  tasks.o(i.xTaskIncrementTick)
-    i.xTaskResumeAll                         0x080109c4   Section        0  tasks.o(i.xTaskResumeAll)
-    x$fpl$fpinit                             0x08010a88   Section       10  fpinit.o(x$fpl$fpinit)
-    $v0                                      0x08010a88   Number         0  fpinit.o(x$fpl$fpinit)
-    x$fpl$usenofp                            0x08010a92   Section        0  usenofp.o(x$fpl$usenofp)
-    .constdata                               0x08010a94   Section       32  main.o(.constdata)
-    .constdata                               0x08010ab4   Section       56  freertos.o(.constdata)
-    .constdata                               0x08010aec   Section        8  stm32h7xx_hal_dma.o(.constdata)
-    flagBitshiftOffset                       0x08010aec   Data           8  stm32h7xx_hal_dma.o(.constdata)
-    .constdata                               0x08010af4   Section       92  stm32h7xx_hal_fdcan.o(.constdata)
-    DLCtoBytes                               0x08010af4   Data          16  stm32h7xx_hal_fdcan.o(.constdata)
-    .constdata                               0x08010b50   Section       24  stm32h7xx_hal_uart.o(.constdata)
-    .constdata                               0x08010b68   Section       16  stm32h7xx_hal_uart_ex.o(.constdata)
-    numerator                                0x08010b68   Data           8  stm32h7xx_hal_uart_ex.o(.constdata)
-    denominator                              0x08010b70   Data           8  stm32h7xx_hal_uart_ex.o(.constdata)
-    .constdata                               0x08010b78   Section       16  system_stm32h7xx.o(.constdata)
-    .constdata                               0x08010b88   Section      100  safewarning.o(.constdata)
-    power_on_melody                          0x08010b88   Data          20  safewarning.o(.constdata)
-    short_press_melody                       0x08010b9c   Data          12  safewarning.o(.constdata)
-    long_press_melody                        0x08010ba8   Data          24  safewarning.o(.constdata)
-    error_melody                             0x08010bc0   Data          20  safewarning.o(.constdata)
-    success_melody                           0x08010bd4   Data          24  safewarning.o(.constdata)
-    .constdata                               0x08010bec   Section       28  gimbal_task.o(.constdata)
-    .constdata                               0x08010c08   Section       28  service_task.o(.constdata)
-    .constdata                               0x08010c24   Section      116  comm_app.o(.constdata)
-    .constdata                               0x08010c98   Section       32  gimbal_channel.o(.constdata)
-    <Data1>                                  0x08010cac   Data          12  gimbal_channel.o(.constdata)
-    .constdata                               0x08010cb8   Section       24  camera_channel.o(.constdata)
-    .constdata                               0x08010cd0   Section       12  time_sync_channel.o(.constdata)
-    .constdata                               0x08010cdc   Section      768  crc8_crc16.o(.constdata)
-    .constdata                               0x08010fdc   Section      320  powf.o(.constdata)
-    table                                    0x08010fdc   Data         128  powf.o(.constdata)
-    powersof2to1over16top                    0x0801105c   Data          64  powf.o(.constdata)
-    powersof2to1over16bot                    0x0801109c   Data          64  powf.o(.constdata)
-    powersof2to1over16all                    0x080110dc   Data          64  powf.o(.constdata)
-    .constdata                               0x0801111c   Section       32  rredf.o(.constdata)
-    twooverpi                                0x0801111c   Data          32  rredf.o(.constdata)
-    .conststring                             0x0801113c   Section       21  freertos.o(.conststring)
-    .conststring                             0x08011154   Section       11  gimbal_task.o(.conststring)
-    .conststring                             0x08011160   Section       12  service_task.o(.conststring)
-    .conststring                             0x0801116c   Section        9  comm_app.o(.conststring)
+    i.gimbal_float_to_torque_cmd             0x0800d6ac   Section        0  gimbal_task.o(i.gimbal_float_to_torque_cmd)
+    gimbal_float_to_torque_cmd               0x0800d6ad   Thumb Code    12  gimbal_task.o(i.gimbal_float_to_torque_cmd)
+    i.gimbal_get_state                       0x0800d6b8   Section        0  comm_app.o(i.gimbal_get_state)
+    gimbal_get_state                         0x0800d6b9   Thumb Code   172  comm_app.o(i.gimbal_get_state)
+    i.gimbal_init                            0x0800d76c   Section        0  yaw_pitch_direct.o(i.gimbal_init)
+    i.gimbal_init_control                    0x0800d954   Section        0  gimbal_behaviour.o(i.gimbal_init_control)
+    i.gimbal_mailbox_set                     0x0800d98c   Section        0  gimbal_channel.o(i.gimbal_mailbox_set)
+    i.gimbal_mit_clamp                       0x0800d9b4   Section        0  yaw_pitch_direct.o(i.gimbal_mit_clamp)
+    gimbal_mit_clamp                         0x0800d9b5   Thumb Code    32  yaw_pitch_direct.o(i.gimbal_mit_clamp)
+    i.gimbal_mode_change_control_transit     0x0800d9d4   Section        0  yaw_pitch_direct.o(i.gimbal_mode_change_control_transit)
+    i.gimbal_motionless_control              0x0800da7c   Section        0  gimbal_behaviour.o(i.gimbal_motionless_control)
+    i.gimbal_motor_absolute_angle_control    0x0800da98   Section        0  gimbal_task.o(i.gimbal_motor_absolute_angle_control)
+    i.gimbal_motor_raw_angle_control         0x0800db10   Section        0  gimbal_task.o(i.gimbal_motor_raw_angle_control)
+    i.gimbal_motor_relative_angle_control    0x0800db3c   Section        0  gimbal_task.o(i.gimbal_motor_relative_angle_control)
+    i.gimbal_on_chassis                      0x0800dba0   Section        0  comm_app.o(i.gimbal_on_chassis)
+    gimbal_on_chassis                        0x0800dba1   Thumb Code    44  comm_app.o(i.gimbal_on_chassis)
+    i.gimbal_on_delta                        0x0800dbd0   Section        0  comm_app.o(i.gimbal_on_delta)
+    gimbal_on_delta                          0x0800dbd1   Thumb Code    44  comm_app.o(i.gimbal_on_delta)
+    i.gimbal_on_fire                         0x0800dbfc   Section        0  comm_app.o(i.gimbal_on_fire)
+    gimbal_on_fire                           0x0800dbfd   Thumb Code   130  comm_app.o(i.gimbal_on_fire)
+    i.gimbal_on_referee_query                0x0800dc84   Section        0  comm_app.o(i.gimbal_on_referee_query)
+    gimbal_on_referee_query                  0x0800dc85   Thumb Code    10  comm_app.o(i.gimbal_on_referee_query)
+    i.gimbal_output_to_mit_torque            0x0800dc94   Section        0  yaw_pitch_direct.o(i.gimbal_output_to_mit_torque)
+    gimbal_output_to_mit_torque              0x0800dc95   Thumb Code    12  yaw_pitch_direct.o(i.gimbal_output_to_mit_torque)
+    i.gimbal_pid_calc                        0x0800dca0   Section        0  gimbal_task.o(i.gimbal_pid_calc)
+    i.gimbal_pid_clear                       0x0800dcb0   Section        0  gimbal_task.o(i.gimbal_pid_clear)
+    i.gimbal_pid_init                        0x0800dcba   Section        0  gimbal_task.o(i.gimbal_pid_init)
+    i.gimbal_pitch_relative_angle_limit      0x0800dcd8   Section        0  yaw_pitch_direct.o(i.gimbal_pitch_relative_angle_limit)
+    gimbal_pitch_relative_angle_limit        0x0800dcd9   Thumb Code    88  yaw_pitch_direct.o(i.gimbal_pitch_relative_angle_limit)
+    i.gimbal_read_manual_input               0x0800dd38   Section        0  gimbal_behaviour.o(i.gimbal_read_manual_input)
+    gimbal_read_manual_input                 0x0800dd39   Thumb Code   146  gimbal_behaviour.o(i.gimbal_read_manual_input)
+    i.gimbal_relative_angle_control          0x0800dde0   Section        0  gimbal_behaviour.o(i.gimbal_relative_angle_control)
+    i.gimbal_send_cmd                        0x0800ddf4   Section        0  yaw_pitch_direct.o(i.gimbal_send_cmd)
+    i.gimbal_set_control                     0x0800de7c   Section        0  yaw_pitch_direct.o(i.gimbal_set_control)
+    i.gimbal_set_mode                        0x0800df2c   Section        0  yaw_pitch_direct.o(i.gimbal_set_mode)
+    i.gimbal_spin_control                    0x0800df38   Section        0  gimbal_behaviour.o(i.gimbal_spin_control)
+    i.gimbal_task                            0x0800df74   Section        0  gimbal_task.o(i.gimbal_task)
+    gimbal_task                              0x0800df75   Thumb Code   112  gimbal_task.o(i.gimbal_task)
+    i.gimbal_wrap_angle                      0x0800dfec   Section        0  gimbal_task.o(i.gimbal_wrap_angle)
+    gimbal_wrap_angle                        0x0800dfed   Thumb Code    40  gimbal_task.o(i.gimbal_wrap_angle)
+    i.gimbal_yaw_absolute_angle_limit        0x0800e020   Section        0  yaw_pitch_direct.o(i.gimbal_yaw_absolute_angle_limit)
+    gimbal_yaw_absolute_angle_limit          0x0800e021   Thumb Code   136  yaw_pitch_direct.o(i.gimbal_yaw_absolute_angle_limit)
+    i.gimbal_zero_force_control              0x0800e0b0   Section        0  gimbal_behaviour.o(i.gimbal_zero_force_control)
+    i.gravity_comp_calc_torque               0x0800e0cc   Section        0  gravity_comp.o(i.gravity_comp_calc_torque)
+    i.gravity_comp_calc_torque_with_param    0x0800e0dc   Section        0  gravity_comp.o(i.gravity_comp_calc_torque_with_param)
+    i.gravity_comp_execute                   0x0800e14c   Section        0  gravity_comp.o(i.gravity_comp_execute)
+    i.gravity_comp_init                      0x0800e1a8   Section        0  gravity_comp.o(i.gravity_comp_init)
+    i.hwt101_get_yaw_total_rad               0x0800e200   Section        0  hwt_imu.o(i.hwt101_get_yaw_total_rad)
+    i.hwt101_rx_parse                        0x0800e20c   Section        0  hwt_imu.o(i.hwt101_rx_parse)
+    i.hwt906_rx_parse                        0x0800e224   Section        0  hwt_imu.o(i.hwt906_rx_parse)
+    i.hwt_handle_frame                       0x0800e23c   Section        0  hwt_imu.o(i.hwt_handle_frame)
+    hwt_handle_frame                         0x0800e23d   Thumb Code   468  hwt_imu.o(i.hwt_handle_frame)
+    i.hwt_imu_init                           0x0800e430   Section        0  hwt_imu.o(i.hwt_imu_init)
+    i.hwt_parse_stream                       0x0800e478   Section        0  hwt_imu.o(i.hwt_parse_stream)
+    hwt_parse_stream                         0x0800e479   Thumb Code    96  hwt_imu.o(i.hwt_parse_stream)
+    i.hwt_update_yaw_total                   0x0800e4d8   Section        0  hwt_imu.o(i.hwt_update_yaw_total)
+    hwt_update_yaw_total                     0x0800e4d9   Thumb Code   110  hwt_imu.o(i.hwt_update_yaw_total)
+    i.main                                   0x0800e558   Section        0  main.o(i.main)
+    i.makeFreeRtosPriority                   0x0800e604   Section        0  cmsis_os.o(i.makeFreeRtosPriority)
+    makeFreeRtosPriority                     0x0800e605   Thumb Code    14  cmsis_os.o(i.makeFreeRtosPriority)
+    i.mf5_reset                              0x0800e614   Section        0  auto_aim.o(i.mf5_reset)
+    mf5_reset                                0x0800e615   Thumb Code    38  auto_aim.o(i.mf5_reset)
+    i.mf5_update                             0x0800e640   Section        0  auto_aim.o(i.mf5_update)
+    i.mux_decode                             0x0800e738   Section        0  comm.o(i.mux_decode)
+    i.mux_encode                             0x0800e7a8   Section        0  comm.o(i.mux_encode)
+    i.now_us                                 0x0800e80e   Section        0  time_sync_channel.o(i.now_us)
+    now_us                                   0x0800e80f   Thumb Code    16  time_sync_channel.o(i.now_us)
+    i.on_mux_rx                              0x0800e81e   Section        0  comm.o(i.on_mux_rx)
+    on_mux_rx                                0x0800e81f   Thumb Code    56  comm.o(i.on_mux_rx)
+    i.on_rx                                  0x0800e856   Section        0  gimbal_channel.o(i.on_rx)
+    on_rx                                    0x0800e857   Thumb Code   260  gimbal_channel.o(i.on_rx)
+    i.on_rx                                  0x0800e95a   Section        0  time_sync_channel.o(i.on_rx)
+    on_rx                                    0x0800e95b   Thumb Code   416  time_sync_channel.o(i.on_rx)
+    i.on_tick                                0x0800eafa   Section        0  gimbal_channel.o(i.on_tick)
+    on_tick                                  0x0800eafb   Thumb Code    88  gimbal_channel.o(i.on_tick)
+    i.on_tick                                0x0800eb52   Section        0  time_sync_channel.o(i.on_tick)
+    on_tick                                  0x0800eb53   Thumb Code   168  time_sync_channel.o(i.on_tick)
+    i.osDelay                                0x0800ebfa   Section        0  cmsis_os.o(i.osDelay)
+    i.osKernelStart                          0x0800ec08   Section        0  cmsis_os.o(i.osKernelStart)
+    i.osThreadCreate                         0x0800ec12   Section        0  cmsis_os.o(i.osThreadCreate)
+    i.platform_memcpy                        0x0800ec66   Section        0  platform_stm32.o(i.platform_memcpy)
+    i.platform_memmove                       0x0800ec78   Section        0  platform_stm32.o(i.platform_memmove)
+    i.platform_memset                        0x0800eca8   Section        0  platform_stm32.o(i.platform_memset)
+    i.proto_init_from_main                   0x0800ecbc   Section        0  main.o(i.proto_init_from_main)
+    i.proto_time_now                         0x0800ecf4   Section        0  main.o(i.proto_time_now)
+    proto_time_now                           0x0800ecf5   Thumb Code     4  main.o(i.proto_time_now)
+    i.prvAddCurrentTaskToDelayedList         0x0800ecf8   Section        0  tasks.o(i.prvAddCurrentTaskToDelayedList)
+    prvAddCurrentTaskToDelayedList           0x0800ecf9   Thumb Code   102  tasks.o(i.prvAddCurrentTaskToDelayedList)
+    i.prvAddNewTaskToReadyList               0x0800ed68   Section        0  tasks.o(i.prvAddNewTaskToReadyList)
+    prvAddNewTaskToReadyList                 0x0800ed69   Thumb Code   194  tasks.o(i.prvAddNewTaskToReadyList)
+    i.prvDeleteTCB                           0x0800ee38   Section        0  tasks.o(i.prvDeleteTCB)
+    prvDeleteTCB                             0x0800ee39   Thumb Code    52  tasks.o(i.prvDeleteTCB)
+    i.prvHeapInit                            0x0800ee6c   Section        0  heap_4.o(i.prvHeapInit)
+    prvHeapInit                              0x0800ee6d   Thumb Code    70  heap_4.o(i.prvHeapInit)
+    i.prvIdleTask                            0x0800eebc   Section        0  tasks.o(i.prvIdleTask)
+    prvIdleTask                              0x0800eebd   Thumb Code    82  tasks.o(i.prvIdleTask)
+    i.prvInitialiseNewTask                   0x0800ef1c   Section        0  tasks.o(i.prvInitialiseNewTask)
+    prvInitialiseNewTask                     0x0800ef1d   Thumb Code   154  tasks.o(i.prvInitialiseNewTask)
+    i.prvInsertBlockIntoFreeList             0x0800efb8   Section        0  heap_4.o(i.prvInsertBlockIntoFreeList)
+    prvInsertBlockIntoFreeList               0x0800efb9   Thumb Code    72  heap_4.o(i.prvInsertBlockIntoFreeList)
+    i.prvResetNextTaskUnblockTime            0x0800f004   Section        0  tasks.o(i.prvResetNextTaskUnblockTime)
+    prvResetNextTaskUnblockTime              0x0800f005   Thumb Code    26  tasks.o(i.prvResetNextTaskUnblockTime)
+    i.prvTaskExitError                       0x0800f024   Section        0  port.o(i.prvTaskExitError)
+    prvTaskExitError                         0x0800f025   Thumb Code    36  port.o(i.prvTaskExitError)
+    i.pvPortMalloc                           0x0800f04c   Section        0  heap_4.o(i.pvPortMalloc)
+    i.pxPortInitialiseStack                  0x0800f128   Section        0  port.o(i.pxPortInitialiseStack)
+    i.sbus_to_rc                             0x0800f158   Section        0  remote_control.o(i.sbus_to_rc)
+    i.service_task                           0x0800f1f4   Section        0  service_task.o(i.service_task)
+    service_task                             0x0800f1f5   Thumb Code    48  service_task.o(i.service_task)
+    i.setup_channels                         0x0800f228   Section        0  comm_app.o(i.setup_channels)
+    setup_channels                           0x0800f229   Thumb Code   206  comm_app.o(i.setup_channels)
+    i.shoot_task_control_friction            0x0800f304   Section        0  shoot_task.o(i.shoot_task_control_friction)
+    shoot_task_control_friction              0x0800f305   Thumb Code   498  shoot_task.o(i.shoot_task_control_friction)
+    i.shoot_task_current_a_to_input_torque_nm 0x0800f504   Section        0  shoot_task.o(i.shoot_task_current_a_to_input_torque_nm)
+    shoot_task_current_a_to_input_torque_nm  0x0800f505   Thumb Code    18  shoot_task.o(i.shoot_task_current_a_to_input_torque_nm)
+    i.shoot_task_current_ma_to_esc_cmd       0x0800f520   Section        0  shoot_task.o(i.shoot_task_current_ma_to_esc_cmd)
+    shoot_task_current_ma_to_esc_cmd         0x0800f521   Thumb Code    68  shoot_task.o(i.shoot_task_current_ma_to_esc_cmd)
+    i.shoot_task_init                        0x0800f56c   Section        0  shoot_task.o(i.shoot_task_init)
+    i.shoot_task_init_control                0x0800f578   Section        0  shoot_task.o(i.shoot_task_init_control)
+    shoot_task_init_control                  0x0800f579   Thumb Code   152  shoot_task.o(i.shoot_task_init_control)
+    i.shoot_task_limit_current_a             0x0800f620   Section        0  shoot_task.o(i.shoot_task_limit_current_a)
+    shoot_task_limit_current_a               0x0800f621   Thumb Code    32  shoot_task.o(i.shoot_task_limit_current_a)
+    i.shoot_task_loop                        0x0800f648   Section        0  shoot_task.o(i.shoot_task_loop)
+    i.shoot_task_motor_apply_feedforward     0x0800f674   Section        0  shoot_task.o(i.shoot_task_motor_apply_feedforward)
+    shoot_task_motor_apply_feedforward       0x0800f675   Thumb Code    44  shoot_task.o(i.shoot_task_motor_apply_feedforward)
+    i.shoot_task_motor_calc                  0x0800f6a0   Section        0  shoot_task.o(i.shoot_task_motor_calc)
+    shoot_task_motor_calc                    0x0800f6a1   Thumb Code    36  shoot_task.o(i.shoot_task_motor_calc)
+    i.shoot_task_motor_finalize_current      0x0800f6c8   Section        0  shoot_task.o(i.shoot_task_motor_finalize_current)
+    shoot_task_motor_finalize_current        0x0800f6c9   Thumb Code    64  shoot_task.o(i.shoot_task_motor_finalize_current)
+    i.shoot_task_motor_hot_reset             0x0800f70c   Section        0  shoot_task.o(i.shoot_task_motor_hot_reset)
+    shoot_task_motor_hot_reset               0x0800f70d   Thumb Code    32  shoot_task.o(i.shoot_task_motor_hot_reset)
+    i.shoot_task_motor_init                  0x0800f730   Section        0  shoot_task.o(i.shoot_task_motor_init)
+    shoot_task_motor_init                    0x0800f731   Thumb Code   138  shoot_task.o(i.shoot_task_motor_init)
+    i.shoot_task_motor_ready                 0x0800f7c8   Section        0  shoot_task.o(i.shoot_task_motor_ready)
+    shoot_task_motor_ready                   0x0800f7c9   Thumb Code    28  shoot_task.o(i.shoot_task_motor_ready)
+    i.shoot_task_motor_reset                 0x0800f7e4   Section        0  shoot_task.o(i.shoot_task_motor_reset)
+    shoot_task_motor_reset                   0x0800f7e5   Thumb Code    20  shoot_task.o(i.shoot_task_motor_reset)
+    i.shoot_task_motor_should_trigger_feedforward 0x0800f7fc   Section        0  shoot_task.o(i.shoot_task_motor_should_trigger_feedforward)
+    shoot_task_motor_should_trigger_feedforward 0x0800f7fd   Thumb Code    50  shoot_task.o(i.shoot_task_motor_should_trigger_feedforward)
+    i.shoot_task_motor_update_current_physics 0x0800f834   Section        0  shoot_task.o(i.shoot_task_motor_update_current_physics)
+    shoot_task_motor_update_current_physics  0x0800f835   Thumb Code    76  shoot_task.o(i.shoot_task_motor_update_current_physics)
+    i.shoot_task_send_friction_current       0x0800f884   Section        0  shoot_task.o(i.shoot_task_send_friction_current)
+    shoot_task_send_friction_current         0x0800f885   Thumb Code    82  shoot_task.o(i.shoot_task_send_friction_current)
+    i.shoot_task_set_mode                    0x0800f8dc   Section        0  shoot_task.o(i.shoot_task_set_mode)
+    shoot_task_set_mode                      0x0800f8dd   Thumb Code    80  shoot_task.o(i.shoot_task_set_mode)
+    i.shoot_task_stop_friction               0x0800f930   Section        0  shoot_task.o(i.shoot_task_stop_friction)
+    shoot_task_stop_friction                 0x0800f931   Thumb Code   156  shoot_task.o(i.shoot_task_stop_friction)
+    i.shoot_task_update_feedback             0x0800f9d0   Section        0  shoot_task.o(i.shoot_task_update_feedback)
+    shoot_task_update_feedback               0x0800f9d1   Thumb Code   152  shoot_task.o(i.shoot_task_update_feedback)
+    i.shoot_task_update_history              0x0800fa6c   Section        0  shoot_task.o(i.shoot_task_update_history)
+    shoot_task_update_history                0x0800fa6d   Thumb Code    30  shoot_task.o(i.shoot_task_update_history)
+    i.stream_on_rx                           0x0800fa8c   Section        0  comm_app.o(i.stream_on_rx)
+    stream_on_rx                             0x0800fa8d   Thumb Code    32  comm_app.o(i.stream_on_rx)
+    i.sync_now_us                            0x0800fab0   Section        0  comm_app.o(i.sync_now_us)
+    sync_now_us                              0x0800fab1   Thumb Code     6  comm_app.o(i.sync_now_us)
+    i.tim24_timebase_init                    0x0800fabc   Section        0  bsp_tim24.o(i.tim24_timebase_init)
+    i.tim24_timebase_now_us                  0x0800fadc   Section        0  bsp_tim24.o(i.tim24_timebase_now_us)
+    i.tim24_timebase_on_overflow             0x0800fb14   Section        0  bsp_tim24.o(i.tim24_timebase_on_overflow)
+    i.time_sync_channel_init                 0x0800fb24   Section        0  time_sync_channel.o(i.time_sync_channel_init)
+    i.time_sync_channel_init_ex              0x0800fbc8   Section        0  time_sync_channel.o(i.time_sync_channel_init_ex)
+    i.time_sync_channel_now_us               0x0800fbfa   Section        0  time_sync_channel.o(i.time_sync_channel_now_us)
+    i.uint_to_float                          0x0800fc1c   Section        0  bsp_fdcan.o(i.uint_to_float)
+    i.uproto_complete_transaction            0x0800fc44   Section        0  uproto.o(i.uproto_complete_transaction)
+    uproto_complete_transaction              0x0800fc45   Thumb Code    32  uproto.o(i.uproto_complete_transaction)
+    i.uproto_decode_frame                    0x0800fc64   Section        0  uproto.o(i.uproto_decode_frame)
+    uproto_decode_frame                      0x0800fc65   Thumb Code   142  uproto.o(i.uproto_decode_frame)
+    i.uproto_encode_frame                    0x0800fcf2   Section        0  uproto.o(i.uproto_encode_frame)
+    uproto_encode_frame                      0x0800fcf3   Thumb Code   146  uproto.o(i.uproto_encode_frame)
+    i.uproto_find_transaction                0x0800fd84   Section        0  uproto.o(i.uproto_find_transaction)
+    uproto_find_transaction                  0x0800fd85   Thumb Code    48  uproto.o(i.uproto_find_transaction)
+    i.uproto_fire_event                      0x0800fdb4   Section        0  uproto.o(i.uproto_fire_event)
+    uproto_fire_event                        0x0800fdb5   Thumb Code    12  uproto.o(i.uproto_fire_event)
+    i.uproto_handle_frame                    0x0800fdc0   Section        0  uproto.o(i.uproto_handle_frame)
+    uproto_handle_frame                      0x0800fdc1   Thumb Code   286  uproto.o(i.uproto_handle_frame)
+    i.uproto_init                            0x0800fef4   Section        0  uproto.o(i.uproto_init)
+    i.uproto_now                             0x0800ff50   Section        0  uproto.o(i.uproto_now)
+    uproto_now                               0x0800ff51   Thumb Code    12  uproto.o(i.uproto_now)
+    i.uproto_on_rx_bytes                     0x0800ff5c   Section        0  uproto.o(i.uproto_on_rx_bytes)
+    i.uproto_process_rx_buffer               0x0800ff9c   Section        0  uproto.o(i.uproto_process_rx_buffer)
+    uproto_process_rx_buffer                 0x0800ff9d   Thumb Code   208  uproto.o(i.uproto_process_rx_buffer)
+    i.uproto_register_handler                0x08010078   Section        0  uproto.o(i.uproto_register_handler)
+    i.uproto_send_frame                      0x080100c0   Section        0  uproto.o(i.uproto_send_frame)
+    uproto_send_frame                        0x080100c1   Thumb Code    94  uproto.o(i.uproto_send_frame)
+    i.uproto_send_notify                     0x0801011e   Section        0  uproto.o(i.uproto_send_notify)
+    i.uproto_send_request                    0x0801013a   Section        0  uproto.o(i.uproto_send_request)
+    i.uproto_tick                            0x08010208   Section        0  uproto.o(i.uproto_tick)
+    i.usb_cdc_port_bind_uproto               0x08010308   Section        0  usb_cdc_port.o(i.usb_cdc_port_bind_uproto)
+    i.usb_cdc_port_flush                     0x08010314   Section        0  usb_cdc_port.o(i.usb_cdc_port_flush)
+    usb_cdc_port_flush                       0x08010315   Thumb Code     2  usb_cdc_port.o(i.usb_cdc_port_flush)
+    i.usb_cdc_port_get_mtu                   0x08010316   Section        0  usb_cdc_port.o(i.usb_cdc_port_get_mtu)
+    usb_cdc_port_get_mtu                     0x08010317   Thumb Code     6  usb_cdc_port.o(i.usb_cdc_port_get_mtu)
+    i.usb_cdc_port_get_ops                   0x0801031c   Section        0  usb_cdc_port.o(i.usb_cdc_port_get_ops)
+    i.usb_cdc_port_on_rx                     0x08010340   Section        0  usb_cdc_port.o(i.usb_cdc_port_on_rx)
+    i.usb_cdc_port_write                     0x08010360   Section        0  usb_cdc_port.o(i.usb_cdc_port_write)
+    i.usb_tx_read_pos                        0x080103a8   Section        0  usbd_cdc_if.o(i.usb_tx_read_pos)
+    usb_tx_read_pos                          0x080103a9   Thumb Code    28  usbd_cdc_if.o(i.usb_tx_read_pos)
+    i.uxListRemove                           0x080103c8   Section        0  list.o(i.uxListRemove)
+    i.vApplicationGetIdleTaskMemory          0x080103f0   Section        0  freertos.o(i.vApplicationGetIdleTaskMemory)
+    i.vListInitialise                        0x08010408   Section        0  list.o(i.vListInitialise)
+    i.vListInitialiseItem                    0x0801041e   Section        0  list.o(i.vListInitialiseItem)
+    i.vListInsert                            0x08010424   Section        0  list.o(i.vListInsert)
+    i.vListInsertEnd                         0x08010454   Section        0  list.o(i.vListInsertEnd)
+    i.vPortEnterCritical                     0x0801046c   Section        0  port.o(i.vPortEnterCritical)
+    i.vPortExitCritical                      0x080104ac   Section        0  port.o(i.vPortExitCritical)
+    i.vPortFree                              0x080104d4   Section        0  heap_4.o(i.vPortFree)
+    i.vPortSetupTimerInterrupt               0x08010538   Section        0  port.o(i.vPortSetupTimerInterrupt)
+    i.vTaskDelay                             0x0801055c   Section        0  tasks.o(i.vTaskDelay)
+    i.vTaskDelayUntil                        0x080105a8   Section        0  tasks.o(i.vTaskDelayUntil)
+    i.vTaskStartScheduler                    0x08010634   Section        0  tasks.o(i.vTaskStartScheduler)
+    i.vTaskSuspendAll                        0x080106a0   Section        0  tasks.o(i.vTaskSuspendAll)
+    i.vTaskSwitchContext                     0x080106b0   Section        0  tasks.o(i.vTaskSwitchContext)
+    i.write_u16_le                           0x0801070c   Section        0  uproto.o(i.write_u16_le)
+    write_u16_le                             0x0801070d   Thumb Code     8  uproto.o(i.write_u16_le)
+    i.ws2812_task                            0x08010714   Section        0  safewarning.o(i.ws2812_task)
+    i.xPortStartScheduler                    0x0801074c   Section        0  port.o(i.xPortStartScheduler)
+    i.xTaskCreate                            0x08010840   Section        0  tasks.o(i.xTaskCreate)
+    i.xTaskCreateStatic                      0x0801089a   Section        0  tasks.o(i.xTaskCreateStatic)
+    i.xTaskGetTickCount                      0x080108f0   Section        0  tasks.o(i.xTaskGetTickCount)
+    i.xTaskIncrementTick                     0x080108fc   Section        0  tasks.o(i.xTaskIncrementTick)
+    i.xTaskResumeAll                         0x080109c8   Section        0  tasks.o(i.xTaskResumeAll)
+    x$fpl$fpinit                             0x08010a8c   Section       10  fpinit.o(x$fpl$fpinit)
+    $v0                                      0x08010a8c   Number         0  fpinit.o(x$fpl$fpinit)
+    x$fpl$usenofp                            0x08010a96   Section        0  usenofp.o(x$fpl$usenofp)
+    .constdata                               0x08010a98   Section       32  main.o(.constdata)
+    .constdata                               0x08010ab8   Section       56  freertos.o(.constdata)
+    .constdata                               0x08010af0   Section        8  stm32h7xx_hal_dma.o(.constdata)
+    flagBitshiftOffset                       0x08010af0   Data           8  stm32h7xx_hal_dma.o(.constdata)
+    .constdata                               0x08010af8   Section       92  stm32h7xx_hal_fdcan.o(.constdata)
+    DLCtoBytes                               0x08010af8   Data          16  stm32h7xx_hal_fdcan.o(.constdata)
+    .constdata                               0x08010b54   Section       24  stm32h7xx_hal_uart.o(.constdata)
+    .constdata                               0x08010b6c   Section       16  stm32h7xx_hal_uart_ex.o(.constdata)
+    numerator                                0x08010b6c   Data           8  stm32h7xx_hal_uart_ex.o(.constdata)
+    denominator                              0x08010b74   Data           8  stm32h7xx_hal_uart_ex.o(.constdata)
+    .constdata                               0x08010b7c   Section       16  system_stm32h7xx.o(.constdata)
+    .constdata                               0x08010b8c   Section      100  safewarning.o(.constdata)
+    power_on_melody                          0x08010b8c   Data          20  safewarning.o(.constdata)
+    short_press_melody                       0x08010ba0   Data          12  safewarning.o(.constdata)
+    long_press_melody                        0x08010bac   Data          24  safewarning.o(.constdata)
+    error_melody                             0x08010bc4   Data          20  safewarning.o(.constdata)
+    success_melody                           0x08010bd8   Data          24  safewarning.o(.constdata)
+    .constdata                               0x08010bf0   Section       28  gimbal_task.o(.constdata)
+    .constdata                               0x08010c0c   Section       28  service_task.o(.constdata)
+    .constdata                               0x08010c28   Section      116  comm_app.o(.constdata)
+    .constdata                               0x08010c9c   Section       32  gimbal_channel.o(.constdata)
+    <Data1>                                  0x08010cb0   Data          12  gimbal_channel.o(.constdata)
+    .constdata                               0x08010cbc   Section       24  camera_channel.o(.constdata)
+    .constdata                               0x08010cd4   Section       12  time_sync_channel.o(.constdata)
+    .constdata                               0x08010ce0   Section      768  crc8_crc16.o(.constdata)
+    .constdata                               0x08010fe0   Section      320  powf.o(.constdata)
+    table                                    0x08010fe0   Data         128  powf.o(.constdata)
+    powersof2to1over16top                    0x08011060   Data          64  powf.o(.constdata)
+    powersof2to1over16bot                    0x080110a0   Data          64  powf.o(.constdata)
+    powersof2to1over16all                    0x080110e0   Data          64  powf.o(.constdata)
+    .constdata                               0x08011120   Section       32  rredf.o(.constdata)
+    twooverpi                                0x08011120   Data          32  rredf.o(.constdata)
+    .conststring                             0x08011140   Section       21  freertos.o(.conststring)
+    .conststring                             0x08011158   Section       11  gimbal_task.o(.conststring)
+    .conststring                             0x08011164   Section       12  service_task.o(.conststring)
+    .conststring                             0x08011170   Section        9  comm_app.o(.conststring)
     .data                                    0x24000000   Section        4  freertos.o(.data)
     .data                                    0x24000004   Section        4  fdcan.o(.data)
     HAL_RCC_FDCAN_CLK_ENABLED                0x24000004   Data           4  fdcan.o(.data)
@@ -7519,96 +7519,96 @@ Image Symbol Table
     gimbal_cmd_to_shoot_stop                 0x0800d36d   Thumb Code    32  gimbal_behaviour.o(i.gimbal_cmd_to_shoot_stop)
     gimbal_control_loop                      0x0800d391   Thumb Code    90  yaw_pitch_direct.o(i.gimbal_control_loop)
     gimbal_feedback_update                   0x0800d3ed   Thumb Code   390  yaw_pitch_direct.o(i.gimbal_feedback_update)
-    gimbal_init                              0x0800d769   Thumb Code   410  yaw_pitch_direct.o(i.gimbal_init)
-    gimbal_init_control                      0x0800d951   Thumb Code    46  gimbal_behaviour.o(i.gimbal_init_control)
-    gimbal_mailbox_set                       0x0800d989   Thumb Code    34  gimbal_channel.o(i.gimbal_mailbox_set)
-    gimbal_mode_change_control_transit       0x0800d9d1   Thumb Code   166  yaw_pitch_direct.o(i.gimbal_mode_change_control_transit)
-    gimbal_motionless_control                0x0800da79   Thumb Code    22  gimbal_behaviour.o(i.gimbal_motionless_control)
-    gimbal_motor_absolute_angle_control      0x0800da95   Thumb Code   114  gimbal_task.o(i.gimbal_motor_absolute_angle_control)
-    gimbal_motor_raw_angle_control           0x0800db0d   Thumb Code    40  gimbal_task.o(i.gimbal_motor_raw_angle_control)
-    gimbal_motor_relative_angle_control      0x0800db39   Thumb Code    90  gimbal_task.o(i.gimbal_motor_relative_angle_control)
-    gimbal_pid_calc                          0x0800dc9d   Thumb Code    12  gimbal_task.o(i.gimbal_pid_calc)
-    gimbal_pid_clear                         0x0800dcad   Thumb Code    10  gimbal_task.o(i.gimbal_pid_clear)
-    gimbal_pid_init                          0x0800dcb7   Thumb Code    28  gimbal_task.o(i.gimbal_pid_init)
-    gimbal_relative_angle_control            0x0800dddd   Thumb Code    18  gimbal_behaviour.o(i.gimbal_relative_angle_control)
-    gimbal_send_cmd                          0x0800ddf1   Thumb Code   122  yaw_pitch_direct.o(i.gimbal_send_cmd)
-    gimbal_set_control                       0x0800de79   Thumb Code   170  yaw_pitch_direct.o(i.gimbal_set_control)
-    gimbal_set_mode                          0x0800df29   Thumb Code    10  yaw_pitch_direct.o(i.gimbal_set_mode)
-    gimbal_spin_control                      0x0800df35   Thumb Code    54  gimbal_behaviour.o(i.gimbal_spin_control)
-    gimbal_zero_force_control                0x0800e0ad   Thumb Code    22  gimbal_behaviour.o(i.gimbal_zero_force_control)
-    gravity_comp_calc_torque                 0x0800e0c9   Thumb Code    12  gravity_comp.o(i.gravity_comp_calc_torque)
-    gravity_comp_calc_torque_with_param      0x0800e0d9   Thumb Code   102  gravity_comp.o(i.gravity_comp_calc_torque_with_param)
-    gravity_comp_execute                     0x0800e149   Thumb Code    92  gravity_comp.o(i.gravity_comp_execute)
-    gravity_comp_init                        0x0800e1a5   Thumb Code    84  gravity_comp.o(i.gravity_comp_init)
-    hwt101_get_yaw_total_rad                 0x0800e1fd   Thumb Code     8  hwt_imu.o(i.hwt101_get_yaw_total_rad)
-    hwt101_rx_parse                          0x0800e209   Thumb Code    20  hwt_imu.o(i.hwt101_rx_parse)
-    hwt906_rx_parse                          0x0800e221   Thumb Code    20  hwt_imu.o(i.hwt906_rx_parse)
-    hwt_imu_init                             0x0800e42d   Thumb Code    62  hwt_imu.o(i.hwt_imu_init)
-    main                                     0x0800e555   Thumb Code   138  main.o(i.main)
-    mf5_update                               0x0800e63d   Thumb Code   242  auto_aim.o(i.mf5_update)
-    mux_decode                               0x0800e735   Thumb Code   112  comm.o(i.mux_decode)
-    mux_encode                               0x0800e7a5   Thumb Code   102  comm.o(i.mux_encode)
-    osDelay                                  0x0800ebf7   Thumb Code    14  cmsis_os.o(i.osDelay)
-    osKernelStart                            0x0800ec05   Thumb Code    10  cmsis_os.o(i.osKernelStart)
-    osThreadCreate                           0x0800ec0f   Thumb Code    84  cmsis_os.o(i.osThreadCreate)
-    platform_memcpy                          0x0800ec63   Thumb Code    18  platform_stm32.o(i.platform_memcpy)
-    platform_memmove                         0x0800ec75   Thumb Code    48  platform_stm32.o(i.platform_memmove)
-    platform_memset                          0x0800eca5   Thumb Code    18  platform_stm32.o(i.platform_memset)
-    proto_init_from_main                     0x0800ecb9   Thumb Code    48  main.o(i.proto_init_from_main)
-    pvPortMalloc                             0x0800f049   Thumb Code   216  heap_4.o(i.pvPortMalloc)
-    pxPortInitialiseStack                    0x0800f125   Thumb Code    42  port.o(i.pxPortInitialiseStack)
-    sbus_to_rc                               0x0800f155   Thumb Code   154  remote_control.o(i.sbus_to_rc)
-    shoot_task_init                          0x0800f569   Thumb Code     6  shoot_task.o(i.shoot_task_init)
-    shoot_task_loop                          0x0800f645   Thumb Code    40  shoot_task.o(i.shoot_task_loop)
-    tim24_timebase_init                      0x0800fab9   Thumb Code    24  bsp_tim24.o(i.tim24_timebase_init)
-    tim24_timebase_now_us                    0x0800fad9   Thumb Code    46  bsp_tim24.o(i.tim24_timebase_now_us)
-    tim24_timebase_on_overflow               0x0800fb11   Thumb Code    10  bsp_tim24.o(i.tim24_timebase_on_overflow)
-    time_sync_channel_init                   0x0800fb21   Thumb Code   160  time_sync_channel.o(i.time_sync_channel_init)
-    time_sync_channel_init_ex                0x0800fbc5   Thumb Code    50  time_sync_channel.o(i.time_sync_channel_init_ex)
-    time_sync_channel_now_us                 0x0800fbf7   Thumb Code    34  time_sync_channel.o(i.time_sync_channel_now_us)
-    uint_to_float                            0x0800fc19   Thumb Code    40  bsp_fdcan.o(i.uint_to_float)
-    uproto_init                              0x0800fef1   Thumb Code    92  uproto.o(i.uproto_init)
-    uproto_on_rx_bytes                       0x0800ff59   Thumb Code    64  uproto.o(i.uproto_on_rx_bytes)
-    uproto_register_handler                  0x08010075   Thumb Code    72  uproto.o(i.uproto_register_handler)
-    uproto_send_notify                       0x0801011b   Thumb Code    28  uproto.o(i.uproto_send_notify)
-    uproto_send_request                      0x08010137   Thumb Code   204  uproto.o(i.uproto_send_request)
-    uproto_tick                              0x08010205   Thumb Code   220  uproto.o(i.uproto_tick)
-    usb_cdc_port_bind_uproto                 0x08010305   Thumb Code     6  usb_cdc_port.o(i.usb_cdc_port_bind_uproto)
-    usb_cdc_port_get_ops                     0x08010319   Thumb Code    22  usb_cdc_port.o(i.usb_cdc_port_get_ops)
-    usb_cdc_port_on_rx                       0x0801033d   Thumb Code    28  usb_cdc_port.o(i.usb_cdc_port_on_rx)
-    usb_cdc_port_write                       0x0801035d   Thumb Code    66  usb_cdc_port.o(i.usb_cdc_port_write)
-    uxListRemove                             0x080103c5   Thumb Code    38  list.o(i.uxListRemove)
-    vApplicationGetIdleTaskMemory            0x080103ed   Thumb Code    18  freertos.o(i.vApplicationGetIdleTaskMemory)
-    vListInitialise                          0x08010405   Thumb Code    22  list.o(i.vListInitialise)
-    vListInitialiseItem                      0x0801041b   Thumb Code     6  list.o(i.vListInitialiseItem)
-    vListInsert                              0x08010421   Thumb Code    48  list.o(i.vListInsert)
-    vListInsertEnd                           0x08010451   Thumb Code    24  list.o(i.vListInsertEnd)
-    vPortEnterCritical                       0x08010469   Thumb Code    54  port.o(i.vPortEnterCritical)
-    vPortExitCritical                        0x080104a9   Thumb Code    34  port.o(i.vPortExitCritical)
-    vPortFree                                0x080104d1   Thumb Code    94  heap_4.o(i.vPortFree)
-    vPortSetupTimerInterrupt                 0x08010535   Thumb Code    32  port.o(i.vPortSetupTimerInterrupt)
-    vTaskDelay                               0x08010559   Thumb Code    66  tasks.o(i.vTaskDelay)
-    vTaskDelayUntil                          0x080105a5   Thumb Code   132  tasks.o(i.vTaskDelayUntil)
-    vTaskStartScheduler                      0x08010631   Thumb Code    90  tasks.o(i.vTaskStartScheduler)
-    vTaskSuspendAll                          0x0801069d   Thumb Code    10  tasks.o(i.vTaskSuspendAll)
-    vTaskSwitchContext                       0x080106ad   Thumb Code    82  tasks.o(i.vTaskSwitchContext)
-    ws2812_task                              0x08010711   Thumb Code    50  safewarning.o(i.ws2812_task)
-    xPortStartScheduler                      0x08010749   Thumb Code   222  port.o(i.xPortStartScheduler)
-    xTaskCreate                              0x0801083d   Thumb Code    90  tasks.o(i.xTaskCreate)
-    xTaskCreateStatic                        0x08010897   Thumb Code    86  tasks.o(i.xTaskCreateStatic)
-    xTaskGetTickCount                        0x080108ed   Thumb Code     6  tasks.o(i.xTaskGetTickCount)
-    xTaskIncrementTick                       0x080108f9   Thumb Code   194  tasks.o(i.xTaskIncrementTick)
-    xTaskResumeAll                           0x080109c5   Thumb Code   184  tasks.o(i.xTaskResumeAll)
-    _fp_init                                 0x08010a89   Thumb Code    10  fpinit.o(x$fpl$fpinit)
-    __fplib_config_fpu_vfp                   0x08010a91   Thumb Code     0  fpinit.o(x$fpl$fpinit)
-    __fplib_config_pureend_doubles           0x08010a91   Thumb Code     0  fpinit.o(x$fpl$fpinit)
-    __I$use$fp                               0x08010a92   Number         0  usenofp.o(x$fpl$usenofp)
-    UARTPrescTable                           0x08010b50   Data          24  stm32h7xx_hal_uart.o(.constdata)
-    D1CorePrescTable                         0x08010b78   Data          16  system_stm32h7xx.o(.constdata)
-    CRC8_table                               0x08010cdc   Data         256  crc8_crc16.o(.constdata)
-    wCRC_table                               0x08010ddc   Data         512  crc8_crc16.o(.constdata)
-    Region$$Table$$Base                      0x08011178   Number         0  anon$$obj.o(Region$$Table)
-    Region$$Table$$Limit                     0x08011198   Number         0  anon$$obj.o(Region$$Table)
+    gimbal_init                              0x0800d76d   Thumb Code   410  yaw_pitch_direct.o(i.gimbal_init)
+    gimbal_init_control                      0x0800d955   Thumb Code    46  gimbal_behaviour.o(i.gimbal_init_control)
+    gimbal_mailbox_set                       0x0800d98d   Thumb Code    34  gimbal_channel.o(i.gimbal_mailbox_set)
+    gimbal_mode_change_control_transit       0x0800d9d5   Thumb Code   166  yaw_pitch_direct.o(i.gimbal_mode_change_control_transit)
+    gimbal_motionless_control                0x0800da7d   Thumb Code    22  gimbal_behaviour.o(i.gimbal_motionless_control)
+    gimbal_motor_absolute_angle_control      0x0800da99   Thumb Code   114  gimbal_task.o(i.gimbal_motor_absolute_angle_control)
+    gimbal_motor_raw_angle_control           0x0800db11   Thumb Code    40  gimbal_task.o(i.gimbal_motor_raw_angle_control)
+    gimbal_motor_relative_angle_control      0x0800db3d   Thumb Code    90  gimbal_task.o(i.gimbal_motor_relative_angle_control)
+    gimbal_pid_calc                          0x0800dca1   Thumb Code    12  gimbal_task.o(i.gimbal_pid_calc)
+    gimbal_pid_clear                         0x0800dcb1   Thumb Code    10  gimbal_task.o(i.gimbal_pid_clear)
+    gimbal_pid_init                          0x0800dcbb   Thumb Code    28  gimbal_task.o(i.gimbal_pid_init)
+    gimbal_relative_angle_control            0x0800dde1   Thumb Code    18  gimbal_behaviour.o(i.gimbal_relative_angle_control)
+    gimbal_send_cmd                          0x0800ddf5   Thumb Code   122  yaw_pitch_direct.o(i.gimbal_send_cmd)
+    gimbal_set_control                       0x0800de7d   Thumb Code   170  yaw_pitch_direct.o(i.gimbal_set_control)
+    gimbal_set_mode                          0x0800df2d   Thumb Code    10  yaw_pitch_direct.o(i.gimbal_set_mode)
+    gimbal_spin_control                      0x0800df39   Thumb Code    54  gimbal_behaviour.o(i.gimbal_spin_control)
+    gimbal_zero_force_control                0x0800e0b1   Thumb Code    22  gimbal_behaviour.o(i.gimbal_zero_force_control)
+    gravity_comp_calc_torque                 0x0800e0cd   Thumb Code    12  gravity_comp.o(i.gravity_comp_calc_torque)
+    gravity_comp_calc_torque_with_param      0x0800e0dd   Thumb Code   102  gravity_comp.o(i.gravity_comp_calc_torque_with_param)
+    gravity_comp_execute                     0x0800e14d   Thumb Code    92  gravity_comp.o(i.gravity_comp_execute)
+    gravity_comp_init                        0x0800e1a9   Thumb Code    84  gravity_comp.o(i.gravity_comp_init)
+    hwt101_get_yaw_total_rad                 0x0800e201   Thumb Code     8  hwt_imu.o(i.hwt101_get_yaw_total_rad)
+    hwt101_rx_parse                          0x0800e20d   Thumb Code    20  hwt_imu.o(i.hwt101_rx_parse)
+    hwt906_rx_parse                          0x0800e225   Thumb Code    20  hwt_imu.o(i.hwt906_rx_parse)
+    hwt_imu_init                             0x0800e431   Thumb Code    62  hwt_imu.o(i.hwt_imu_init)
+    main                                     0x0800e559   Thumb Code   138  main.o(i.main)
+    mf5_update                               0x0800e641   Thumb Code   242  auto_aim.o(i.mf5_update)
+    mux_decode                               0x0800e739   Thumb Code   112  comm.o(i.mux_decode)
+    mux_encode                               0x0800e7a9   Thumb Code   102  comm.o(i.mux_encode)
+    osDelay                                  0x0800ebfb   Thumb Code    14  cmsis_os.o(i.osDelay)
+    osKernelStart                            0x0800ec09   Thumb Code    10  cmsis_os.o(i.osKernelStart)
+    osThreadCreate                           0x0800ec13   Thumb Code    84  cmsis_os.o(i.osThreadCreate)
+    platform_memcpy                          0x0800ec67   Thumb Code    18  platform_stm32.o(i.platform_memcpy)
+    platform_memmove                         0x0800ec79   Thumb Code    48  platform_stm32.o(i.platform_memmove)
+    platform_memset                          0x0800eca9   Thumb Code    18  platform_stm32.o(i.platform_memset)
+    proto_init_from_main                     0x0800ecbd   Thumb Code    48  main.o(i.proto_init_from_main)
+    pvPortMalloc                             0x0800f04d   Thumb Code   216  heap_4.o(i.pvPortMalloc)
+    pxPortInitialiseStack                    0x0800f129   Thumb Code    42  port.o(i.pxPortInitialiseStack)
+    sbus_to_rc                               0x0800f159   Thumb Code   154  remote_control.o(i.sbus_to_rc)
+    shoot_task_init                          0x0800f56d   Thumb Code     6  shoot_task.o(i.shoot_task_init)
+    shoot_task_loop                          0x0800f649   Thumb Code    40  shoot_task.o(i.shoot_task_loop)
+    tim24_timebase_init                      0x0800fabd   Thumb Code    24  bsp_tim24.o(i.tim24_timebase_init)
+    tim24_timebase_now_us                    0x0800fadd   Thumb Code    46  bsp_tim24.o(i.tim24_timebase_now_us)
+    tim24_timebase_on_overflow               0x0800fb15   Thumb Code    10  bsp_tim24.o(i.tim24_timebase_on_overflow)
+    time_sync_channel_init                   0x0800fb25   Thumb Code   160  time_sync_channel.o(i.time_sync_channel_init)
+    time_sync_channel_init_ex                0x0800fbc9   Thumb Code    50  time_sync_channel.o(i.time_sync_channel_init_ex)
+    time_sync_channel_now_us                 0x0800fbfb   Thumb Code    34  time_sync_channel.o(i.time_sync_channel_now_us)
+    uint_to_float                            0x0800fc1d   Thumb Code    40  bsp_fdcan.o(i.uint_to_float)
+    uproto_init                              0x0800fef5   Thumb Code    92  uproto.o(i.uproto_init)
+    uproto_on_rx_bytes                       0x0800ff5d   Thumb Code    64  uproto.o(i.uproto_on_rx_bytes)
+    uproto_register_handler                  0x08010079   Thumb Code    72  uproto.o(i.uproto_register_handler)
+    uproto_send_notify                       0x0801011f   Thumb Code    28  uproto.o(i.uproto_send_notify)
+    uproto_send_request                      0x0801013b   Thumb Code   204  uproto.o(i.uproto_send_request)
+    uproto_tick                              0x08010209   Thumb Code   220  uproto.o(i.uproto_tick)
+    usb_cdc_port_bind_uproto                 0x08010309   Thumb Code     6  usb_cdc_port.o(i.usb_cdc_port_bind_uproto)
+    usb_cdc_port_get_ops                     0x0801031d   Thumb Code    22  usb_cdc_port.o(i.usb_cdc_port_get_ops)
+    usb_cdc_port_on_rx                       0x08010341   Thumb Code    28  usb_cdc_port.o(i.usb_cdc_port_on_rx)
+    usb_cdc_port_write                       0x08010361   Thumb Code    66  usb_cdc_port.o(i.usb_cdc_port_write)
+    uxListRemove                             0x080103c9   Thumb Code    38  list.o(i.uxListRemove)
+    vApplicationGetIdleTaskMemory            0x080103f1   Thumb Code    18  freertos.o(i.vApplicationGetIdleTaskMemory)
+    vListInitialise                          0x08010409   Thumb Code    22  list.o(i.vListInitialise)
+    vListInitialiseItem                      0x0801041f   Thumb Code     6  list.o(i.vListInitialiseItem)
+    vListInsert                              0x08010425   Thumb Code    48  list.o(i.vListInsert)
+    vListInsertEnd                           0x08010455   Thumb Code    24  list.o(i.vListInsertEnd)
+    vPortEnterCritical                       0x0801046d   Thumb Code    54  port.o(i.vPortEnterCritical)
+    vPortExitCritical                        0x080104ad   Thumb Code    34  port.o(i.vPortExitCritical)
+    vPortFree                                0x080104d5   Thumb Code    94  heap_4.o(i.vPortFree)
+    vPortSetupTimerInterrupt                 0x08010539   Thumb Code    32  port.o(i.vPortSetupTimerInterrupt)
+    vTaskDelay                               0x0801055d   Thumb Code    66  tasks.o(i.vTaskDelay)
+    vTaskDelayUntil                          0x080105a9   Thumb Code   132  tasks.o(i.vTaskDelayUntil)
+    vTaskStartScheduler                      0x08010635   Thumb Code    90  tasks.o(i.vTaskStartScheduler)
+    vTaskSuspendAll                          0x080106a1   Thumb Code    10  tasks.o(i.vTaskSuspendAll)
+    vTaskSwitchContext                       0x080106b1   Thumb Code    82  tasks.o(i.vTaskSwitchContext)
+    ws2812_task                              0x08010715   Thumb Code    50  safewarning.o(i.ws2812_task)
+    xPortStartScheduler                      0x0801074d   Thumb Code   222  port.o(i.xPortStartScheduler)
+    xTaskCreate                              0x08010841   Thumb Code    90  tasks.o(i.xTaskCreate)
+    xTaskCreateStatic                        0x0801089b   Thumb Code    86  tasks.o(i.xTaskCreateStatic)
+    xTaskGetTickCount                        0x080108f1   Thumb Code     6  tasks.o(i.xTaskGetTickCount)
+    xTaskIncrementTick                       0x080108fd   Thumb Code   194  tasks.o(i.xTaskIncrementTick)
+    xTaskResumeAll                           0x080109c9   Thumb Code   184  tasks.o(i.xTaskResumeAll)
+    _fp_init                                 0x08010a8d   Thumb Code    10  fpinit.o(x$fpl$fpinit)
+    __fplib_config_fpu_vfp                   0x08010a95   Thumb Code     0  fpinit.o(x$fpl$fpinit)
+    __fplib_config_pureend_doubles           0x08010a95   Thumb Code     0  fpinit.o(x$fpl$fpinit)
+    __I$use$fp                               0x08010a96   Number         0  usenofp.o(x$fpl$usenofp)
+    UARTPrescTable                           0x08010b54   Data          24  stm32h7xx_hal_uart.o(.constdata)
+    D1CorePrescTable                         0x08010b7c   Data          16  system_stm32h7xx.o(.constdata)
+    CRC8_table                               0x08010ce0   Data         256  crc8_crc16.o(.constdata)
+    wCRC_table                               0x08010de0   Data         512  crc8_crc16.o(.constdata)
+    Region$$Table$$Base                      0x0801117c   Number         0  anon$$obj.o(Region$$Table)
+    Region$$Table$$Limit                     0x0801119c   Number         0  anon$$obj.o(Region$$Table)
     defaultTaskHandle                        0x24000000   Data           4  freertos.o(.data)
     uwTickFreq                               0x24000008   Data           1  stm32h7xx_hal.o(.data)
     uwTickPrio                               0x2400000c   Data           4  stm32h7xx_hal.o(.data)
@@ -7702,9 +7702,9 @@ Memory Map of the image
 
   Image Entry point : 0x080002cd
 
-  Load Region LR_IROM1 (Base: 0x08000000, Size: 0x00011420, Max: 0x00100000, ABSOLUTE, COMPRESSED[0x00011280])
+  Load Region LR_IROM1 (Base: 0x08000000, Size: 0x00011424, Max: 0x00100000, ABSOLUTE, COMPRESSED[0x00011284])
 
-    Execution Region ER_IROM1 (Exec base: 0x08000000, Load base: 0x08000000, Size: 0x00011198, Max: 0x00100000, ABSOLUTE)
+    Execution Region ER_IROM1 (Exec base: 0x08000000, Load base: 0x08000000, Size: 0x0001119c, Max: 0x00100000, ABSOLUTE)
 
     Exec Addr    Load Addr    Size         Type   Attr      Idx    E Section Name        Object
 
@@ -8267,204 +8267,204 @@ Memory Map of the image
     0x0800d3ea   0x0800d3ea   0x00000002   PAD
     0x0800d3ec   0x0800d3ec   0x000001a4   Code   RO         8232    i.gimbal_feedback_update  yaw_pitch_direct.o
     0x0800d590   0x0800d590   0x00000054   Code   RO         8233    i.gimbal_feedforward_clear  yaw_pitch_direct.o
-    0x0800d5e4   0x0800d5e4   0x000000c4   Code   RO         8234    i.gimbal_feedforward_track_target  yaw_pitch_direct.o
-    0x0800d6a8   0x0800d6a8   0x0000000c   Code   RO         8471    i.gimbal_float_to_torque_cmd  gimbal_task.o
-    0x0800d6b4   0x0800d6b4   0x000000b4   Code   RO         9127    i.gimbal_get_state  comm_app.o
-    0x0800d768   0x0800d768   0x000001e8   Code   RO         8235    i.gimbal_init       yaw_pitch_direct.o
-    0x0800d950   0x0800d950   0x00000038   Code   RO         8370    i.gimbal_init_control  gimbal_behaviour.o
-    0x0800d988   0x0800d988   0x00000028   Code   RO         9385    i.gimbal_mailbox_set  gimbal_channel.o
-    0x0800d9b0   0x0800d9b0   0x00000020   Code   RO         8236    i.gimbal_mit_clamp  yaw_pitch_direct.o
-    0x0800d9d0   0x0800d9d0   0x000000a6   Code   RO         8237    i.gimbal_mode_change_control_transit  yaw_pitch_direct.o
-    0x0800da76   0x0800da76   0x00000002   PAD
-    0x0800da78   0x0800da78   0x0000001c   Code   RO         8371    i.gimbal_motionless_control  gimbal_behaviour.o
-    0x0800da94   0x0800da94   0x00000078   Code   RO         8472    i.gimbal_motor_absolute_angle_control  gimbal_task.o
-    0x0800db0c   0x0800db0c   0x0000002c   Code   RO         8473    i.gimbal_motor_raw_angle_control  gimbal_task.o
-    0x0800db38   0x0800db38   0x00000064   Code   RO         8474    i.gimbal_motor_relative_angle_control  gimbal_task.o
-    0x0800db9c   0x0800db9c   0x00000030   Code   RO         9128    i.gimbal_on_chassis  comm_app.o
-    0x0800dbcc   0x0800dbcc   0x0000002c   Code   RO         9129    i.gimbal_on_delta   comm_app.o
-    0x0800dbf8   0x0800dbf8   0x00000088   Code   RO         9130    i.gimbal_on_fire    comm_app.o
-    0x0800dc80   0x0800dc80   0x00000010   Code   RO         9131    i.gimbal_on_referee_query  comm_app.o
-    0x0800dc90   0x0800dc90   0x0000000c   Code   RO         8238    i.gimbal_output_to_mit_torque  yaw_pitch_direct.o
-    0x0800dc9c   0x0800dc9c   0x00000010   Code   RO         8475    i.gimbal_pid_calc   gimbal_task.o
-    0x0800dcac   0x0800dcac   0x0000000a   Code   RO         8476    i.gimbal_pid_clear  gimbal_task.o
-    0x0800dcb6   0x0800dcb6   0x0000001c   Code   RO         8477    i.gimbal_pid_init   gimbal_task.o
-    0x0800dcd2   0x0800dcd2   0x00000002   PAD
-    0x0800dcd4   0x0800dcd4   0x00000060   Code   RO         8239    i.gimbal_pitch_relative_angle_limit  yaw_pitch_direct.o
-    0x0800dd34   0x0800dd34   0x000000a8   Code   RO         8372    i.gimbal_read_manual_input  gimbal_behaviour.o
-    0x0800dddc   0x0800dddc   0x00000012   Code   RO         8373    i.gimbal_relative_angle_control  gimbal_behaviour.o
-    0x0800ddee   0x0800ddee   0x00000002   PAD
-    0x0800ddf0   0x0800ddf0   0x00000088   Code   RO         8240    i.gimbal_send_cmd   yaw_pitch_direct.o
-    0x0800de78   0x0800de78   0x000000b0   Code   RO         8241    i.gimbal_set_control  yaw_pitch_direct.o
-    0x0800df28   0x0800df28   0x0000000a   Code   RO         8242    i.gimbal_set_mode   yaw_pitch_direct.o
-    0x0800df32   0x0800df32   0x00000002   PAD
-    0x0800df34   0x0800df34   0x0000003c   Code   RO         8374    i.gimbal_spin_control  gimbal_behaviour.o
-    0x0800df70   0x0800df70   0x00000078   Code   RO         8478    i.gimbal_task       gimbal_task.o
-    0x0800dfe8   0x0800dfe8   0x00000034   Code   RO         8479    i.gimbal_wrap_angle  gimbal_task.o
-    0x0800e01c   0x0800e01c   0x00000090   Code   RO         8243    i.gimbal_yaw_absolute_angle_limit  yaw_pitch_direct.o
-    0x0800e0ac   0x0800e0ac   0x0000001c   Code   RO         8375    i.gimbal_zero_force_control  gimbal_behaviour.o
-    0x0800e0c8   0x0800e0c8   0x00000010   Code   RO        10432    i.gravity_comp_calc_torque  gravity_comp.o
-    0x0800e0d8   0x0800e0d8   0x00000070   Code   RO        10433    i.gravity_comp_calc_torque_with_param  gravity_comp.o
-    0x0800e148   0x0800e148   0x0000005c   Code   RO        10434    i.gravity_comp_execute  gravity_comp.o
-    0x0800e1a4   0x0800e1a4   0x00000058   Code   RO        10435    i.gravity_comp_init  gravity_comp.o
-    0x0800e1fc   0x0800e1fc   0x0000000c   Code   RO        10068    i.hwt101_get_yaw_total_rad  hwt_imu.o
-    0x0800e208   0x0800e208   0x00000018   Code   RO        10069    i.hwt101_rx_parse   hwt_imu.o
-    0x0800e220   0x0800e220   0x00000018   Code   RO        10081    i.hwt906_rx_parse   hwt_imu.o
-    0x0800e238   0x0800e238   0x000001f4   Code   RO        10082    i.hwt_handle_frame  hwt_imu.o
-    0x0800e42c   0x0800e42c   0x00000048   Code   RO        10083    i.hwt_imu_init      hwt_imu.o
-    0x0800e474   0x0800e474   0x00000060   Code   RO        10084    i.hwt_parse_stream  hwt_imu.o
-    0x0800e4d4   0x0800e4d4   0x00000080   Code   RO        10085    i.hwt_update_yaw_total  hwt_imu.o
-    0x0800e554   0x0800e554   0x000000ac   Code   RO           17    i.main              main.o
-    0x0800e600   0x0800e600   0x0000000e   Code   RO         7306    i.makeFreeRtosPriority  cmsis_os.o
-    0x0800e60e   0x0800e60e   0x00000002   PAD
-    0x0800e610   0x0800e610   0x0000002c   Code   RO         7908    i.mf5_reset         auto_aim.o
-    0x0800e63c   0x0800e63c   0x000000f8   Code   RO         7909    i.mf5_update        auto_aim.o
-    0x0800e734   0x0800e734   0x00000070   Code   RO         8771    i.mux_decode        comm.o
-    0x0800e7a4   0x0800e7a4   0x00000066   Code   RO         8772    i.mux_encode        comm.o
-    0x0800e80a   0x0800e80a   0x00000010   Code   RO         9554    i.now_us            time_sync_channel.o
-    0x0800e81a   0x0800e81a   0x00000038   Code   RO         8773    i.on_mux_rx         comm.o
-    0x0800e852   0x0800e852   0x00000104   Code   RO         9386    i.on_rx             gimbal_channel.o
-    0x0800e956   0x0800e956   0x000001a0   Code   RO         9555    i.on_rx             time_sync_channel.o
-    0x0800eaf6   0x0800eaf6   0x00000058   Code   RO         9387    i.on_tick           gimbal_channel.o
-    0x0800eb4e   0x0800eb4e   0x000000a8   Code   RO         9556    i.on_tick           time_sync_channel.o
-    0x0800ebf6   0x0800ebf6   0x0000000e   Code   RO         7308    i.osDelay           cmsis_os.o
-    0x0800ec04   0x0800ec04   0x0000000a   Code   RO         7311    i.osKernelStart     cmsis_os.o
-    0x0800ec0e   0x0800ec0e   0x00000054   Code   RO         7345    i.osThreadCreate    cmsis_os.o
-    0x0800ec62   0x0800ec62   0x00000012   Code   RO         9046    i.platform_memcpy   platform_stm32.o
-    0x0800ec74   0x0800ec74   0x00000030   Code   RO         9047    i.platform_memmove  platform_stm32.o
-    0x0800eca4   0x0800eca4   0x00000012   Code   RO         9048    i.platform_memset   platform_stm32.o
-    0x0800ecb6   0x0800ecb6   0x00000002   PAD
-    0x0800ecb8   0x0800ecb8   0x00000038   Code   RO           18    i.proto_init_from_main  main.o
-    0x0800ecf0   0x0800ecf0   0x00000004   Code   RO           19    i.proto_time_now    main.o
-    0x0800ecf4   0x0800ecf4   0x00000070   Code   RO         6982    i.prvAddCurrentTaskToDelayedList  tasks.o
-    0x0800ed64   0x0800ed64   0x000000d0   Code   RO         6983    i.prvAddNewTaskToReadyList  tasks.o
-    0x0800ee34   0x0800ee34   0x00000034   Code   RO         6984    i.prvDeleteTCB      tasks.o
-    0x0800ee68   0x0800ee68   0x00000050   Code   RO         7673    i.prvHeapInit       heap_4.o
-    0x0800eeb8   0x0800eeb8   0x00000060   Code   RO         6985    i.prvIdleTask       tasks.o
-    0x0800ef18   0x0800ef18   0x0000009a   Code   RO         6986    i.prvInitialiseNewTask  tasks.o
-    0x0800efb2   0x0800efb2   0x00000002   PAD
-    0x0800efb4   0x0800efb4   0x0000004c   Code   RO         7674    i.prvInsertBlockIntoFreeList  heap_4.o
-    0x0800f000   0x0800f000   0x00000020   Code   RO         6987    i.prvResetNextTaskUnblockTime  tasks.o
-    0x0800f020   0x0800f020   0x00000028   Code   RO         7742    i.prvTaskExitError  port.o
-    0x0800f048   0x0800f048   0x000000dc   Code   RO         7675    i.pvPortMalloc      heap_4.o
-    0x0800f124   0x0800f124   0x00000030   Code   RO         7743    i.pxPortInitialiseStack  port.o
-    0x0800f154   0x0800f154   0x0000009a   Code   RO         9893    i.sbus_to_rc        remote_control.o
-    0x0800f1ee   0x0800f1ee   0x00000002   PAD
-    0x0800f1f0   0x0800f1f0   0x00000034   Code   RO         8594    i.service_task      service_task.o
-    0x0800f224   0x0800f224   0x000000dc   Code   RO         9132    i.setup_channels    comm_app.o
-    0x0800f300   0x0800f300   0x00000200   Code   RO         8621    i.shoot_task_control_friction  shoot_task.o
-    0x0800f500   0x0800f500   0x0000001c   Code   RO         8622    i.shoot_task_current_a_to_input_torque_nm  shoot_task.o
-    0x0800f51c   0x0800f51c   0x0000004c   Code   RO         8623    i.shoot_task_current_ma_to_esc_cmd  shoot_task.o
-    0x0800f568   0x0800f568   0x0000000c   Code   RO         8624    i.shoot_task_init   shoot_task.o
-    0x0800f574   0x0800f574   0x000000a8   Code   RO         8625    i.shoot_task_init_control  shoot_task.o
-    0x0800f61c   0x0800f61c   0x00000028   Code   RO         8626    i.shoot_task_limit_current_a  shoot_task.o
-    0x0800f644   0x0800f644   0x0000002c   Code   RO         8627    i.shoot_task_loop   shoot_task.o
-    0x0800f670   0x0800f670   0x0000002c   Code   RO         8628    i.shoot_task_motor_apply_feedforward  shoot_task.o
-    0x0800f69c   0x0800f69c   0x00000028   Code   RO         8629    i.shoot_task_motor_calc  shoot_task.o
-    0x0800f6c4   0x0800f6c4   0x00000044   Code   RO         8630    i.shoot_task_motor_finalize_current  shoot_task.o
-    0x0800f708   0x0800f708   0x00000024   Code   RO         8631    i.shoot_task_motor_hot_reset  shoot_task.o
-    0x0800f72c   0x0800f72c   0x00000098   Code   RO         8632    i.shoot_task_motor_init  shoot_task.o
-    0x0800f7c4   0x0800f7c4   0x0000001c   Code   RO         8633    i.shoot_task_motor_ready  shoot_task.o
-    0x0800f7e0   0x0800f7e0   0x00000018   Code   RO         8634    i.shoot_task_motor_reset  shoot_task.o
-    0x0800f7f8   0x0800f7f8   0x00000038   Code   RO         8635    i.shoot_task_motor_should_trigger_feedforward  shoot_task.o
-    0x0800f830   0x0800f830   0x00000050   Code   RO         8636    i.shoot_task_motor_update_current_physics  shoot_task.o
-    0x0800f880   0x0800f880   0x00000058   Code   RO         8637    i.shoot_task_send_friction_current  shoot_task.o
-    0x0800f8d8   0x0800f8d8   0x00000054   Code   RO         8638    i.shoot_task_set_mode  shoot_task.o
-    0x0800f92c   0x0800f92c   0x000000a0   Code   RO         8639    i.shoot_task_stop_friction  shoot_task.o
-    0x0800f9cc   0x0800f9cc   0x0000009c   Code   RO         8640    i.shoot_task_update_feedback  shoot_task.o
-    0x0800fa68   0x0800fa68   0x0000001e   Code   RO         8641    i.shoot_task_update_history  shoot_task.o
-    0x0800fa86   0x0800fa86   0x00000002   PAD
-    0x0800fa88   0x0800fa88   0x00000024   Code   RO         9133    i.stream_on_rx      comm_app.o
-    0x0800faac   0x0800faac   0x0000000c   Code   RO         9134    i.sync_now_us       comm_app.o
-    0x0800fab8   0x0800fab8   0x00000020   Code   RO         9961    i.tim24_timebase_init  bsp_tim24.o
-    0x0800fad8   0x0800fad8   0x00000038   Code   RO         9962    i.tim24_timebase_now_us  bsp_tim24.o
-    0x0800fb10   0x0800fb10   0x00000010   Code   RO         9963    i.tim24_timebase_on_overflow  bsp_tim24.o
-    0x0800fb20   0x0800fb20   0x000000a4   Code   RO         9557    i.time_sync_channel_init  time_sync_channel.o
-    0x0800fbc4   0x0800fbc4   0x00000032   Code   RO         9558    i.time_sync_channel_init_ex  time_sync_channel.o
-    0x0800fbf6   0x0800fbf6   0x00000022   Code   RO         9559    i.time_sync_channel_now_us  time_sync_channel.o
-    0x0800fc18   0x0800fc18   0x00000028   Code   RO         9656    i.uint_to_float     bsp_fdcan.o
-    0x0800fc40   0x0800fc40   0x00000020   Code   RO         8905    i.uproto_complete_transaction  uproto.o
-    0x0800fc60   0x0800fc60   0x0000008e   Code   RO         8906    i.uproto_decode_frame  uproto.o
-    0x0800fcee   0x0800fcee   0x00000092   Code   RO         8907    i.uproto_encode_frame  uproto.o
-    0x0800fd80   0x0800fd80   0x00000030   Code   RO         8908    i.uproto_find_transaction  uproto.o
-    0x0800fdb0   0x0800fdb0   0x0000000c   Code   RO         8909    i.uproto_fire_event  uproto.o
-    0x0800fdbc   0x0800fdbc   0x00000134   Code   RO         8911    i.uproto_handle_frame  uproto.o
-    0x0800fef0   0x0800fef0   0x0000005c   Code   RO         8912    i.uproto_init       uproto.o
-    0x0800ff4c   0x0800ff4c   0x0000000c   Code   RO         8914    i.uproto_now        uproto.o
-    0x0800ff58   0x0800ff58   0x00000040   Code   RO         8915    i.uproto_on_rx_bytes  uproto.o
-    0x0800ff98   0x0800ff98   0x000000dc   Code   RO         8916    i.uproto_process_rx_buffer  uproto.o
-    0x08010074   0x08010074   0x00000048   Code   RO         8917    i.uproto_register_handler  uproto.o
-    0x080100bc   0x080100bc   0x0000005e   Code   RO         8918    i.uproto_send_frame  uproto.o
-    0x0801011a   0x0801011a   0x0000001c   Code   RO         8919    i.uproto_send_notify  uproto.o
-    0x08010136   0x08010136   0x000000cc   Code   RO         8920    i.uproto_send_request  uproto.o
-    0x08010202   0x08010202   0x00000002   PAD
-    0x08010204   0x08010204   0x00000100   Code   RO         8923    i.uproto_tick       uproto.o
-    0x08010304   0x08010304   0x0000000c   Code   RO         9307    i.usb_cdc_port_bind_uproto  usb_cdc_port.o
-    0x08010310   0x08010310   0x00000002   Code   RO         9308    i.usb_cdc_port_flush  usb_cdc_port.o
-    0x08010312   0x08010312   0x00000006   Code   RO         9309    i.usb_cdc_port_get_mtu  usb_cdc_port.o
-    0x08010318   0x08010318   0x00000024   Code   RO         9310    i.usb_cdc_port_get_ops  usb_cdc_port.o
-    0x0801033c   0x0801033c   0x00000020   Code   RO         9312    i.usb_cdc_port_on_rx  usb_cdc_port.o
-    0x0801035c   0x0801035c   0x00000048   Code   RO         9313    i.usb_cdc_port_write  usb_cdc_port.o
-    0x080103a4   0x080103a4   0x00000020   Code   RO        10651    i.usb_tx_read_pos   usbd_cdc_if.o
-    0x080103c4   0x080103c4   0x00000026   Code   RO         6618    i.uxListRemove      list.o
-    0x080103ea   0x080103ea   0x00000002   PAD
-    0x080103ec   0x080103ec   0x00000018   Code   RO          351    i.vApplicationGetIdleTaskMemory  freertos.o
-    0x08010404   0x08010404   0x00000016   Code   RO         6619    i.vListInitialise   list.o
-    0x0801041a   0x0801041a   0x00000006   Code   RO         6620    i.vListInitialiseItem  list.o
-    0x08010420   0x08010420   0x00000030   Code   RO         6621    i.vListInsert       list.o
-    0x08010450   0x08010450   0x00000018   Code   RO         6622    i.vListInsertEnd    list.o
-    0x08010468   0x08010468   0x00000040   Code   RO         7745    i.vPortEnterCritical  port.o
-    0x080104a8   0x080104a8   0x00000028   Code   RO         7746    i.vPortExitCritical  port.o
-    0x080104d0   0x080104d0   0x00000064   Code   RO         7676    i.vPortFree         heap_4.o
-    0x08010534   0x08010534   0x00000024   Code   RO         7747    i.vPortSetupTimerInterrupt  port.o
-    0x08010558   0x08010558   0x0000004c   Code   RO         6996    i.vTaskDelay        tasks.o
-    0x080105a4   0x080105a4   0x0000008c   Code   RO         6997    i.vTaskDelayUntil   tasks.o
-    0x08010630   0x08010630   0x0000006c   Code   RO         7010    i.vTaskStartScheduler  tasks.o
-    0x0801069c   0x0801069c   0x00000010   Code   RO         7012    i.vTaskSuspendAll   tasks.o
-    0x080106ac   0x080106ac   0x0000005c   Code   RO         7013    i.vTaskSwitchContext  tasks.o
-    0x08010708   0x08010708   0x00000008   Code   RO         8924    i.write_u16_le      uproto.o
-    0x08010710   0x08010710   0x00000038   Code   RO         7826    i.ws2812_task       safewarning.o
-    0x08010748   0x08010748   0x000000f4   Code   RO         7749    i.xPortStartScheduler  port.o
-    0x0801083c   0x0801083c   0x0000005a   Code   RO         7016    i.xTaskCreate       tasks.o
-    0x08010896   0x08010896   0x00000056   Code   RO         7017    i.xTaskCreateStatic  tasks.o
-    0x080108ec   0x080108ec   0x0000000c   Code   RO         7022    i.xTaskGetTickCount  tasks.o
-    0x080108f8   0x080108f8   0x000000cc   Code   RO         7024    i.xTaskIncrementTick  tasks.o
-    0x080109c4   0x080109c4   0x000000c4   Code   RO         7030    i.xTaskResumeAll    tasks.o
-    0x08010a88   0x08010a88   0x0000000a   Code   RO        17925    x$fpl$fpinit        fz_wv.l(fpinit.o)
-    0x08010a92   0x08010a92   0x00000000   Code   RO        17779    x$fpl$usenofp       fz_wv.l(usenofp.o)
-    0x08010a92   0x08010a92   0x00000002   PAD
-    0x08010a94   0x08010a94   0x00000020   Data   RO           21    .constdata          main.o
-    0x08010ab4   0x08010ab4   0x00000038   Data   RO          353    .constdata          freertos.o
-    0x08010aec   0x08010aec   0x00000008   Data   RO         3218    .constdata          stm32h7xx_hal_dma.o
-    0x08010af4   0x08010af4   0x0000005c   Data   RO         5095    .constdata          stm32h7xx_hal_fdcan.o
-    0x08010b50   0x08010b50   0x00000018   Data   RO         6011    .constdata          stm32h7xx_hal_uart.o
-    0x08010b68   0x08010b68   0x00000010   Data   RO         6377    .constdata          stm32h7xx_hal_uart_ex.o
-    0x08010b78   0x08010b78   0x00000010   Data   RO         6482    .constdata          system_stm32h7xx.o
-    0x08010b88   0x08010b88   0x00000064   Data   RO         7828    .constdata          safewarning.o
-    0x08010bec   0x08010bec   0x0000001c   Data   RO         8481    .constdata          gimbal_task.o
-    0x08010c08   0x08010c08   0x0000001c   Data   RO         8595    .constdata          service_task.o
-    0x08010c24   0x08010c24   0x00000074   Data   RO         9136    .constdata          comm_app.o
-    0x08010c98   0x08010c98   0x00000020   Data   RO         9389    .constdata          gimbal_channel.o
-    0x08010cb8   0x08010cb8   0x00000018   Data   RO         9488    .constdata          camera_channel.o
-    0x08010cd0   0x08010cd0   0x0000000c   Data   RO         9562    .constdata          time_sync_channel.o
-    0x08010cdc   0x08010cdc   0x00000300   Data   RO        10387    .constdata          crc8_crc16.o
-    0x08010fdc   0x08010fdc   0x00000140   Data   RO        17707    .constdata          m_wv.l(powf.o)
-    0x0801111c   0x0801111c   0x00000020   Data   RO        17816    .constdata          m_wv.l(rredf.o)
-    0x0801113c   0x0801113c   0x00000015   Data   RO          354    .conststring        freertos.o
-    0x08011151   0x08011151   0x00000003   PAD
-    0x08011154   0x08011154   0x0000000b   Data   RO         8482    .conststring        gimbal_task.o
-    0x0801115f   0x0801115f   0x00000001   PAD
-    0x08011160   0x08011160   0x0000000c   Data   RO         8596    .conststring        service_task.o
-    0x0801116c   0x0801116c   0x00000009   Data   RO         9137    .conststring        comm_app.o
-    0x08011175   0x08011175   0x00000003   PAD
-    0x08011178   0x08011178   0x00000020   Data   RO        17981    Region$$Table       anon$$obj.o
+    0x0800d5e4   0x0800d5e4   0x000000c8   Code   RO         8234    i.gimbal_feedforward_track_target  yaw_pitch_direct.o
+    0x0800d6ac   0x0800d6ac   0x0000000c   Code   RO         8471    i.gimbal_float_to_torque_cmd  gimbal_task.o
+    0x0800d6b8   0x0800d6b8   0x000000b4   Code   RO         9127    i.gimbal_get_state  comm_app.o
+    0x0800d76c   0x0800d76c   0x000001e8   Code   RO         8235    i.gimbal_init       yaw_pitch_direct.o
+    0x0800d954   0x0800d954   0x00000038   Code   RO         8370    i.gimbal_init_control  gimbal_behaviour.o
+    0x0800d98c   0x0800d98c   0x00000028   Code   RO         9385    i.gimbal_mailbox_set  gimbal_channel.o
+    0x0800d9b4   0x0800d9b4   0x00000020   Code   RO         8236    i.gimbal_mit_clamp  yaw_pitch_direct.o
+    0x0800d9d4   0x0800d9d4   0x000000a6   Code   RO         8237    i.gimbal_mode_change_control_transit  yaw_pitch_direct.o
+    0x0800da7a   0x0800da7a   0x00000002   PAD
+    0x0800da7c   0x0800da7c   0x0000001c   Code   RO         8371    i.gimbal_motionless_control  gimbal_behaviour.o
+    0x0800da98   0x0800da98   0x00000078   Code   RO         8472    i.gimbal_motor_absolute_angle_control  gimbal_task.o
+    0x0800db10   0x0800db10   0x0000002c   Code   RO         8473    i.gimbal_motor_raw_angle_control  gimbal_task.o
+    0x0800db3c   0x0800db3c   0x00000064   Code   RO         8474    i.gimbal_motor_relative_angle_control  gimbal_task.o
+    0x0800dba0   0x0800dba0   0x00000030   Code   RO         9128    i.gimbal_on_chassis  comm_app.o
+    0x0800dbd0   0x0800dbd0   0x0000002c   Code   RO         9129    i.gimbal_on_delta   comm_app.o
+    0x0800dbfc   0x0800dbfc   0x00000088   Code   RO         9130    i.gimbal_on_fire    comm_app.o
+    0x0800dc84   0x0800dc84   0x00000010   Code   RO         9131    i.gimbal_on_referee_query  comm_app.o
+    0x0800dc94   0x0800dc94   0x0000000c   Code   RO         8238    i.gimbal_output_to_mit_torque  yaw_pitch_direct.o
+    0x0800dca0   0x0800dca0   0x00000010   Code   RO         8475    i.gimbal_pid_calc   gimbal_task.o
+    0x0800dcb0   0x0800dcb0   0x0000000a   Code   RO         8476    i.gimbal_pid_clear  gimbal_task.o
+    0x0800dcba   0x0800dcba   0x0000001c   Code   RO         8477    i.gimbal_pid_init   gimbal_task.o
+    0x0800dcd6   0x0800dcd6   0x00000002   PAD
+    0x0800dcd8   0x0800dcd8   0x00000060   Code   RO         8239    i.gimbal_pitch_relative_angle_limit  yaw_pitch_direct.o
+    0x0800dd38   0x0800dd38   0x000000a8   Code   RO         8372    i.gimbal_read_manual_input  gimbal_behaviour.o
+    0x0800dde0   0x0800dde0   0x00000012   Code   RO         8373    i.gimbal_relative_angle_control  gimbal_behaviour.o
+    0x0800ddf2   0x0800ddf2   0x00000002   PAD
+    0x0800ddf4   0x0800ddf4   0x00000088   Code   RO         8240    i.gimbal_send_cmd   yaw_pitch_direct.o
+    0x0800de7c   0x0800de7c   0x000000b0   Code   RO         8241    i.gimbal_set_control  yaw_pitch_direct.o
+    0x0800df2c   0x0800df2c   0x0000000a   Code   RO         8242    i.gimbal_set_mode   yaw_pitch_direct.o
+    0x0800df36   0x0800df36   0x00000002   PAD
+    0x0800df38   0x0800df38   0x0000003c   Code   RO         8374    i.gimbal_spin_control  gimbal_behaviour.o
+    0x0800df74   0x0800df74   0x00000078   Code   RO         8478    i.gimbal_task       gimbal_task.o
+    0x0800dfec   0x0800dfec   0x00000034   Code   RO         8479    i.gimbal_wrap_angle  gimbal_task.o
+    0x0800e020   0x0800e020   0x00000090   Code   RO         8243    i.gimbal_yaw_absolute_angle_limit  yaw_pitch_direct.o
+    0x0800e0b0   0x0800e0b0   0x0000001c   Code   RO         8375    i.gimbal_zero_force_control  gimbal_behaviour.o
+    0x0800e0cc   0x0800e0cc   0x00000010   Code   RO        10432    i.gravity_comp_calc_torque  gravity_comp.o
+    0x0800e0dc   0x0800e0dc   0x00000070   Code   RO        10433    i.gravity_comp_calc_torque_with_param  gravity_comp.o
+    0x0800e14c   0x0800e14c   0x0000005c   Code   RO        10434    i.gravity_comp_execute  gravity_comp.o
+    0x0800e1a8   0x0800e1a8   0x00000058   Code   RO        10435    i.gravity_comp_init  gravity_comp.o
+    0x0800e200   0x0800e200   0x0000000c   Code   RO        10068    i.hwt101_get_yaw_total_rad  hwt_imu.o
+    0x0800e20c   0x0800e20c   0x00000018   Code   RO        10069    i.hwt101_rx_parse   hwt_imu.o
+    0x0800e224   0x0800e224   0x00000018   Code   RO        10081    i.hwt906_rx_parse   hwt_imu.o
+    0x0800e23c   0x0800e23c   0x000001f4   Code   RO        10082    i.hwt_handle_frame  hwt_imu.o
+    0x0800e430   0x0800e430   0x00000048   Code   RO        10083    i.hwt_imu_init      hwt_imu.o
+    0x0800e478   0x0800e478   0x00000060   Code   RO        10084    i.hwt_parse_stream  hwt_imu.o
+    0x0800e4d8   0x0800e4d8   0x00000080   Code   RO        10085    i.hwt_update_yaw_total  hwt_imu.o
+    0x0800e558   0x0800e558   0x000000ac   Code   RO           17    i.main              main.o
+    0x0800e604   0x0800e604   0x0000000e   Code   RO         7306    i.makeFreeRtosPriority  cmsis_os.o
+    0x0800e612   0x0800e612   0x00000002   PAD
+    0x0800e614   0x0800e614   0x0000002c   Code   RO         7908    i.mf5_reset         auto_aim.o
+    0x0800e640   0x0800e640   0x000000f8   Code   RO         7909    i.mf5_update        auto_aim.o
+    0x0800e738   0x0800e738   0x00000070   Code   RO         8771    i.mux_decode        comm.o
+    0x0800e7a8   0x0800e7a8   0x00000066   Code   RO         8772    i.mux_encode        comm.o
+    0x0800e80e   0x0800e80e   0x00000010   Code   RO         9554    i.now_us            time_sync_channel.o
+    0x0800e81e   0x0800e81e   0x00000038   Code   RO         8773    i.on_mux_rx         comm.o
+    0x0800e856   0x0800e856   0x00000104   Code   RO         9386    i.on_rx             gimbal_channel.o
+    0x0800e95a   0x0800e95a   0x000001a0   Code   RO         9555    i.on_rx             time_sync_channel.o
+    0x0800eafa   0x0800eafa   0x00000058   Code   RO         9387    i.on_tick           gimbal_channel.o
+    0x0800eb52   0x0800eb52   0x000000a8   Code   RO         9556    i.on_tick           time_sync_channel.o
+    0x0800ebfa   0x0800ebfa   0x0000000e   Code   RO         7308    i.osDelay           cmsis_os.o
+    0x0800ec08   0x0800ec08   0x0000000a   Code   RO         7311    i.osKernelStart     cmsis_os.o
+    0x0800ec12   0x0800ec12   0x00000054   Code   RO         7345    i.osThreadCreate    cmsis_os.o
+    0x0800ec66   0x0800ec66   0x00000012   Code   RO         9046    i.platform_memcpy   platform_stm32.o
+    0x0800ec78   0x0800ec78   0x00000030   Code   RO         9047    i.platform_memmove  platform_stm32.o
+    0x0800eca8   0x0800eca8   0x00000012   Code   RO         9048    i.platform_memset   platform_stm32.o
+    0x0800ecba   0x0800ecba   0x00000002   PAD
+    0x0800ecbc   0x0800ecbc   0x00000038   Code   RO           18    i.proto_init_from_main  main.o
+    0x0800ecf4   0x0800ecf4   0x00000004   Code   RO           19    i.proto_time_now    main.o
+    0x0800ecf8   0x0800ecf8   0x00000070   Code   RO         6982    i.prvAddCurrentTaskToDelayedList  tasks.o
+    0x0800ed68   0x0800ed68   0x000000d0   Code   RO         6983    i.prvAddNewTaskToReadyList  tasks.o
+    0x0800ee38   0x0800ee38   0x00000034   Code   RO         6984    i.prvDeleteTCB      tasks.o
+    0x0800ee6c   0x0800ee6c   0x00000050   Code   RO         7673    i.prvHeapInit       heap_4.o
+    0x0800eebc   0x0800eebc   0x00000060   Code   RO         6985    i.prvIdleTask       tasks.o
+    0x0800ef1c   0x0800ef1c   0x0000009a   Code   RO         6986    i.prvInitialiseNewTask  tasks.o
+    0x0800efb6   0x0800efb6   0x00000002   PAD
+    0x0800efb8   0x0800efb8   0x0000004c   Code   RO         7674    i.prvInsertBlockIntoFreeList  heap_4.o
+    0x0800f004   0x0800f004   0x00000020   Code   RO         6987    i.prvResetNextTaskUnblockTime  tasks.o
+    0x0800f024   0x0800f024   0x00000028   Code   RO         7742    i.prvTaskExitError  port.o
+    0x0800f04c   0x0800f04c   0x000000dc   Code   RO         7675    i.pvPortMalloc      heap_4.o
+    0x0800f128   0x0800f128   0x00000030   Code   RO         7743    i.pxPortInitialiseStack  port.o
+    0x0800f158   0x0800f158   0x0000009a   Code   RO         9893    i.sbus_to_rc        remote_control.o
+    0x0800f1f2   0x0800f1f2   0x00000002   PAD
+    0x0800f1f4   0x0800f1f4   0x00000034   Code   RO         8594    i.service_task      service_task.o
+    0x0800f228   0x0800f228   0x000000dc   Code   RO         9132    i.setup_channels    comm_app.o
+    0x0800f304   0x0800f304   0x00000200   Code   RO         8621    i.shoot_task_control_friction  shoot_task.o
+    0x0800f504   0x0800f504   0x0000001c   Code   RO         8622    i.shoot_task_current_a_to_input_torque_nm  shoot_task.o
+    0x0800f520   0x0800f520   0x0000004c   Code   RO         8623    i.shoot_task_current_ma_to_esc_cmd  shoot_task.o
+    0x0800f56c   0x0800f56c   0x0000000c   Code   RO         8624    i.shoot_task_init   shoot_task.o
+    0x0800f578   0x0800f578   0x000000a8   Code   RO         8625    i.shoot_task_init_control  shoot_task.o
+    0x0800f620   0x0800f620   0x00000028   Code   RO         8626    i.shoot_task_limit_current_a  shoot_task.o
+    0x0800f648   0x0800f648   0x0000002c   Code   RO         8627    i.shoot_task_loop   shoot_task.o
+    0x0800f674   0x0800f674   0x0000002c   Code   RO         8628    i.shoot_task_motor_apply_feedforward  shoot_task.o
+    0x0800f6a0   0x0800f6a0   0x00000028   Code   RO         8629    i.shoot_task_motor_calc  shoot_task.o
+    0x0800f6c8   0x0800f6c8   0x00000044   Code   RO         8630    i.shoot_task_motor_finalize_current  shoot_task.o
+    0x0800f70c   0x0800f70c   0x00000024   Code   RO         8631    i.shoot_task_motor_hot_reset  shoot_task.o
+    0x0800f730   0x0800f730   0x00000098   Code   RO         8632    i.shoot_task_motor_init  shoot_task.o
+    0x0800f7c8   0x0800f7c8   0x0000001c   Code   RO         8633    i.shoot_task_motor_ready  shoot_task.o
+    0x0800f7e4   0x0800f7e4   0x00000018   Code   RO         8634    i.shoot_task_motor_reset  shoot_task.o
+    0x0800f7fc   0x0800f7fc   0x00000038   Code   RO         8635    i.shoot_task_motor_should_trigger_feedforward  shoot_task.o
+    0x0800f834   0x0800f834   0x00000050   Code   RO         8636    i.shoot_task_motor_update_current_physics  shoot_task.o
+    0x0800f884   0x0800f884   0x00000058   Code   RO         8637    i.shoot_task_send_friction_current  shoot_task.o
+    0x0800f8dc   0x0800f8dc   0x00000054   Code   RO         8638    i.shoot_task_set_mode  shoot_task.o
+    0x0800f930   0x0800f930   0x000000a0   Code   RO         8639    i.shoot_task_stop_friction  shoot_task.o
+    0x0800f9d0   0x0800f9d0   0x0000009c   Code   RO         8640    i.shoot_task_update_feedback  shoot_task.o
+    0x0800fa6c   0x0800fa6c   0x0000001e   Code   RO         8641    i.shoot_task_update_history  shoot_task.o
+    0x0800fa8a   0x0800fa8a   0x00000002   PAD
+    0x0800fa8c   0x0800fa8c   0x00000024   Code   RO         9133    i.stream_on_rx      comm_app.o
+    0x0800fab0   0x0800fab0   0x0000000c   Code   RO         9134    i.sync_now_us       comm_app.o
+    0x0800fabc   0x0800fabc   0x00000020   Code   RO         9961    i.tim24_timebase_init  bsp_tim24.o
+    0x0800fadc   0x0800fadc   0x00000038   Code   RO         9962    i.tim24_timebase_now_us  bsp_tim24.o
+    0x0800fb14   0x0800fb14   0x00000010   Code   RO         9963    i.tim24_timebase_on_overflow  bsp_tim24.o
+    0x0800fb24   0x0800fb24   0x000000a4   Code   RO         9557    i.time_sync_channel_init  time_sync_channel.o
+    0x0800fbc8   0x0800fbc8   0x00000032   Code   RO         9558    i.time_sync_channel_init_ex  time_sync_channel.o
+    0x0800fbfa   0x0800fbfa   0x00000022   Code   RO         9559    i.time_sync_channel_now_us  time_sync_channel.o
+    0x0800fc1c   0x0800fc1c   0x00000028   Code   RO         9656    i.uint_to_float     bsp_fdcan.o
+    0x0800fc44   0x0800fc44   0x00000020   Code   RO         8905    i.uproto_complete_transaction  uproto.o
+    0x0800fc64   0x0800fc64   0x0000008e   Code   RO         8906    i.uproto_decode_frame  uproto.o
+    0x0800fcf2   0x0800fcf2   0x00000092   Code   RO         8907    i.uproto_encode_frame  uproto.o
+    0x0800fd84   0x0800fd84   0x00000030   Code   RO         8908    i.uproto_find_transaction  uproto.o
+    0x0800fdb4   0x0800fdb4   0x0000000c   Code   RO         8909    i.uproto_fire_event  uproto.o
+    0x0800fdc0   0x0800fdc0   0x00000134   Code   RO         8911    i.uproto_handle_frame  uproto.o
+    0x0800fef4   0x0800fef4   0x0000005c   Code   RO         8912    i.uproto_init       uproto.o
+    0x0800ff50   0x0800ff50   0x0000000c   Code   RO         8914    i.uproto_now        uproto.o
+    0x0800ff5c   0x0800ff5c   0x00000040   Code   RO         8915    i.uproto_on_rx_bytes  uproto.o
+    0x0800ff9c   0x0800ff9c   0x000000dc   Code   RO         8916    i.uproto_process_rx_buffer  uproto.o
+    0x08010078   0x08010078   0x00000048   Code   RO         8917    i.uproto_register_handler  uproto.o
+    0x080100c0   0x080100c0   0x0000005e   Code   RO         8918    i.uproto_send_frame  uproto.o
+    0x0801011e   0x0801011e   0x0000001c   Code   RO         8919    i.uproto_send_notify  uproto.o
+    0x0801013a   0x0801013a   0x000000cc   Code   RO         8920    i.uproto_send_request  uproto.o
+    0x08010206   0x08010206   0x00000002   PAD
+    0x08010208   0x08010208   0x00000100   Code   RO         8923    i.uproto_tick       uproto.o
+    0x08010308   0x08010308   0x0000000c   Code   RO         9307    i.usb_cdc_port_bind_uproto  usb_cdc_port.o
+    0x08010314   0x08010314   0x00000002   Code   RO         9308    i.usb_cdc_port_flush  usb_cdc_port.o
+    0x08010316   0x08010316   0x00000006   Code   RO         9309    i.usb_cdc_port_get_mtu  usb_cdc_port.o
+    0x0801031c   0x0801031c   0x00000024   Code   RO         9310    i.usb_cdc_port_get_ops  usb_cdc_port.o
+    0x08010340   0x08010340   0x00000020   Code   RO         9312    i.usb_cdc_port_on_rx  usb_cdc_port.o
+    0x08010360   0x08010360   0x00000048   Code   RO         9313    i.usb_cdc_port_write  usb_cdc_port.o
+    0x080103a8   0x080103a8   0x00000020   Code   RO        10651    i.usb_tx_read_pos   usbd_cdc_if.o
+    0x080103c8   0x080103c8   0x00000026   Code   RO         6618    i.uxListRemove      list.o
+    0x080103ee   0x080103ee   0x00000002   PAD
+    0x080103f0   0x080103f0   0x00000018   Code   RO          351    i.vApplicationGetIdleTaskMemory  freertos.o
+    0x08010408   0x08010408   0x00000016   Code   RO         6619    i.vListInitialise   list.o
+    0x0801041e   0x0801041e   0x00000006   Code   RO         6620    i.vListInitialiseItem  list.o
+    0x08010424   0x08010424   0x00000030   Code   RO         6621    i.vListInsert       list.o
+    0x08010454   0x08010454   0x00000018   Code   RO         6622    i.vListInsertEnd    list.o
+    0x0801046c   0x0801046c   0x00000040   Code   RO         7745    i.vPortEnterCritical  port.o
+    0x080104ac   0x080104ac   0x00000028   Code   RO         7746    i.vPortExitCritical  port.o
+    0x080104d4   0x080104d4   0x00000064   Code   RO         7676    i.vPortFree         heap_4.o
+    0x08010538   0x08010538   0x00000024   Code   RO         7747    i.vPortSetupTimerInterrupt  port.o
+    0x0801055c   0x0801055c   0x0000004c   Code   RO         6996    i.vTaskDelay        tasks.o
+    0x080105a8   0x080105a8   0x0000008c   Code   RO         6997    i.vTaskDelayUntil   tasks.o
+    0x08010634   0x08010634   0x0000006c   Code   RO         7010    i.vTaskStartScheduler  tasks.o
+    0x080106a0   0x080106a0   0x00000010   Code   RO         7012    i.vTaskSuspendAll   tasks.o
+    0x080106b0   0x080106b0   0x0000005c   Code   RO         7013    i.vTaskSwitchContext  tasks.o
+    0x0801070c   0x0801070c   0x00000008   Code   RO         8924    i.write_u16_le      uproto.o
+    0x08010714   0x08010714   0x00000038   Code   RO         7826    i.ws2812_task       safewarning.o
+    0x0801074c   0x0801074c   0x000000f4   Code   RO         7749    i.xPortStartScheduler  port.o
+    0x08010840   0x08010840   0x0000005a   Code   RO         7016    i.xTaskCreate       tasks.o
+    0x0801089a   0x0801089a   0x00000056   Code   RO         7017    i.xTaskCreateStatic  tasks.o
+    0x080108f0   0x080108f0   0x0000000c   Code   RO         7022    i.xTaskGetTickCount  tasks.o
+    0x080108fc   0x080108fc   0x000000cc   Code   RO         7024    i.xTaskIncrementTick  tasks.o
+    0x080109c8   0x080109c8   0x000000c4   Code   RO         7030    i.xTaskResumeAll    tasks.o
+    0x08010a8c   0x08010a8c   0x0000000a   Code   RO        17925    x$fpl$fpinit        fz_wv.l(fpinit.o)
+    0x08010a96   0x08010a96   0x00000000   Code   RO        17779    x$fpl$usenofp       fz_wv.l(usenofp.o)
+    0x08010a96   0x08010a96   0x00000002   PAD
+    0x08010a98   0x08010a98   0x00000020   Data   RO           21    .constdata          main.o
+    0x08010ab8   0x08010ab8   0x00000038   Data   RO          353    .constdata          freertos.o
+    0x08010af0   0x08010af0   0x00000008   Data   RO         3218    .constdata          stm32h7xx_hal_dma.o
+    0x08010af8   0x08010af8   0x0000005c   Data   RO         5095    .constdata          stm32h7xx_hal_fdcan.o
+    0x08010b54   0x08010b54   0x00000018   Data   RO         6011    .constdata          stm32h7xx_hal_uart.o
+    0x08010b6c   0x08010b6c   0x00000010   Data   RO         6377    .constdata          stm32h7xx_hal_uart_ex.o
+    0x08010b7c   0x08010b7c   0x00000010   Data   RO         6482    .constdata          system_stm32h7xx.o
+    0x08010b8c   0x08010b8c   0x00000064   Data   RO         7828    .constdata          safewarning.o
+    0x08010bf0   0x08010bf0   0x0000001c   Data   RO         8481    .constdata          gimbal_task.o
+    0x08010c0c   0x08010c0c   0x0000001c   Data   RO         8595    .constdata          service_task.o
+    0x08010c28   0x08010c28   0x00000074   Data   RO         9136    .constdata          comm_app.o
+    0x08010c9c   0x08010c9c   0x00000020   Data   RO         9389    .constdata          gimbal_channel.o
+    0x08010cbc   0x08010cbc   0x00000018   Data   RO         9488    .constdata          camera_channel.o
+    0x08010cd4   0x08010cd4   0x0000000c   Data   RO         9562    .constdata          time_sync_channel.o
+    0x08010ce0   0x08010ce0   0x00000300   Data   RO        10387    .constdata          crc8_crc16.o
+    0x08010fe0   0x08010fe0   0x00000140   Data   RO        17707    .constdata          m_wv.l(powf.o)
+    0x08011120   0x08011120   0x00000020   Data   RO        17816    .constdata          m_wv.l(rredf.o)
+    0x08011140   0x08011140   0x00000015   Data   RO          354    .conststring        freertos.o
+    0x08011155   0x08011155   0x00000003   PAD
+    0x08011158   0x08011158   0x0000000b   Data   RO         8482    .conststring        gimbal_task.o
+    0x08011163   0x08011163   0x00000001   PAD
+    0x08011164   0x08011164   0x0000000c   Data   RO         8596    .conststring        service_task.o
+    0x08011170   0x08011170   0x00000009   Data   RO         9137    .conststring        comm_app.o
+    0x08011179   0x08011179   0x00000003   PAD
+    0x0801117c   0x0801117c   0x00000020   Data   RO        17981    Region$$Table       anon$$obj.o
 
 
-    Execution Region RW_IRAM1 (Exec base: 0x20000000, Load base: 0x08011198, Size: 0x00000000, Max: 0x00020000, ABSOLUTE)
+    Execution Region RW_IRAM1 (Exec base: 0x20000000, Load base: 0x0801119c, Size: 0x00000000, Max: 0x00020000, ABSOLUTE)
 
     **** No section assigned to this execution region ****
 
 
-    Execution Region RW_IRAM2 (Exec base: 0x24000000, Load base: 0x08011198, Size: 0x00009b68, Max: 0x00050000, ABSOLUTE, COMPRESSED[0x000000e8])
+    Execution Region RW_IRAM2 (Exec base: 0x24000000, Load base: 0x0801119c, Size: 0x00009b68, Max: 0x00050000, ABSOLUTE, COMPRESSED[0x000000e8])
 
     Exec Addr    Load Addr    Size         Type   Attr      Idx    E Section Name        Object
 
@@ -8606,10 +8606,10 @@ Image component sizes
        132          0          0          0          0       4676   usbd_ioreq.o
         36          8          0         28          0       1285   vofa.o
        156          6          0          0          0        890   ws2812.o
-      2050        188          0         36          0      13442   yaw_pitch_direct.o
+      2054        192          0         36          0      13442   yaw_pitch_direct.o
 
     ----------------------------------------------------------------------
-     63650       3852       2160        648      39036    2004075   Object Totals
+     63654       3856       2160        648      39036    2004075   Object Totals
          0          0         32          0          0          0   (incl. Generated)
         86          0          7         10          2          0   (incl. Padding)
 
@@ -8676,15 +8676,15 @@ Image component sizes
 
       Code (inc. data)   RO Data    RW Data    ZI Data      Debug   
 
-     67528       4174       2512        648      39136    1946963   Grand Totals
-     67528       4174       2512        232      39136    1946963   ELF Image Totals (compressed)
-     67528       4174       2512        232          0          0   ROM Totals
+     67532       4178       2512        648      39136    1946963   Grand Totals
+     67532       4178       2512        232      39136    1946963   ELF Image Totals (compressed)
+     67532       4178       2512        232          0          0   ROM Totals
 
 ==============================================================================
 
-    Total RO  Size (Code + RO Data)                70040 (  68.40kB)
+    Total RO  Size (Code + RO Data)                70044 (  68.40kB)
     Total RW  Size (RW Data + ZI Data)             39784 (  38.85kB)
-    Total ROM Size (Code + RO Data + RW Data)      70272 (  68.63kB)
+    Total ROM Size (Code + RO Data + RW Data)      70276 (  68.63kB)
 
 ==============================================================================
 

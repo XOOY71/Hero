@@ -47,9 +47,9 @@ extern "C" {
 #define YAW_ENCODE_RELATIVE_PID_MAX_IOUT   0.0f
 
 /* ========================= 云台前馈与输出配置 ========================= */
-#define YAW_REF_VEL_FILTER_ALPHA           0.001f  // yaw 目标角差分速度低通系数，越小前馈越平滑
+#define YAW_REF_VEL_FILTER_ALPHA           0.0005f  // yaw 目标角差分速度低通系数，越小前馈越平滑
 #define YAW_REF_ACCEL_LIMIT                100.0f // yaw 惯量前馈参考加速度限幅，防止遥控输入跳变产生力矩尖峰
-#define PITCH_RELATIVE_SPEED_FILTER_ALPHA  0.1f  // pitch 编码器差分速度低通系数
+#define PITCH_RELATIVE_SPEED_FILTER_ALPHA  0.02f  // pitch 编码器差分速度低通系数
 #define YAW_VELOCITY_FF_GAIN               0.000f   // yaw velocity feedforward gain, N*m/(rad/s)
 #define PITCH_VELOCITY_FF_GAIN             0.24f  // pitch 速度前馈系数，单位 N*m/(rad/s)
 
