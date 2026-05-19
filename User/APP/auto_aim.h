@@ -14,7 +14,7 @@
 /* Software default switch: 1 boots auto-aim enabled, 0 boots disabled.
  * The existing RC key toggle still changes aim.auto_aim_flag at runtime. */
 #ifndef AUTO_AIM_SOFT_ENABLE
-#define AUTO_AIM_SOFT_ENABLE 1
+#define AUTO_AIM_SOFT_ENABLE 0
 #endif
 
 /* uproto tick ownership: prefer comm_app task to tick protocol. */

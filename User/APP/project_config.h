@@ -26,17 +26,17 @@ extern "C" {
 #define PITCH_GYRO_ABSOLUTE_PID_MAX_IOUT   0.0f
 
 /* yaw 轴陀螺仪绝对角控制 PID */
-#define YAW_GYRO_ABSOLUTE_PID_KP           4.0f
+#define YAW_GYRO_ABSOLUTE_PID_KP           8.0f
 #define YAW_GYRO_ABSOLUTE_PID_KI           0.0f
-#define YAW_GYRO_ABSOLUTE_PID_KD           0.24f
-#define YAW_GYRO_ABSOLUTE_PID_MAX_OUT      3.0f
+#define YAW_GYRO_ABSOLUTE_PID_KD           0.64f
+#define YAW_GYRO_ABSOLUTE_PID_MAX_OUT      2.0f
 #define YAW_GYRO_ABSOLUTE_PID_MAX_IOUT     0.0f
 
 /* pitch 轴编码器相对角控制 PID */
-#define PITCH_ENCODE_RELATIVE_PID_KP       5.8f
+#define PITCH_ENCODE_RELATIVE_PID_KP       8.8f
 #define PITCH_ENCODE_RELATIVE_PID_KI       0.0f
-#define PITCH_ENCODE_RELATIVE_PID_KD       0.6f
-#define PITCH_ENCODE_RELATIVE_PID_MAX_OUT  3.0f
+#define PITCH_ENCODE_RELATIVE_PID_KD       0.66f
+#define PITCH_ENCODE_RELATIVE_PID_MAX_OUT  2.0f
 #define PITCH_ENCODE_RELATIVE_PID_MAX_IOUT 0.0f
 
 /* yaw 轴编码器相对角控制 PID */

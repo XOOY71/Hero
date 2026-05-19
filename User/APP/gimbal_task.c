@@ -179,26 +179,14 @@ static void gimbal_task(void const *pvParameters)
         gimbal_send_cmd(&gimbal_control);
         shoot_task_loop();
 
-        /* VOFA 通道说明：
-         * ch0：pitch 实际位置角，单位 rad
-         * ch1：pitch 目标位置角，单位 rad
-         * ch2：pitch 编码器差分速度，单位 rad/s
-         * ch3：pitch PID 输出力矩，单位 N*m
-         * ch4：pitch 前馈输出力矩，单位 N*m
-         * ch5：pitch 最终输出力矩，单位 N*m
-         */
-        VOFA_Send6(gimbal_control.gimbal_pitch_motor.relative_angle,
-                   gimbal_control.gimbal_pitch_motor.relative_angle_set,
-                   gimbal_control.gimbal_pitch_motor.relative_speed,
-                   gimbal_control.gimbal_pitch_motor.pid_torque,
-                   gimbal_control.gimbal_pitch_motor.ff_torque,
-                   gimbal_control.gimbal_pitch_motor.given_current);
-//        VOFA_Send6(gimbal_control.gimbal_yaw_motor.relative_angle,
-//                   gimbal_control.gimbal_yaw_motor.relative_angle_set,
-//                   gimbal_control.gimbal_yaw_motor.gyro,
-//                   gimbal_control.gimbal_yaw_motor.gyro_accel,
-//                   gimbal_control.gimbal_yaw_motor.ff_torque,
-//                   gimbal_control.gimbal_yaw_motor.given_current);
+        /* VOFA channels: fric1/2/3 actual rpm, fric1/2/3 target rpm. */
+        VOFA_Send6(shoot_task_control.fric1.speed_rpm,
+                   shoot_task_control.fric2.speed_rpm,
+                   shoot_task_control.fric3.speed_rpm,
+                   shoot_task_control.fric1.speed_mps,
+                   shoot_task_control.fric2.speed_mps,
+                   shoot_task_control.fric3.speed_mps);
+
         vTaskDelayUntil(&last_wake_time, GIMBAL_CONTROL_TIME);
     }
 }
