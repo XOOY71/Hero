@@ -57,6 +57,7 @@ typedef struct
     float ref_accel;                 // 前馈轨迹参考加速度
     float pid_torque;                // PID 反馈输出力矩
     float ff_torque;                 // 惯量前馈输出力矩
+    float static_friction_comp;      // 静摩擦补偿输出力矩
     float inertia_kgm2;              // 转动惯量参数 J，单位 kg*m^2
 
     float raw_cmd;                   // RAW 模式下直接输出命令

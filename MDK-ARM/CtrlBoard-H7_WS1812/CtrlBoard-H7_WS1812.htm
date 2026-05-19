@@ -3,7 +3,7 @@
 <title>Static Call Graph - [CtrlBoard-H7_WS1812\CtrlBoard-H7_WS1812.axf]</title></head>
 <body><HR>
 <H1>Static Call Graph for image CtrlBoard-H7_WS1812\CtrlBoard-H7_WS1812.axf</H1><HR>
-<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 5060528: Last Updated: Wed May 20 05:35:05 2026
+<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 5060528: Last Updated: Wed May 20 05:55:09 2026
 <BR><P>
 <H3>Maximum Stack Usage =        940 bytes + Unknown(Functions without stacksize, Cycles, Untraceable Function Pointers)</H3><H3>
 Call chain for Maximum Stack Depth:</H3>
@@ -4053,7 +4053,7 @@ Global Symbols
 </UL>
 
 <P><STRONG><a name="[2b7]"></a>gimbal_control_loop</STRONG> (Thumb, 90 bytes, Stack size 8 bytes, yaw_pitch_direct.o(i.gimbal_control_loop))
-<BR><BR>[Stack]<UL><LI>Max Depth = 56<LI>Call Chain = gimbal_control_loop &rArr; gimbal_motor_absolute_angle_control &rArr; gimbal_calc_feedback_torque
+<BR><BR>[Stack]<UL><LI>Max Depth = 72<LI>Call Chain = gimbal_control_loop &rArr; gimbal_motor_absolute_angle_control &rArr; gimbal_calc_feedback_torque &rArr; gimbal_update_static_friction_comp
 </UL>
 <BR>[Calls]<UL><LI><a href="#[2ba]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;gimbal_motor_relative_angle_control
 <LI><a href="#[2b8]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;gimbal_motor_raw_angle_control
@@ -4109,7 +4109,7 @@ Global Symbols
 </UL>
 
 <P><STRONG><a name="[2b9]"></a>gimbal_motor_absolute_angle_control</STRONG> (Thumb, 114 bytes, Stack size 24 bytes, gimbal_task.o(i.gimbal_motor_absolute_angle_control))
-<BR><BR>[Stack]<UL><LI>Max Depth = 48<LI>Call Chain = gimbal_motor_absolute_angle_control &rArr; gimbal_calc_feedback_torque
+<BR><BR>[Stack]<UL><LI>Max Depth = 64<LI>Call Chain = gimbal_motor_absolute_angle_control &rArr; gimbal_calc_feedback_torque &rArr; gimbal_update_static_friction_comp
 </UL>
 <BR>[Calls]<UL><LI><a href="#[2c6]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;gimbal_wrap_angle
 <LI><a href="#[2bf]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;gimbal_float_to_torque_cmd
@@ -4120,7 +4120,7 @@ Global Symbols
 <BR>[Called By]<UL><LI><a href="#[2b7]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;gimbal_control_loop
 </UL>
 
-<P><STRONG><a name="[2b8]"></a>gimbal_motor_raw_angle_control</STRONG> (Thumb, 40 bytes, Stack size 8 bytes, gimbal_task.o(i.gimbal_motor_raw_angle_control))
+<P><STRONG><a name="[2b8]"></a>gimbal_motor_raw_angle_control</STRONG> (Thumb, 44 bytes, Stack size 8 bytes, gimbal_task.o(i.gimbal_motor_raw_angle_control))
 <BR><BR>[Stack]<UL><LI>Max Depth = 8<LI>Call Chain = gimbal_motor_raw_angle_control
 </UL>
 <BR>[Calls]<UL><LI><a href="#[2bf]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;gimbal_float_to_torque_cmd
@@ -4129,7 +4129,7 @@ Global Symbols
 </UL>
 
 <P><STRONG><a name="[2ba]"></a>gimbal_motor_relative_angle_control</STRONG> (Thumb, 90 bytes, Stack size 16 bytes, gimbal_task.o(i.gimbal_motor_relative_angle_control))
-<BR><BR>[Stack]<UL><LI>Max Depth = 40<LI>Call Chain = gimbal_motor_relative_angle_control &rArr; gimbal_calc_feedback_torque
+<BR><BR>[Stack]<UL><LI>Max Depth = 56<LI>Call Chain = gimbal_motor_relative_angle_control &rArr; gimbal_calc_feedback_torque &rArr; gimbal_update_static_friction_comp
 </UL>
 <BR>[Calls]<UL><LI><a href="#[2c6]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;gimbal_wrap_angle
 <LI><a href="#[2bf]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;gimbal_float_to_torque_cmd
@@ -5149,21 +5149,21 @@ Local Symbols
 </UL>
 
 <P><STRONG><a name="[2af]"></a>gimbal_calc_angle_speed_torque</STRONG> (Thumb, 136 bytes, Stack size 16 bytes, gimbal_task.o(i.gimbal_calc_angle_speed_torque))
-<BR><BR>[Stack]<UL><LI>Max Depth = 16<LI>Call Chain = gimbal_calc_angle_speed_torque
+<BR><BR>[Stack]<UL><LI>Max Depth = 32<LI>Call Chain = gimbal_calc_angle_speed_torque &rArr; gimbal_update_static_friction_comp
 </UL>
-<BR>[Calls]<UL><LI><a href="#[2a3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;gimbal_clamp
-<LI><a href="#[2b0]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;gimbal_calc_static_friction_comp
+<BR>[Calls]<UL><LI><a href="#[2b0]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;gimbal_update_static_friction_comp
+<LI><a href="#[2a3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;gimbal_clamp
 </UL>
 <BR>[Called By]<UL><LI><a href="#[2ba]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;gimbal_motor_relative_angle_control
 <LI><a href="#[2b9]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;gimbal_motor_absolute_angle_control
 </UL>
 
-<P><STRONG><a name="[2b1]"></a>gimbal_calc_feedback_torque</STRONG> (Thumb, 80 bytes, Stack size 24 bytes, gimbal_task.o(i.gimbal_calc_feedback_torque))
-<BR><BR>[Stack]<UL><LI>Max Depth = 24<LI>Call Chain = gimbal_calc_feedback_torque
+<P><STRONG><a name="[2b1]"></a>gimbal_calc_feedback_torque</STRONG> (Thumb, 82 bytes, Stack size 24 bytes, gimbal_task.o(i.gimbal_calc_feedback_torque))
+<BR><BR>[Stack]<UL><LI>Max Depth = 40<LI>Call Chain = gimbal_calc_feedback_torque &rArr; gimbal_update_static_friction_comp
 </UL>
 <BR>[Calls]<UL><LI><a href="#[2b2]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;gimbal_pid_calc
+<LI><a href="#[2b0]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;gimbal_update_static_friction_comp
 <LI><a href="#[2a3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;gimbal_clamp
-<LI><a href="#[2b0]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;gimbal_calc_static_friction_comp
 </UL>
 <BR>[Called By]<UL><LI><a href="#[2ba]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;gimbal_motor_relative_angle_control
 <LI><a href="#[2b9]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;gimbal_motor_absolute_angle_control
@@ -5174,13 +5174,9 @@ Local Symbols
 <LI><a href="#[2b9]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;gimbal_motor_absolute_angle_control
 </UL>
 
-<P><STRONG><a name="[2b0]"></a>gimbal_calc_static_friction_comp</STRONG> (Thumb, 56 bytes, Stack size 0 bytes, gimbal_task.o(i.gimbal_calc_static_friction_comp))
-<BR><BR>[Called By]<UL><LI><a href="#[2b1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;gimbal_calc_feedback_torque
-<LI><a href="#[2af]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;gimbal_calc_angle_speed_torque
-</UL>
-
 <P><STRONG><a name="[2a3]"></a>gimbal_clamp</STRONG> (Thumb, 32 bytes, Stack size 0 bytes, gimbal_task.o(i.gimbal_clamp))
 <BR><BR>[Called By]<UL><LI><a href="#[2a2]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;gimbal_absolute_angle_limit
+<LI><a href="#[2b0]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;gimbal_update_static_friction_comp
 <LI><a href="#[2bf]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;gimbal_float_to_torque_cmd
 <LI><a href="#[2b1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;gimbal_calc_feedback_torque
 <LI><a href="#[2af]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;gimbal_calc_angle_speed_torque
@@ -5214,6 +5210,15 @@ Local Symbols
 </UL>
 <BR>[Address Reference Count : 1]<UL><LI> gimbal_task.o(.constdata)
 </UL>
+<P><STRONG><a name="[2b0]"></a>gimbal_update_static_friction_comp</STRONG> (Thumb, 144 bytes, Stack size 16 bytes, gimbal_task.o(i.gimbal_update_static_friction_comp))
+<BR><BR>[Stack]<UL><LI>Max Depth = 16<LI>Call Chain = gimbal_update_static_friction_comp
+</UL>
+<BR>[Calls]<UL><LI><a href="#[2a3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;gimbal_clamp
+</UL>
+<BR>[Called By]<UL><LI><a href="#[2b1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;gimbal_calc_feedback_torque
+<LI><a href="#[2af]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;gimbal_calc_angle_speed_torque
+</UL>
+
 <P><STRONG><a name="[2c6]"></a>gimbal_wrap_angle</STRONG> (Thumb, 40 bytes, Stack size 0 bytes, gimbal_task.o(i.gimbal_wrap_angle))
 <BR><BR>[Called By]<UL><LI><a href="#[2ba]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;gimbal_motor_relative_angle_control
 <LI><a href="#[2b9]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;gimbal_motor_absolute_angle_control
