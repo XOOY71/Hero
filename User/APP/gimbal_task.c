@@ -17,6 +17,7 @@
 #include <math.h>
 #include <stddef.h>
 #include "vofa.h"
+#include "hwt_imu.h"
 
 gimbal_control_t gimbal_control;
 
@@ -65,13 +66,13 @@ static void gimbal_task(void const *pvParameters)
         gimbal_send_cmd(&gimbal_control);
         shoot_task_loop();
 
-        /* VOFA channels: fric1/2/3 rpm, fric1/2/3 input torque from feedback current. */
-        VOFA_Send6(shoot_task_control.fric1.speed_rpm,
-                   shoot_task_control.fric2.speed_rpm,
-                   shoot_task_control.fric3.speed_rpm,
-                   shoot_task_control.fric1.give_current,
-                   shoot_task_control.fric2.give_current,
-                   shoot_task_control.fric3.give_current);
+        /* VOFA ch0: pitch encoder speed, ch1: pitch gyro speed, ch2: HWT pitch-axis gyro speed, ch3: yaw gyro speed. Unit: rad/s. */
+        VOFA_Send6(gimbal_control.gimbal_pitch_motor.relative_speed,
+                   gimbal_control.gimbal_pitch_motor.gyro,
+                   hwt906_get_gimbal_gyro_point()[HWT_AXIS_PITCH],
+                   gimbal_control.gimbal_yaw_motor.gyro,
+                   0.0f,
+                   0.0f);
 
         vTaskDelayUntil(&last_wake_time, GIMBAL_CONTROL_TIME);
     }
