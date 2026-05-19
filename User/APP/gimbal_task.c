@@ -52,6 +52,10 @@ static float gimbal_calc_feedforward(gimbal_motor_t *motor);
 static float gimbal_calc_feedback_torque(gimbal_motor_t *motor, gimbal_pid_t *angle_pid, float angle_get, float angle_set);
 static float gimbal_calc_angle_speed_torque(gimbal_motor_t *motor, gimbal_pid_t *pid, float angle_error);
 static float gimbal_calc_yaw_angle_speed_torque(gimbal_motor_t *motor, float angle_error);
+void gimbal_vofa_send_fric(void);
+void gimbal_vofa_send_yaw(void);
+void gimbal_vofa_send_pitch(void);
+void gimbal_vofa_send_yaw_pitch_half(void);
 
 void GimbalTask_Init(void)
 {
@@ -81,13 +85,7 @@ static void gimbal_task(void const *pvParameters)
         gimbal_send_cmd(&gimbal_control);
         shoot_task_loop();
 
-        /* VOFA ch0-2: pitch set/angle/static_ff, ch3-5: yaw set/angle/static_ff. */
-        VOFA_Send6(gimbal_control.gimbal_pitch_motor.relative_angle_set,
-                   gimbal_control.gimbal_pitch_motor.relative_angle,
-                   gimbal_control.gimbal_pitch_motor.static_friction_comp,
-                   gimbal_control.gimbal_yaw_motor.relative_angle_set,
-                   gimbal_control.gimbal_yaw_motor.relative_angle,
-                   gimbal_control.gimbal_yaw_motor.static_friction_comp);
+        gimbal_vofa_send_fric();
 
         vTaskDelayUntil(&last_wake_time, GIMBAL_CONTROL_TIME);
     }
@@ -402,4 +400,51 @@ static float gimbal_calc_yaw_angle_speed_torque(gimbal_motor_t *motor, float ang
     }
 
     return gimbal_calc_angle_speed_torque(motor, &motor->absolute_angle_pid, angle_error);
+}
+
+void gimbal_vofa_send_fric(void)
+{
+    VOFA_Send6(shoot_task_control.fric1.speed_rpm,
+               shoot_task_control.fric2.speed_rpm,
+               shoot_task_control.fric3.speed_rpm,
+               shoot_task_control.fric1.give_current_a,
+               shoot_task_control.fric2.give_current_a,
+               shoot_task_control.fric3.give_current_a);
+}
+
+void gimbal_vofa_send_yaw(void)
+{
+    const gimbal_motor_t *yaw = &gimbal_control.gimbal_yaw_motor;
+
+    VOFA_Send6(yaw->relative_angle_set,
+               yaw->relative_angle,
+               yaw->absolute_angle_set,
+               yaw->absolute_angle,
+               yaw->gyro,
+               yaw->current_set);
+}
+
+void gimbal_vofa_send_pitch(void)
+{
+    const gimbal_motor_t *pitch = &gimbal_control.gimbal_pitch_motor;
+
+    VOFA_Send6(pitch->relative_angle_set,
+               pitch->relative_angle,
+               pitch->absolute_angle_set,
+               pitch->absolute_angle,
+               pitch->gyro,
+               pitch->current_set);
+}
+
+void gimbal_vofa_send_yaw_pitch_half(void)
+{
+    const gimbal_motor_t *yaw = &gimbal_control.gimbal_yaw_motor;
+    const gimbal_motor_t *pitch = &gimbal_control.gimbal_pitch_motor;
+
+    VOFA_Send6(yaw->relative_angle_set,
+               yaw->relative_angle,
+               yaw->static_friction_comp,
+               pitch->relative_angle_set,
+               pitch->relative_angle,
+               pitch->static_friction_comp);
 }

@@ -73,8 +73,8 @@ extern "C" {
 #define RC_DEADBAND                        10         // 遥控器死区
 #define YAW_RC_SEN                         -0.000005f // yaw 遥控灵敏度
 #define PITCH_RC_SEN                       -0.000006f // pitch 遥控灵敏度
-#define YAW_MOUSE_SEN                      0.00006f   // yaw 鼠标灵敏度
-#define PITCH_MOUSE_SEN                    -0.00006f  // pitch 鼠标灵敏度
+#define YAW_MOUSE_SEN                      0.000006f   // yaw 鼠标灵敏度
+#define PITCH_MOUSE_SEN                    -0.000006f  // pitch 鼠标灵敏度
 #define YAW_ENCODE_SEN                     0.01f      // yaw 编码器模式输入灵敏度
 #define PITCH_ENCODE_SEN                   0.01f      // pitch 编码器模式输入灵敏度
 
