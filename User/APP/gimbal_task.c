@@ -302,14 +302,7 @@ static float gimbal_calc_angle_speed_torque(gimbal_motor_t *motor, gimbal_pid_t 
     }
 
     motor->gyro_set = motor->ref_vel;
-    if (motor == &gimbal_control.gimbal_pitch_motor)
-    {
-        speed_error = motor->gyro_set - motor->relative_speed;
-    }
-    else
-    {
-        speed_error = motor->gyro_set - motor->gyro;
-    }
+    speed_error = motor->gyro_set - motor->gyro;
 
     pid->set = angle_error;
     pid->fdb = 0.0f;

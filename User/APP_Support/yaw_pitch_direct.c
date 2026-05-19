@@ -458,6 +458,7 @@ void gimbal_feedback_update(gimbal_control_t *control)
     float pitch_gyro_last = 0.0f;
     float relative_speed_cmd = 0.0f;
     float relative_speed_alpha = 0.0f;
+    const float *imu_gyro = hwt906_get_gimbal_gyro_point();
     const float control_dt = (float)GIMBAL_CONTROL_TIME * 0.001f;
 
     if (control == 0)
@@ -553,7 +554,7 @@ void gimbal_feedback_update(gimbal_control_t *control)
         control->gimbal_yaw_motor.gyro =
             control->gimbal_INT_gyro_point[INS_GYRO_Z_ADDRESS_OFFSET];
         control->gimbal_pitch_motor.gyro =
-            control->gimbal_INT_gyro_point[INS_GYRO_Y_ADDRESS_OFFSET];
+            imu_gyro[HWT_AXIS_PITCH];
 
         if (control->gimbal_yaw_motor.gyro_update_init == 0u)
         {

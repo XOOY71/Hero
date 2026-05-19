@@ -14,8 +14,8 @@ extern "C" {
 #define HWT_TYPE_GYRO       ((uint8_t)0x52)
 #define HWT_TYPE_ANGLE      ((uint8_t)0x53)
 
-#define HWT_AXIS_ROLL       1u
-#define HWT_AXIS_PITCH      0u
+#define HWT_AXIS_ROLL       0u
+#define HWT_AXIS_PITCH      1u
 #define HWT_AXIS_YAW        2u
 
 /* 云台角度数组索引：
