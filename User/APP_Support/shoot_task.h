@@ -70,11 +70,11 @@
  * OUTPUT_RATE_LIMIT 越大，电流爬升越快；太大时电流尖峰更明显
  */
 #ifndef SHOOT_FRIC1_B0
-#define SHOOT_FRIC1_B0 12000.0f
+#define SHOOT_FRIC1_B0 10000.0f
 #endif
 
 #ifndef SHOOT_FRIC1_RESPONSE_TIME_S
-#define SHOOT_FRIC1_RESPONSE_TIME_S 0.01469442f
+#define SHOOT_FRIC1_RESPONSE_TIME_S 0.01269442f
 #endif
 
 #ifndef SHOOT_FRIC1_OBSERVER_RATIO
@@ -82,16 +82,16 @@
 #endif
 
 #ifndef SHOOT_FRIC1_OUTPUT_RATE_LIMIT
-#define SHOOT_FRIC1_OUTPUT_RATE_LIMIT 300
+#define SHOOT_FRIC1_OUTPUT_RATE_LIMIT 1000
 #endif
 
 /* ========================= fric2 ADRC 参数 ========================= */
 #ifndef SHOOT_FRIC2_B0
-#define SHOOT_FRIC2_B0 12000.0f
+#define SHOOT_FRIC2_B0 10000.0f
 #endif
 
 #ifndef SHOOT_FRIC2_RESPONSE_TIME_S
-#define SHOOT_FRIC2_RESPONSE_TIME_S 0.01469442f
+#define SHOOT_FRIC2_RESPONSE_TIME_S 0.01269442f
 #endif
 
 #ifndef SHOOT_FRIC2_OBSERVER_RATIO
@@ -99,16 +99,16 @@
 #endif
 
 #ifndef SHOOT_FRIC2_OUTPUT_RATE_LIMIT
-#define SHOOT_FRIC2_OUTPUT_RATE_LIMIT 300
+#define SHOOT_FRIC2_OUTPUT_RATE_LIMIT 1000
 #endif
 
 /* ========================= fric3 ADRC 参数 ========================= */
 #ifndef SHOOT_FRIC3_B0
-#define SHOOT_FRIC3_B0 12000.0f
+#define SHOOT_FRIC3_B0 10000.0f
 #endif
 
 #ifndef SHOOT_FRIC3_RESPONSE_TIME_S
-#define SHOOT_FRIC3_RESPONSE_TIME_S 0.01469442f
+#define SHOOT_FRIC3_RESPONSE_TIME_S 0.01269442f
 #endif
 
 #ifndef SHOOT_FRIC3_OBSERVER_RATIO
@@ -116,7 +116,7 @@
 #endif
 
 #ifndef SHOOT_FRIC3_OUTPUT_RATE_LIMIT
-#define SHOOT_FRIC3_OUTPUT_RATE_LIMIT 300
+#define SHOOT_FRIC3_OUTPUT_RATE_LIMIT 1000
 #endif
 
 /* ========================= ADRC 非线性项配置 ========================= */
@@ -138,7 +138,7 @@
 #endif
 
 #ifndef SHOOT_FRIC1_FF_TRIGGER_DROP_RPM
-#define SHOOT_FRIC1_FF_TRIGGER_DROP_RPM 300.0f // fric1 单拍掉速触发阈值
+#define SHOOT_FRIC1_FF_TRIGGER_DROP_RPM 300.0f // fric1 2拍掉速触发阈值
 #endif
 
 #ifndef SHOOT_FRIC1_FF_MIN_SPEED_RATIO
@@ -146,11 +146,11 @@
 #endif
 
 #ifndef SHOOT_FRIC1_FF_CURRENT
-#define SHOOT_FRIC1_FF_CURRENT 1.5f        // fric1 固定前馈电流，单位 A
+#define SHOOT_FRIC1_FF_CURRENT 3.2f        // fric1 固定前馈电流，单位 A
 #endif
 
 #ifndef SHOOT_FRIC1_FF_DURATION_MS
-#define SHOOT_FRIC1_FF_DURATION_MS 22U     // fric1 前馈持续时间，单位 ms
+#define SHOOT_FRIC1_FF_DURATION_MS 50U     // fric1 前馈持续时间，单位 ms
 #endif
 
 #ifndef SHOOT_FRIC1_FF_COOLDOWN_MS
@@ -158,7 +158,7 @@
 #endif
 
 #ifndef SHOOT_FRIC2_FF_TRIGGER_DROP_RPM
-#define SHOOT_FRIC2_FF_TRIGGER_DROP_RPM 300.0f // fric2 单拍掉速触发阈值
+#define SHOOT_FRIC2_FF_TRIGGER_DROP_RPM 300.0f // fric2 2拍掉速触发阈值
 #endif
 
 #ifndef SHOOT_FRIC2_FF_MIN_SPEED_RATIO
@@ -166,11 +166,11 @@
 #endif
 
 #ifndef SHOOT_FRIC2_FF_CURRENT
-#define SHOOT_FRIC2_FF_CURRENT 1.5f        // fric2 固定前馈电流，单位 A
+#define SHOOT_FRIC2_FF_CURRENT 3.2f        // fric2 固定前馈电流，单位 A
 #endif
 
 #ifndef SHOOT_FRIC2_FF_DURATION_MS
-#define SHOOT_FRIC2_FF_DURATION_MS 22U     // fric2 前馈持续时间，单位 ms
+#define SHOOT_FRIC2_FF_DURATION_MS 50U     // fric2 前馈持续时间，单位 ms
 #endif
 
 #ifndef SHOOT_FRIC2_FF_COOLDOWN_MS
@@ -178,7 +178,7 @@
 #endif
 
 #ifndef SHOOT_FRIC3_FF_TRIGGER_DROP_RPM
-#define SHOOT_FRIC3_FF_TRIGGER_DROP_RPM 300.0f // fric3 单拍掉速触发阈值
+#define SHOOT_FRIC3_FF_TRIGGER_DROP_RPM 400.0f // fric3 2拍掉速触发阈值
 #endif
 
 #ifndef SHOOT_FRIC3_FF_MIN_SPEED_RATIO
@@ -186,11 +186,11 @@
 #endif
 
 #ifndef SHOOT_FRIC3_FF_CURRENT
-#define SHOOT_FRIC3_FF_CURRENT 1        // fric3 固定前馈电流，单位 A
+#define SHOOT_FRIC3_FF_CURRENT 3.2f        // fric3 固定前馈电流，单位 A
 #endif
 
 #ifndef SHOOT_FRIC3_FF_DURATION_MS
-#define SHOOT_FRIC3_FF_DURATION_MS 22U     // fric3 前馈持续时间，单位 ms
+#define SHOOT_FRIC3_FF_DURATION_MS 50U     // fric3 前馈持续时间，单位 ms
 #endif
 
 #ifndef SHOOT_FRIC3_FF_COOLDOWN_MS
@@ -224,10 +224,11 @@ typedef struct
     float speed_mps;
     float speed_set_rpm;
     float last_speed_rpm;
+    float prev_speed_rpm;
     float direction;
     uint16_t ff_ticks;
     uint16_t ff_cooldown_ticks;
-    int16_t ff_current;              // 前馈补偿电流，单位 A
+    float ff_current;                // 前馈补偿电流，单位 A
     int16_t give_current;            // 最终发送给电机的电流，单位 mA
     int16_t given_current;           // 电机反馈中的电流原始值
     float give_current_a;

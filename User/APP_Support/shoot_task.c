@@ -606,15 +606,18 @@ static bool shoot_task_motor_should_trigger_feedforward(const shoot_task_motor_t
     (void)min_speed_ratio;
     return false;
 #else
-    const float min_speed = SHOOT_FRIC_TARGET_SPEED_RPM * min_speed_ratio;
-    const float speed_drop = motor->last_speed_rpm - motor->speed_rpm;
+    float min_speed;
+    float speed_drop;
 
     if (motor == NULL)
     {
         return false;
     }
 
-    return ((motor->last_speed_rpm >= min_speed) &&
+    min_speed = SHOOT_FRIC_TARGET_SPEED_RPM * min_speed_ratio;
+    speed_drop = motor->prev_speed_rpm - motor->speed_rpm;
+
+    return ((motor->prev_speed_rpm >= min_speed) &&
             (speed_drop >= trigger_drop_rpm));
 #endif
 }
@@ -644,6 +647,9 @@ static void shoot_task_update_history(shoot_task_control_t *control)
         return;
     }
 
+    control->fric1.prev_speed_rpm = control->fric1.last_speed_rpm;
+    control->fric2.prev_speed_rpm = control->fric2.last_speed_rpm;
+    control->fric3.prev_speed_rpm = control->fric3.last_speed_rpm;
     control->fric1.last_speed_rpm = control->fric1.speed_rpm;
     control->fric2.last_speed_rpm = control->fric2.speed_rpm;
     control->fric3.last_speed_rpm = control->fric3.speed_rpm;

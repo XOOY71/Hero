@@ -69,9 +69,9 @@ static void gimbal_task(void const *pvParameters)
         VOFA_Send6(shoot_task_control.fric1.speed_rpm,
                    shoot_task_control.fric2.speed_rpm,
                    shoot_task_control.fric3.speed_rpm,
-                   shoot_task_control.fric1.given_input_torque_nm,
-                   shoot_task_control.fric2.given_input_torque_nm,
-                   shoot_task_control.fric3.given_input_torque_nm);
+                   shoot_task_control.fric1.give_current,
+                   shoot_task_control.fric2.give_current,
+                   shoot_task_control.fric3.give_current);
 
         vTaskDelayUntil(&last_wake_time, GIMBAL_CONTROL_TIME);
     }
