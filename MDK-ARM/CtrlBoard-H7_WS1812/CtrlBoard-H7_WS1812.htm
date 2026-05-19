@@ -3,7 +3,7 @@
 <title>Static Call Graph - [CtrlBoard-H7_WS1812\CtrlBoard-H7_WS1812.axf]</title></head>
 <body><HR>
 <H1>Static Call Graph for image CtrlBoard-H7_WS1812\CtrlBoard-H7_WS1812.axf</H1><HR>
-<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 5060528: Last Updated: Wed May 20 04:37:44 2026
+<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 5060528: Last Updated: Wed May 20 05:02:37 2026
 <BR><P>
 <H3>Maximum Stack Usage =        940 bytes + Unknown(Functions without stacksize, Cycles, Untraceable Function Pointers)</H3><H3>
 Call chain for Maximum Stack Depth:</H3>
@@ -791,12 +791,12 @@ Global Symbols
 <LI><a href="#[2f4]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;uproto_init
 <LI><a href="#[1dd]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;MX_FREERTOS_Init
 <LI><a href="#[2e6]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;proto_init_from_main
-<LI><a href="#[e7]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__rt_memcpy
 <LI><a href="#[2b4]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;gimbal_channel_publish
 <LI><a href="#[2b2]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;gimbal_channel_init
 <LI><a href="#[287]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;setup_channels
 <LI><a href="#[c9]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;gimbal_on_fire
 <LI><a href="#[ca]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;gimbal_on_chassis
+<LI><a href="#[e7]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__rt_memcpy
 </UL>
 
 <P><STRONG><a name="[359]"></a>__aeabi_memcpy8</STRONG> (Thumb, 0 bytes, Stack size 8 bytes, rt_memcpy_w.o(.text), UNUSED)
@@ -833,12 +833,12 @@ Global Symbols
 <LI><a href="#[267]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ch_uproto_bind
 <LI><a href="#[313]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;shoot_task_motor_init
 <LI><a href="#[312]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;shoot_task_init_control
+<LI><a href="#[31c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;time_sync_channel_init
+<LI><a href="#[2b2]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;gimbal_channel_init
 <LI><a href="#[1c7]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_UART_ErrorCallback
 <LI><a href="#[1c0]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_UARTEx_RxEventCallback
 <LI><a href="#[179]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_PCD_MspInit
 <LI><a href="#[10]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_CDC_Init
-<LI><a href="#[31c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;time_sync_channel_init
-<LI><a href="#[2b2]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;gimbal_channel_init
 </UL>
 
 <P><STRONG><a name="[35d]"></a>__aeabi_memclr8</STRONG> (Thumb, 0 bytes, Stack size 4 bytes, rt_memclr_w.o(.text), UNUSED)
@@ -1514,10 +1514,10 @@ Global Symbols
 <LI><a href="#[242]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;auto_aim_apply_delta_udeg
 <LI><a href="#[307]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;shoot_task_control_friction
 <LI><a href="#[243]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;auto_aim_control_tick_internal
+<LI><a href="#[cd]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;comm_app_task
 <LI><a href="#[1c1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;sbus_to_rc
 <LI><a href="#[29e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;fdcan2_receive
 <LI><a href="#[299]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;fdcan1_receive
-<LI><a href="#[cd]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;comm_app_task
 </UL>
 
 <P><STRONG><a name="[1bc]"></a>HAL_IncTick</STRONG> (Thumb, 12 bytes, Stack size 0 bytes, stm32h7xx_hal.o(i.HAL_IncTick))
@@ -2759,9 +2759,9 @@ Global Symbols
 </UL>
 
 <P><STRONG><a name="[10c]"></a>USBD_CDC_SetTxBuffer</STRONG> (Thumb, 30 bytes, Stack size 0 bytes, usbd_cdc.o(i.USBD_CDC_SetTxBuffer))
-<BR><BR>[Called By]<UL><LI><a href="#[f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;CDC_TransmitCplt_HS
+<BR><BR>[Called By]<UL><LI><a href="#[112]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;CDC_Transmit_HS
+<LI><a href="#[f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;CDC_TransmitCplt_HS
 <LI><a href="#[b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;CDC_Init_HS
-<LI><a href="#[112]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;CDC_Transmit_HS
 </UL>
 
 <P><STRONG><a name="[111]"></a>USBD_CDC_TransmitPacket</STRONG> (Thumb, 76 bytes, Stack size 8 bytes, usbd_cdc.o(i.USBD_CDC_TransmitPacket))
@@ -2769,8 +2769,8 @@ Global Symbols
 </UL>
 <BR>[Calls]<UL><LI><a href="#[206]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_LL_Transmit
 </UL>
-<BR>[Called By]<UL><LI><a href="#[f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;CDC_TransmitCplt_HS
-<LI><a href="#[112]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;CDC_Transmit_HS
+<BR>[Called By]<UL><LI><a href="#[112]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;CDC_Transmit_HS
+<LI><a href="#[f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;CDC_TransmitCplt_HS
 </UL>
 
 <P><STRONG><a name="[229]"></a>USBD_ClrClassConfig</STRONG> (Thumb, 20 bytes, Stack size 8 bytes, usbd_core.o(i.USBD_ClrClassConfig))
@@ -4031,9 +4031,9 @@ Global Symbols
 <BR><BR>[Stack]<UL><LI>Max Depth = 160<LI>Call Chain = gimbal_channel_publish &rArr; ch_uproto_queue_notify
 </UL>
 <BR>[Calls]<UL><LI><a href="#[25e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ch_uproto_queue_notify
-<LI><a href="#[e8]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_memcpy4
 <LI><a href="#[291]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;comm_write_u64_le
 <LI><a href="#[2b5]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;comm_write_i32_le
+<LI><a href="#[e8]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_memcpy4
 </UL>
 <BR>[Called By]<UL><LI><a href="#[cf]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;on_tick
 </UL>
@@ -4429,7 +4429,7 @@ Global Symbols
 </UL>
 
 <P><STRONG><a name="[2e6]"></a>proto_init_from_main</STRONG> (Thumb, 48 bytes, Stack size 56 bytes, main.o(i.proto_init_from_main))
-<BR><BR>[Stack]<UL><LI>Max Depth = 88<LI>Call Chain = proto_init_from_main &rArr; uproto_init &rArr; __aeabi_memcpy4
+<BR><BR>[Stack]<UL><LI>Max Depth = 88<LI>Call Chain = proto_init_from_main &rArr; uproto_init &rArr; platform_memset
 </UL>
 <BR>[Calls]<UL><LI><a href="#[2f3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;usb_cdc_port_get_ops
 <LI><a href="#[2f4]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;uproto_init
@@ -4543,10 +4543,10 @@ Global Symbols
 </UL>
 
 <P><STRONG><a name="[2f4]"></a>uproto_init</STRONG> (Thumb, 92 bytes, Stack size 24 bytes, uproto.o(i.uproto_init))
-<BR><BR>[Stack]<UL><LI>Max Depth = 32<LI>Call Chain = uproto_init &rArr; __aeabi_memcpy4
+<BR><BR>[Stack]<UL><LI>Max Depth = 32<LI>Call Chain = uproto_init &rArr; platform_memset
 </UL>
-<BR>[Calls]<UL><LI><a href="#[e8]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_memcpy4
-<LI><a href="#[258]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;platform_memset
+<BR>[Calls]<UL><LI><a href="#[258]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;platform_memset
+<LI><a href="#[e8]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_memcpy4
 </UL>
 <BR>[Called By]<UL><LI><a href="#[2e6]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;proto_init_from_main
 </UL>
@@ -5720,17 +5720,17 @@ Local Symbols
 </UL>
 <BR>[Calls]<UL><LI><a href="#[275]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;get_yaw_motor_point
 <LI><a href="#[276]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;get_pitch_motor_point
-<LI><a href="#[274]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;get_INS_angle_point
 <LI><a href="#[b9]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;sync_now_us
+<LI><a href="#[274]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;get_INS_angle_point
 </UL>
 <BR>[Address Reference Count : 1]<UL><LI> comm_app.o(.constdata)
 </UL>
 <P><STRONG><a name="[ca]"></a>gimbal_on_chassis</STRONG> (Thumb, 44 bytes, Stack size 8 bytes, comm_app.o(i.gimbal_on_chassis))
-<BR><BR>[Stack]<UL><LI>Max Depth = 16<LI>Call Chain = gimbal_on_chassis &rArr; __aeabi_memcpy4
+<BR><BR>[Stack]<UL><LI>Max Depth = 16<LI>Call Chain = gimbal_on_chassis &rArr; sync_now_us &rArr; time_sync_channel_now_us
 </UL>
-<BR>[Calls]<UL><LI><a href="#[e8]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_memcpy4
-<LI><a href="#[b9]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;sync_now_us
+<BR>[Calls]<UL><LI><a href="#[b9]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;sync_now_us
 <LI><a href="#[28c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;comm_autoaim_enabled
+<LI><a href="#[e8]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_memcpy4
 </UL>
 <BR>[Address Reference Count : 1]<UL><LI> comm_app.o(.constdata)
 </UL>
@@ -5742,11 +5742,11 @@ Local Symbols
 <BR>[Address Reference Count : 1]<UL><LI> comm_app.o(.constdata)
 </UL>
 <P><STRONG><a name="[c9]"></a>gimbal_on_fire</STRONG> (Thumb, 130 bytes, Stack size 24 bytes, comm_app.o(i.gimbal_on_fire))
-<BR><BR>[Stack]<UL><LI>Max Depth = 32<LI>Call Chain = gimbal_on_fire &rArr; __aeabi_memcpy4
+<BR><BR>[Stack]<UL><LI>Max Depth = 32<LI>Call Chain = gimbal_on_fire &rArr; sync_now_us &rArr; time_sync_channel_now_us
 </UL>
-<BR>[Calls]<UL><LI><a href="#[e8]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_memcpy4
-<LI><a href="#[b9]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;sync_now_us
+<BR>[Calls]<UL><LI><a href="#[b9]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;sync_now_us
 <LI><a href="#[28c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;comm_autoaim_enabled
+<LI><a href="#[e8]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_memcpy4
 </UL>
 <BR>[Address Reference Count : 1]<UL><LI> comm_app.o(.constdata)
 </UL>
@@ -5760,10 +5760,10 @@ Local Symbols
 <LI><a href="#[285]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;chmgr_init
 <LI><a href="#[25a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;channel_init
 <LI><a href="#[25b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;channel_bind_transport
-<LI><a href="#[e8]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_memcpy4
 <LI><a href="#[306]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;time_sync_channel_init_ex
 <LI><a href="#[2b3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;gimbal_channel_init_ex
 <LI><a href="#[257]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;camera_channel_init_ex
+<LI><a href="#[e8]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_memcpy4
 </UL>
 <BR>[Called By]<UL><LI><a href="#[cd]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;comm_app_task
 </UL>
@@ -5879,11 +5879,11 @@ Local Symbols
 <BR><BR>[Stack]<UL><LI>Max Depth = 88<LI>Call Chain = on_rx &rArr; ch_uproto_queue_notify
 </UL>
 <BR>[Calls]<UL><LI><a href="#[25e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ch_uproto_queue_notify
-<LI><a href="#[2ee]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_ldivmod
 <LI><a href="#[2eb]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;now_us
 <LI><a href="#[293]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;comm_write_u64_le
 <LI><a href="#[2ec]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;comm_write_u16_le
 <LI><a href="#[2ed]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;comm_read_u64_le
+<LI><a href="#[2ee]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_ldivmod
 </UL>
 <BR>[Address Reference Count : 1]<UL><LI> time_sync_channel.o(.constdata)
 </UL>
@@ -5997,9 +5997,9 @@ Local Symbols
 <P><STRONG><a name="[e]"></a>CDC_Receive_HS</STRONG> (Thumb, 32 bytes, Stack size 8 bytes, usbd_cdc_if.o(i.CDC_Receive_HS))
 <BR><BR>[Stack]<UL><LI>Max Depth = 72<LI>Call Chain = CDC_Receive_HS &rArr; USBD_CDC_ReceivePacket &rArr; USBD_LL_PrepareReceive &rArr; HAL_PCD_EP_Receive &rArr; USB_EPStartXfer &rArr; USB_WritePacket
 </UL>
-<BR>[Calls]<UL><LI><a href="#[10d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_CDC_SetRxBuffer
+<BR>[Calls]<UL><LI><a href="#[10e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;usb_cdc_port_on_rx
+<LI><a href="#[10d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_CDC_SetRxBuffer
 <LI><a href="#[10f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_CDC_ReceivePacket
-<LI><a href="#[10e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;usb_cdc_port_on_rx
 </UL>
 <BR>[Address Reference Count : 1]<UL><LI> usbd_cdc_if.o(.data)
 </UL>
