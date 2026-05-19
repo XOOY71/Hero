@@ -25,6 +25,13 @@ gimbal_control_t gimbal_control;
 #define GIMBAL_YAW_MIT_INDEX 0U
 #endif
 
+#ifndef GIMBAL_STATIC_FRICTION_COMP
+#define GIMBAL_STATIC_FRICTION_COMP 0.28f
+#endif
+#ifndef GIMBAL_STATIC_FRICTION_DEADBAND
+#define GIMBAL_STATIC_FRICTION_DEADBAND 0.001f
+#endif
+
 static osThreadId gimbalTaskHandle = NULL;
 
 static void gimbal_task(void const *pvParameters);
@@ -32,6 +39,7 @@ static void gimbal_task(void const *pvParameters);
 static float gimbal_wrap_angle(float angle);
 static float gimbal_take_auto_aim_bias(gimbal_motor_t *motor);
 static float gimbal_clamp(float value, float min_value, float max_value);
+static float gimbal_calc_static_friction_comp(float angle_error);
 static float gimbal_float_to_torque_cmd(float output);
 static float gimbal_calc_feedforward(gimbal_motor_t *motor);
 static float gimbal_calc_feedback_torque(gimbal_motor_t *motor, gimbal_pid_t *angle_pid, float angle_get, float angle_set);
@@ -66,13 +74,13 @@ static void gimbal_task(void const *pvParameters)
         gimbal_send_cmd(&gimbal_control);
         shoot_task_loop();
 
-        /* VOFA ch0-2: pitch set/pos/speed, ch3-5: yaw set/pos/speed. Position: rad, speed: rad/s. */
-        VOFA_Send6(gimbal_control.gimbal_pitch_motor.relative_angle_set,
-                   gimbal_control.gimbal_pitch_motor.relative_angle,
-                   gimbal_control.gimbal_pitch_motor.relative_speed,
-                   gimbal_control.gimbal_yaw_motor.relative_angle_set,
+        /* VOFA ch0-5: yaw set/pos/speed/accel/torque/ref_vel. */
+        VOFA_Send6(gimbal_control.gimbal_yaw_motor.relative_angle_set,
                    gimbal_control.gimbal_yaw_motor.relative_angle,
-                   gimbal_control.gimbal_yaw_motor.gyro);
+                   gimbal_control.gimbal_yaw_motor.gyro,
+                   gimbal_control.gimbal_yaw_motor.gyro_accel,
+                   gimbal_control.gimbal_yaw_motor.given_current,
+                   gimbal_control.gimbal_yaw_motor.ref_vel);
 
         vTaskDelayUntil(&last_wake_time, GIMBAL_CONTROL_TIME);
     }
@@ -251,6 +259,23 @@ static float gimbal_clamp(float value, float min_value, float max_value)
     return value;
 }
 
+static float gimbal_calc_static_friction_comp(float angle_error)
+{
+    if (fabsf(angle_error) <= GIMBAL_STATIC_FRICTION_DEADBAND)
+    {
+        return 0.0f;
+    }
+    if (angle_error > 0.0f)
+    {
+        return GIMBAL_STATIC_FRICTION_COMP;
+    }
+    if (angle_error < 0.0f)
+    {
+        return -GIMBAL_STATIC_FRICTION_COMP;
+    }
+    return 0.0f;
+}
+
 static float gimbal_float_to_torque_cmd(float output)
 {
     return gimbal_clamp(output, T_MIN, T_MAX);
@@ -278,6 +303,7 @@ static float gimbal_calc_feedforward(gimbal_motor_t *motor)
 static float gimbal_calc_feedback_torque(gimbal_motor_t *motor, gimbal_pid_t *angle_pid, float angle_get, float angle_set)
 {
     float angle_torque;
+    float angle_error;
 
     if (motor == 0 || angle_pid == 0)
     {
@@ -285,8 +311,12 @@ static float gimbal_calc_feedback_torque(gimbal_motor_t *motor, gimbal_pid_t *an
     }
 
     motor->gyro_set = motor->ref_vel;
+    angle_error = angle_set - angle_get;
     angle_torque = gimbal_pid_calc(angle_pid, angle_get, angle_set, 0.0f);
-    motor->pid_torque = angle_torque;
+    motor->pid_torque =
+        gimbal_clamp(angle_torque + gimbal_calc_static_friction_comp(angle_error),
+                     -angle_pid->max_out,
+                     angle_pid->max_out);
 
     return motor->pid_torque;
 }
@@ -313,7 +343,7 @@ static float gimbal_calc_angle_speed_torque(gimbal_motor_t *motor, gimbal_pid_t 
     pid->Iout = 0.0f;
     pid->Dout = pid->Kd * speed_error;
 
-    output = pid->Pout + pid->Dout;
+    output = pid->Pout + pid->Dout + gimbal_calc_static_friction_comp(angle_error);
     output = gimbal_clamp(output, -pid->max_out, pid->max_out);
     pid->out = output;
     motor->pid_torque = output;

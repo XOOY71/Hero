@@ -30,7 +30,7 @@ extern "C" {
 
 /* yaw 轴陀螺仪绝对角控制 PID */
 #define YAW_GYRO_ABSOLUTE_PID_KP           5.0f
-#define YAW_GYRO_ABSOLUTE_PID_KI           0.0f
+#define YAW_GYRO_ABSOLUTE_PID_KI           0.01f
 #define YAW_GYRO_ABSOLUTE_PID_KD           0.74f
 #define YAW_GYRO_ABSOLUTE_PID_MAX_OUT      2.0f
 #define YAW_GYRO_ABSOLUTE_PID_MAX_IOUT     0.0f
