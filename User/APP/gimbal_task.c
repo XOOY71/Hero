@@ -66,13 +66,13 @@ static void gimbal_task(void const *pvParameters)
         gimbal_send_cmd(&gimbal_control);
         shoot_task_loop();
 
-        /* VOFA ch0: pitch encoder speed, ch1: pitch gyro speed, ch2: HWT pitch-axis gyro speed, ch3: yaw gyro speed. Unit: rad/s. */
-        VOFA_Send6(gimbal_control.gimbal_pitch_motor.relative_speed,
-                   gimbal_control.gimbal_pitch_motor.gyro,
-                   hwt906_get_gimbal_gyro_point()[HWT_AXIS_PITCH],
-                   gimbal_control.gimbal_yaw_motor.gyro,
-                   0.0f,
-                   0.0f);
+        /* VOFA ch0-2: pitch set/pos/speed, ch3-5: yaw set/pos/speed. Position: rad, speed: rad/s. */
+        VOFA_Send6(gimbal_control.gimbal_pitch_motor.relative_angle_set,
+                   gimbal_control.gimbal_pitch_motor.relative_angle,
+                   gimbal_control.gimbal_pitch_motor.relative_speed,
+                   gimbal_control.gimbal_yaw_motor.relative_angle_set,
+                   gimbal_control.gimbal_yaw_motor.relative_angle,
+                   gimbal_control.gimbal_yaw_motor.gyro);
 
         vTaskDelayUntil(&last_wake_time, GIMBAL_CONTROL_TIME);
     }

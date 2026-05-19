@@ -3,7 +3,7 @@
 <title>Static Call Graph - [CtrlBoard-H7_WS1812\CtrlBoard-H7_WS1812.axf]</title></head>
 <body><HR>
 <H1>Static Call Graph for image CtrlBoard-H7_WS1812\CtrlBoard-H7_WS1812.axf</H1><HR>
-<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 5060528: Last Updated: Wed May 20 05:02:37 2026
+<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 5060528: Last Updated: Wed May 20 05:16:10 2026
 <BR><P>
 <H3>Maximum Stack Usage =        940 bytes + Unknown(Functions without stacksize, Cycles, Untraceable Function Pointers)</H3><H3>
 Call chain for Maximum Stack Depth:</H3>
@@ -4257,7 +4257,6 @@ Global Symbols
 
 <P><STRONG><a name="[2bb]"></a>hwt906_get_gimbal_gyro_point</STRONG> (Thumb, 4 bytes, Stack size 0 bytes, hwt_imu.o(i.hwt906_get_gimbal_gyro_point))
 <BR><BR>[Called By]<UL><LI><a href="#[2ba]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;gimbal_feedback_update
-<LI><a href="#[c3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;gimbal_task
 </UL>
 
 <P><STRONG><a name="[1c3]"></a>hwt906_rx_parse</STRONG> (Thumb, 20 bytes, Stack size 8 bytes, hwt_imu.o(i.hwt906_rx_parse))
@@ -5186,12 +5185,11 @@ Local Symbols
 <LI><a href="#[2b8]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;gimbal_motor_absolute_angle_control
 </UL>
 
-<P><STRONG><a name="[c3]"></a>gimbal_task</STRONG> (Thumb, 122 bytes, Stack size 16 bytes, gimbal_task.o(i.gimbal_task))
-<BR><BR>[Stack]<UL><LI>Max Depth = 220<LI>Call Chain = gimbal_task &rArr; shoot_task_loop &rArr; shoot_task_control_friction &rArr; shoot_task_stop_friction &rArr; shoot_task_send_friction_current &rArr; canx_send_data &rArr; HAL_FDCAN_AddMessageToTxFifoQ &rArr; FDCAN_CopyMessageToRAM
+<P><STRONG><a name="[c3]"></a>gimbal_task</STRONG> (Thumb, 110 bytes, Stack size 8 bytes, gimbal_task.o(i.gimbal_task))
+<BR><BR>[Stack]<UL><LI>Max Depth = 212<LI>Call Chain = gimbal_task &rArr; shoot_task_loop &rArr; shoot_task_control_friction &rArr; shoot_task_stop_friction &rArr; shoot_task_send_friction_current &rArr; canx_send_data &rArr; HAL_FDCAN_AddMessageToTxFifoQ &rArr; FDCAN_CopyMessageToRAM
 </UL>
 <BR>[Calls]<UL><LI><a href="#[2d5]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;shoot_task_loop
 <LI><a href="#[2d2]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;shoot_task_init
-<LI><a href="#[2bb]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;hwt906_get_gimbal_gyro_point
 <LI><a href="#[2d4]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;gravity_comp_execute
 <LI><a href="#[2d1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;gimbal_set_mode
 <LI><a href="#[2ce]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;gimbal_set_control

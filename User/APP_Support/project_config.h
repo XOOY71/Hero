@@ -38,7 +38,7 @@ extern "C" {
 /* pitch 轴编码器相对角控制 PID */
 #define PITCH_ENCODE_RELATIVE_PID_KP       8.8f
 #define PITCH_ENCODE_RELATIVE_PID_KI       0.0f
-#define PITCH_ENCODE_RELATIVE_PID_KD       0.66f
+#define PITCH_ENCODE_RELATIVE_PID_KD       0.70f
 #define PITCH_ENCODE_RELATIVE_PID_MAX_OUT  2.0f
 #define PITCH_ENCODE_RELATIVE_PID_MAX_IOUT 0.0f
 
