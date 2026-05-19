@@ -87,6 +87,7 @@ typedef struct
 /* 声明全局错误状态变量 */
 extern __IO CAN_ErrorStatus can_error_status;
 extern MITMeasure_t MIT_MOTOR_MEASURE[4];
+extern motor_measure_t CHASSIS_MOTOR_MEASURE[8];
 
 
 void bsp_can_init(void);
@@ -105,6 +106,9 @@ void fdcan3_rx_callback(void);
 //void fdcan3_rx_callback(void);
  uint8_t canx_send_data(FDCAN_HandleTypeDef *hcan, uint16_t id, uint8_t *data, uint32_t len);
 void CAN_cmd_MIT(FDCAN_HandleTypeDef *hcan,uint16_t id, float _pos, float _vel, float _KP, float _KD, float _torq);
+void CAN_cmd_CHAS_3508(int16_t motor1, int16_t motor2, int16_t motor3, int16_t motor4);
+void CAN_cmd_CHAS_6020(int16_t motor5, int16_t motor6, int16_t motor7, int16_t motor8);
+motor_measure_t *get_chassis_motor_measure_point(uint8_t i);
 void Motor_save_zero(FDCAN_HandleTypeDef *hcan, uint16_t id);
 void Motor_ENABLE(FDCAN_HandleTypeDef *hcan, uint16_t id);
 void Motor_MIT_MODE(FDCAN_HandleTypeDef *hcan, uint16_t id);

@@ -8,14 +8,5 @@ ctrlboard-h7_ws1812\commontables.o: D:\Keil5\ARM\ARMCC\Bin\..\include\string.h
 ctrlboard-h7_ws1812\commontables.o: D:\Keil5\ARM\ARMCC\Bin\..\include\math.h
 ctrlboard-h7_ws1812\commontables.o: D:\Keil5\ARM\ARMCC\Bin\..\include\float.h
 ctrlboard-h7_ws1812\commontables.o: D:\Keil5\ARM\ARMCC\Bin\..\include\limits.h
-ctrlboard-h7_ws1812\commontables.o: D:\Keil5\ARM\PACK\ARM\CMSIS-DSP\1.15.0\Include\arm_common_tables.h
-ctrlboard-h7_ws1812\commontables.o: D:\Keil5\ARM\PACK\ARM\CMSIS-DSP\1.15.0\Include\dsp/fast_math_functions.h
-ctrlboard-h7_ws1812\commontables.o: D:\Keil5\ARM\PACK\ARM\CMSIS-DSP\1.15.0\Include\arm_math_memory.h
-ctrlboard-h7_ws1812\commontables.o: D:\Keil5\ARM\PACK\ARM\CMSIS-DSP\1.15.0\Include\dsp/none.h
-ctrlboard-h7_ws1812\commontables.o: D:\Keil5\ARM\PACK\ARM\CMSIS-DSP\1.15.0\Include\dsp/utils.h
-ctrlboard-h7_ws1812\commontables.o: D:\Keil5\ARM\PACK\ARM\CMSIS-DSP\1.15.0\Include\dsp/basic_math_functions.h
-ctrlboard-h7_ws1812\commontables.o: D:/Keil5/ARM/PACK/ARM/CMSIS-DSP/1.15.0/Source/CommonTables/arm_const_structs.c
-ctrlboard-h7_ws1812\commontables.o: D:\Keil5\ARM\PACK\ARM\CMSIS-DSP\1.15.0\Include\arm_const_structs.h
-ctrlboard-h7_ws1812\commontables.o: D:\Keil5\ARM\PACK\ARM\CMSIS-DSP\1.15.0\Include\dsp/transform_functions.h
-ctrlboard-h7_ws1812\commontables.o: D:\Keil5\ARM\PACK\ARM\CMSIS-DSP\1.15.0\Include\dsp/complex_math_functions.h
-ctrlboard-h7_ws1812\commontables.o: D:/Keil5/ARM/PACK/ARM/CMSIS-DSP/1.15.0/Source/CommonTables/arm_mve_tables.c
+ctrlboard-h7_ws1812\commontables.o: ../User/Algorithm/Include/arm_common_tables.h
+ctrlboard-h7_ws1812\commontables.o: ../User/Algorithm/Include/arm_math.h

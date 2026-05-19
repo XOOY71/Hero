@@ -30,6 +30,8 @@
 #include "service_task.h"
 #include "auto_aim.h"
 #include "comm_app.h"
+#include "chassis_task.h"
+#include "detect_task.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -117,6 +119,10 @@ void MX_FREERTOS_Init(void) {
 	comm_app_start();
 	GimbalTask_Init();
 	ServiceTask_Init();
+	osThreadDef(detect, detect_task, osPriorityLow, 0, 128);
+	osThreadCreate(osThread(detect), NULL);
+	osThreadDef(chassis, chassis_task, osPriorityHigh, 0, 768);
+	osThreadCreate(osThread(chassis), NULL);
   /* USER CODE END RTOS_THREADS */
 
 }

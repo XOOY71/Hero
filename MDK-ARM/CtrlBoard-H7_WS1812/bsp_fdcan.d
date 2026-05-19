@@ -46,3 +46,6 @@ ctrlboard-h7_ws1812\bsp_fdcan.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_h
 ctrlboard-h7_ws1812\bsp_fdcan.o: ../Core/Inc/fdcan.h
 ctrlboard-h7_ws1812\bsp_fdcan.o: D:\Keil5\ARM\ARMCC\Bin\..\include\stdbool.h
 ctrlboard-h7_ws1812\bsp_fdcan.o: ../User/APP/project_config.h
+ctrlboard-h7_ws1812\bsp_fdcan.o: ../User/APP/detect_task.h
+ctrlboard-h7_ws1812\bsp_fdcan.o: ../User/APP/struct_typedef.h
+ctrlboard-h7_ws1812\bsp_fdcan.o: ../User/APP/pm01_api.h

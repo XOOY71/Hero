@@ -338,9 +338,9 @@
             <v6Rtti>0</v6Rtti>
             <VariousControls>
               <MiscControls></MiscControls>
-              <Define>USE_HAL_DRIVER,STM32H723xx,USE_PWR_LDO_SUPPLY</Define>
+              <Define>USE_HAL_DRIVER,STM32H723xx,USE_PWR_LDO_SUPPLY,ARM_MATH_CM7</Define>
               <Undefine></Undefine>
-              <IncludePath>../Core/Inc;../Drivers/STM32H7xx_HAL_Driver/Inc;../Drivers/STM32H7xx_HAL_Driver/Inc/Legacy;../Drivers/CMSIS/Device/ST/STM32H7xx/Include;../Drivers/CMSIS/Include;../Middlewares/Third_Party/FreeRTOS/Source/include;../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS;../Middlewares/Third_Party/FreeRTOS/Source/portable/RVDS/ARM_CM4F;../User/APP;../User/BSP;../User/Devices;../User/Algorithm;../User/Communication/core;../User/Communication/channel/gimbal;../User/Communication/channel/camera;../User/Communication/channel/time_sync;../User/Communication/example/device;../User/Communication/example/shared;../USB_DEVICE/App;../USB_DEVICE/Target;../Middlewares/ST/STM32_USB_Device_Library/Core/Inc;../Middlewares/ST/STM32_USB_Device_Library/Class/CDC/Inc</IncludePath>
+              <IncludePath>../Core/Inc;../Drivers/STM32H7xx_HAL_Driver/Inc;../Drivers/STM32H7xx_HAL_Driver/Inc/Legacy;../Drivers/CMSIS/Device/ST/STM32H7xx/Include;../Drivers/CMSIS/Include;../Middlewares/Third_Party/FreeRTOS/Source/include;../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS;../Middlewares/Third_Party/FreeRTOS/Source/portable/RVDS/ARM_CM4F;../User/APP;../User/BSP;../User/Devices;../User/Algorithm;../User/Algorithm/Include;../User/Communication/core;../User/Communication/channel/gimbal;../User/Communication/channel/camera;../User/Communication/channel/time_sync;../User/Communication/example/device;../User/Communication/example/shared;../USB_DEVICE/App;../USB_DEVICE/Target;../Middlewares/ST/STM32_USB_Device_Library/Core/Inc;../Middlewares/ST/STM32_USB_Device_Library/Class/CDC/Inc</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -1737,6 +1737,46 @@
               <FileType>1</FileType>
               <FilePath>..\User\APP\shoot_task.c</FilePath>
             </File>
+            <File>
+              <FileName>chassis_behaviour.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\User\APP\chassis_behaviour.c</FilePath>
+            </File>
+            <File>
+              <FileName>chassis_calculate.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\User\APP\chassis_calculate.c</FilePath>
+            </File>
+            <File>
+              <FileName>chassis_power_control.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\User\APP\chassis_power_control.c</FilePath>
+            </File>
+            <File>
+              <FileName>chassis_task.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\User\APP\chassis_task.c</FilePath>
+            </File>
+            <File>
+              <FileName>detect_task.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\User\APP\detect_task.c</FilePath>
+            </File>
+            <File>
+              <FileName>pm01_api.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\User\APP\pm01_api.c</FilePath>
+            </File>
+            <File>
+              <FileName>referee.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\User\APP\referee.c</FilePath>
+            </File>
+            <File>
+              <FileName>voltage_task.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\User\APP\voltage_task.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -1871,6 +1911,16 @@
               <FileName>pid.h</FileName>
               <FileType>5</FileType>
               <FilePath>..\User\Algorithm\pid.h</FilePath>
+            </File>
+            <File>
+              <FileName>user_lib.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\User\Algorithm\user_lib.c</FilePath>
+            </File>
+            <File>
+              <FileName>user_lib.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\User\Algorithm\user_lib.h</FilePath>
             </File>
           </Files>
         </Group>

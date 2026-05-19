@@ -18,7 +18,5 @@ ctrlboard-h7_ws1812\controllerfunctions.o: D:/Keil5/ARM/PACK/ARM/CMSIS-DSP/1.15.
 ctrlboard-h7_ws1812\controllerfunctions.o: D:/Keil5/ARM/PACK/ARM/CMSIS-DSP/1.15.0/Source/ControllerFunctions/arm_pid_reset_q15.c
 ctrlboard-h7_ws1812\controllerfunctions.o: D:/Keil5/ARM/PACK/ARM/CMSIS-DSP/1.15.0/Source/ControllerFunctions/arm_pid_reset_q31.c
 ctrlboard-h7_ws1812\controllerfunctions.o: D:/Keil5/ARM/PACK/ARM/CMSIS-DSP/1.15.0/Source/ControllerFunctions/arm_sin_cos_f32.c
-ctrlboard-h7_ws1812\controllerfunctions.o: D:\Keil5\ARM\PACK\ARM\CMSIS-DSP\1.15.0\Include\arm_common_tables.h
-ctrlboard-h7_ws1812\controllerfunctions.o: D:\Keil5\ARM\PACK\ARM\CMSIS-DSP\1.15.0\Include\dsp/fast_math_functions.h
-ctrlboard-h7_ws1812\controllerfunctions.o: D:\Keil5\ARM\PACK\ARM\CMSIS-DSP\1.15.0\Include\dsp/basic_math_functions.h
-ctrlboard-h7_ws1812\controllerfunctions.o: D:/Keil5/ARM/PACK/ARM/CMSIS-DSP/1.15.0/Source/ControllerFunctions/arm_sin_cos_q31.c
+ctrlboard-h7_ws1812\controllerfunctions.o: ../User/Algorithm/Include/arm_common_tables.h
+ctrlboard-h7_ws1812\controllerfunctions.o: ../User/Algorithm/Include/arm_math.h

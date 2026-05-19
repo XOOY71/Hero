@@ -33,4 +33,5 @@ ctrlboard-h7_ws1812\transformfunctionsf16.o: D:\Keil5\ARM\PACK\ARM\CMSIS-DSP\1.1
 ctrlboard-h7_ws1812\transformfunctionsf16.o: D:\Keil5\ARM\PACK\ARM\CMSIS-DSP\1.15.0\Include\dsp/complex_math_functions_f16.h
 ctrlboard-h7_ws1812\transformfunctionsf16.o: D:\Keil5\ARM\PACK\ARM\CMSIS-DSP\1.15.0\Include\dsp/matrix_functions_f16.h
 ctrlboard-h7_ws1812\transformfunctionsf16.o: D:/Keil5/ARM/PACK/ARM/CMSIS-DSP/1.15.0/Source/TransformFunctions/arm_cfft_radix2_init_f16.c
+ctrlboard-h7_ws1812\transformfunctionsf16.o: ../User/Algorithm/Include/arm_common_tables.h
 ctrlboard-h7_ws1812\transformfunctionsf16.o: D:/Keil5/ARM/PACK/ARM/CMSIS-DSP/1.15.0/Source/TransformFunctions/arm_cfft_radix4_init_f16.c

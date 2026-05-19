@@ -1,6 +1,8 @@
 #include "bsp_fdcan.h"
 #include "stdint.h"
 #include "project_config.h"
+#include "detect_task.h"
+#include "pm01_api.h"
 
 __IO CAN_t can = {0};
 __IO CAN_ErrorStatus can_error_status = CAN_ERROR_NONE;
@@ -23,6 +25,7 @@ uint8_t RS_MOTOR_MIT_MODE[8]={0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x02, 0xFD}; /
 // MIT 速度滤波缓冲（抑制近似正弦噪声）
 static float mit_vel_lpf[4] = {0.0f};
 motor_measure_t DJI_MOTOR_MEASURE[8];
+motor_measure_t CHASSIS_MOTOR_MEASURE[8];
 
 /*
   MIT 电机反馈帧结构体
@@ -314,12 +317,44 @@ uint8_t fdcan1_receive(hcan_t *hfdcan, uint16_t *rec_id, uint8_t *buf)
 
 	if(HAL_FDCAN_GetRxMessage(hfdcan, FDCAN_RX_FIFO0, &pRxHeader, buf) == HAL_OK)
 	{
+		uint32_t fdb_time = HAL_GetTick();
 		*rec_id = (uint16_t)pRxHeader.Identifier;
 
 		len = fdcan_dlc_to_len(pRxHeader.DataLength);
 		if(len > 8)
 		{
 			len = 8;
+		}
+
+		switch (pRxHeader.Identifier)
+		{
+			case 0x201:
+			case 0x202:
+			case 0x203:
+			case 0x204:
+			{
+				uint8_t motor_index = (uint8_t)(pRxHeader.Identifier - 0x201U);
+				get_motor_measure(&CHASSIS_MOTOR_MEASURE[motor_index], buf);
+				CHASSIS_MOTOR_MEASURE[motor_index].last_fdb_time = fdb_time;
+				detect_hook((uint8_t)(CHASSIS_MOTOR1_TOE + motor_index));
+				break;
+			}
+			case 0x600:
+			case 0x601:
+			case 0x602:
+			case 0x603:
+			case 0x610:
+			case 0x611:
+			case 0x612:
+			case 0x613:
+			{
+				pm01_response_handle((uint16_t)pRxHeader.Identifier, buf);
+				break;
+			}
+			default:
+			{
+				break;
+			}
 		}
 	}
 
@@ -376,6 +411,17 @@ uint8_t fdcan2_receive(hcan_t *hfdcan, uint16_t *rec_id, uint8_t *buf)
 				get_motor_measure(&DJI_MOTOR_MEASURE[can2_cnt], buf);
 
 				DJI_MOTOR_MEASURE[can2_cnt].last_fdb_time = fdb_time;
+				break;
+			}
+			case 0x205:
+			case 0x206:
+			case 0x207:
+			case 0x208:
+			{
+				uint8_t motor_index = (uint8_t)(pRxHeader.Identifier - 0x205U + 4U);
+				get_motor_measure(&CHASSIS_MOTOR_MEASURE[motor_index], buf);
+				CHASSIS_MOTOR_MEASURE[motor_index].last_fdb_time = fdb_time;
+				detect_hook((uint8_t)(CHASSIS_MOTOR1_TOE + motor_index));
 				break;
 			}
 
@@ -481,6 +527,43 @@ float _KP, float _KD, float _torq)
 	
 	canx_send_data(hcan, id , MOTOR_Data, 8);
  }
+
+void CAN_cmd_CHAS_3508(int16_t motor1, int16_t motor2, int16_t motor3, int16_t motor4)
+{
+	uint8_t data[8];
+
+	data[0] = (uint8_t)((uint16_t)motor1 >> 8);
+	data[1] = (uint8_t)motor1;
+	data[2] = (uint8_t)((uint16_t)motor2 >> 8);
+	data[3] = (uint8_t)motor2;
+	data[4] = (uint8_t)((uint16_t)motor3 >> 8);
+	data[5] = (uint8_t)motor3;
+	data[6] = (uint8_t)((uint16_t)motor4 >> 8);
+	data[7] = (uint8_t)motor4;
+
+	canx_send_data(&hfdcan1, 0x200U, data, 8U);
+}
+
+void CAN_cmd_CHAS_6020(int16_t motor5, int16_t motor6, int16_t motor7, int16_t motor8)
+{
+	uint8_t data[8];
+
+	data[0] = (uint8_t)((uint16_t)motor5 >> 8);
+	data[1] = (uint8_t)motor5;
+	data[2] = (uint8_t)((uint16_t)motor6 >> 8);
+	data[3] = (uint8_t)motor6;
+	data[4] = (uint8_t)((uint16_t)motor7 >> 8);
+	data[5] = (uint8_t)motor7;
+	data[6] = (uint8_t)((uint16_t)motor8 >> 8);
+	data[7] = (uint8_t)motor8;
+
+	canx_send_data(&hfdcan2, 0x1FEU, data, 8U);
+}
+
+motor_measure_t *get_chassis_motor_measure_point(uint8_t i)
+{
+	return &CHASSIS_MOTOR_MEASURE[i & 0x07U];
+}
  
  uint32_t g_can_fail_len = 0xFFFF; 
  uint8_t canx_send_data(FDCAN_HandleTypeDef *hcan, uint16_t id, uint8_t *data, uint32_t len)
