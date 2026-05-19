@@ -24,7 +24,7 @@
 
 /* ========================= 摩擦轮目标与保护配置 ========================= */
 #ifndef SHOOT_FRIC_TARGET_SPEED_RPM
-#define SHOOT_FRIC_TARGET_SPEED_RPM 3500  // 三路摩擦轮统一目标转速，单位 rpm
+#define SHOOT_FRIC_TARGET_SPEED_RPM 3502  // 三路摩擦轮统一目标转速，单位 rpm
 #endif
 
 #ifndef SHOOT_FRIC_WHEEL_RADIUS_M
@@ -70,7 +70,7 @@
  * OUTPUT_RATE_LIMIT 越大，电流爬升越快；太大时电流尖峰更明显
  */
 #ifndef SHOOT_FRIC1_B0
-#define SHOOT_FRIC1_B0 15000.0f
+#define SHOOT_FRIC1_B0 12000.0f
 #endif
 
 #ifndef SHOOT_FRIC1_RESPONSE_TIME_S
@@ -87,7 +87,7 @@
 
 /* ========================= fric2 ADRC 参数 ========================= */
 #ifndef SHOOT_FRIC2_B0
-#define SHOOT_FRIC2_B0 15000.0f
+#define SHOOT_FRIC2_B0 12000.0f
 #endif
 
 #ifndef SHOOT_FRIC2_RESPONSE_TIME_S
@@ -104,7 +104,7 @@
 
 /* ========================= fric3 ADRC 参数 ========================= */
 #ifndef SHOOT_FRIC3_B0
-#define SHOOT_FRIC3_B0 15000.0f
+#define SHOOT_FRIC3_B0 12000.0f
 #endif
 
 #ifndef SHOOT_FRIC3_RESPONSE_TIME_S
@@ -146,7 +146,7 @@
 #endif
 
 #ifndef SHOOT_FRIC1_FF_CURRENT
-#define SHOOT_FRIC1_FF_CURRENT 1        // fric1 固定前馈电流，单位 A
+#define SHOOT_FRIC1_FF_CURRENT 1.5f        // fric1 固定前馈电流，单位 A
 #endif
 
 #ifndef SHOOT_FRIC1_FF_DURATION_MS
@@ -166,7 +166,7 @@
 #endif
 
 #ifndef SHOOT_FRIC2_FF_CURRENT
-#define SHOOT_FRIC2_FF_CURRENT 1        // fric2 固定前馈电流，单位 A
+#define SHOOT_FRIC2_FF_CURRENT 1.5f        // fric2 固定前馈电流，单位 A
 #endif
 
 #ifndef SHOOT_FRIC2_FF_DURATION_MS

@@ -1,12 +1,13 @@
 #ifndef PROJECT_CONFIG_H
 #define PROJECT_CONFIG_H
 
-#define PI 3.14159265358979323846f
+
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
+#define PI 3.14159265358979323846f
 /* ========================= 机器人全局配置 ========================= */
 /* 代码运行模式 */
 #define debug   0
@@ -28,9 +29,9 @@ extern "C" {
 #define PITCH_GYRO_ABSOLUTE_PID_MAX_IOUT   0.0f
 
 /* yaw 轴陀螺仪绝对角控制 PID */
-#define YAW_GYRO_ABSOLUTE_PID_KP           8.0f
+#define YAW_GYRO_ABSOLUTE_PID_KP           5.0f
 #define YAW_GYRO_ABSOLUTE_PID_KI           0.0f
-#define YAW_GYRO_ABSOLUTE_PID_KD           0.64f
+#define YAW_GYRO_ABSOLUTE_PID_KD           0.74f
 #define YAW_GYRO_ABSOLUTE_PID_MAX_OUT      2.0f
 #define YAW_GYRO_ABSOLUTE_PID_MAX_IOUT     0.0f
 
