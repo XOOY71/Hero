@@ -1,9 +1,9 @@
-ctrlboard-h7_ws1812\gimbal_behaviour.o: ..\User\APP\gimbal_behaviour.c
-ctrlboard-h7_ws1812\gimbal_behaviour.o: ..\User\APP\gimbal_behaviour.h
+ctrlboard-h7_ws1812\gimbal_behaviour.o: ..\User\APP_Support\gimbal_behaviour.c
+ctrlboard-h7_ws1812\gimbal_behaviour.o: ..\User\APP_Support\gimbal_behaviour.h
 ctrlboard-h7_ws1812\gimbal_behaviour.o: D:\Keil5\ARM\ARMCC\Bin\..\include\stdbool.h
-ctrlboard-h7_ws1812\gimbal_behaviour.o: ..\User\APP\gimbal_task.h
+ctrlboard-h7_ws1812\gimbal_behaviour.o: ../User/APP/gimbal_task.h
 ctrlboard-h7_ws1812\gimbal_behaviour.o: D:\Keil5\ARM\ARMCC\Bin\..\include\stdint.h
-ctrlboard-h7_ws1812\gimbal_behaviour.o: ..\User\APP\project_config.h
+ctrlboard-h7_ws1812\gimbal_behaviour.o: ../User/APP_Support/project_config.h
 ctrlboard-h7_ws1812\gimbal_behaviour.o: ../User/BSP/remote_control.h
 ctrlboard-h7_ws1812\gimbal_behaviour.o: ../User/BSP/bsp_usart.h
 ctrlboard-h7_ws1812\gimbal_behaviour.o: ../Core/Inc/main.h

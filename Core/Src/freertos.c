@@ -32,6 +32,7 @@
 #include "comm_app.h"
 #include "chassis_task.h"
 #include "detect_task.h"
+#include "light_task.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -119,6 +120,7 @@ void MX_FREERTOS_Init(void) {
 	comm_app_start();
 	GimbalTask_Init();
 	ServiceTask_Init();
+	LightTask_Init();
 	osThreadDef(detect, detect_task, osPriorityLow, 0, 128);
 	osThreadCreate(osThread(detect), NULL);
 	osThreadDef(chassis, chassis_task, osPriorityHigh, 0, 768);
@@ -137,6 +139,7 @@ void MX_FREERTOS_Init(void) {
 void StartDefaultTask(void const * argument)
 {
   /* init code for USB_DEVICE */
+  MX_USB_DEVICE_Init();
   /* USER CODE BEGIN StartDefaultTask */
   /* Infinite loop */
   for(;;)

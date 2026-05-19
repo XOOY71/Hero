@@ -15,3 +15,5 @@ ctrlboard-h7_ws1812\supportfunctions.o: D:\Keil5\ARM\PACK\ARM\CMSIS-DSP\1.15.0\I
 ctrlboard-h7_ws1812\supportfunctions.o: D:/Keil5/ARM/PACK/ARM/CMSIS-DSP/1.15.0/Source/SupportFunctions/arm_bitonic_sort_f32.c
 ctrlboard-h7_ws1812\supportfunctions.o: D:\Keil5\ARM\PACK\ARM\CMSIS-DSP\1.15.0\PrivateInclude\arm_sorting.h
 ctrlboard-h7_ws1812\supportfunctions.o: ../User/Algorithm/Include/arm_math.h
+ctrlboard-h7_ws1812\supportfunctions.o: ../Drivers/CMSIS/Include/core_cm7.h
+ctrlboard-h7_ws1812\supportfunctions.o: ../Drivers/CMSIS/Include/cmsis_version.h

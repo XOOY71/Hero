@@ -63,6 +63,7 @@ extern DMA_HandleTypeDef hdma_spi2_rx;
 extern DMA_HandleTypeDef hdma_spi2_tx;
 extern SPI_HandleTypeDef hspi2;
 extern TIM_HandleTypeDef htim6;
+extern TIM_HandleTypeDef htim24;
 extern DMA_HandleTypeDef hdma_uart5_rx;
 extern DMA_HandleTypeDef hdma_uart7_rx;
 extern DMA_HandleTypeDef hdma_uart7_tx;
@@ -75,7 +76,6 @@ extern UART_HandleTypeDef huart7;
 extern UART_HandleTypeDef huart1;
 extern UART_HandleTypeDef huart10;
 extern TIM_HandleTypeDef htim23;
-extern TIM_HandleTypeDef htim24;
 
 /* USER CODE BEGIN EV */
 

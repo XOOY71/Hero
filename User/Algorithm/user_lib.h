@@ -1,6 +1,11 @@
 #ifndef USER_LIB_H
 #define USER_LIB_H
 #include "struct_typedef.h"
+#include "project_config.h"
+
+#ifndef PI
+#define PI 3.14159265358979f
+#endif
 
 typedef __packed struct
 {

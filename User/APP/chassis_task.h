@@ -27,7 +27,7 @@
 #include "pid.h"
 #include "remote_control.h"
 #include "user_lib.h"
-#include "INS_task.h"
+#include "hwt_imu.h"
 
 #define CHASSIS_TASK_INIT_TIME 357	//任务开始空闲一段时间
 

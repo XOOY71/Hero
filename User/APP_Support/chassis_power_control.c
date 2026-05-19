@@ -26,7 +26,6 @@
   * @author     用户自定义
   * @date       2026-1-9
   */
-#include "arm_math.h"
 #include "chassis_power_control.h"
 #include "chassis_task.h"
 #include "detect_task.h"

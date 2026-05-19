@@ -113,3 +113,5 @@ ctrlboard-h7_ws1812\filteringfunctions.o: D:/Keil5/ARM/PACK/ARM/CMSIS-DSP/1.15.0
 ctrlboard-h7_ws1812\filteringfunctions.o: D:/Keil5/ARM/PACK/ARM/CMSIS-DSP/1.15.0/Source/FilteringFunctions/arm_lms_norm_init_q15.c
 ctrlboard-h7_ws1812\filteringfunctions.o: ../User/Algorithm/Include/arm_common_tables.h
 ctrlboard-h7_ws1812\filteringfunctions.o: ../User/Algorithm/Include/arm_math.h
+ctrlboard-h7_ws1812\filteringfunctions.o: ../Drivers/CMSIS/Include/core_cm7.h
+ctrlboard-h7_ws1812\filteringfunctions.o: ../Drivers/CMSIS/Include/cmsis_version.h

@@ -28,7 +28,7 @@ static osThreadId gimbalTaskHandle = NULL;
 
 static void gimbal_task(void const *pvParameters);
 
-#define GIMBAL_PI 3.14159265358979323846f
+#define GIMBAL_PI PI
 static float gimbal_wrap_angle(float angle)
 {
     while (angle > GIMBAL_PI)

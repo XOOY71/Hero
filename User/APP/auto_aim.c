@@ -107,10 +107,6 @@ float mf5_update(MedianFilter5 *f, float new_val)
 
 static auto_aim_ctrl_t s_auto_aim_ctrl = {0};
 
-#ifndef PI
-#define PI 3.14159265358979323846f
-#endif
-
 #ifndef AA_KV_YAW
 #define AA_KV_YAW 14.0f
 #endif

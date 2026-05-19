@@ -15,10 +15,10 @@ User/Devices
   -> 设备数据解析：HWT101/HWT906 IMU、VOFA 调试、WS2812 灯带
 
 User/APP
-  -> 业务任务和状态机：云台、底盘、发射、自瞄、检测、裁判、PM01、服务任务
+  -> 业务任务和状态机：云台、底盘、发射、自瞄、检测、裁判、PM01、服务任务、灯条任务
 
 User/Algorithm
-  -> 控制算法和数学工具：PID、ADRC、重力补偿、滤波、CMSIS-DSP、user_lib
+  -> 控制算法和数学工具：PID、ADRC、重力补偿、滤波、标准 math 库、user_lib
 ```
 
 工程的主控制路径是：
@@ -47,7 +47,7 @@ User/APP/chassis_task.c / .h
 
 ```text
 User/APP/CAN_receive.h
-User/APP/INS_task.h
+User/Devices/hwt_imu.c / .h
 User/APP/detect_task.c / .h
 User/APP/pm01_api.c / .h
 User/APP/protocol.h
@@ -56,9 +56,6 @@ User/APP/robot_param.h
 User/APP/struct_typedef.h
 User/APP/voltage_task.c / .h
 User/Algorithm/user_lib.c / .h
-User/Algorithm/Include/arm_math.h
-User/Algorithm/Include/arm_const_structs.h
-User/Algorithm/Include/arm_common_tables.h
 ```
 
 复用关系：
@@ -74,12 +71,12 @@ UART 与遥控器
 
 IMU
   -> 复用 User/Devices/hwt_imu.c / .h
-  -> INS_task.h 提供兼容 include，实际姿态指针来自 HWT906 导出接口
+  -> HWT906 导出 get_INS_angle_point() 姿态角指针
 
 算法
   -> 复用 User/Algorithm/pid.c / .h
   -> 复用 User/Algorithm/user_lib.c / .h
-  -> 复用 CMSIS-DSP 的 arm_math 接口
+  -> 底盘运动学使用 math.h 的 sinf/cosf/sqrtf/atan2f
 ```
 
 Keil 工程配置：
@@ -88,10 +85,10 @@ Keil 工程配置：
 MDK-ARM/CtrlBoard-H7_WS1812.uvprojx
   -> 已加入 chassis_*.c、detect_task.c、pm01_api.c、referee.c、voltage_task.c、user_lib.c
   -> IncludePath 已加入 ../User/Algorithm/Include
-  -> Define 已加入 ARM_MATH_CM7
+  -> 未启用 CMSIS-DSP Source 组件
 ```
 
-`ARM_MATH_CM7` 定义当前芯片使用 Cortex-M7 内核。`arm_math.h` 需要这个宏选择 `core_cm7.h`，底盘运动学中的 `arm_sin_f32()`、`arm_cos_f32()`、`arm_sqrt_f32()` 依赖这条配置。
+底盘运动学当前不依赖 CMSIS-DSP。`vector_rotate()` 使用 `sinf/cosf`，`chas_inv_cal()` 使用 `sqrtf/atan2f`，普通浮点运算仍由 Keil 的 FPU 配置生成硬件浮点指令。
 
 ## 3. 启动链路
 
@@ -148,6 +145,7 @@ MX_FREERTOS_Init()
 | `auto_aim_task` | Normal | `User/APP/auto_aim.c` | `AUTO_AIM_TIME` | 自瞄误差滤波和角度增量生成 |
 | `detect_task` | Low | `User/APP/detect_task.c` | `DETECT_CONTROL_TIME` | 遥控器和底盘电机在线状态判断 |
 | `service_task` | Low | `User/APP/service_task.c` | `SERVICE_CONTROL_TIME` | 蜂鸣器、IMU 解析结构初始化、灯带刷新 |
+| `light_task` | Low | `User/APP/light_task.c` | `LIGHT_TASK_PERIOD_MS` | 外置 CH32 灯条提示帧生成和 UART 发送 |
 | `defaultTask` | Normal | `Core/Src/freertos.c` | 1 ms | 保留任务 |
 
 ## 4. 输入数据链路
@@ -823,6 +821,46 @@ service_task()
 
 服务任务不参与高速闭环，只负责低频状态服务。`hwt_imu_init()` 在这里清空 HWT101/HWT906 的解析器和导出数组。
 
+### 10.4 外置灯条提示链路
+
+文件：`User/APP/light_task.c`、`User/APP/light_task.h`、`User/BSP/bsp_usart.c`
+
+```text
+LightTask_Init()
+  -> osThreadCreate(light_task)
+  -> light_render_auto()
+  -> light_pack_frame()
+  -> USART7_Transmit()
+  -> UART7 TX PE8
+  -> CH32V003F4P USART1 RX PD6
+  -> WS2812_SetFromRgbBuffer()
+  -> WS2812_Refresh()
+```
+
+外置灯条协议来自 `light/CH32V003F4P` 工程。主控每 50 ms 发送一帧原始十六进制数据，帧格式为 `AA 55 + 30 bytes RGB + 55 AA`，30 字节等于 10 个 LED 的 `R G B` 数据。接线链路为主控 `PE8/UART7_TX` 连接灯条板 `PD6/USART1_RX`，两板共地；灯条板 `PD5/USART1_TX` 会发送 ACK/RUN 调试帧，回包用于串口工具观测。
+
+自动提示模式的输入来自检测、底盘、云台和功控状态：
+
+```text
+toe_is_error(DBUS_TOE)
+  -> 遥控器离线
+  -> 全灯红色闪烁
+
+toe_is_error(CHASSIS_MOTOR1_TOE..CHASSIS_MOTOR8_TOE)
+  -> 底盘电机在线状态
+  -> LED0..2 显示绿色在线或黄色告警
+
+chassis_behaviour_mode / gimbal_behaviour / super_cap_mode
+  -> 底盘模式、云台模式、超级电容状态
+  -> LED3..7 显示当前工作状态
+
+light_render_heartbeat()
+  -> LED8..9 交替亮灭
+  -> 灯条任务存活提示
+```
+
+手动提示模式由 `light_set_manual_mode()` 进入，`light_set_all()`、`light_set_pixel()`、`light_clear()` 写入 10 灯 RGB 缓冲，`light_refresh_now()` 立即发送当前缓冲。再次调用 `light_set_auto_mode()` 后，灯条恢复由机器人状态自动渲染。
+
 ## 11. 电机与 CAN ID 总表
 
 | 对象 | 反馈总线 | 反馈 ID | 反馈数组 | 下发总线 | 下发 ID | 下发函数 |
@@ -959,6 +997,20 @@ R/G/拨杆 + 云台停射联锁
 
 发射控制的核心变量是 `speed_rpm`、`speed_set_rpm`、`give_current_a`、`give_current`、`ff_ticks`、`ff_cooldown_ticks`。
 
+### 13.5 外置灯条当前核心路径
+
+```text
+检测状态 + 底盘模式 + 云台模式 + 超级电容模式
+  -> light_render_auto()
+  -> light_leds[10]
+  -> light_frame[34]
+  -> USART7_Transmit()
+  -> UART7 TX PE8
+  -> CH32 PD6
+```
+
+外置灯条控制的核心变量是 `light_mode`、`light_leds[10]`、`light_frame[34]`、`chassis_behaviour_mode`、`gimbal_behaviour`、`super_cap_mode`。排查灯条输出时沿 `light_leds`、`light_frame`、UART7 波形、CH32 ACK/RUN 回包逐级查看。
+
 ## 14. 三轮审核记录
 
 ### 14.1 第一轮：从控制调试视角审核
@@ -971,4 +1023,4 @@ R/G/拨杆 + 云台停射联锁
 
 ### 14.3 第三轮：从移植完整性视角审核
 
-补充结果：增加了底盘移植状态、依赖文件、复用 BSP/Devices/Algorithm 的关系、Keil 工程配置、`ARM_MATH_CM7` 宏作用；标出了裁判系统解析函数已存在、USART1 当前未分发到解析器；标出了 3508 已从速度 PID 输出切到 `model_3508_out`，功率预测保留函数也读取 `model_3508_out`。
+补充结果：增加了底盘移植状态、依赖文件、复用 BSP/Devices/Algorithm 的关系、Keil 工程配置；标出了裁判系统解析函数已存在、USART1 当前未分发到解析器；标出了 3508 已从速度 PID 输出切到 `model_3508_out`，功率预测保留函数也读取 `model_3508_out`。

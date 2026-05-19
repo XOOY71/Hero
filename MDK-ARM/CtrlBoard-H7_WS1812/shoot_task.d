@@ -1,5 +1,5 @@
-ctrlboard-h7_ws1812\shoot_task.o: ..\User\APP\shoot_task.c
-ctrlboard-h7_ws1812\shoot_task.o: ..\User\APP\shoot_task.h
+ctrlboard-h7_ws1812\shoot_task.o: ..\User\APP_Support\shoot_task.c
+ctrlboard-h7_ws1812\shoot_task.o: ..\User\APP_Support\shoot_task.h
 ctrlboard-h7_ws1812\shoot_task.o: D:\Keil5\ARM\ARMCC\Bin\..\include\stdbool.h
 ctrlboard-h7_ws1812\shoot_task.o: D:\Keil5\ARM\ARMCC\Bin\..\include\stdint.h
 ctrlboard-h7_ws1812\shoot_task.o: ../User/Algorithm/adrc.h
@@ -47,11 +47,11 @@ ctrlboard-h7_ws1812\shoot_task.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_
 ctrlboard-h7_ws1812\shoot_task.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_ll_usb.h
 ctrlboard-h7_ws1812\shoot_task.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_pcd_ex.h
 ctrlboard-h7_ws1812\shoot_task.o: ../Core/Inc/fdcan.h
-ctrlboard-h7_ws1812\shoot_task.o: ..\User\APP\project_config.h
+ctrlboard-h7_ws1812\shoot_task.o: ..\User\APP_Support\project_config.h
 ctrlboard-h7_ws1812\shoot_task.o: ../User/BSP/remote_control.h
 ctrlboard-h7_ws1812\shoot_task.o: ../User/BSP/bsp_usart.h
 ctrlboard-h7_ws1812\shoot_task.o: D:\Keil5\ARM\ARMCC\Bin\..\include\string.h
-ctrlboard-h7_ws1812\shoot_task.o: ..\User\APP\gimbal_behaviour.h
-ctrlboard-h7_ws1812\shoot_task.o: ..\User\APP\gimbal_task.h
+ctrlboard-h7_ws1812\shoot_task.o: ..\User\APP_Support\gimbal_behaviour.h
+ctrlboard-h7_ws1812\shoot_task.o: ../User/APP/gimbal_task.h
 ctrlboard-h7_ws1812\shoot_task.o: ../User/Algorithm/pid.h
 ctrlboard-h7_ws1812\shoot_task.o: ../User/Algorithm/gravity_comp.h

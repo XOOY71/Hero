@@ -27,7 +27,6 @@
 	*       00        00        000000000000            00            00       
 	********************************************************************************/
 
-#include "arm_math.h"
 #include "chassis_behaviour.h"
 #include "chassis_power_control.h"
 #include "chassis_task.h"

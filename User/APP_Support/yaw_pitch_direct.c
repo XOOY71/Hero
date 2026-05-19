@@ -9,11 +9,12 @@
 #include "auto_aim.h"
 #include "hwt_imu.h"
 #include "bsp_fdcan.h"
+#include "project_config.h"
 #include "cmsis_os.h"
 #include <math.h>
 #include <string.h>
 
-#define YAW_PITCH_DIRECT_PI 3.14159265358979323846f
+#define YAW_PITCH_DIRECT_PI PI
 
 #ifndef GIMBAL_MIT_FEEDBACK_INIT_DELAY
 #define GIMBAL_MIT_FEEDBACK_INIT_DELAY 100U

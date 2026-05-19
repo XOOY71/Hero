@@ -2,7 +2,7 @@ ctrlboard-h7_ws1812\gimbal_task.o: ..\User\APP\gimbal_task.c
 ctrlboard-h7_ws1812\gimbal_task.o: ..\User\APP\gimbal_task.h
 ctrlboard-h7_ws1812\gimbal_task.o: D:\Keil5\ARM\ARMCC\Bin\..\include\stdint.h
 ctrlboard-h7_ws1812\gimbal_task.o: D:\Keil5\ARM\ARMCC\Bin\..\include\stdbool.h
-ctrlboard-h7_ws1812\gimbal_task.o: ..\User\APP\project_config.h
+ctrlboard-h7_ws1812\gimbal_task.o: ../User/APP_Support/project_config.h
 ctrlboard-h7_ws1812\gimbal_task.o: ../User/BSP/remote_control.h
 ctrlboard-h7_ws1812\gimbal_task.o: ../User/BSP/bsp_usart.h
 ctrlboard-h7_ws1812\gimbal_task.o: ../Core/Inc/main.h
@@ -51,8 +51,8 @@ ctrlboard-h7_ws1812\gimbal_task.o: D:\Keil5\ARM\ARMCC\Bin\..\include\string.h
 ctrlboard-h7_ws1812\gimbal_task.o: ../User/Algorithm/pid.h
 ctrlboard-h7_ws1812\gimbal_task.o: ../User/Algorithm/gravity_comp.h
 ctrlboard-h7_ws1812\gimbal_task.o: ..\User\APP\auto_aim.h
-ctrlboard-h7_ws1812\gimbal_task.o: ..\User\APP\gimbal_behaviour.h
-ctrlboard-h7_ws1812\gimbal_task.o: ..\User\APP\shoot_task.h
+ctrlboard-h7_ws1812\gimbal_task.o: ../User/APP_Support/gimbal_behaviour.h
+ctrlboard-h7_ws1812\gimbal_task.o: ../User/APP_Support/shoot_task.h
 ctrlboard-h7_ws1812\gimbal_task.o: ../User/Algorithm/adrc.h
 ctrlboard-h7_ws1812\gimbal_task.o: ../User/BSP/bsp_fdcan.h
 ctrlboard-h7_ws1812\gimbal_task.o: ../Core/Inc/fdcan.h

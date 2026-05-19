@@ -17,7 +17,6 @@
 	*       00        00        000000000000            00            00       
 	********************************************************************************/
 
-#include "arm_math.h"
 #include "bsp_usart.h"
 #include "chassis_calculate.h"
 #include "chassis_task.h"
@@ -57,11 +56,12 @@ void vector_rotate(fp32 angle, fp32 *vector)
 	angle = rad_format(angle);
 	
 	//计算旋转矩阵
-	fp32 cos = arm_cos_f32(angle), sin = arm_sin_f32(angle);
+	fp32 cos_value = cosf(angle);
+	fp32 sin_value = sinf(angle);
 	
 	//计算旋转变换后的向量														//旋转矩阵为：
-	vector[0] = cos * x_temp - sin * vector[1];       //{{cos, -sin},
-	vector[1] = sin * x_temp + cos * vector[1];       // {sin,  cos}}
+	vector[0] = cos_value * x_temp - sin_value * vector[1];       //{{cos, -sin},
+	vector[1] = sin_value * x_temp + cos_value * vector[1];       // {sin,  cos}}
 }
 
 /**
@@ -126,28 +126,28 @@ void chas_inv_cal(fp32 vx_set, fp32 vy_set, fp32 wz_set, fp32 *wheel_angle, fp32
 	// WHEEL_LF (1号电机) - 左前: 位置(-HALF_LENGTH, HALF_WIDTH)
 	vx_total[WHEEL_LF] = vx_set - wz_set * HALF_WIDTH;   // -w × ry
 	vy_total[WHEEL_LF] = vy_set + wz_set * HALF_LENGTH;  // +w × rx
-	arm_sqrt_f32(vx_total[WHEEL_LF] * vx_total[WHEEL_LF] + vy_total[WHEEL_LF] * vy_total[WHEEL_LF], &wheel_speed[WHEEL_LF]);
+	wheel_speed[WHEEL_LF] = sqrtf(vx_total[WHEEL_LF] * vx_total[WHEEL_LF] + vy_total[WHEEL_LF] * vy_total[WHEEL_LF]);
 	
 	// WHEEL_LB (2号电机) - 左后: 位置(-HALF_LENGTH, -HALF_WIDTH)
 	vx_total[WHEEL_LB] = vx_set + wz_set * HALF_WIDTH;   // -w × (-ry) = +w × ry
 	vy_total[WHEEL_LB] = vy_set + wz_set * HALF_LENGTH;  // +w × rx
-	arm_sqrt_f32(vx_total[WHEEL_LB] * vx_total[WHEEL_LB] + vy_total[WHEEL_LB] * vy_total[WHEEL_LB], &wheel_speed[WHEEL_LB]);
+	wheel_speed[WHEEL_LB] = sqrtf(vx_total[WHEEL_LB] * vx_total[WHEEL_LB] + vy_total[WHEEL_LB] * vy_total[WHEEL_LB]);
 	
 	// WHEEL_RB (3号电机) - 右后: 位置(HALF_LENGTH, -HALF_WIDTH)
 	vx_total[WHEEL_RB] = vx_set + wz_set * HALF_WIDTH;   // -w × (-ry) = +w × ry
 	vy_total[WHEEL_RB] = vy_set - wz_set * HALF_LENGTH;  // +w × (-rx) = -w × rx
-	arm_sqrt_f32(vx_total[WHEEL_RB] * vx_total[WHEEL_RB] + vy_total[WHEEL_RB] * vy_total[WHEEL_RB], &wheel_speed[WHEEL_RB]);
+	wheel_speed[WHEEL_RB] = sqrtf(vx_total[WHEEL_RB] * vx_total[WHEEL_RB] + vy_total[WHEEL_RB] * vy_total[WHEEL_RB]);
 	
 	// WHEEL_RF (4号电机) - 右前: 位置(HALF_LENGTH, HALF_WIDTH)
 	vx_total[WHEEL_RF] = vx_set - wz_set * HALF_WIDTH;   // -w × ry
 	vy_total[WHEEL_RF] = vy_set - wz_set * HALF_LENGTH;  // +w × (-rx) = -w × rx
-	arm_sqrt_f32(vx_total[WHEEL_RF] * vx_total[WHEEL_RF] + vy_total[WHEEL_RF] * vy_total[WHEEL_RF], &wheel_speed[WHEEL_RF]);
+	wheel_speed[WHEEL_RF] = sqrtf(vx_total[WHEEL_RF] * vx_total[WHEEL_RF] + vy_total[WHEEL_RF] * vy_total[WHEEL_RF]);
 	
 	// 计算各轮角度
-	wheel_angle[WHEEL_LF] = atan2(vy_total[WHEEL_LF], vx_total[WHEEL_LF]) - chassis_move.wheel_angle_offset.now[WHEEL_LF] + offset;
-	wheel_angle[WHEEL_LB] = atan2(vy_total[WHEEL_LB], vx_total[WHEEL_LB]) - chassis_move.wheel_angle_offset.now[WHEEL_LB] + offset;
-	wheel_angle[WHEEL_RB] = atan2(vy_total[WHEEL_RB], vx_total[WHEEL_RB]) - chassis_move.wheel_angle_offset.now[WHEEL_RB] + offset;
-	wheel_angle[WHEEL_RF] = atan2(vy_total[WHEEL_RF], vx_total[WHEEL_RF]) - chassis_move.wheel_angle_offset.now[WHEEL_RF] + offset;
+	wheel_angle[WHEEL_LF] = atan2f(vy_total[WHEEL_LF], vx_total[WHEEL_LF]) - chassis_move.wheel_angle_offset.now[WHEEL_LF] + offset;
+	wheel_angle[WHEEL_LB] = atan2f(vy_total[WHEEL_LB], vx_total[WHEEL_LB]) - chassis_move.wheel_angle_offset.now[WHEEL_LB] + offset;
+	wheel_angle[WHEEL_RB] = atan2f(vy_total[WHEEL_RB], vx_total[WHEEL_RB]) - chassis_move.wheel_angle_offset.now[WHEEL_RB] + offset;
+	wheel_angle[WHEEL_RF] = atan2f(vy_total[WHEEL_RF], vx_total[WHEEL_RF]) - chassis_move.wheel_angle_offset.now[WHEEL_RF] + offset;
 	
 	// 角度规范化
 	for(uint8_t i = 0; i < 4; i++)
@@ -180,8 +180,8 @@ void chas_inv_cal(fp32 vx_set, fp32 vy_set, fp32 wz_set, fp32 *wheel_angle, fp32
 //	for(uint8_t i = 0; i < 4; i ++)
 //	{
 //		//计算各轮子的总速度分量
-//		vx_total[i] = wheel_speed[i] * arm_cos_f32(rad_format(wheel_angle[i]) - chassis_yaw + wheel_angle_offset[i]);
-//		vy_total[i] = wheel_speed[i] * arm_sin_f32(rad_format(wheel_angle[i]) - chassis_yaw + wheel_angle_offset[i]);
+//		vx_total[i] = wheel_speed[i] * cosf(rad_format(wheel_angle[i]) - chassis_yaw + wheel_angle_offset[i]);
+//		vy_total[i] = wheel_speed[i] * sinf(rad_format(wheel_angle[i]) - chassis_yaw + wheel_angle_offset[i]);
 //	}
 //	
 //	//解方程求出vx_actual、vy_actual、wz_x (注: 解方程时假定角速度为逆时针方向)

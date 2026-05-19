@@ -2,13 +2,14 @@
 #define TARGET_CURVE_H
 
 #include <stdint.h>
+#include "project_config.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 #ifndef TARGET_PI
-#define TARGET_PI 3.14159265358979323846f
+#define TARGET_PI PI
 #endif
 
 typedef enum

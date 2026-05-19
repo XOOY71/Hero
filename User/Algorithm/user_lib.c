@@ -1,5 +1,4 @@
 #include "user_lib.h"
-#include "arm_math.h"
 
 //快速开方
 fp32 invSqrt(fp32 num)

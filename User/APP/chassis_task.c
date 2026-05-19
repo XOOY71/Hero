@@ -18,7 +18,6 @@
 	*       00        00        000000000000            00            00       
 	********************************************************************************/
 	
-#include "arm_math.h"
 #include "bsp_usart.h"
 #include "CAN_receive.h"
 #include "chassis_behaviour.h"
@@ -27,7 +26,7 @@
 #include "chassis_task.h"
 #include "cmsis_os.h"
 #include "detect_task.h"
-#include "INS_task.h"
+#include "hwt_imu.h"
 #include "pid.h"
 #include "remote_control.h"
 #include "robot_param.h"

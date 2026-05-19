@@ -1,6 +1,6 @@
 ctrlboard-h7_ws1812\voltage_task.o: ..\User\APP\voltage_task.c
 ctrlboard-h7_ws1812\voltage_task.o: ..\User\APP\voltage_task.h
-ctrlboard-h7_ws1812\voltage_task.o: ..\User\APP\struct_typedef.h
+ctrlboard-h7_ws1812\voltage_task.o: ../User/APP_Support/struct_typedef.h
 ctrlboard-h7_ws1812\voltage_task.o: D:\Keil5\ARM\ARMCC\Bin\..\include\stdint.h
 ctrlboard-h7_ws1812\voltage_task.o: ../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS/cmsis_os.h
 ctrlboard-h7_ws1812\voltage_task.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/FreeRTOS.h

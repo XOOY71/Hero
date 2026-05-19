@@ -1,7 +1,8 @@
 #include "hwt_imu.h"
+#include "project_config.h"
 #include <string.h>
 
-#define HWT_PI              3.14159265358979323846f
+#define HWT_PI              PI
 #define HWT_TWO_PI          (2.0f * HWT_PI)
 #define HWT_DEG_TO_RAD      (HWT_PI / 180.0f)
 #define HWT_RAD_TO_DEG      (180.0f / HWT_PI)

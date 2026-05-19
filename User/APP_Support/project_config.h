@@ -1,6 +1,8 @@
 #ifndef PROJECT_CONFIG_H
 #define PROJECT_CONFIG_H
 
+#define PI 3.14159265358979323846f
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -56,7 +58,7 @@ extern "C" {
 #define YAW_INERTIA_KGM2                   0.013  // yaw 转动惯量 J，单位 kg*m^2
 
 #define PITCH_EQ_MASS_KG                   1.5f   // pitch 重力补偿使用的等效质量
-#define PITCH_INERTIA_KGM2                 0.00245 // pitch 转动惯量 J，单位 kg*m^2
+#define PITCH_INERTIA_KGM2                 0.0039 // pitch 转动惯量 J，单位 kg*m^2
 
 /* ========================= 遥控器/鼠标输入配置 ========================= */
 #define GIMBAL_ANGLE_Z_RC_SEN              0.0000005f // 小陀螺/底盘旋转角速度输入灵敏度
@@ -80,6 +82,7 @@ extern "C" {
 #define GIMBAL_CONTROL_TIME                1      // 云台控制周期，单位 ms
 #define INS_YAW_ADDRESS_OFFSET             0      // INS yaw 角数组索引
 #define INS_PITCH_ADDRESS_OFFSET           1      // INS pitch 角数组索引
+#define INS_ROLL_ADDRESS_OFFSET            2      // INS roll 角数组索引
 #define INS_GYRO_X_ADDRESS_OFFSET          0      // INS gyro x 索引
 #define INS_GYRO_Y_ADDRESS_OFFSET          1      // INS gyro y 索引
 #define INS_GYRO_Z_ADDRESS_OFFSET          2      // INS gyro z 索引

@@ -10,3 +10,5 @@ ctrlboard-h7_ws1812\commontables.o: D:\Keil5\ARM\ARMCC\Bin\..\include\float.h
 ctrlboard-h7_ws1812\commontables.o: D:\Keil5\ARM\ARMCC\Bin\..\include\limits.h
 ctrlboard-h7_ws1812\commontables.o: ../User/Algorithm/Include/arm_common_tables.h
 ctrlboard-h7_ws1812\commontables.o: ../User/Algorithm/Include/arm_math.h
+ctrlboard-h7_ws1812\commontables.o: ../Drivers/CMSIS/Include/core_cm7.h
+ctrlboard-h7_ws1812\commontables.o: ../Drivers/CMSIS/Include/cmsis_version.h

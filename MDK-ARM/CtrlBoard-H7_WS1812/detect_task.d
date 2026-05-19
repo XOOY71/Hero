@@ -1,6 +1,6 @@
 ctrlboard-h7_ws1812\detect_task.o: ..\User\APP\detect_task.c
 ctrlboard-h7_ws1812\detect_task.o: ..\User\APP\detect_task.h
-ctrlboard-h7_ws1812\detect_task.o: ..\User\APP\struct_typedef.h
+ctrlboard-h7_ws1812\detect_task.o: ../User/APP_Support/struct_typedef.h
 ctrlboard-h7_ws1812\detect_task.o: D:\Keil5\ARM\ARMCC\Bin\..\include\stdint.h
 ctrlboard-h7_ws1812\detect_task.o: ../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS/cmsis_os.h
 ctrlboard-h7_ws1812\detect_task.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/FreeRTOS.h
@@ -61,4 +61,4 @@ ctrlboard-h7_ws1812\detect_task.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx
 ctrlboard-h7_ws1812\detect_task.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_ll_usb.h
 ctrlboard-h7_ws1812\detect_task.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_pcd_ex.h
 ctrlboard-h7_ws1812\detect_task.o: D:\Keil5\ARM\ARMCC\Bin\..\include\string.h
-ctrlboard-h7_ws1812\detect_task.o: ../User/APP/project_config.h
+ctrlboard-h7_ws1812\detect_task.o: ../User/APP_Support/project_config.h

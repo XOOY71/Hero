@@ -15,3 +15,5 @@ ctrlboard-h7_ws1812\fastmathfunctions.o: D:\Keil5\ARM\PACK\ARM\CMSIS-DSP\1.15.0\
 ctrlboard-h7_ws1812\fastmathfunctions.o: D:\Keil5\ARM\PACK\ARM\CMSIS-DSP\1.15.0\Include\dsp/basic_math_functions.h
 ctrlboard-h7_ws1812\fastmathfunctions.o: ../User/Algorithm/Include/arm_common_tables.h
 ctrlboard-h7_ws1812\fastmathfunctions.o: ../User/Algorithm/Include/arm_math.h
+ctrlboard-h7_ws1812\fastmathfunctions.o: ../Drivers/CMSIS/Include/core_cm7.h
+ctrlboard-h7_ws1812\fastmathfunctions.o: ../Drivers/CMSIS/Include/cmsis_version.h
