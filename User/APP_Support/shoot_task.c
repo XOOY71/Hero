@@ -45,6 +45,12 @@ static bool shoot_task_motor_should_trigger_feedforward(const shoot_task_motor_t
                                                         float min_speed_ratio);
 static void shoot_task_motor_apply_feedforward(shoot_task_motor_t *motor);
 static void shoot_task_update_history(shoot_task_control_t *control);
+static void shoot_task_update_bullet_speed_estimate(shoot_task_control_t *control);
+static bool shoot_task_should_start_bullet_speed_estimate(const shoot_task_control_t *control);
+static void shoot_task_start_bullet_speed_estimate(shoot_task_control_t *control);
+static uint16_t shoot_task_ms_to_ticks(uint16_t ms);
+static float shoot_task_avg3(float a, float b, float c);
+static float shoot_task_min_float(float a, float b);
 
 /**
  * @brief 初始化射击任务控制对象。
@@ -343,6 +349,7 @@ static void shoot_task_control_friction(shoot_task_control_t *control)
     shoot_task_send_friction_current(control->fric1.give_current,
                                      control->fric2.give_current,
                                      control->fric3.give_current);
+    shoot_task_update_bullet_speed_estimate(control);
     shoot_task_update_history(control);
 }
 
@@ -379,6 +386,8 @@ static void shoot_task_stop_friction(shoot_task_control_t *control)
     control->fric3.ff_ticks = 0U;
     control->fric3.ff_cooldown_ticks = 0U;
     control->fric3.ff_current = 0;
+    control->bullet_speed_est_active = false;
+    control->bullet_speed_est_ticks = 0U;
 
     if (control->last_mode != SHOOT_TASK_STOP)
     {
@@ -655,12 +664,134 @@ static void shoot_task_update_history(shoot_task_control_t *control)
     control->fric3.last_speed_rpm = control->fric3.speed_rpm;
 }
 
-/**
- * @brief 判断摩擦轮电机反馈是否有效且安全。
- * @param motor 电机控制对象指针。
- * @param now 当前系统时刻，单位 ms。
- * @return 反馈正常返回 true，否则返回 false。
- */
+static void shoot_task_update_bullet_speed_estimate(shoot_task_control_t *control)
+{
+    if (control == NULL)
+    {
+        return;
+    }
+
+    if (!control->bullet_speed_est_active &&
+        shoot_task_should_start_bullet_speed_estimate(control))
+    {
+        shoot_task_start_bullet_speed_estimate(control);
+    }
+
+    if (!control->bullet_speed_est_active)
+    {
+        return;
+    }
+
+    control->bullet_speed_min_fric1_rpm =
+        shoot_task_min_float(control->bullet_speed_min_fric1_rpm,
+                             control->fric1.speed_rpm);
+    control->bullet_speed_min_fric2_rpm =
+        shoot_task_min_float(control->bullet_speed_min_fric2_rpm,
+                             control->fric2.speed_rpm);
+    control->bullet_speed_min_fric3_rpm =
+        shoot_task_min_float(control->bullet_speed_min_fric3_rpm,
+                             control->fric3.speed_rpm);
+
+    if (control->bullet_speed_est_ticks > 0U)
+    {
+        control->bullet_speed_est_ticks--;
+    }
+
+    if (control->bullet_speed_est_ticks == 0U)
+    {
+        float speed_drop_rpm;
+
+        control->bullet_speed_min_avg_rpm =
+            shoot_task_avg3(control->bullet_speed_min_fric1_rpm,
+                            control->bullet_speed_min_fric2_rpm,
+                            control->bullet_speed_min_fric3_rpm);
+        speed_drop_rpm =
+            control->bullet_speed_start_avg_rpm -
+            control->bullet_speed_min_avg_rpm;
+        if (speed_drop_rpm < 0.0f)
+        {
+            speed_drop_rpm = 0.0f;
+        }
+
+        control->estimated_bullet_speed_mps =
+            speed_drop_rpm * SHOOT_BULLET_SPEED_EST_COEFF_MPS_PER_RPM;
+        control->bullet_speed_est_active = false;
+    }
+}
+
+static bool shoot_task_should_start_bullet_speed_estimate(const shoot_task_control_t *control)
+{
+    float stable_speed_avg_rpm;
+
+    if (control == NULL)
+    {
+        return false;
+    }
+
+    stable_speed_avg_rpm =
+        shoot_task_avg3(control->fric1.last_speed_rpm,
+                        control->fric2.last_speed_rpm,
+                        control->fric3.last_speed_rpm);
+    if (stable_speed_avg_rpm <
+        SHOOT_FRIC_TARGET_SPEED_RPM * SHOOT_BULLET_SPEED_EST_MIN_SPEED_RATIO)
+    {
+        return false;
+    }
+
+    return (((control->fric1.last_speed_rpm - control->fric1.speed_rpm) >=
+             SHOOT_BULLET_SPEED_EST_TRIGGER_DROP_RPM) ||
+            ((control->fric2.last_speed_rpm - control->fric2.speed_rpm) >=
+             SHOOT_BULLET_SPEED_EST_TRIGGER_DROP_RPM) ||
+            ((control->fric3.last_speed_rpm - control->fric3.speed_rpm) >=
+             SHOOT_BULLET_SPEED_EST_TRIGGER_DROP_RPM));
+}
+
+static void shoot_task_start_bullet_speed_estimate(shoot_task_control_t *control)
+{
+    if (control == NULL)
+    {
+        return;
+    }
+
+    control->bullet_speed_est_active = true;
+    control->bullet_speed_est_ticks =
+        shoot_task_ms_to_ticks(SHOOT_BULLET_SPEED_EST_WINDOW_MS);
+    control->bullet_speed_start_avg_rpm =
+        shoot_task_avg3(control->fric1.last_speed_rpm,
+                        control->fric2.last_speed_rpm,
+                        control->fric3.last_speed_rpm);
+    control->bullet_speed_min_fric1_rpm = control->fric1.speed_rpm;
+    control->bullet_speed_min_fric2_rpm = control->fric2.speed_rpm;
+    control->bullet_speed_min_fric3_rpm = control->fric3.speed_rpm;
+    control->bullet_speed_min_avg_rpm =
+        shoot_task_avg3(control->bullet_speed_min_fric1_rpm,
+                        control->bullet_speed_min_fric2_rpm,
+                        control->bullet_speed_min_fric3_rpm);
+}
+
+static uint16_t shoot_task_ms_to_ticks(uint16_t ms)
+{
+    uint16_t ticks;
+
+    ticks = (uint16_t)((ms + SHOOT_CONTROL_TIME - 1U) / SHOOT_CONTROL_TIME);
+    if (ticks == 0U)
+    {
+        ticks = 1U;
+    }
+
+    return ticks;
+}
+
+static float shoot_task_avg3(float a, float b, float c)
+{
+    return (a + b + c) / 3.0f;
+}
+
+static float shoot_task_min_float(float a, float b)
+{
+    return (a < b) ? a : b;
+}
+
 static bool shoot_task_motor_ready(const shoot_task_motor_t *motor, uint32_t now)
 {
     if (motor == NULL || motor->measure == NULL)

@@ -246,6 +246,14 @@ typedef struct
     shoot_task_motor_t fric1;
     shoot_task_motor_t fric2;
     shoot_task_motor_t fric3;
+    bool bullet_speed_est_active;
+    uint16_t bullet_speed_est_ticks;
+    float bullet_speed_start_avg_rpm;
+    float bullet_speed_min_fric1_rpm;
+    float bullet_speed_min_fric2_rpm;
+    float bullet_speed_min_fric3_rpm;
+    float bullet_speed_min_avg_rpm;
+    float estimated_bullet_speed_mps;
 } shoot_task_control_t;
 
 extern shoot_task_control_t shoot_task_control;

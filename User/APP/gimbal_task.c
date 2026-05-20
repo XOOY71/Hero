@@ -85,7 +85,7 @@ static void gimbal_task(void const *pvParameters)
         gimbal_send_cmd(&gimbal_control);
         shoot_task_loop();
 
-        gimbal_vofa_send_fric();
+        gimbal_vofa_send_yaw_pitch_half();
 
         vTaskDelayUntil(&last_wake_time, GIMBAL_CONTROL_TIME);
     }
@@ -404,12 +404,18 @@ static float gimbal_calc_yaw_angle_speed_torque(gimbal_motor_t *motor, float ang
 
 void gimbal_vofa_send_fric(void)
 {
+    float current_avg;
+
+    current_avg = (shoot_task_control.fric1.give_current_a +
+                   shoot_task_control.fric2.give_current_a +
+                   shoot_task_control.fric3.give_current_a) / 3.0f;
+
     VOFA_Send6(shoot_task_control.fric1.speed_rpm,
                shoot_task_control.fric2.speed_rpm,
                shoot_task_control.fric3.speed_rpm,
-               shoot_task_control.fric1.give_current_a,
-               shoot_task_control.fric2.give_current_a,
-               shoot_task_control.fric3.give_current_a);
+               current_avg,
+               shoot_task_control.bullet_speed_min_avg_rpm,
+               shoot_task_control.estimated_bullet_speed_mps);
 }
 
 void gimbal_vofa_send_yaw(void)

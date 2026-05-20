@@ -123,6 +123,41 @@ extern "C" {
 #define PITCH_GRAVITY_COMP_COM_UP_M        0.02f            // 质心上向距离
 #define PITCH_GRAVITY_COMP_OUTPUT_LIMIT    (T_MAX / 5.0f)   // 重力补偿输出限幅
 
+/* ========================= shoot bullet speed estimate ========================= */
+#ifndef SHOOT_FRIC_WHEEL_RADIUS_M
+#define SHOOT_FRIC_WHEEL_RADIUS_M          0.022f
+#endif
+
+#ifndef SHOOT_BULLET_42MM_MASS_KG
+#define SHOOT_BULLET_42MM_MASS_KG          0.0404f
+#endif
+
+#ifndef SHOOT_FRIC_ROTATING_MASS_KG
+#define SHOOT_FRIC_ROTATING_MASS_KG        0.1793f
+#endif
+
+#ifndef SHOOT_FRIC_ROTATING_INERTIA_KGM2
+#define SHOOT_FRIC_ROTATING_INERTIA_KGM2   (0.5f * SHOOT_FRIC_ROTATING_MASS_KG * SHOOT_FRIC_WHEEL_RADIUS_M * SHOOT_FRIC_WHEEL_RADIUS_M)
+#endif
+
+#ifndef SHOOT_BULLET_SPEED_EST_TRIGGER_DROP_RPM
+#define SHOOT_BULLET_SPEED_EST_TRIGGER_DROP_RPM 600.0f
+#endif
+
+#ifndef SHOOT_BULLET_SPEED_EST_MIN_SPEED_RATIO
+#define SHOOT_BULLET_SPEED_EST_MIN_SPEED_RATIO  0.85f
+#endif
+
+#ifndef SHOOT_BULLET_SPEED_EST_WINDOW_MS
+#define SHOOT_BULLET_SPEED_EST_WINDOW_MS   20U
+#endif
+
+#ifndef SHOOT_BULLET_SPEED_EST_COEFF_MPS_PER_RPM
+#define SHOOT_BULLET_SPEED_EST_COEFF_MPS_PER_RPM \
+    ((3.0f * SHOOT_FRIC_ROTATING_INERTIA_KGM2 * 2.0f * PI) / \
+     (60.0f * SHOOT_BULLET_42MM_MASS_KG * SHOOT_FRIC_WHEEL_RADIUS_M))
+#endif
+
 /* ========================= 串口与裁判系统配置 ========================= */
 #define USART_RX_BUF_LENGHT                64    // 串口接收缓冲区长度
 #define REFEREE_FIFO_BUF_LENGTH            1024  // 裁判系统 FIFO 长度
