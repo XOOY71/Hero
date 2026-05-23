@@ -1,6 +1,5 @@
 ctrlboard-h7_ws1812\auto_aim.o: ..\User\APP\auto_aim.c
 ctrlboard-h7_ws1812\auto_aim.o: ..\User\APP\auto_aim.h
-ctrlboard-h7_ws1812\auto_aim.o: D:\Keil5\ARM\ARMCC\Bin\..\include\stdint.h
 ctrlboard-h7_ws1812\auto_aim.o: ../User/BSP/remote_control.h
 ctrlboard-h7_ws1812\auto_aim.o: ../User/BSP/bsp_usart.h
 ctrlboard-h7_ws1812\auto_aim.o: ../Core/Inc/main.h
@@ -11,6 +10,7 @@ ctrlboard-h7_ws1812\auto_aim.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_ha
 ctrlboard-h7_ws1812\auto_aim.o: ../Drivers/CMSIS/Device/ST/STM32H7xx/Include/stm32h7xx.h
 ctrlboard-h7_ws1812\auto_aim.o: ../Drivers/CMSIS/Device/ST/STM32H7xx/Include/stm32h723xx.h
 ctrlboard-h7_ws1812\auto_aim.o: ../Drivers/CMSIS/Include/core_cm7.h
+ctrlboard-h7_ws1812\auto_aim.o: D:\Keil5\ARM\ARMCC\Bin\..\include\stdint.h
 ctrlboard-h7_ws1812\auto_aim.o: ../Drivers/CMSIS/Include/cmsis_version.h
 ctrlboard-h7_ws1812\auto_aim.o: ../Drivers/CMSIS/Include/cmsis_compiler.h
 ctrlboard-h7_ws1812\auto_aim.o: ../Drivers/CMSIS/Include/cmsis_armcc.h
@@ -61,8 +61,4 @@ ctrlboard-h7_ws1812\auto_aim.o: ../Middlewares/Third_Party/FreeRTOS/Source/inclu
 ctrlboard-h7_ws1812\auto_aim.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/queue.h
 ctrlboard-h7_ws1812\auto_aim.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/semphr.h
 ctrlboard-h7_ws1812\auto_aim.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/event_groups.h
-ctrlboard-h7_ws1812\auto_aim.o: ..\User\APP\gimbal_task.h
 ctrlboard-h7_ws1812\auto_aim.o: D:\Keil5\ARM\ARMCC\Bin\..\include\stdbool.h
-ctrlboard-h7_ws1812\auto_aim.o: ../User/Algorithm/pid.h
-ctrlboard-h7_ws1812\auto_aim.o: ../User/Algorithm/gravity_comp.h
-ctrlboard-h7_ws1812\auto_aim.o: ../Core/Inc/tim.h

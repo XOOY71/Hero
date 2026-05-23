@@ -1,6 +1,6 @@
 #include "user_lib.h"
 
-//¿ìËÙ¿ª·½
+//å¿«é€Ÿå¼€æ–¹
 fp32 invSqrt(fp32 num)
 {
     fp32 halfnum = 0.5f * num;
@@ -13,13 +13,13 @@ fp32 invSqrt(fp32 num)
 }
 
 /**
-  * @brief          Ğ±²¨º¯Êı³õÊ¼»¯
+  * @brief          æ–œæ³¢å‡½æ•°åˆå§‹åŒ–
   * @author         RM
-  * @param[in]      Ğ±²¨º¯Êı½á¹¹Ìå
-  * @param[in]      ¼ä¸ôµÄÊ±¼ä£¬µ¥Î» s
-  * @param[in]      ×î´óÖµ
-  * @param[in]      ×îĞ¡Öµ
-  * @retval         ·µ»Ø¿Õ
+  * @param[in]      æ–œæ³¢å‡½æ•°ç»“æ„ä½“
+  * @param[in]      é—´éš”çš„æ—¶é—´ï¼Œå•ä½ s
+  * @param[in]      æœ€å¤§å€¼
+  * @param[in]      æœ€å°å€¼
+  * @retval         è¿”å›ç©º
   */
 void ramp_init(ramp_function_source_t *ramp_source_type, fp32 frame_period, fp32 max, fp32 min)
 {
@@ -31,12 +31,12 @@ void ramp_init(ramp_function_source_t *ramp_source_type, fp32 frame_period, fp32
 }
 
 /**
-  * @brief          Ğ±²¨º¯Êı¼ÆËã£¬¸ù¾İÊäÈëµÄÖµ½øĞĞµş¼Ó£¬ ÊäÈëµ¥Î»Îª /s ¼´Ò»ÃëºóÔö¼ÓÊäÈëµÄÖµ
+  * @brief          æ–œæ³¢å‡½æ•°è®¡ç®—ï¼Œæ ¹æ®è¾“å…¥çš„å€¼è¿›è¡Œå åŠ ï¼Œ è¾“å…¥å•ä½ä¸º /s å³ä¸€ç§’åå¢åŠ è¾“å…¥çš„å€¼
   * @author         RM
-  * @param[in]      Ğ±²¨º¯Êı½á¹¹Ìå
-  * @param[in]      ÊäÈëÖµ
-  * @param[in]      ÂË²¨²ÎÊı
-  * @retval         ·µ»Ø¿Õ
+  * @param[in]      æ–œæ³¢å‡½æ•°ç»“æ„ä½“
+  * @param[in]      è¾“å…¥å€¼
+  * @param[in]      æ»¤æ³¢å‚æ•°
+  * @retval         è¿”å›ç©º
   */
 void ramp_calc(ramp_function_source_t *ramp_source_type, fp32 input)
 {
@@ -53,12 +53,12 @@ void ramp_calc(ramp_function_source_t *ramp_source_type, fp32 input)
 }
 
 /**
-  * @brief          Ò»½×µÍÍ¨ÂË²¨³õÊ¼»¯
+  * @brief          ä¸€é˜¶ä½é€šæ»¤æ³¢åˆå§‹åŒ–
   * @author         RM
-  * @param[in]      Ò»½×µÍÍ¨ÂË²¨½á¹¹Ìå
-  * @param[in]      ¼ä¸ôµÄÊ±¼ä£¬µ¥Î» s
-  * @param[in]      ÂË²¨²ÎÊı
-  * @retval         ·µ»Ø¿Õ
+  * @param[in]      ä¸€é˜¶ä½é€šæ»¤æ³¢ç»“æ„ä½“
+  * @param[in]      é—´éš”çš„æ—¶é—´ï¼Œå•ä½ s
+  * @param[in]      æ»¤æ³¢å‚æ•°
+  * @retval         è¿”å›ç©º
   */
 void first_order_filter_init(first_order_filter_type_t *first_order_filter_type, fp32 frame_period, const fp32 *num)
 {
@@ -69,11 +69,11 @@ void first_order_filter_init(first_order_filter_type_t *first_order_filter_type,
 }
 
 /**
-  * @brief          Ò»½×µÍÍ¨ÂË²¨¼ÆËã
+  * @brief          ä¸€é˜¶ä½é€šæ»¤æ³¢è®¡ç®—
   * @author         RM
-  * @param[in]      Ò»½×µÍÍ¨ÂË²¨½á¹¹Ìå
-  * @param[in]      ¼ä¸ôµÄÊ±¼ä£¬µ¥Î» s
-  * @retval         ·µ»Ø¿Õ
+  * @param[in]      ä¸€é˜¶ä½é€šæ»¤æ³¢ç»“æ„ä½“
+  * @param[in]      é—´éš”çš„æ—¶é—´ï¼Œå•ä½ s
+  * @retval         è¿”å›ç©º
   */
 void first_order_filter_cali(first_order_filter_type_t *first_order_filter_type, fp32 input)
 {
@@ -88,7 +88,7 @@ void first_order_filter_cali(first_order_filter_type_t *first_order_filter_type,
 																	 first_order_filter_type->input;
 }
 
-//¾ø¶ÔÏŞÖÆ
+//ç»å¯¹é™åˆ¶
 void abs_limit(fp32 *num, fp32 Limit)
 {
     if (*num > Limit)
@@ -101,7 +101,7 @@ void abs_limit(fp32 *num, fp32 Limit)
     }
 }
 
-//ÅĞ¶Ï·ûºÅÎ»
+//åˆ¤æ–­ç¬¦å·ä½
 fp32 sign(fp32 value)
 {
     if (value >= 0.0f)
@@ -114,7 +114,7 @@ fp32 sign(fp32 value)
     }
 }
 
-//¸¡µãËÀÇø
+//æµ®ç‚¹æ­»åŒº
 fp32 fp32_deadline(fp32 Value, fp32 minValue, fp32 maxValue)
 {
     if (Value < maxValue && Value > minValue)
@@ -124,7 +124,7 @@ fp32 fp32_deadline(fp32 Value, fp32 minValue, fp32 maxValue)
     return Value;
 }
 
-//int16ËÀÇø
+//int16æ­»åŒº
 int16_t int16_deadline(int16_t Value, int16_t minValue, int16_t maxValue)
 {
     if (Value < maxValue && Value > minValue)
@@ -134,7 +134,7 @@ int16_t int16_deadline(int16_t Value, int16_t minValue, int16_t maxValue)
     return Value;
 }
 
-//ÏŞ·ùº¯Êı
+//é™å¹…å‡½æ•°
 fp32 fp32_constrain(fp32 Value, fp32 minValue, fp32 maxValue)
 {
     if (Value < minValue)
@@ -145,7 +145,7 @@ fp32 fp32_constrain(fp32 Value, fp32 minValue, fp32 maxValue)
         return Value;
 }
 
-//ÏŞ·ùº¯Êı
+//é™å¹…å‡½æ•°
 int16_t int16_constrain(int16_t Value, int16_t minValue, int16_t maxValue)
 {
     if (Value < minValue)
@@ -156,7 +156,7 @@ int16_t int16_constrain(int16_t Value, int16_t minValue, int16_t maxValue)
         return Value;
 }
 
-//Ñ­»·ÏŞ·ùº¯Êı
+//å¾ªç¯é™å¹…å‡½æ•°
 fp32 loop_fp32_constrain(fp32 Input, fp32 minValue, fp32 maxValue)
 {
 	if (maxValue < minValue) return Input;
@@ -181,9 +181,9 @@ fp32 loop_fp32_constrain(fp32 Input, fp32 minValue, fp32 maxValue)
 	return Input;
 }
 
-//»¡¶È¸ñÊ½»¯Îª-PI~PI
+//å¼§åº¦æ ¼å¼åŒ–ä¸º-PI~PI
 
-//½Ç¶È¸ñÊ½»¯Îª-180~180
+//è§’åº¦æ ¼å¼åŒ–ä¸º-180~180
 fp32 theta_format(fp32 Ang)
 {
     return loop_fp32_constrain(Ang, -180.0f, 180.0f);

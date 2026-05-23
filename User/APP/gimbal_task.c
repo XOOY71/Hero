@@ -21,6 +21,10 @@
 
 gimbal_control_t gimbal_control;
 
+#ifndef GIMBAL_MIT_FEEDBACK_INIT_DELAY
+#define GIMBAL_MIT_FEEDBACK_INIT_DELAY 100U
+#endif
+
 #ifndef GIMBAL_YAW_MIT_INDEX
 #define GIMBAL_YAW_MIT_INDEX 0U
 #endif
@@ -46,16 +50,17 @@ static float gimbal_wrap_angle(float angle);
 static float gimbal_take_auto_aim_bias(gimbal_motor_t *motor);
 static float gimbal_clamp(float value, float min_value, float max_value);
 static float gimbal_calc_static_friction_comp_raw(float angle_error);
-static float gimbal_update_static_friction_comp(gimbal_motor_t *motor, float angle_error);
+static float gimbal_update_static_friction_comp(float *friction_comp, float angle_error);
 static float gimbal_float_to_torque_cmd(float output);
-static float gimbal_calc_feedforward(gimbal_motor_t *motor);
-static float gimbal_calc_feedback_torque(gimbal_motor_t *motor, gimbal_pid_t *angle_pid, float angle_get, float angle_set);
-static float gimbal_calc_angle_speed_torque(gimbal_motor_t *motor, gimbal_pid_t *pid, float angle_error);
-static float gimbal_calc_yaw_angle_speed_torque(gimbal_motor_t *motor, float angle_error);
+static float gimbal_calc_feedforward(gimbal_motor_t *motor, float ref_vel, float ref_accel);
+static float gimbal_calc_feedback_torque(gimbal_motor_t *motor, gimbal_pid_t *angle_pid, float angle_get, float angle_set, float *friction_comp);
+static float gimbal_calc_angle_speed_torque(gimbal_motor_t *motor, gimbal_pid_t *pid, float angle_error, float ref_vel, float *friction_comp);
+static void gimbal_commit_motor_output(gimbal_motor_t *motor);
 void gimbal_vofa_send_fric(void);
 void gimbal_vofa_send_yaw(void);
 void gimbal_vofa_send_pitch(void);
 void gimbal_vofa_send_yaw_pitch_half(void);
+void gimbal_vofa_send_strum(void);
 
 void GimbalTask_Init(void)
 {
@@ -85,7 +90,7 @@ static void gimbal_task(void const *pvParameters)
         gimbal_send_cmd(&gimbal_control);
         shoot_task_loop();
 
-        gimbal_vofa_send_yaw_pitch_half();
+        gimbal_vofa_send_strum();
 
         vTaskDelayUntil(&last_wake_time, GIMBAL_CONTROL_TIME);
     }
@@ -126,30 +131,111 @@ void gimbal_absolute_angle_limit(gimbal_motor_t *motor, float add)
 void gimbal_motor_absolute_angle_control(gimbal_motor_t *motor)
 {
     float angle_get;
-    float angle_set;
 
     if (motor == 0)
     {
         return;
     }
 
+    motor->rc_pid_torque = 0.0f;
+    motor->auto_pid_torque = 0.0f;
+    motor->rc_ff_torque = 0.0f;
+    motor->auto_ff_torque = 0.0f;
+    motor->rc_current_set = 0.0f;
+    motor->auto_current_set = 0.0f;
+
     if (motor == &gimbal_control.gimbal_yaw_motor)
     {
         angle_get = motor->absolute_angle;
-        angle_set = motor->absolute_angle_set;
-        gimbal_calc_yaw_angle_speed_torque(motor,
-                                           gimbal_wrap_angle(angle_set - angle_get));
+        if (motor->rc_control_enable != 0u)
+        {
+            motor->rc_pid_torque =
+                gimbal_calc_angle_speed_torque(motor,
+                                               &motor->rc_absolute_angle_pid,
+                                               gimbal_wrap_angle(motor->rc_absolute_angle_set - angle_get),
+                                               motor->rc_ref_vel,
+                                               &motor->rc_static_friction_comp);
+            motor->rc_ff_torque =
+                gimbal_calc_feedforward(motor, motor->rc_ref_vel, motor->rc_ref_accel);
+            motor->rc_current_set = motor->rc_pid_torque + motor->rc_ff_torque;
+        }
+        else
+        {
+            (void)gimbal_calc_angle_speed_torque(motor,
+                                                 &motor->rc_absolute_angle_pid,
+                                                 gimbal_wrap_angle(motor->rc_absolute_angle_set - angle_get),
+                                                 motor->rc_ref_vel,
+                                                 &motor->rc_static_friction_comp);
+        }
+
+        if (motor->auto_control_enable != 0u)
+        {
+            motor->auto_pid_torque =
+                gimbal_calc_angle_speed_torque(motor,
+                                               &motor->auto_absolute_angle_pid,
+                                               gimbal_wrap_angle(motor->auto_absolute_angle_set - angle_get),
+                                               motor->auto_ref_vel,
+                                               &motor->auto_static_friction_comp);
+            motor->auto_ff_torque =
+                gimbal_calc_feedforward(motor, motor->auto_ref_vel, motor->auto_ref_accel);
+            motor->auto_current_set = motor->auto_pid_torque + motor->auto_ff_torque;
+        }
+        else
+        {
+            (void)gimbal_calc_angle_speed_torque(motor,
+                                                 &motor->auto_absolute_angle_pid,
+                                                 gimbal_wrap_angle(motor->auto_absolute_angle_set - angle_get),
+                                                 motor->auto_ref_vel,
+                                                 &motor->auto_static_friction_comp);
+        }
     }
     else
     {
         angle_get = gimbal_wrap_angle(motor->absolute_angle);
-        angle_set = gimbal_wrap_angle(motor->absolute_angle_set);
-        gimbal_calc_feedback_torque(motor, &motor->absolute_angle_pid, angle_get, angle_set);
+        if (motor->rc_control_enable != 0u)
+        {
+            motor->rc_pid_torque =
+                gimbal_calc_feedback_torque(motor,
+                                            &motor->rc_absolute_angle_pid,
+                                            angle_get,
+                                            gimbal_wrap_angle(motor->rc_absolute_angle_set),
+                                            &motor->rc_static_friction_comp);
+            motor->rc_ff_torque =
+                gimbal_calc_feedforward(motor, motor->rc_ref_vel, motor->rc_ref_accel);
+            motor->rc_current_set = motor->rc_pid_torque + motor->rc_ff_torque;
+        }
+        else
+        {
+            (void)gimbal_calc_feedback_torque(motor,
+                                              &motor->rc_absolute_angle_pid,
+                                              angle_get,
+                                              gimbal_wrap_angle(motor->rc_absolute_angle_set),
+                                              &motor->rc_static_friction_comp);
+        }
+
+        if (motor->auto_control_enable != 0u)
+        {
+            motor->auto_pid_torque =
+                gimbal_calc_feedback_torque(motor,
+                                            &motor->auto_absolute_angle_pid,
+                                            angle_get,
+                                            gimbal_wrap_angle(motor->auto_absolute_angle_set),
+                                            &motor->auto_static_friction_comp);
+            motor->auto_ff_torque =
+                gimbal_calc_feedforward(motor, motor->auto_ref_vel, motor->auto_ref_accel);
+            motor->auto_current_set = motor->auto_pid_torque + motor->auto_ff_torque;
+        }
+        else
+        {
+            (void)gimbal_calc_feedback_torque(motor,
+                                              &motor->auto_absolute_angle_pid,
+                                              angle_get,
+                                              gimbal_wrap_angle(motor->auto_absolute_angle_set),
+                                              &motor->auto_static_friction_comp);
+        }
     }
 
-    motor->current_set = motor->pid_torque + gimbal_calc_feedforward(motor);
-    motor->output = motor->current_set;
-    motor->given_current = gimbal_float_to_torque_cmd(motor->output);
+    gimbal_commit_motor_output(motor);
 }
 
 void gimbal_motor_relative_angle_control(gimbal_motor_t *motor)
@@ -159,23 +245,103 @@ void gimbal_motor_relative_angle_control(gimbal_motor_t *motor)
         return;
     }
 
+    motor->rc_pid_torque = 0.0f;
+    motor->auto_pid_torque = 0.0f;
+    motor->rc_ff_torque = 0.0f;
+    motor->auto_ff_torque = 0.0f;
+    motor->rc_current_set = 0.0f;
+    motor->auto_current_set = 0.0f;
+
     if (motor == &gimbal_control.gimbal_yaw_motor)
     {
-        gimbal_calc_feedback_torque(motor,
-                                    &motor->relative_angle_pid,
-                                    0.0f,
-                                    gimbal_wrap_angle(motor->relative_angle_set - motor->relative_angle));
+        if (motor->rc_control_enable != 0u)
+        {
+            motor->rc_pid_torque =
+                gimbal_calc_feedback_torque(motor,
+                                            &motor->rc_relative_angle_pid,
+                                            0.0f,
+                                            gimbal_wrap_angle(motor->rc_relative_angle_set - motor->relative_angle),
+                                            &motor->rc_static_friction_comp);
+            motor->rc_ff_torque =
+                gimbal_calc_feedforward(motor, motor->rc_ref_vel, motor->rc_ref_accel);
+            motor->rc_current_set = motor->rc_pid_torque + motor->rc_ff_torque;
+        }
+        else
+        {
+            (void)gimbal_calc_feedback_torque(motor,
+                                              &motor->rc_relative_angle_pid,
+                                              0.0f,
+                                              gimbal_wrap_angle(motor->rc_relative_angle_set - motor->relative_angle),
+                                              &motor->rc_static_friction_comp);
+        }
+
+        if (motor->auto_control_enable != 0u)
+        {
+            motor->auto_pid_torque =
+                gimbal_calc_feedback_torque(motor,
+                                            &motor->auto_relative_angle_pid,
+                                            0.0f,
+                                            gimbal_wrap_angle(motor->auto_relative_angle_set - motor->relative_angle),
+                                            &motor->auto_static_friction_comp);
+            motor->auto_ff_torque =
+                gimbal_calc_feedforward(motor, motor->auto_ref_vel, motor->auto_ref_accel);
+            motor->auto_current_set = motor->auto_pid_torque + motor->auto_ff_torque;
+        }
+        else
+        {
+            (void)gimbal_calc_feedback_torque(motor,
+                                              &motor->auto_relative_angle_pid,
+                                              0.0f,
+                                              gimbal_wrap_angle(motor->auto_relative_angle_set - motor->relative_angle),
+                                              &motor->auto_static_friction_comp);
+        }
     }
     else
     {
-        gimbal_calc_angle_speed_torque(motor,
-                                       &motor->relative_angle_pid,
-                                       motor->relative_angle_set - motor->relative_angle);
+        if (motor->rc_control_enable != 0u)
+        {
+            motor->rc_pid_torque =
+                gimbal_calc_angle_speed_torque(motor,
+                                               &motor->rc_relative_angle_pid,
+                                               motor->rc_relative_angle_set - motor->relative_angle,
+                                               motor->rc_ref_vel,
+                                               &motor->rc_static_friction_comp);
+            motor->rc_ff_torque =
+                gimbal_calc_feedforward(motor, motor->rc_ref_vel, motor->rc_ref_accel);
+            motor->rc_current_set = motor->rc_pid_torque + motor->rc_ff_torque;
+        }
+        else
+        {
+            (void)gimbal_calc_angle_speed_torque(motor,
+                                                 &motor->rc_relative_angle_pid,
+                                                 motor->rc_relative_angle_set - motor->relative_angle,
+                                                 motor->rc_ref_vel,
+                                                 &motor->rc_static_friction_comp);
+        }
+
+        if (motor->auto_control_enable != 0u)
+        {
+            motor->auto_pid_torque =
+                gimbal_calc_angle_speed_torque(motor,
+                                               &motor->auto_relative_angle_pid,
+                                               motor->auto_relative_angle_set - motor->relative_angle,
+                                               motor->auto_ref_vel,
+                                               &motor->auto_static_friction_comp);
+            motor->auto_ff_torque =
+                gimbal_calc_feedforward(motor, motor->auto_ref_vel, motor->auto_ref_accel);
+            motor->auto_current_set = motor->auto_pid_torque + motor->auto_ff_torque;
+        }
+        else
+        {
+            (void)gimbal_calc_angle_speed_torque(motor,
+                                                 &motor->auto_relative_angle_pid,
+                                                 motor->auto_relative_angle_set - motor->relative_angle,
+                                                 motor->auto_ref_vel,
+                                                 &motor->auto_static_friction_comp);
+        }
     }
 
-    motor->current_set = motor->pid_torque + gimbal_calc_feedforward(motor);
-    motor->output = motor->current_set;
-    motor->given_current = gimbal_float_to_torque_cmd(motor->output);
+    gimbal_commit_motor_output(motor);
 }
 
 void gimbal_motor_raw_angle_control(gimbal_motor_t *motor)
@@ -190,6 +356,16 @@ void gimbal_motor_raw_angle_control(gimbal_motor_t *motor)
     motor->pid_torque = 0.0f;
     motor->ff_torque = 0.0f;
     motor->static_friction_comp = 0.0f;
+    motor->rc_pid_torque = 0.0f;
+    motor->auto_pid_torque = 0.0f;
+    motor->rc_ff_torque = 0.0f;
+    motor->auto_ff_torque = 0.0f;
+    motor->rc_current_set = 0.0f;
+    motor->auto_current_set = 0.0f;
+    motor->rc_static_friction_comp = 0.0f;
+    motor->auto_static_friction_comp = 0.0f;
+    motor->rc_control_enable = 0u;
+    motor->auto_control_enable = 0u;
     motor->given_current = gimbal_float_to_torque_cmd(motor->output);
 }
 
@@ -299,22 +475,21 @@ static float gimbal_calc_static_friction_comp_raw(float angle_error)
     return 0.0f;
 }
 
-static float gimbal_update_static_friction_comp(gimbal_motor_t *motor, float angle_error)
+static float gimbal_update_static_friction_comp(float *friction_comp, float angle_error)
 {
     float alpha;
     float comp_cmd;
 
     comp_cmd = gimbal_calc_static_friction_comp_raw(angle_error);
-    if (motor == 0)
+    if (friction_comp == 0)
     {
         return comp_cmd;
     }
 
     alpha = gimbal_clamp(GIMBAL_STATIC_FRICTION_FILTER_ALPHA, 0.0f, 1.0f);
-    motor->static_friction_comp +=
-        alpha * (comp_cmd - motor->static_friction_comp);
+    *friction_comp += alpha * (comp_cmd - *friction_comp);
 
-    return motor->static_friction_comp;
+    return *friction_comp;
 }
 
 static float gimbal_float_to_torque_cmd(float output)
@@ -322,7 +497,7 @@ static float gimbal_float_to_torque_cmd(float output)
     return gimbal_clamp(output, T_MIN, T_MAX);
 }
 
-static float gimbal_calc_feedforward(gimbal_motor_t *motor)
+static float gimbal_calc_feedforward(gimbal_motor_t *motor, float ref_vel, float ref_accel)
 {
     float velocity_torque = 0.0f;
 
@@ -333,15 +508,13 @@ static float gimbal_calc_feedforward(gimbal_motor_t *motor)
 
     if (motor == &gimbal_control.gimbal_pitch_motor)
     {
-        velocity_torque = PITCH_VELOCITY_FF_GAIN * motor->ref_vel;
+        velocity_torque = PITCH_VELOCITY_FF_GAIN * ref_vel;
     }
 
-    motor->ff_torque = velocity_torque + motor->inertia_kgm2 * motor->ref_accel;
-
-    return motor->ff_torque;
+    return velocity_torque + motor->inertia_kgm2 * ref_accel;
 }
 
-static float gimbal_calc_feedback_torque(gimbal_motor_t *motor, gimbal_pid_t *angle_pid, float angle_get, float angle_set)
+static float gimbal_calc_feedback_torque(gimbal_motor_t *motor, gimbal_pid_t *angle_pid, float angle_get, float angle_set, float *friction_comp)
 {
     float angle_torque;
     float angle_error;
@@ -354,15 +527,12 @@ static float gimbal_calc_feedback_torque(gimbal_motor_t *motor, gimbal_pid_t *an
     motor->gyro_set = motor->ref_vel;
     angle_error = angle_set - angle_get;
     angle_torque = gimbal_pid_calc(angle_pid, angle_get, angle_set, 0.0f);
-    motor->pid_torque =
-        gimbal_clamp(angle_torque + gimbal_update_static_friction_comp(motor, angle_error),
-                     -angle_pid->max_out,
-                     angle_pid->max_out);
-
-    return motor->pid_torque;
+    return gimbal_clamp(angle_torque + gimbal_update_static_friction_comp(friction_comp, angle_error),
+                        -angle_pid->max_out,
+                        angle_pid->max_out);
 }
 
-static float gimbal_calc_angle_speed_torque(gimbal_motor_t *motor, gimbal_pid_t *pid, float angle_error)
+static float gimbal_calc_angle_speed_torque(gimbal_motor_t *motor, gimbal_pid_t *pid, float angle_error, float ref_vel, float *friction_comp)
 {
     float speed_error;
     float output;
@@ -372,8 +542,7 @@ static float gimbal_calc_angle_speed_torque(gimbal_motor_t *motor, gimbal_pid_t 
         return 0.0f;
     }
 
-    motor->gyro_set = motor->ref_vel;
-    speed_error = motor->gyro_set - motor->gyro;
+    speed_error = ref_vel - motor->gyro;
 
     pid->set = angle_error;
     pid->fdb = 0.0f;
@@ -384,22 +553,34 @@ static float gimbal_calc_angle_speed_torque(gimbal_motor_t *motor, gimbal_pid_t 
     pid->Iout = 0.0f;
     pid->Dout = pid->Kd * speed_error;
 
-    output = pid->Pout + pid->Dout + gimbal_update_static_friction_comp(motor, angle_error);
+    output = pid->Pout + pid->Dout + gimbal_update_static_friction_comp(friction_comp, angle_error);
     output = gimbal_clamp(output, -pid->max_out, pid->max_out);
     pid->out = output;
-    motor->pid_torque = output;
 
-    return motor->pid_torque;
+    return output;
 }
 
-static float gimbal_calc_yaw_angle_speed_torque(gimbal_motor_t *motor, float angle_error)
+static void gimbal_commit_motor_output(gimbal_motor_t *motor)
 {
     if (motor == 0)
     {
-        return 0.0f;
+        return;
     }
 
-    return gimbal_calc_angle_speed_torque(motor, &motor->absolute_angle_pid, angle_error);
+    motor->pid_torque = motor->rc_pid_torque + motor->auto_pid_torque;
+    motor->ff_torque = motor->rc_ff_torque + motor->auto_ff_torque;
+    motor->static_friction_comp =
+        motor->rc_static_friction_comp + motor->auto_static_friction_comp;
+    motor->ref_vel =
+        ((motor->rc_control_enable != 0u) ? motor->rc_ref_vel : 0.0f) +
+        ((motor->auto_control_enable != 0u) ? motor->auto_ref_vel : 0.0f);
+    motor->ref_accel =
+        ((motor->rc_control_enable != 0u) ? motor->rc_ref_accel : 0.0f) +
+        ((motor->auto_control_enable != 0u) ? motor->auto_ref_accel : 0.0f);
+    motor->gyro_set = motor->ref_vel;
+    motor->current_set = motor->rc_current_set + motor->auto_current_set;
+    motor->output = motor->current_set;
+    motor->given_current = gimbal_float_to_torque_cmd(motor->output);
 }
 
 void gimbal_vofa_send_fric(void)
@@ -453,4 +634,16 @@ void gimbal_vofa_send_yaw_pitch_half(void)
                pitch->relative_angle_set,
                pitch->relative_angle,
                pitch->static_friction_comp);
+}
+
+void gimbal_vofa_send_strum(void)
+{
+    const MITMeasure_t *strum = &MIT_MOTOR_MEASURE[SHOOT_STRUM_MIT_INDEX];
+
+    VOFA_Send6(strum->fdb.pos,
+               strum->set.POS,
+               strum->fdb.vel,
+               strum->fdb.tor,
+               strum->set.TOR,
+               strum->fdb.t_motor);
 }

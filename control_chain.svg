@@ -1,0 +1,87 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="760" viewBox="0 0 1280 760">
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#334155"/>
+    </marker>
+    <style>
+      text { font-family: "Microsoft YaHei", "Noto Sans CJK SC", Arial, sans-serif; fill: #0f172a; }
+      .title { font-size: 28px; font-weight: 700; }
+      .small { font-size: 16px; }
+      .box-title { font-size: 19px; font-weight: 700; }
+      .box { fill: #f8fafc; stroke: #64748b; stroke-width: 2; rx: 10; }
+      .rc { fill: #ecfeff; stroke: #0891b2; }
+      .auto { fill: #f0fdf4; stroke: #16a34a; }
+      .core { fill: #fff7ed; stroke: #ea580c; }
+      .out { fill: #fef2f2; stroke: #dc2626; }
+      .param { fill: #f1f5f9; stroke: #94a3b8; stroke-width: 1.5; rx: 8; }
+      .arrow { stroke: #334155; stroke-width: 2.2; fill: none; marker-end: url(#arrow); }
+      .muted { fill: #475569; }
+    </style>
+  </defs>
+
+  <rect x="0" y="0" width="1280" height="760" fill="#ffffff"/>
+  <text x="48" y="48" class="title">云台控制链路：遥控/键鼠 + 自瞄并行生效</text>
+  <text x="48" y="78" class="small muted">目标角分开生成，PID 和前馈分开计算，最终电流命令相加后限幅输出。</text>
+
+  <rect x="44" y="120" width="235" height="120" class="box rc"/>
+  <text x="64" y="154" class="box-title">遥控/键鼠输入</text>
+  <text x="64" y="184" class="small">rc.ch[YAW/PITCH]</text>
+  <text x="64" y="210" class="small">mouse.x / mouse.y</text>
+  <text x="64" y="232" class="small muted">灵敏度：YAW_RC_SEN 等</text>
+
+  <rect x="44" y="310" width="235" height="120" class="box auto"/>
+  <text x="64" y="344" class="box-title">自瞄误差输入</text>
+  <text x="64" y="374" class="small">auto_aim_get_yaw_err_rad()</text>
+  <text x="64" y="400" class="small">auto_aim_get_pitch_err_rad()</text>
+  <text x="64" y="422" class="small muted">开关：auto_aim_is_active()</text>
+
+  <rect x="340" y="120" width="245" height="120" class="box rc"/>
+  <text x="360" y="154" class="box-title">遥控目标角</text>
+  <text x="360" y="184" class="small">rc_absolute_angle_set</text>
+  <text x="360" y="210" class="small">rc_relative_angle_set</text>
+  <text x="360" y="232" class="small muted">add_yaw / add_pitch 累加</text>
+
+  <rect x="340" y="310" width="245" height="120" class="box auto"/>
+  <text x="360" y="344" class="box-title">自瞄目标角规划</text>
+  <text x="360" y="374" class="small">auto_absolute_angle_set</text>
+  <text x="360" y="400" class="small">auto_relative_angle_set</text>
+  <text x="360" y="422" class="small muted">KP + 速度限幅 + 加速度限幅</text>
+
+  <rect x="650" y="120" width="230" height="120" class="box core"/>
+  <text x="670" y="154" class="box-title">遥控前馈 + PID</text>
+  <text x="670" y="184" class="small">rc_ref_vel / rc_ref_accel</text>
+  <text x="670" y="210" class="small">rc_*_angle_pid</text>
+  <text x="670" y="232" class="small muted">rc_current_set</text>
+
+  <rect x="650" y="310" width="230" height="120" class="box core"/>
+  <text x="670" y="344" class="box-title">自瞄前馈 + PID</text>
+  <text x="670" y="374" class="small">auto_ref_vel / auto_ref_accel</text>
+  <text x="670" y="400" class="small">auto_*_angle_pid</text>
+  <text x="670" y="422" class="small muted">auto_current_set</text>
+
+  <rect x="945" y="210" width="230" height="130" class="box out"/>
+  <text x="965" y="246" class="box-title">输出汇合</text>
+  <text x="965" y="278" class="small">current_set =</text>
+  <text x="965" y="304" class="small">rc_current_set + auto_current_set</text>
+  <text x="965" y="326" class="small muted">given_current 限幅到 T_MIN/T_MAX</text>
+
+  <rect x="945" y="420" width="230" height="95" class="box out"/>
+  <text x="965" y="454" class="box-title">电机输出</text>
+  <text x="965" y="484" class="small">CAN_cmd_MIT()</text>
+  <text x="965" y="506" class="small muted">yaw / pitch 力矩命令</text>
+
+  <path d="M279 180 H340" class="arrow"/>
+  <path d="M279 370 H340" class="arrow"/>
+  <path d="M585 180 H650" class="arrow"/>
+  <path d="M585 370 H650" class="arrow"/>
+  <path d="M880 180 C915 180 915 250 945 250" class="arrow"/>
+  <path d="M880 370 C915 370 915 300 945 300" class="arrow"/>
+  <path d="M1060 340 V420" class="arrow"/>
+
+  <rect x="44" y="560" width="1131" height="145" class="param"/>
+  <text x="64" y="594" class="box-title">关键参数</text>
+  <text x="64" y="626" class="small">输入灵敏度：YAW_RC_SEN、PITCH_RC_SEN、YAW_MOUSE_SEN、PITCH_MOUSE_SEN</text>
+  <text x="64" y="652" class="small">自瞄规划：GIMBAL_AUTO_AIM_YAW/PITCH_KP、GIMBAL_AUTO_AIM_YAW/PITCH_MAX_SPEED、GIMBAL_AUTO_AIM_YAW/PITCH_MAX_ACCEL</text>
+  <text x="64" y="678" class="small">PID参数：YAW/PITCH_GYRO_ABSOLUTE_PID_*、YAW/PITCH_ENCODE_RELATIVE_PID_*、AUTO_AIM_*_PID_*</text>
+  <text x="64" y="704" class="small">前馈参数：YAW_REF_VEL_FILTER_ALPHA、YAW_REF_ACCEL_LIMIT、PITCH_VELOCITY_FF_GAIN、YAW_INERTIA_KGM2、PITCH_INERTIA_KGM2</text>
+</svg>

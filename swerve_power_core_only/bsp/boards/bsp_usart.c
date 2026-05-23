@@ -28,24 +28,24 @@ extern RC_ctrl_t rc_ctrl;
 
 //#define DMA_FLAG_TCIF5 ((uint32_t)0x20000800)
 uint8_t gimbal_data[GIMBAL_DATA_LENGTH] = {0};
-uint8_t usart1_buf[2][USART_BUF_LENGHT];//ÉèÖÃË«»º³åÇø
+uint8_t usart1_buf[2][USART_BUF_LENGHT];//è®¾ç½®åŒç¼“å†²åŒº
 uint8_t data_send_from_pc[ USART_BUF_LENGHT/2] = {0};
 uint8_t data_send_from_pc6[ USART_BUF_LENGHT ] = {0};
 uint8_t data_send_from_chassis[ USART_BUF_LENGHT] = {0};
-uint8_t restart_array[10]={0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF};//ÇëÇóÖØĞÂ·¢ËÍÊı¾İ
+uint8_t restart_array[10]={0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF};//è¯·æ±‚é‡æ–°å‘é€æ•°æ®
 
 void usart1_init(void)
 {
-	//Ê¹ÄÜDMA´®¿Ú½ÓÊÕºÍ·¢ËÍ
+	//ä½¿èƒ½DMAä¸²å£æ¥æ”¶å’Œå‘é€
 	SET_BIT(huart1.Instance->CR3, USART_CR3_DMAR);
 	SET_BIT(huart1.Instance->CR3, USART_CR3_DMAT);
 	
-	__HAL_UART_ENABLE_IT(&huart1, UART_IT_RXNE);	//½ÓÊÕÖĞ¶Ï
+	__HAL_UART_ENABLE_IT(&huart1, UART_IT_RXNE);	//æ¥æ”¶ä¸­æ–­
 	
-	//Ê¹ÄÜ¿ÕÏĞÖĞ¶Ï
+	//ä½¿èƒ½ç©ºé—²ä¸­æ–­
 	__HAL_UART_ENABLE_IT(&huart1, UART_IT_IDLE);
 	
-	//Ê§Ğ§DMA
+	//å¤±æ•ˆDMA
 	__HAL_DMA_DISABLE(&hdma_usart1_rx);
 	
 	while(hdma_usart1_rx.Instance->CR & DMA_SxCR_EN)
@@ -56,19 +56,19 @@ void usart1_init(void)
 	__HAL_DMA_CLEAR_FLAG(&hdma_usart1_rx, DMA_HISR_TCIF7);
 
 	hdma_usart1_rx.Instance->PAR = (uint32_t) & (USART1->DR);
-	//ÄÚ´æ»º³åÇø1
+	//å†…å­˜ç¼“å†²åŒº1
 	hdma_usart1_rx.Instance->M0AR = (uint32_t)(usart1_buf[0]);
-	//ÄÚ´æ»º³åÇø2
+	//å†…å­˜ç¼“å†²åŒº2
 	hdma_usart1_rx.Instance->M1AR = (uint32_t)(usart1_buf[1]);
-	//Êı¾İ³¤¶È3
+	//æ•°æ®é•¿åº¦3
 	__HAL_DMA_SET_COUNTER(&hdma_usart1_rx, USART_BUF_LENGHT);
-	//Ê¹ÄÜË«»º³åÇø
+	//ä½¿èƒ½åŒç¼“å†²åŒº
 	SET_BIT(hdma_usart1_rx.Instance->CR, DMA_SxCR_DBM);
 	
-	//Ê¹ÄÜDMA
+	//ä½¿èƒ½DMA
 	__HAL_DMA_ENABLE(&hdma_usart1_rx);
 	
-	//Ê§Ğ§DMA
+	//å¤±æ•ˆDMA
 	__HAL_DMA_DISABLE(&hdma_usart1_tx);
 
 	while(hdma_usart1_tx.Instance->CR & DMA_SxCR_EN)
@@ -80,13 +80,13 @@ void usart1_init(void)
 }
 
 void usart1_receive(void){
-	// ¿ªÊ¼DMA½ÓÊÕ
+	// å¼€å§‹DMAæ¥æ”¶
 	HAL_UART_Receive_DMA(&huart1, usart1_buf[0], USART_BUF_LENGHT/2);
 }
 
 void usart1_tx_dma_init(void)
 {
-	//Ê§Ğ§DMA
+	//å¤±æ•ˆDMA
 	__HAL_DMA_DISABLE(&hdma_usart1_tx);
 
 	while(hdma_usart1_tx.Instance->CR & DMA_SxCR_EN)
@@ -101,7 +101,7 @@ void usart1_tx_dma_init(void)
 
 void usart1_tx_dma_enable(uint8_t *data, uint16_t len)
 {
-	//Ê§Ğ§DMA
+	//å¤±æ•ˆDMA
 	__HAL_DMA_DISABLE(&hdma_usart1_tx);
 
 	while(hdma_usart1_tx.Instance->CR & DMA_SxCR_EN)
@@ -119,7 +119,7 @@ void usart1_tx_dma_enable(uint8_t *data, uint16_t len)
 
 void usart6_tx_dma_enable(uint8_t *data, uint16_t len)
 {
-	//Ê§Ğ§DMA
+	//å¤±æ•ˆDMA
 	__HAL_DMA_DISABLE(&hdma_usart6_tx);
 
 	while(hdma_usart6_tx.Instance->CR & DMA_SxCR_EN)
@@ -135,7 +135,7 @@ void usart6_tx_dma_enable(uint8_t *data, uint16_t len)
 	__HAL_DMA_ENABLE(&hdma_usart6_tx);
 }
 
-//µ×ÅÌ¡¢ÔÆÌ¨µÄÊı¾İ½ÓÊÕ
+//åº•ç›˜ã€äº‘å°çš„æ•°æ®æ¥æ”¶
 void uart1_data_receive(void)
 {
 	static uint16_t this_time_rx_len = 0;
@@ -148,20 +148,20 @@ void uart1_data_receive(void)
 		{
 			__HAL_DMA_DISABLE(&hdma_usart1_rx);
 
-			//»ñÈ¡½ÓÊÕÊı¾İ³¤¶È,³¤¶È = Éè¶¨³¤¶È - Ê£Óà³¤¶È
+			//è·å–æ¥æ”¶æ•°æ®é•¿åº¦,é•¿åº¦ = è®¾å®šé•¿åº¦ - å‰©ä½™é•¿åº¦
 			this_time_rx_len = USART_BUF_LENGHT - hdma_usart1_rx.Instance->NDTR;
 
 			hdma_usart1_rx.Instance->NDTR = USART_BUF_LENGHT;
 
-			//Éè¶¨»º³åÇø1
+			//è®¾å®šç¼“å†²åŒº1
 			hdma_usart1_rx.Instance->CR |= DMA_SxCR_CT;
 			
-			//Ê¹ÄÜDMA
+			//ä½¿èƒ½DMA
 			__HAL_DMA_ENABLE(&hdma_usart1_rx);
 			
 			#ifdef chassis_board
 				memcpy(gimbal_data, usart1_buf[0], GIMBAL_DATA_LENGTH);
-				//´¦ÀíÀ´×ÔÔÆÌ¨·¢ËÍµÄĞÅÏ¢
+				//å¤„ç†æ¥è‡ªäº‘å°å‘é€çš„ä¿¡æ¯
 				gimbal_to_chassis(gimbal_data);
 				
 				if(RC_TYPE == 1)
@@ -173,20 +173,20 @@ void uart1_data_receive(void)
 		else{
 			__HAL_DMA_DISABLE(&hdma_usart1_rx);
 
-			//»ñÈ¡½ÓÊÕÊı¾İ³¤¶È,³¤¶È = Éè¶¨³¤¶È - Ê£Óà³¤¶È
+			//è·å–æ¥æ”¶æ•°æ®é•¿åº¦,é•¿åº¦ = è®¾å®šé•¿åº¦ - å‰©ä½™é•¿åº¦
 			this_time_rx_len = USART_BUF_LENGHT - hdma_usart1_rx.Instance->NDTR;
 
 			hdma_usart1_rx.Instance->NDTR = USART_BUF_LENGHT;
 
-			//Éè¶¨»º³åÇø0
+			//è®¾å®šç¼“å†²åŒº0
 			DMA2_Stream5->CR &= ~(DMA_SxCR_CT);
 			
-			//Ê¹ÄÜDMA
+			//ä½¿èƒ½DMA
 			__HAL_DMA_ENABLE(&hdma_usart1_rx);
 			
 			#ifdef chassis_board
 				memcpy(gimbal_data, usart1_buf[1], GIMBAL_DATA_LENGTH);
-				//´¦ÀíÀ´×ÔÔÆÌ¨·¢ËÍµÄĞÅÏ¢
+				//å¤„ç†æ¥è‡ªäº‘å°å‘é€çš„ä¿¡æ¯
 				gimbal_to_chassis(gimbal_data);
 			#endif
 		}
@@ -195,14 +195,14 @@ void uart1_data_receive(void)
 
 void usart6_init(uint8_t *rx0_buf, uint8_t *rx1_buf, uint16_t dma_buf_num)
 {
-	//Ê¹ÄÜDMA´®¿Ú½ÓÊÕºÍ·¢ËÍ
+	//ä½¿èƒ½DMAä¸²å£æ¥æ”¶å’Œå‘é€
 	SET_BIT(huart6.Instance->CR3, USART_CR3_DMAR);
 	SET_BIT(huart6.Instance->CR3, USART_CR3_DMAT);
 
-	//Ê¹ÄÜ¿ÕÏĞÖĞ¶Ï
+	//ä½¿èƒ½ç©ºé—²ä¸­æ–­
 	__HAL_UART_ENABLE_IT(&huart6, UART_IT_IDLE);
 
-	//Ê§Ğ§DMA
+	//å¤±æ•ˆDMA
 	__HAL_DMA_DISABLE(&hdma_usart6_rx);
 	
 	while(hdma_usart6_rx.Instance->CR & DMA_SxCR_EN)
@@ -213,20 +213,20 @@ void usart6_init(uint8_t *rx0_buf, uint8_t *rx1_buf, uint16_t dma_buf_num)
 	__HAL_DMA_CLEAR_FLAG(&hdma_usart6_rx, DMA_LISR_TCIF1);
 
 	hdma_usart6_rx.Instance->PAR = (uint32_t) & (USART6->DR);
-	//ÄÚ´æ»º³åÇø1
+	//å†…å­˜ç¼“å†²åŒº1
 	hdma_usart6_rx.Instance->M0AR = (uint32_t)(rx0_buf);
-	//ÄÚ´æ»º³åÇø2
+	//å†…å­˜ç¼“å†²åŒº2
 	hdma_usart6_rx.Instance->M1AR = (uint32_t)(rx1_buf);
-	//Êı¾İ³¤¶È
+	//æ•°æ®é•¿åº¦
 	__HAL_DMA_SET_COUNTER(&hdma_usart6_rx, dma_buf_num);
 
-	//Ê¹ÄÜË«»º³åÇø
+	//ä½¿èƒ½åŒç¼“å†²åŒº
 	SET_BIT(hdma_usart6_rx.Instance->CR, DMA_SxCR_DBM);
 
-	//Ê¹ÄÜDMA
+	//ä½¿èƒ½DMA
 	__HAL_DMA_ENABLE(&hdma_usart6_rx);
 
-	//Ê§Ğ§DMA
+	//å¤±æ•ˆDMA
 	__HAL_DMA_DISABLE(&hdma_usart6_tx);
 
 	while(hdma_usart6_tx.Instance->CR & DMA_SxCR_EN)
@@ -237,10 +237,10 @@ void usart6_init(uint8_t *rx0_buf, uint8_t *rx1_buf, uint16_t dma_buf_num)
 	hdma_usart6_tx.Instance->PAR = (uint32_t) & (USART6->DR);
 }
 
-//´®¿Ú6µÄ»Øµ÷º¯Êı
+//ä¸²å£6çš„å›è°ƒå‡½æ•°
 void usart6_rx_complete_callback(uint8_t *buf, uint16_t len) {
-	// ÏÈÑéÖ¤Êı¾İ°ü¸ñÊ½ÊÇ·ñÕıÈ·
-  // ¿½±´½ÓÊÕµ½µÄÊı¾İµ½data_send_from_pc
+	// å…ˆéªŒè¯æ•°æ®åŒ…æ ¼å¼æ˜¯å¦æ­£ç¡®
+  // æ‹·è´æ¥æ”¶åˆ°çš„æ•°æ®åˆ°data_send_from_pc
   if (buf[0] == 's' || buf[9] == 'e') {
 		memcpy(data_send_from_pc6, buf, len);
 		auto_aim(data_send_from_pc6);
@@ -250,29 +250,29 @@ void usart6_rx_complete_callback(uint8_t *buf, uint16_t len) {
   }
 }
 
-//ÕâĞ©±äÁ¿ÓÃÓÚÏÂÃæµÄº¯Êı
+//è¿™äº›å˜é‡ç”¨äºä¸‹é¢çš„å‡½æ•°
 fp32 GIMBAL_INS_yaw, GIMBAL_INS_pitch, GIMBAL_INS_roll;
 
-//µ×ÅÌ´¦ÀíÔÆÌ¨·¢À´µÄÊı¾İ
-//Ä¿Ç°·¢ËÍ¸øµ×ÅÌµÄÊı¾İ£ºyawµç»úÓÉ±àÂëÖµ×ª»»µÄ»¡¶ÈÖµ¡¢imuµÄyawÖµ¡¢pitchÖµ¡¢rollÖµ¡¢ÔÆÌ¨ĞĞÎªÄ£Ê½¡¢Éä»÷Ä£Ê½
+//åº•ç›˜å¤„ç†äº‘å°å‘æ¥çš„æ•°æ®
+//ç›®å‰å‘é€ç»™åº•ç›˜çš„æ•°æ®ï¼šyawç”µæœºç”±ç¼–ç å€¼è½¬æ¢çš„å¼§åº¦å€¼ã€imuçš„yawå€¼ã€pitchå€¼ã€rollå€¼ã€äº‘å°è¡Œä¸ºæ¨¡å¼ã€å°„å‡»æ¨¡å¼
 void gimbal_to_chassis(uint8_t *gimbal_data)
 {
-	static fp32_to_bytes motor_yaw_now;			//yawµç»úÓÉ±àÂëÖµ×ª»»µÄ»¡¶ÈÖµ
-	static fp32_to_bytes INS_yaw_now;				//´æ´¢INSÖ¸Õë, ÓÃÓÚ¼ÇÂ¼ÔÆÌ¨imuµÄyawÖµ
-	static fp32_to_bytes INS_pitch_now;			//´æ´¢INSÖ¸Õë, ÓÃÓÚ¼ÇÂ¼ÔÆÌ¨imuµÄpitchÖµ
-	static fp32_to_bytes INS_roll_now;			//´æ´¢INSÖ¸Õë, ÓÃÓÚ¼ÇÂ¼ÔÆÌ¨imuµÄrollÖµ
+	static fp32_to_bytes motor_yaw_now;			//yawç”µæœºç”±ç¼–ç å€¼è½¬æ¢çš„å¼§åº¦å€¼
+	static fp32_to_bytes INS_yaw_now;				//å­˜å‚¨INSæŒ‡é’ˆ, ç”¨äºè®°å½•äº‘å°imuçš„yawå€¼
+	static fp32_to_bytes INS_pitch_now;			//å­˜å‚¨INSæŒ‡é’ˆ, ç”¨äºè®°å½•äº‘å°imuçš„pitchå€¼
+	static fp32_to_bytes INS_roll_now;			//å­˜å‚¨INSæŒ‡é’ˆ, ç”¨äºè®°å½•äº‘å°imuçš„rollå€¼
 	
-#ifdef Sentinel_robot	//ÔÆÌ¨°åÍ¨¹ı°å¼şÍ¨ĞÅ¿ØÖÆµ×ÅÌ£¬Ïà¹ØÖ¸Áî
+#ifdef Sentinel_robot	//äº‘å°æ¿é€šè¿‡æ¿ä»¶é€šä¿¡æ§åˆ¶åº•ç›˜ï¼Œç›¸å…³æŒ‡ä»¤
 	static int_to_bytes order_now[4];
 	static uint8_t mode_now[2];
 #endif	
 	
-	static uint8_t gimbal_behaviour_now;		//ÔÆÌ¨ĞĞÎªÄ£Ê½
-	static uint8_t gimbal_shoot_mode_now;		//Éä»÷Ä£Ê½
+	static uint8_t gimbal_behaviour_now;		//äº‘å°è¡Œä¸ºæ¨¡å¼
+	static uint8_t gimbal_shoot_mode_now;		//å°„å‡»æ¨¡å¼
 	
-//	//µ×ÅÌ°åÍ¨ĞÅÊ§°Ü±£ÕÏ
-//	static fp32 last_gimbal_radian_of_ecd = 0;	//ÉÏÒ»´ÎµÄyawµç»ú»¡¶ÈÖµ
-//	static uint8_t error_count = 0;							//´íÎó¼ÆÊı
+//	//åº•ç›˜æ¿é€šä¿¡å¤±è´¥ä¿éšœ
+//	static fp32 last_gimbal_radian_of_ecd = 0;	//ä¸Šä¸€æ¬¡çš„yawç”µæœºå¼§åº¦å€¼
+//	static uint8_t error_count = 0;							//é”™è¯¯è®¡æ•°
 	
 	motor_yaw_now.bytes[0] = gimbal_data[1];
 	motor_yaw_now.bytes[1] = gimbal_data[2];
@@ -362,49 +362,49 @@ void gimbal_to_chassis(uint8_t *gimbal_data)
 //	last_gimbal_radian_of_ecd = chassis_move.gimbal_radian_of_ecd;
 }
 
-/****************** ´®¿Úµ÷ÊÔ ******************/
+/****************** ä¸²å£è°ƒè¯• ******************/
 /**
- * @brief ÀàËÆprintfµÄ´®¿Ú´òÓ¡º¯Êı£¬Í¨¹ıUSART6µÄDMA·¢ËÍ
- * @param format ¸ñÊ½»¯×Ö·û´®
- * @param ... ¿É±ä²ÎÊıÁĞ±í
- * @retval ·¢ËÍµÄ×Ö½ÚÊı£¬-1±íÊ¾³ö´í
+ * @brief ç±»ä¼¼printfçš„ä¸²å£æ‰“å°å‡½æ•°ï¼Œé€šè¿‡USART6çš„DMAå‘é€
+ * @param format æ ¼å¼åŒ–å­—ç¬¦ä¸²
+ * @param ... å¯å˜å‚æ•°åˆ—è¡¨
+ * @retval å‘é€çš„å­—èŠ‚æ•°ï¼Œ-1è¡¨ç¤ºå‡ºé”™
  */
 //int uart6_printf(const char *format, ...)
 //{
 //    va_list args;
 //    uint16_t len;
-//    static uint8_t print_buf[256];  // ¾²Ì¬»º³åÇø´æ´¢¸ñÊ½»¯ºóµÄ×Ö·û´®
+//    static uint8_t print_buf[256];  // é™æ€ç¼“å†²åŒºå­˜å‚¨æ ¼å¼åŒ–åçš„å­—ç¬¦ä¸²
 
-//    // ¼ì²éÊäÈë²ÎÊıºÏ·¨ĞÔ
+//    // æ£€æŸ¥è¾“å…¥å‚æ•°åˆæ³•æ€§
 //    if (format == NULL)
 //    {
 //        return -1;
 //    }
 
-//    // ³õÊ¼»¯¿É±ä²ÎÊıÁĞ±í
+//    // åˆå§‹åŒ–å¯å˜å‚æ•°åˆ—è¡¨
 //    va_start(args, format);
 
-//    // ½«¸ñÊ½»¯×Ö·û´®Ğ´Èë»º³åÇø
+//    // å°†æ ¼å¼åŒ–å­—ç¬¦ä¸²å†™å…¥ç¼“å†²åŒº
 //    len = vsnprintf((char *)print_buf, 256, format, args);
 
-//    // ½áÊø¿É±ä²ÎÊıÁĞ±í
+//    // ç»“æŸå¯å˜å‚æ•°åˆ—è¡¨
 //    va_end(args);
 
-//    // ¼ì²éÊÇ·ñ³¬³ö»º³åÇø´óĞ¡
+//    // æ£€æŸ¥æ˜¯å¦è¶…å‡ºç¼“å†²åŒºå¤§å°
 //    if (len < 0 || len >= 256)
 //    {
-//        return -1;  // ¸ñÊ½»¯Ê§°Ü»ò»º³åÇøÒç³ö
+//        return -1;  // æ ¼å¼åŒ–å¤±è´¥æˆ–ç¼“å†²åŒºæº¢å‡º
 //    }
 
-//    // Í¨¹ıDMA·¢ËÍ¸ñÊ½»¯ºóµÄ×Ö·û´®
+//    // é€šè¿‡DMAå‘é€æ ¼å¼åŒ–åçš„å­—ç¬¦ä¸²
 //    usart6_tx_dma_enable(print_buf, len);
 
-//    return len;  // ·µ»Ø·¢ËÍµÄ×Ö½ÚÊı
+//    return len;  // è¿”å›å‘é€çš„å­—èŠ‚æ•°
 //}
 
-// Ê¹ÓÃÊ¾Àı
+// ä½¿ç”¨ç¤ºä¾‹
 
-//if(tag_delay < 100) //UART6´®¿Úµ÷ÊÔ£¬¼õ»º·¢ËÍÆµÂÊ£¬±ÜÃâÏûÏ¢±»¸²¸Ç
+//if(tag_delay < 100) //UART6ä¸²å£è°ƒè¯•ï¼Œå‡ç¼“å‘é€é¢‘ç‡ï¼Œé¿å…æ¶ˆæ¯è¢«è¦†ç›–
 //{
 //	tag_delay ++;
 //}
@@ -413,4 +413,4 @@ void gimbal_to_chassis(uint8_t *gimbal_data)
 //	tag_delay = 0;
 //	uart6_printf("%.4f,%.4f,%.4f\r\n", angle_delta[0],wheel_angle[0],current_angle[0]);
 //}
-/****************** ´®¿Úµ÷ÊÔ ******************/
+/****************** ä¸²å£è°ƒè¯• ******************/

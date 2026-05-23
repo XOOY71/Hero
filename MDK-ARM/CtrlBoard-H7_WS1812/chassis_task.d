@@ -51,13 +51,13 @@ ctrlboard-h7_ws1812\chassis_task.o: ../Core/Inc/fdcan.h
 ctrlboard-h7_ws1812\chassis_task.o: D:\Keil5\ARM\ARMCC\Bin\..\include\stdbool.h
 ctrlboard-h7_ws1812\chassis_task.o: ../User/APP_Support/chassis_behaviour.h
 ctrlboard-h7_ws1812\chassis_task.o: ../User/APP/chassis_task.h
-ctrlboard-h7_ws1812\chassis_task.o: ../User/APP_Support/struct_typedef.h
 ctrlboard-h7_ws1812\chassis_task.o: ../User/APP/gimbal_task.h
 ctrlboard-h7_ws1812\chassis_task.o: ../User/BSP/remote_control.h
 ctrlboard-h7_ws1812\chassis_task.o: ../User/Algorithm/pid.h
 ctrlboard-h7_ws1812\chassis_task.o: ../User/Algorithm/gravity_comp.h
-ctrlboard-h7_ws1812\chassis_task.o: ../User/Algorithm/user_lib.h
 ctrlboard-h7_ws1812\chassis_task.o: ../User/Devices/hwt_imu.h
+ctrlboard-h7_ws1812\chassis_task.o: ../User/APP_Support/struct_typedef.h
+ctrlboard-h7_ws1812\chassis_task.o: ../User/Algorithm/user_lib.h
 ctrlboard-h7_ws1812\chassis_task.o: ../User/APP_Support/chassis_calculate.h
 ctrlboard-h7_ws1812\chassis_task.o: ../User/APP_Support/chassis_power_control.h
 ctrlboard-h7_ws1812\chassis_task.o: ../User/APP_Support/robot_param.h

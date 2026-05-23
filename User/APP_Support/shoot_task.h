@@ -9,20 +9,53 @@
 #include "project_config.h"
 #include "remote_control.h"
 
-/* ========================= shoot task 基础配置 ========================= */
+/* 射击任务基础配置 */
 #ifndef SHOOT_TASK_INIT_TIME
 #define SHOOT_TASK_INIT_TIME 200U         // 任务启动延时，单位 ms
 #endif
 
 #ifndef SHOOT_CONTROL_TIME
-#define SHOOT_CONTROL_TIME 1U             // shoot 控制周期，单位 ms
+#define SHOOT_CONTROL_TIME 1U             // 射击控制周期，单位 ms
 #endif
 
 #ifndef SHOOT_RC_MODE_CHANNEL
-#define SHOOT_RC_MODE_CHANNEL 1           // 遥控器 shoot 模式通道
+#define SHOOT_RC_MODE_CHANNEL 1           // 遥控器射击模式通道
 #endif
 
-/* ========================= 摩擦轮目标与保护配置 ========================= */
+/* 拨弹轮控制参数 */
+#ifndef SHOOT_STRUM_LONG_PRESS_TORQUE_NM
+#define SHOOT_STRUM_LONG_PRESS_TORQUE_NM 0.3f
+#endif
+
+#ifndef SHOOT_STRUM_SINGLE_TORQUE_FF_NM
+#define SHOOT_STRUM_SINGLE_TORQUE_FF_NM 0.000f
+#endif
+
+#ifndef SHOOT_STRUM_TORQUE_PID_KP
+#define SHOOT_STRUM_TORQUE_PID_KP 2.60f
+#endif
+
+#ifndef SHOOT_STRUM_TORQUE_PID_KI
+#define SHOOT_STRUM_TORQUE_PID_KI 0.0f
+#endif
+
+#ifndef SHOOT_STRUM_TORQUE_PID_KD
+#define SHOOT_STRUM_TORQUE_PID_KD 0.40f
+#endif
+
+#ifndef SHOOT_STRUM_TORQUE_PID_MAX_OUT
+#define SHOOT_STRUM_TORQUE_PID_MAX_OUT 0.6f
+#endif
+
+#ifndef SHOOT_STRUM_TORQUE_PID_MAX_IOUT
+#define SHOOT_STRUM_TORQUE_PID_MAX_IOUT 0.6f
+#endif
+
+#ifndef SHOOT_STRUM_POS_DEADBAND
+#define SHOOT_STRUM_POS_DEADBAND 0.02f
+#endif
+
+/* 摩擦轮目标与保护配置 */
 #ifndef SHOOT_FRIC_TARGET_SPEED_RPM
 #define SHOOT_FRIC_TARGET_SPEED_RPM 3502  // 三路摩擦轮统一目标转速，单位 rpm
 #endif
@@ -32,7 +65,7 @@
 #endif
 
 #ifndef SHOOT_FRIC_MAX_CURRENT
-#define SHOOT_FRIC_MAX_CURRENT 5       // 三路摩擦轮电流限幅，单位 A
+#define SHOOT_FRIC_MAX_CURRENT 5       // 三路摩擦轮电流上限，单位 A
 #endif
 
 #ifndef SHOOT_FRIC_CURRENT_CMD_FULL_SCALE
@@ -52,7 +85,7 @@
 #endif
 
 #ifndef SHOOT_FRIC_FEEDBACK_RANGE_RPM
-#define SHOOT_FRIC_FEEDBACK_RANGE_RPM 7000 // 速度反馈量程估计，供 ADRC 参数设计参考
+#define SHOOT_FRIC_FEEDBACK_RANGE_RPM 7000 // 速度反馈量程估计，用于 ADRC 参数设计
 #endif
 
 #ifndef SHOOT_FRIC_FDB_TIMEOUT
@@ -63,12 +96,7 @@
 #define SHOOT_FRIC_TEMP_LIMIT 80U         // 电机温度保护阈值
 #endif
 
-/* ========================= fric1 ADRC 参数 =========================
- * B0 越小，给出的补偿电流通常越大；太小会更躁、更容易过冲
- * RESPONSE_TIME_S 越小，速度环越激进，恢复更快；太小会更容易不稳
- * OBSERVER_RATIO 越大，扰动观测越敏感；太大更容易把噪声当扰动
- * OUTPUT_RATE_LIMIT 越大，电流爬升越快；太大时电流尖峰更明显
- */
+/* fric1 ADRC 参数 */
 #ifndef SHOOT_FRIC1_B0
 #define SHOOT_FRIC1_B0 10000.0f
 #endif
@@ -85,7 +113,7 @@
 #define SHOOT_FRIC1_OUTPUT_RATE_LIMIT 1000
 #endif
 
-/* ========================= fric2 ADRC 参数 ========================= */
+/* fric2 ADRC 参数 */
 #ifndef SHOOT_FRIC2_B0
 #define SHOOT_FRIC2_B0 10000.0f
 #endif
@@ -102,7 +130,7 @@
 #define SHOOT_FRIC2_OUTPUT_RATE_LIMIT 1000
 #endif
 
-/* ========================= fric3 ADRC 参数 ========================= */
+/* fric3 ADRC 参数 */
 #ifndef SHOOT_FRIC3_B0
 #define SHOOT_FRIC3_B0 10000.0f
 #endif
@@ -119,9 +147,9 @@
 #define SHOOT_FRIC3_OUTPUT_RATE_LIMIT 1000
 #endif
 
-/* ========================= ADRC 非线性项配置 ========================= */
+/* ADRC 非线性项配置 */
 #ifndef SHOOT_FRIC_ERROR_LINEAR_ZONE
-#define SHOOT_FRIC_ERROR_LINEAR_ZONE 120  // fal 线性区间，增大后小误差段更平缓
+#define SHOOT_FRIC_ERROR_LINEAR_ZONE 120  // fal 线性区，增大后误差段更平缓
 #endif
 
 #ifndef SHOOT_FRIC_ALPHA1
@@ -132,17 +160,17 @@
 #define SHOOT_FRIC_ALPHA2 0.25f           // ESO fal 指数
 #endif
 
-/* ========================= 掉速后固定前馈补偿配置 ========================= */
+/* 掉速触发前馈补偿配置 */
 #ifndef SHOOT_FRIC_FF_ENABLE
-#define SHOOT_FRIC_FF_ENABLE 1            // 1: 使能掉速触发前馈 0: 关闭
+#define SHOOT_FRIC_FF_ENABLE 1            // 1: 使能掉速触发前馈，0: 关闭
 #endif
 
 #ifndef SHOOT_FRIC1_FF_TRIGGER_DROP_RPM
-#define SHOOT_FRIC1_FF_TRIGGER_DROP_RPM 300.0f // fric1 2拍掉速触发阈值
+#define SHOOT_FRIC1_FF_TRIGGER_DROP_RPM 300.0f // fric1 掉速触发阈值
 #endif
 
 #ifndef SHOOT_FRIC1_FF_MIN_SPEED_RATIO
-#define SHOOT_FRIC1_FF_MIN_SPEED_RATIO 0.85f   // fric1 进入稳速区后才允许触发前馈
+#define SHOOT_FRIC1_FF_MIN_SPEED_RATIO 0.85f   // fric1 进入稳定区后才允许触发前馈
 #endif
 
 #ifndef SHOOT_FRIC1_FF_CURRENT
@@ -158,11 +186,11 @@
 #endif
 
 #ifndef SHOOT_FRIC2_FF_TRIGGER_DROP_RPM
-#define SHOOT_FRIC2_FF_TRIGGER_DROP_RPM 300.0f // fric2 2拍掉速触发阈值
+#define SHOOT_FRIC2_FF_TRIGGER_DROP_RPM 300.0f // fric2 掉速触发阈值
 #endif
 
 #ifndef SHOOT_FRIC2_FF_MIN_SPEED_RATIO
-#define SHOOT_FRIC2_FF_MIN_SPEED_RATIO 0.85f   // fric2 进入稳速区后才允许触发前馈
+#define SHOOT_FRIC2_FF_MIN_SPEED_RATIO 0.85f   // fric2 进入稳定区后才允许触发前馈
 #endif
 
 #ifndef SHOOT_FRIC2_FF_CURRENT
@@ -178,11 +206,11 @@
 #endif
 
 #ifndef SHOOT_FRIC3_FF_TRIGGER_DROP_RPM
-#define SHOOT_FRIC3_FF_TRIGGER_DROP_RPM 400.0f // fric3 2拍掉速触发阈值
+#define SHOOT_FRIC3_FF_TRIGGER_DROP_RPM 400.0f // fric3 掉速触发阈值
 #endif
 
 #ifndef SHOOT_FRIC3_FF_MIN_SPEED_RATIO
-#define SHOOT_FRIC3_FF_MIN_SPEED_RATIO 0.85f   // fric3 进入稳速区后才允许触发前馈
+#define SHOOT_FRIC3_FF_MIN_SPEED_RATIO 0.85f   // fric3 进入稳定区后才允许触发前馈
 #endif
 
 #ifndef SHOOT_FRIC3_FF_CURRENT
@@ -197,7 +225,7 @@
 #define SHOOT_FRIC3_FF_COOLDOWN_MS 20U     // fric3 前馈冷却时间，单位 ms
 #endif
 
-/* ========================= 三路摩擦轮安装方向 ========================= */
+/* 三路摩擦轮安装方向 */
 #ifndef SHOOT_FRIC1_DIRECTION
 #define SHOOT_FRIC1_DIRECTION -1          // fric1 实际安装方向
 #endif
@@ -228,9 +256,9 @@ typedef struct
     float direction;
     uint16_t ff_ticks;
     uint16_t ff_cooldown_ticks;
-    float ff_current;                // 前馈补偿电流，单位 A
-    int16_t give_current;            // 最终发送给电机的电流，单位 mA
-    int16_t given_current;           // 电机反馈中的电流原始值
+    float ff_current;
+    int16_t give_current;
+    int16_t given_current;
     float give_current_a;
     float given_current_a;
     float give_input_torque_nm;

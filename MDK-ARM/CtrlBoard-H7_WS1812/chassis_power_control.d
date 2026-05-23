@@ -1,8 +1,6 @@
 ctrlboard-h7_ws1812\chassis_power_control.o: ..\User\APP_Support\chassis_power_control.c
 ctrlboard-h7_ws1812\chassis_power_control.o: ..\User\APP_Support\chassis_power_control.h
 ctrlboard-h7_ws1812\chassis_power_control.o: ../User/APP/chassis_task.h
-ctrlboard-h7_ws1812\chassis_power_control.o: ../User/APP_Support/struct_typedef.h
-ctrlboard-h7_ws1812\chassis_power_control.o: D:\Keil5\ARM\ARMCC\Bin\..\include\stdint.h
 ctrlboard-h7_ws1812\chassis_power_control.o: ../User/APP_Support/CAN_receive.h
 ctrlboard-h7_ws1812\chassis_power_control.o: ../User/BSP/bsp_fdcan.h
 ctrlboard-h7_ws1812\chassis_power_control.o: ../Core/Inc/main.h
@@ -13,6 +11,7 @@ ctrlboard-h7_ws1812\chassis_power_control.o: ../Drivers/STM32H7xx_HAL_Driver/Inc
 ctrlboard-h7_ws1812\chassis_power_control.o: ../Drivers/CMSIS/Device/ST/STM32H7xx/Include/stm32h7xx.h
 ctrlboard-h7_ws1812\chassis_power_control.o: ../Drivers/CMSIS/Device/ST/STM32H7xx/Include/stm32h723xx.h
 ctrlboard-h7_ws1812\chassis_power_control.o: ../Drivers/CMSIS/Include/core_cm7.h
+ctrlboard-h7_ws1812\chassis_power_control.o: D:\Keil5\ARM\ARMCC\Bin\..\include\stdint.h
 ctrlboard-h7_ws1812\chassis_power_control.o: ../Drivers/CMSIS/Include/cmsis_version.h
 ctrlboard-h7_ws1812\chassis_power_control.o: ../Drivers/CMSIS/Include/cmsis_compiler.h
 ctrlboard-h7_ws1812\chassis_power_control.o: ../Drivers/CMSIS/Include/cmsis_armcc.h
@@ -56,8 +55,9 @@ ctrlboard-h7_ws1812\chassis_power_control.o: ../User/BSP/bsp_usart.h
 ctrlboard-h7_ws1812\chassis_power_control.o: D:\Keil5\ARM\ARMCC\Bin\..\include\string.h
 ctrlboard-h7_ws1812\chassis_power_control.o: ../User/Algorithm/pid.h
 ctrlboard-h7_ws1812\chassis_power_control.o: ../User/Algorithm/gravity_comp.h
-ctrlboard-h7_ws1812\chassis_power_control.o: ../User/Algorithm/user_lib.h
 ctrlboard-h7_ws1812\chassis_power_control.o: ../User/Devices/hwt_imu.h
+ctrlboard-h7_ws1812\chassis_power_control.o: ../User/APP_Support/struct_typedef.h
+ctrlboard-h7_ws1812\chassis_power_control.o: ../User/Algorithm/user_lib.h
 ctrlboard-h7_ws1812\chassis_power_control.o: ..\User\APP_Support\robot_param.h
 ctrlboard-h7_ws1812\chassis_power_control.o: ../User/APP/detect_task.h
 ctrlboard-h7_ws1812\chassis_power_control.o: ..\User\APP_Support\referee.h

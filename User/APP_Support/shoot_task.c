@@ -1,18 +1,23 @@
 #include "shoot_task.h"
 
+#include <math.h>
 #include <string.h>
 
 #include "fdcan.h"
 #include "gimbal_behaviour.h"
 
-/* 摩擦轮电机 CAN 电流指令 ID。 */
 #define SHOOT_FRICTION_CMD_ID 0x200U
 #define SHOOT_FRIC_RPM_TO_MPS (2.0f * PI * SHOOT_FRIC_WHEEL_RADIUS_M / 60.0f)
 #define SHOOT_FRIC_MA_PER_A 1000.0f
+#ifndef SHOOT_STRUM_RELEASE_LOCK_VEL_RADPS
+#define SHOOT_STRUM_RELEASE_LOCK_VEL_RADPS 1.0f
+#endif
+#ifndef SHOOT_STRUM_TARGET_LPF_ALPHA
+#define SHOOT_STRUM_TARGET_LPF_ALPHA 0.01f
+#endif
 
 extern motor_measure_t DJI_MOTOR_MEASURE[8];
 
-/* 射击任务全局控制实例。 */
 shoot_task_control_t shoot_task_control;
 
 static void shoot_task_init_control(shoot_task_control_t *control);
@@ -20,6 +25,7 @@ static void shoot_task_set_mode(shoot_task_control_t *control);
 static void shoot_task_update_feedback(shoot_task_control_t *control);
 static void shoot_task_control_friction(shoot_task_control_t *control);
 static void shoot_task_stop_friction(shoot_task_control_t *control);
+static void shoot_task_control_strum(shoot_task_control_t *control);
 static void shoot_task_send_friction_current(int16_t fric1_current, int16_t fric2_current, int16_t fric3_current);
 static void shoot_task_motor_init(shoot_task_motor_t *motor,
                                   const motor_measure_t *measure,
@@ -51,48 +57,36 @@ static void shoot_task_start_bullet_speed_estimate(shoot_task_control_t *control
 static uint16_t shoot_task_ms_to_ticks(uint16_t ms);
 static float shoot_task_avg3(float a, float b, float c);
 static float shoot_task_min_float(float a, float b);
+static float shoot_task_clamp_float(float value, float min_value, float max_value);
 
-/**
- * @brief 初始化射击任务控制对象。
- *
- * 完成遥控器绑定、模式清零以及三路摩擦轮电机控制器初始化。
- */
 void shoot_task_init(void)
 {
     shoot_task_init_control(&shoot_task_control);
 }
 
-/**
- * @brief 射击任务周期循环。
- *
- * 每个控制周期依次完成模式判定、反馈刷新以及摩擦轮启停控制。
- */
 void shoot_task_loop(void)
 {
-    /* 先根据遥控和上层状态机决定当前工作模式。 */
+
     shoot_task_set_mode(&shoot_task_control);
-    /* 再读取电机最新转速反馈，供后续闭环控制使用。 */
+
     shoot_task_update_feedback(&shoot_task_control);
 
     if (shoot_task_control.mode == SHOOT_TASK_READY_FRIC)
     {
-        /* 就绪状态下闭环控制三路摩擦轮目标转速。 */
+
         shoot_task_control_friction(&shoot_task_control);
     }
     else
     {
-        /* 非就绪状态立即停止摩擦轮输出。 */
+
         shoot_task_stop_friction(&shoot_task_control);
     }
 
-    /* 保存本周期模式，用于下周期判断是否发生模式切换。 */
+    shoot_task_control_strum(&shoot_task_control);
+
     shoot_task_control.last_mode = shoot_task_control.mode;
 }
 
-/**
- * @brief 初始化射击控制结构体。
- * @param control 射击任务控制对象指针。
- */
 static void shoot_task_init_control(shoot_task_control_t *control)
 {
     if (control == NULL)
@@ -100,14 +94,12 @@ static void shoot_task_init_control(shoot_task_control_t *control)
         return;
     }
 
-    /* 清零运行时状态，避免使用未初始化数据。 */
     memset(control, 0, sizeof(*control));
-    /* 获取遥控器数据入口。 */
+
     control->rc = get_remote_control_point();
     control->mode = SHOOT_TASK_STOP;
     control->last_mode = SHOOT_TASK_STOP;
 
-    /* 绑定三路摩擦轮电机反馈并初始化各自速度控制器。 */
     shoot_task_motor_init(&control->fric1,
                           &DJI_MOTOR_MEASURE[0],
                           SHOOT_FRIC1_DIRECTION,
@@ -129,15 +121,13 @@ static void shoot_task_init_control(shoot_task_control_t *control)
                           SHOOT_FRIC3_RESPONSE_TIME_S,
                           SHOOT_FRIC3_OBSERVER_RATIO,
                           SHOOT_FRIC3_OUTPUT_RATE_LIMIT);
+
+    Motor_ENABLE(&hfdcan1, DM_STRUM_CAN_ID);
 }
 
-/**
- * @brief 根据遥控器输入和云台状态更新射击模式。
- * @param control 射击任务控制对象指针。
- */
 static void shoot_task_set_mode(shoot_task_control_t *control)
 {
-    /* 记录上一拍键值，用于检测按键上升沿。 */
+
     static uint16_t last_key_value = 0U;
     uint16_t pressed_keys;
     int shoot_switch;
@@ -147,43 +137,42 @@ static void shoot_task_set_mode(shoot_task_control_t *control)
         return;
     }
 
-    /* 仅保留本周期新按下的按键。 */
     pressed_keys = (uint16_t)(control->rc->key.v & (uint16_t)(~last_key_value));
     last_key_value = control->rc->key.v;
-    /* 读取射击三档开关状态。 */
+
     shoot_switch = control->rc->rc.s[SHOOT_RC_MODE_CHANNEL];
 
     if ((pressed_keys & KEY_PRESSED_OFFSET_R) != 0U)
     {
-        /* R 键上升沿使能摩擦轮。 */
+
         control->friction_enable = true;
     }
 
     if ((pressed_keys & KEY_PRESSED_OFFSET_G) != 0U)
     {
-        /* G 键上升沿关闭摩擦轮。 */
+
         control->friction_enable = false;
     }
 
     if (switch_is_down(shoot_switch))
     {
-        /* 遥控拨杆下档强制开启摩擦轮。 */
+
         control->friction_enable = true;
     }
     else if (switch_is_mid(shoot_switch))
     {
-        /* 遥控拨杆中档强制关闭摩擦轮。 */
+
         control->friction_enable = false;
     }
 
     if (gimbal_cmd_to_shoot_stop())
     {
-        /* 上层要求停射时，射击模块进入停止态。 */
+
         control->mode = SHOOT_TASK_STOP;
     }
     else if (control->friction_enable)
     {
-        /* 已使能摩擦轮时进入摩擦轮预备状态。 */
+
         control->mode = SHOOT_TASK_READY_FRIC;
     }
     else
@@ -192,10 +181,6 @@ static void shoot_task_set_mode(shoot_task_control_t *control)
     }
 }
 
-/**
- * @brief 刷新三路摩擦轮转速反馈。
- * @param control 射击任务控制对象指针。
- */
 static void shoot_task_update_feedback(shoot_task_control_t *control)
 {
     if (control == NULL)
@@ -205,7 +190,7 @@ static void shoot_task_update_feedback(shoot_task_control_t *control)
 
     if (control->fric1.measure != NULL)
     {
-        /* 按配置方向统一转速正负号，便于后续控制器复用。 */
+
         control->fric1.speed_rpm = (float)control->fric1.measure->speed_rpm * control->fric1.direction;
         control->fric1.speed_mps = control->fric1.speed_rpm * SHOOT_FRIC_RPM_TO_MPS;
     }
@@ -227,10 +212,6 @@ static void shoot_task_update_feedback(shoot_task_control_t *control)
     shoot_task_motor_update_current_physics(&control->fric3);
 }
 
-/**
- * @brief 摩擦轮闭环控制。
- * @param control 射击任务控制对象指针。
- */
 static void shoot_task_control_friction(shoot_task_control_t *control)
 {
     uint32_t now;
@@ -245,14 +226,14 @@ static void shoot_task_control_friction(shoot_task_control_t *control)
         !shoot_task_motor_ready(&control->fric2, now) ||
         !shoot_task_motor_ready(&control->fric3, now))
     {
-        /* 任一路反馈超时或过温时，整体停机保护。 */
+
         shoot_task_stop_friction(control);
         return;
     }
 
     if (control->last_mode != SHOOT_TASK_READY_FRIC)
     {
-        /* 刚切入摩擦轮工作态时热启动重置 ADRC，减小切换冲击。 */
+
         shoot_task_motor_hot_reset(&control->fric1);
         shoot_task_motor_hot_reset(&control->fric2);
         shoot_task_motor_hot_reset(&control->fric3);
@@ -268,12 +249,10 @@ static void shoot_task_control_friction(shoot_task_control_t *control)
         shoot_task_update_history(control);
     }
 
-    /* 三路摩擦轮统一给定目标转速。 */
     control->fric1.speed_set_rpm = SHOOT_FRIC_TARGET_SPEED_RPM;
     control->fric2.speed_set_rpm = SHOOT_FRIC_TARGET_SPEED_RPM;
     control->fric3.speed_set_rpm = SHOOT_FRIC_TARGET_SPEED_RPM;
 
-    /* 计算各电机闭环输出电流，单位 A。 */
     control->fric1.give_current_a = shoot_task_motor_calc(&control->fric1, control->fric1.speed_set_rpm);
     control->fric2.give_current_a = shoot_task_motor_calc(&control->fric2, control->fric2.speed_set_rpm);
     control->fric3.give_current_a = shoot_task_motor_calc(&control->fric3, control->fric3.speed_set_rpm);
@@ -341,7 +320,6 @@ static void shoot_task_control_friction(shoot_task_control_t *control)
     shoot_task_motor_finalize_current(&control->fric2);
     shoot_task_motor_finalize_current(&control->fric3);
 
-    /* 将三路电流打包后通过 CAN 下发。 */
     shoot_task_motor_update_current_physics(&control->fric1);
     shoot_task_motor_update_current_physics(&control->fric2);
     shoot_task_motor_update_current_physics(&control->fric3);
@@ -353,10 +331,6 @@ static void shoot_task_control_friction(shoot_task_control_t *control)
     shoot_task_update_history(control);
 }
 
-/**
- * @brief 停止摩擦轮并清理控制输出。
- * @param control 射击任务控制对象指针。
- */
 static void shoot_task_stop_friction(shoot_task_control_t *control)
 {
     if (control == NULL)
@@ -364,7 +338,6 @@ static void shoot_task_stop_friction(shoot_task_control_t *control)
         return;
     }
 
-    /* 清零目标转速与输出电流。 */
     control->fric1.speed_set_rpm = 0.0f;
     control->fric2.speed_set_rpm = 0.0f;
     control->fric3.speed_set_rpm = 0.0f;
@@ -391,22 +364,214 @@ static void shoot_task_stop_friction(shoot_task_control_t *control)
 
     if (control->last_mode != SHOOT_TASK_STOP)
     {
-        /* 从运行态切回停止态时重置控制器内部状态。 */
+
         shoot_task_motor_reset(&control->fric1);
         shoot_task_motor_reset(&control->fric2);
         shoot_task_motor_reset(&control->fric3);
     }
 
-    /* 向驱动发送零电流，确保摩擦轮停机。 */
     shoot_task_send_friction_current(0, 0, 0);
 }
 
-/**
- * @brief 发送三路摩擦轮电流指令。
- * @param fric1_current 摩擦轮 1 电流，单位 mA。
- * @param fric2_current 摩擦轮 2 电流，单位 mA。
- * @param fric3_current 摩擦轮 3 电流，单位 mA。
- */
+static void shoot_task_control_strum(shoot_task_control_t *control)
+{
+    static bool target_valid = false;
+    static bool last_press_l = false;
+    static bool long_press_active = false;
+    static bool release_follow_active = false;
+    static uint16_t hold_ticks = 0U;
+    static float target_pos = 0.0f;
+    static float target_cmd_pos = 0.0f;
+    static float feedback_pos_last = 0.0f;
+    static float feedback_pos_continuous = 0.0f;
+    static float pid_iout = 0.0f;
+    MITMeasure_t *strum_measure;
+    uint32_t now;
+    uint16_t long_press_ticks;
+    bool feedback_ready;
+    bool press_l;
+    bool strum_ready;
+    const float release_lock_vel = SHOOT_STRUM_RELEASE_LOCK_VEL_RADPS;
+    float feedback_pos;
+    float feedback_vel;
+    float position_error;
+    float torque_cmd;
+    float pid_out;
+
+    if (control == NULL || control->rc == NULL)
+    {
+        return;
+    }
+
+    press_l = (control->rc->mouse.press_l != 0U);
+    strum_ready = (control->mode == SHOOT_TASK_READY_FRIC);
+    strum_measure = &MIT_MOTOR_MEASURE[SHOOT_STRUM_MIT_INDEX];
+    now = HAL_GetTick();
+    feedback_ready = (strum_measure->fdb.last_fdb_time != 0U) &&
+                     ((now - strum_measure->fdb.last_fdb_time) <= SHOOT_STRUM_FDB_TIMEOUT);
+    if (!feedback_ready)
+    {
+        strum_measure->set.POS = 0.0f;
+        target_valid = false;
+        last_press_l = press_l;
+        long_press_active = false;
+        release_follow_active = false;
+        hold_ticks = 0U;
+        target_pos = 0.0f;
+        target_cmd_pos = 0.0f;
+        feedback_pos_last = 0.0f;
+        feedback_pos_continuous = 0.0f;
+        pid_iout = 0.0f;
+        return;
+    }
+
+    feedback_pos = strum_measure->fdb.pos;
+    feedback_vel = strum_measure->fdb.vel;
+    if (!target_valid)
+    {
+        target_pos = feedback_pos;
+        target_cmd_pos = feedback_pos;
+        feedback_pos_last = feedback_pos;
+        feedback_pos_continuous = feedback_pos;
+        pid_iout = 0.0f;
+        target_valid = true;
+    }
+    else
+    {
+        float feedback_delta;
+        const float feedback_range = P_MAX - P_MIN;
+        const float feedback_half_range = feedback_range * 0.5f;
+
+        feedback_delta = feedback_pos - feedback_pos_last;
+        if (feedback_delta > feedback_half_range)
+        {
+            feedback_delta -= feedback_range;
+        }
+        else if (feedback_delta < -feedback_half_range)
+        {
+            feedback_delta += feedback_range;
+        }
+
+        feedback_pos_continuous += feedback_delta;
+        feedback_pos_last = feedback_pos;
+    }
+
+    long_press_ticks = shoot_task_ms_to_ticks(SHOOT_STRUM_LONG_PRESS_MS);
+    torque_cmd = 0.0f;
+
+    if (!strum_ready)
+    {
+        target_pos = feedback_pos_continuous;
+        target_cmd_pos = target_pos;
+        hold_ticks = 0U;
+        long_press_active = false;
+        release_follow_active = false;
+        pid_iout = 0.0f;
+    }
+    else if (press_l)
+    {
+        if (!last_press_l)
+        {
+            target_pos = feedback_pos_continuous + SHOOT_STRUM_DIRECTION * SHOOT_STRUM_SINGLE_STEP_RAD;
+            hold_ticks = 0U;
+            long_press_active = false;
+            release_follow_active = false;
+            pid_iout = 0.0f;
+        }
+        else
+        {
+            if (hold_ticks < long_press_ticks)
+            {
+                hold_ticks++;
+            }
+
+            if (hold_ticks >= long_press_ticks)
+            {
+                long_press_active = true;
+            }
+        }
+
+        if (long_press_active)
+        {
+            release_follow_active = false;
+            target_pos = feedback_pos_continuous;
+            target_cmd_pos = target_pos;
+            pid_iout = 0.0f;
+            torque_cmd = SHOOT_STRUM_DIRECTION * SHOOT_STRUM_LONG_PRESS_TORQUE_NM;
+        }
+    }
+    else
+    {
+        if (last_press_l)
+        {
+            if (long_press_active)
+            {
+                release_follow_active = true;
+                target_pos = feedback_pos_continuous;
+                target_cmd_pos = target_pos;
+                feedback_pos_last = feedback_pos;
+                target_valid = true;
+                pid_iout = 0.0f;
+            }
+        }
+        hold_ticks = 0U;
+        long_press_active = false;
+
+        if (release_follow_active)
+        {
+            target_pos = feedback_pos_continuous;
+            target_cmd_pos = target_pos;
+            pid_iout = 0.0f;
+
+            if (fabsf(feedback_vel) <= release_lock_vel)
+            {
+                release_follow_active = false;
+            }
+        }
+    }
+
+    if (strum_ready && !long_press_active && !release_follow_active)
+    {
+        target_cmd_pos += SHOOT_STRUM_TARGET_LPF_ALPHA * (target_pos - target_cmd_pos);
+        position_error = target_cmd_pos - feedback_pos_continuous;
+        if (fabsf(position_error) <= SHOOT_STRUM_POS_DEADBAND)
+        {
+            position_error = 0.0f;
+            pid_iout = 0.0f;
+        }
+        else
+        {
+            pid_iout += SHOOT_STRUM_TORQUE_PID_KI * position_error;
+            pid_iout = shoot_task_clamp_float(pid_iout,
+                                              -SHOOT_STRUM_TORQUE_PID_MAX_IOUT,
+                                              SHOOT_STRUM_TORQUE_PID_MAX_IOUT);
+        }
+
+        pid_out = SHOOT_STRUM_TORQUE_PID_KP * position_error +
+                  pid_iout +
+                  (-SHOOT_STRUM_TORQUE_PID_KD * feedback_vel);
+        pid_out = shoot_task_clamp_float(pid_out,
+                                         -SHOOT_STRUM_TORQUE_PID_MAX_OUT,
+                                         SHOOT_STRUM_TORQUE_PID_MAX_OUT);
+        torque_cmd = pid_out;
+        if (position_error != 0.0f)
+        {
+            torque_cmd += (position_error > 0.0f) ?
+                          SHOOT_STRUM_SINGLE_TORQUE_FF_NM :
+                          -SHOOT_STRUM_SINGLE_TORQUE_FF_NM;
+        }
+    }
+
+    torque_cmd = shoot_task_clamp_float(torque_cmd, T_MIN, T_MAX);
+    strum_measure->set.POS = target_cmd_pos;
+    strum_measure->set.VEL = 0.0f;
+    strum_measure->set.KP = 0.0f;
+    strum_measure->set.KD = 0.0f;
+    strum_measure->set.TOR = torque_cmd;
+    last_press_l = press_l;
+    CAN_cmd_MIT(&hfdcan1, DM_STRUM_CAN_ID, 0.0f, 0.0f, 0.0f, 0.0f, torque_cmd);
+}
+
 static void shoot_task_send_friction_current(int16_t fric1_current, int16_t fric2_current, int16_t fric3_current)
 {
     uint8_t data[8];
@@ -414,7 +579,6 @@ static void shoot_task_send_friction_current(int16_t fric1_current, int16_t fric
     int16_t fric2_cmd = shoot_task_current_ma_to_esc_cmd(fric2_current);
     int16_t fric3_cmd = shoot_task_current_ma_to_esc_cmd(fric3_current);
 
-    /* 按高字节在前的格式打包三路 16 位电调原始电流命令。 */
     data[0] = (uint8_t)((uint16_t)fric1_cmd >> 8);
     data[1] = (uint8_t)fric1_cmd;
     data[2] = (uint8_t)((uint16_t)fric2_cmd >> 8);
@@ -424,16 +588,9 @@ static void shoot_task_send_friction_current(int16_t fric1_current, int16_t fric
     data[6] = 0U;
     data[7] = 0U;
 
-    /* 通过 FDCAN2 向摩擦轮电调广播控制帧。 */
     canx_send_data(&hfdcan2, SHOOT_FRICTION_CMD_ID, data, 8U);
 }
 
-/**
- * @brief 初始化单个摩擦轮电机控制对象。
- * @param motor 电机控制对象指针。
- * @param measure 电机反馈数据指针。
- * @param direction 电机方向系数，通常为 1 或 -1。
- */
 static void shoot_task_motor_init(shoot_task_motor_t *motor,
                                   const motor_measure_t *measure,
                                   float direction,
@@ -449,12 +606,10 @@ static void shoot_task_motor_init(shoot_task_motor_t *motor,
         return;
     }
 
-    /* 清零电机运行状态并绑定反馈源。 */
     memset(motor, 0, sizeof(*motor));
     motor->measure = measure;
     motor->direction = direction;
 
-    /* 配置速度环 ADRC 参数。 */
     param.sample_time_s = (float)SHOOT_CONTROL_TIME * 0.001f;
     param.b0 = b0;
     param.controller_bandwidth = 5.0f / response_time_s;
@@ -466,15 +621,10 @@ static void shoot_task_motor_init(shoot_task_motor_t *motor,
     param.alpha1 = SHOOT_FRIC_ALPHA1;
     param.alpha2 = SHOOT_FRIC_ALPHA2;
 
-    /* 初始化并复位速度控制器。 */
     ADRC_init(&motor->speed_adrc, &param);
     ADRC_reset(&motor->speed_adrc, 0.0f, 0.0f);
 }
 
-/**
- * @brief 常规复位摩擦轮 ADRC 控制器。
- * @param motor 电机控制对象指针。
- */
 static void shoot_task_motor_reset(shoot_task_motor_t *motor)
 {
     if (motor == NULL)
@@ -482,14 +632,9 @@ static void shoot_task_motor_reset(shoot_task_motor_t *motor)
         return;
     }
 
-    /* 以当前转速为初值复位观测器，避免停机后状态残留。 */
     ADRC_reset(&motor->speed_adrc, motor->speed_rpm, 0.0f);
 }
 
-/**
- * @brief 热启动复位摩擦轮 ADRC 控制器。
- * @param motor 电机控制对象指针。
- */
 static void shoot_task_motor_hot_reset(shoot_task_motor_t *motor)
 {
     if (motor == NULL)
@@ -497,7 +642,6 @@ static void shoot_task_motor_hot_reset(shoot_task_motor_t *motor)
         return;
     }
 
-    /* 带入当前速度、目标速度和当前输出，实现平滑切入闭环。 */
     ADRC_hot_reset(&motor->speed_adrc,
                    motor->speed_rpm,
                    SHOOT_FRIC_TARGET_SPEED_RPM,
@@ -583,12 +727,6 @@ static void shoot_task_motor_finalize_current(shoot_task_motor_t *motor)
     motor->give_current = shoot_task_current_a_to_current_ma(motor->give_current_a);
 }
 
-/**
- * @brief 计算单个摩擦轮所需输出电流。
- * @param motor 电机控制对象指针。
- * @param target_speed_rpm 目标转速，单位 rpm。
- * @return 电流输出值，单位 A。
- */
 static float shoot_task_motor_calc(shoot_task_motor_t *motor, float target_speed_rpm)
 {
     float current_output_a;
@@ -598,7 +736,6 @@ static float shoot_task_motor_calc(shoot_task_motor_t *motor, float target_speed
         return 0;
     }
 
-    /* 先按统一正方向计算控制量，再恢复到电机实际安装方向。 */
     current_output_a = ADRC_Calc(&motor->speed_adrc, motor->speed_rpm, target_speed_rpm);
     current_output_a *= motor->direction;
 
@@ -647,7 +784,6 @@ static void shoot_task_motor_apply_feedforward(shoot_task_motor_t *motor)
     (void)motor;
 #endif
 }
-
 
 static void shoot_task_update_history(shoot_task_control_t *control)
 {
@@ -792,6 +928,20 @@ static float shoot_task_min_float(float a, float b)
     return (a < b) ? a : b;
 }
 
+static float shoot_task_clamp_float(float value, float min_value, float max_value)
+{
+    if (value < min_value)
+    {
+        value = min_value;
+    }
+    else if (value > max_value)
+    {
+        value = max_value;
+    }
+
+    return value;
+}
+
 static bool shoot_task_motor_ready(const shoot_task_motor_t *motor, uint32_t now)
 {
     if (motor == NULL || motor->measure == NULL)
@@ -799,13 +949,11 @@ static bool shoot_task_motor_ready(const shoot_task_motor_t *motor, uint32_t now
         return false;
     }
 
-    /* 反馈超时说明电机离线或总线异常。 */
     if ((now - motor->measure->last_fdb_time) > SHOOT_FRIC_FDB_TIMEOUT)
     {
         return false;
     }
 
-    /* 电机温度超限时禁止继续运行。 */
     if (motor->measure->temperate >= SHOOT_FRIC_TEMP_LIMIT)
     {
         return false;
