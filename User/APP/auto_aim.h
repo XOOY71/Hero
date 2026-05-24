@@ -10,7 +10,7 @@
 #define AUTO_AIM_TIME     1U
 
 #ifndef AUTO_AIM_SOFT_ENABLE
-#define AUTO_AIM_SOFT_ENABLE 0
+#define AUTO_AIM_SOFT_ENABLE 1
 #endif
 
 typedef enum
@@ -24,6 +24,10 @@ typedef struct
     uint8_t online;
     uint8_t auto_aim_flag;
     uint32_t last_fdb;
+    int32_t delta_yaw_udeg;
+    int32_t delta_pitch_udeg;
+    uint16_t status;
+    uint64_t ts_us;
     const RC_ctrl_t *aim_rc;
 } auto_aim_t;
 

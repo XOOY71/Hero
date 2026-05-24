@@ -30,7 +30,6 @@
 #include "chassis_task.h"
 #include "detect_task.h"
 #include "referee.h"
-#include "voltage_task.h"
 #include <math.h>
 #include <stdbool.h>
 #include "pm01_api.h"

@@ -86,12 +86,13 @@ void auto_aim_apply_delta_udeg(int32_t dyaw_udeg,
     const float yaw_err_rad = (float)dyaw_udeg * AUTO_AIM_UDEG_TO_RAD;
     const float pitch_err_rad = (float)dpitch_udeg * AUTO_AIM_UDEG_TO_RAD;
 
-    (void)status;
-    (void)ts_us;
-
     taskENTER_CRITICAL();
     s_auto_aim_error.yaw_err_rad = yaw_err_rad;
     s_auto_aim_error.pitch_err_rad = pitch_err_rad;
+    aim.delta_yaw_udeg = dyaw_udeg;
+    aim.delta_pitch_udeg = dpitch_udeg;
+    aim.status = status;
+    aim.ts_us = ts_us;
     taskEXIT_CRITICAL();
 
     aim.online = 1U;
@@ -108,6 +109,10 @@ static void auto_aim_init(auto_aim_t *aim_obj)
     aim_obj->online = 1U;
     aim_obj->auto_aim_flag = (AUTO_AIM_SOFT_ENABLE != 0) ? AIM_ON : AIM_OFF;
     aim_obj->last_fdb = 0U;
+    aim_obj->delta_yaw_udeg = 0;
+    aim_obj->delta_pitch_udeg = 0;
+    aim_obj->status = 0U;
+    aim_obj->ts_us = 0ULL;
     aim_obj->aim_rc = get_remote_control_point();
 
     auto_aim_clear_error();

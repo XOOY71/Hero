@@ -2,9 +2,42 @@
 
 #include "cmsis_os.h"
 #include "remote_control.h"
+#include "usart.h"
 
 static error_t error_list[ERROR_LIST_LENGHT + 1];
 static uint8_t detect_inited = 0U;
+
+#define DBUS_RX_ACTIVE_HOLD_TIME 100U
+
+static bool_t detect_dbus_rx_active(uint32_t now)
+{
+    static uint32_t last_dma_remaining = 0U;
+    static uint32_t last_rx_time = 0U;
+    static uint8_t dma_seen = 0U;
+    uint32_t dma_remaining;
+
+    if ((huart5.hdmarx == NULL) || (huart5.hdmarx->Instance == NULL))
+    {
+        return 0U;
+    }
+
+    dma_remaining = __HAL_DMA_GET_COUNTER(huart5.hdmarx);
+    if (dma_seen == 0U)
+    {
+        last_dma_remaining = dma_remaining;
+        dma_seen = 1U;
+        last_rx_time = now;
+        return 0U;
+    }
+
+    if (dma_remaining != last_dma_remaining)
+    {
+        last_dma_remaining = dma_remaining;
+        last_rx_time = now;
+    }
+
+    return (bool_t)((now - last_rx_time) <= DBUS_RX_ACTIVE_HOLD_TIME);
+}
 
 static void detect_init(uint32_t time)
 {
@@ -68,9 +101,24 @@ void detect_task(void const *pvParameters)
                 continue;
             }
 
-            if ((i == DBUS_TOE) && (rc_ctrl.last_fdb != 0U))
+            if (i == DBUS_TOE)
             {
-                error_list[i].new_time = rc_ctrl.last_fdb;
+                uint32_t dbus_time = rc_ctrl.last_fdb;
+
+                if (remoter.sbus_recever_time > dbus_time)
+                {
+                    dbus_time = remoter.sbus_recever_time;
+                }
+
+                if (dbus_time != 0U)
+                {
+                    error_list[i].new_time = dbus_time;
+                }
+
+                if (detect_dbus_rx_active(now))
+                {
+                    error_list[i].new_time = now;
+                }
             }
 
             if ((now - error_list[i].new_time) > error_list[i].set_offline_time)

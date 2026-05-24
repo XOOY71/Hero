@@ -54,7 +54,7 @@ User/APP/protocol.h
 User/APP/referee.c / .h
 User/APP/robot_param.h
 User/APP/struct_typedef.h
-User/APP/voltage_task.c / .h
+
 User/Algorithm/user_lib.c / .h
 ```
 
@@ -83,7 +83,7 @@ Keil 工程配置：
 
 ```text
 MDK-ARM/CtrlBoard-H7_WS1812.uvprojx
-  -> 已加入 chassis_*.c、detect_task.c、pm01_api.c、referee.c、voltage_task.c、user_lib.c
+  -> 已加入 chassis_*.c、detect_task.c、pm01_api.c、referee.c、user_lib.c
   -> IncludePath 已加入 ../User/Algorithm/Include
   -> 未启用 CMSIS-DSP Source 组件
 ```

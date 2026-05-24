@@ -1,23 +1,3 @@
-/**
-  ****************************(C) COPYRIGHT 2019 DJI****************************
-  * @file       chassis_task.c
-  * @brief      搴曠洏鎺у埗浠诲姟
-	*
-	*     000000000000000     00               00    00     00   00         00 
-	*           00     0      00                00    00   00     00       00  
-	*       00  00000        00000000000000      00  000000000   00000000000000
-	*       00  00          00           00    00    000000000     00     00   
-	*      00000000000     00  000000    00     000     00           000000    
-	*     00    00   0000     00    00   00      00   000000           00      
-	*       00000000000       00    00   00           000000           00      
-	*       0   00    0       0000000 00 00       00    00       00000000000000
-	*       00000000000       00       000       00 00000000000        00      
-	*           00            00                000 00000000000        00      
-	*           00  00        00          0    000      00             00      
-	*      000000000000        00        000  000       00          00 00      
-	*       00        00        000000000000            00            00       
-	********************************************************************************/
-	
 #include "bsp_usart.h"
 #include "CAN_receive.h"
 #include "chassis_behaviour.h"
@@ -42,16 +22,13 @@
 #define PID_calc PID_Calc
 #endif
 
-/********************************************
- * * * * * * * * * * * * * * * * * * * * * * 
-	PID 璁＄畻涓嫢鏈夊崟鐙姞鍑忓彉閲忥紝鍧囪涓哄亸绉婚噺
- ********************************************/
 
 #if INCLUDE_uxTaskGetStackHighWaterMark
 	uint32_t chassis_high_water;
 #endif
 
-/* 搴曠洏杩愯鏁版嵁 */
+
+/* 底盘运行数据 */
 chassis_move_t chassis_move;
 
 static const fp32 chas_6020_angle_pid_param[3] = {
@@ -81,51 +58,43 @@ static fp32 chassis_spin_offset = CHASSIS_SPIN_OFFSET;
 static fp32 chassis_return_target = CHASSIS_RETURN_TARGET;
 
 /**
-  * @brief          鏇存柊搴曠洏鍙嶉鏁版嵁锛屽寘鎷?3508 閫熷害銆?020 瑙掑害鍜?IMU 濮挎€?
-  * @param[out]     chassis_move_update: 搴曠洏杩愯鏁版嵁鎸囬拡
+  * @brief          更新底盘反馈量，包括 3508 速度、6020 角度和 IMU 姿态
+  * @param[out]     chassis_move_update: 底盘状态结构体指针
   * @retval         none
   */
 static void chassis_feedback_update(chassis_move_t *chassis_move_update)
 {
 	if (chassis_move_update == NULL) return;
 	static fp32 last_speed[CHASSIS_MODULE_NUM] = {0.0f, 0.0f};
-	
+
 	for (uint8_t i = 0; i < CHASSIS_MODULE_NUM; i++)
 	{
-		// 3508 鐢垫満锛氱敱缂栫爜鍣ㄩ€熷害鎹㈢畻绾块€熷害骞惰绠楀姞閫熷害
 chassis_move_update->chassis_3508[i].speed = chassis_move_update->chassis_3508[i].chassis_motor_measure->speed_rpm / MPS_to_RPM;
 		chassis_move_update->chassis_3508[i].accel = (chassis_move_update->chassis_3508[i].speed - last_speed[i]) * CHASSIS_CONTROL_FREQUENCE;
 		last_speed[i] = chassis_move_update->chassis_3508[i].speed;
-		// 6020 鐢垫満锛氱敱缂栫爜鍣ㄦ崲绠楄搴?
 		chassis_move_update->chassis_6020[i].angle = rad_format(chassis_move_update->chassis_6020[i].chassis_motor_measure->ecd / GM6020_Angle_Ratio);
 	}
-	
-	// IMU 濮挎€佽
+
 	chassis_move_update->chassis_yaw 	 = rad_format(*(chassis_move_update->chassis_INS_angle + INS_YAW_ADDRESS_OFFSET	 ));
 	chassis_move_update->chassis_pitch = rad_format(*(chassis_move_update->chassis_INS_angle + INS_PITCH_ADDRESS_OFFSET));
 	chassis_move_update->chassis_roll	 = rad_format(*(chassis_move_update->chassis_INS_angle + INS_ROLL_ADDRESS_OFFSET ));
 }
 
 /**
-  * @brief          鍒濆鍖栧簳鐩樹换鍔″弬鏁般€丳ID 鍜屽弽棣堟寚閽?
-  * @param[out]     chassis_move_init: 搴曠洏杩愯鏁版嵁鎸囬拡
+  * @brief          初始化底盘控制结构体和各控制器
+  * @param[out]     chassis_move_init: 底盘状态结构体指针
   * @retval         none
   */
 static void chassis_init(chassis_move_t *chassis_move_init)
 {
 	if (chassis_move_init == NULL) return;
-	
-	// 鍒濆鐘舵€佺疆涓洪潤姝?
+
 	chassis_move_init->chassis_mode = CHASSIS_VECTOR_NO_MOVE;
-	// 鑾峰彇閬ユ帶鍣ㄦ寚閽?
 chassis_move_init->chassis_RC = get_remote_control_point();
-	// 鑾峰彇 IMU 濮挎€佹寚閽?
 	chassis_move_init->chassis_INS_angle = get_INS_angle_point();
-	// 鑾峰彇浜戝彴鐢垫満鎸囬拡
 	chassis_move_init->chassis_yaw_motor = get_yaw_motor_point();
 	chassis_move_init->chassis_pitch_motor = get_pitch_motor_point();
-	
-	// 缁戝畾搴曠洏鍥涗釜鐢垫満鐨勫弽棣堟寚閽堝苟鍒濆鍖?PID
+
 	for(uint8_t i = 0; i < CHASSIS_MODULE_NUM; i++)
 	{
 		chassis_move_init->chassis_3508[i].chassis_motor_measure = get_chassis_motor_measure_point(i);
@@ -135,94 +104,83 @@ chassis_move_init->chassis_RC = get_remote_control_point();
 		PID_init(&chassis_move_init->chas_6020_angle_pid[i], PID_USUAL, chas_6020_angle_pid_param, GM6020_MOTOR_ANGLE_PID_MAX_OUT, GM6020_MOTOR_ANGLE_PID_MAX_IOUT);
 		PID_init(&chassis_move_init->chas_6020_speed_pid[i], PID_USUAL, chas_6020_speed_pid_param, GM6020_MOTOR_SPEED_PID_MAX_OUT, GM6020_MOTOR_SPEED_PID_MAX_IOUT);
 	}
-	// 鍒濆鍖栧洖姝ｆā寮?PID
 	PID_init(&chassis_move_init->chas_return_pid, PID_USUAL, chassis_yaw_return_pid_param, YAW_RETURN_PID_MAX_OUT, YAW_RETURN_PID_MAX_IOUT);
-	
-	// 鍒濆鍖栬窡闅忎簯鍙?PID
+
 	PID_init(&chassis_move_init->chassis_angle_pid, PID_USUAL, chassis_yaw_pid_param, CHASSIS_FOLLOW_GIMBAL_PID_MAX_OUT, CHASSIS_FOLLOW_GIMBAL_PID_MAX_IOUT);
-	
-	// 涓€闃舵护娉㈠櫒鍙傛暟
+
 	first_order_filter_init(&chassis_move_init->chassis_cmd_slow_set_vx, CHASSIS_CONTROL_TIME, &chassis_x_order_filter);
 	first_order_filter_init(&chassis_move_init->chassis_cmd_slow_set_vy, CHASSIS_CONTROL_TIME, &chassis_y_order_filter);
-		
-	// 璁剧疆搴曠洏閫熷害涓婁笅闄?
+
 	chassis_move_init->vx_max_speed =  NORMAL_MAX_CHASSIS_SPEED_X;
 	chassis_move_init->vx_min_speed = -NORMAL_MAX_CHASSIS_SPEED_X;
 	chassis_move_init->vy_max_speed =  NORMAL_MAX_CHASSIS_SPEED_Y;
 	chassis_move_init->vy_min_speed = -NORMAL_MAX_CHASSIS_SPEED_Y;
-	
-	// 鍒濆鍖栬埖杞浂浣嶅亸缃?
+
 chassis_wheel_angle_offset_init();
-	
-	// 鍥炴鏍囧織榛樿缃?1
+
 	chassis_move_init->chassis_return_flag = 1;
-	
-	// 鍒锋柊涓€娆″簳鐩樺弽棣?
+
 chassis_feedback_update(chassis_move_init);
 }
 
 /**
-  * @brief          鏍规嵁閬ユ帶鍣ㄦ垨閿洏璁剧疆搴曠洏鎺у埗妯″紡
-  * @param[out]     chassis_move_mode: 搴曠洏杩愯鏁版嵁鎸囬拡
+  * @brief          更新底盘模式
+  * @param[out]     chassis_move_mode: 底盘状态结构体指针
   * @retval         none
   */
 static void chassis_set_mode(chassis_move_t *chassis_move_mode)
 {
 	if(chassis_move_mode == NULL) return;
-	chassis_behaviour_mode_set(chassis_move_mode);	// 见 chassis_behaviour.c
+	chassis_behaviour_mode_set(chassis_move_mode);
 }
 
 /**
-  * @brief          搴曠洏妯″紡鍒囨崲鏃跺鐞嗙姸鎬佽縼绉?
-  * @param[out]     chassis_move_transit: 搴曠洏杩愯鏁版嵁鎸囬拡
+  * @brief          处理底盘模式切换时的状态过渡
+  * @param[out]     chassis_move_transit: 底盘状态结构体指针
   * @retval         none
   */
 static void chassis_mode_change_control_transit(chassis_move_t *chassis_move_transit)
 {
 	if(chassis_move_transit == NULL) return;
-	
-	// 鍒囨崲鍒伴潤姝㈡ā寮忔椂娓呯┖鐩稿瑙掑害
+
 	if((chassis_move_transit->last_chassis_mode != CHASSIS_VECTOR_NO_MOVE) && chassis_move_transit->chassis_mode == CHASSIS_VECTOR_NO_MOVE)
 	{
 		chassis_move_transit->chassis_relative_angle_set = 0.0f;
 	}
-	// 鍒囨崲鍒拌窡闅忎簯鍙版ā寮忔椂娓呯┖鐩稿瑙掑害
 	else if((chassis_move_transit->last_chassis_mode != CHASSIS_VECTOR_FOLLOW_GIMBAL_YAW) && chassis_move_transit->chassis_mode == CHASSIS_VECTOR_FOLLOW_GIMBAL_YAW)
 	{
 		chassis_move_transit->chassis_relative_angle_set = 0.0f;
 	}
-	// 鍒囨崲鍒版棆杞ā寮忔椂璁板綍褰撳墠搴曠洏鏈濆悜
 	else if((chassis_move_transit->last_chassis_mode != CHASSIS_VECTOR_SPIN) && chassis_move_transit->chassis_mode == CHASSIS_VECTOR_SPIN)
 	{
 		chassis_move_transit->chassis_relative_angle_set = chassis_move_transit->chassis_yaw;
 	}
-	
+
 	chassis_move_transit->last_chassis_mode = chassis_move_transit->chassis_mode;
 }
 
 /**
-  * @brief          灏嗛仴鎺у櫒杈撳叆杞崲涓哄簳鐩樺钩闈㈤€熷害鎸囦护
-  * @param[out]     vx_set: 鍓嶅悜閫熷害杈撳嚭
-  * @param[out]     vy_set: 宸﹀悜閫熷害杈撳嚭
-  * @param[out]     chassis_move_rc_to_vector: 搴曠洏杩愯鏁版嵁鎸囬拡
+  * @brief          将遥控器输入转换为底盘速度指令
+  * @param[out]     vx_set: X 方向速度输出
+  * @param[out]     vy_set: Y 方向速度输出
+  * @param[out]     chassis_move_rc_to_vector: 底盘状态结构体指针
   * @retval         none
   */
 void chassis_rc_to_control_vector(fp32 *vx_set, fp32 *vy_set, chassis_move_t *chassis_move_rc_to_vector)
 {
+	// 遥控器摇杆死区处理
 	if (chassis_move_rc_to_vector == NULL || vx_set == NULL || vy_set == NULL) return;
-	
+
 	int16_t vx_channel, vy_channel;
 	fp32 vx_set_channel, vy_set_channel;
 	fp32 slope_percentage = 0.30f;
 	static uint8_t orientation_count[4] = {0};
-	
-	// 閬ユ帶鍣ㄦ憞鏉嗘鍖哄鐞?
+
 	rc_deadband_limit(chassis_move_rc_to_vector->chassis_RC->rc.ch[CHASSIS_X_CHANNEL], vx_channel, CHASSIS_RC_DEADLINE);
 	rc_deadband_limit(chassis_move_rc_to_vector->chassis_RC->rc.ch[CHASSIS_Y_CHANNEL], vy_channel, CHASSIS_RC_DEADLINE);
 	vx_set_channel = vx_channel * (CHASSIS_VX_RC_SEN);
 	vy_set_channel = vy_channel * (CHASSIS_VY_RC_SEN);
-	
-	// 閿洏鍔犻€熸帶鍒?
+
 	if (chassis_move_rc_to_vector->chassis_RC->key.v & CHASSIS_FRONT_KEY)
 	{
 		if (orientation_count[0] < 210){	orientation_count[0]++; }
@@ -233,7 +191,7 @@ void chassis_rc_to_control_vector(fp32 *vx_set, fp32 *vy_set, chassis_move_t *ch
 		if (orientation_count[1] < 210){	orientation_count[1]++; }
 		vx_set_channel = chassis_move_rc_to_vector->vx_min_speed * (slope_percentage + (((fp32)orientation_count[1]) / 300.0f));
 	}
-	
+
 	if (chassis_move_rc_to_vector->chassis_RC->key.v & CHASSIS_LEFT_KEY)
 	{
 		if (orientation_count[2] < 210){	orientation_count[2]++; }
@@ -244,17 +202,17 @@ void chassis_rc_to_control_vector(fp32 *vx_set, fp32 *vy_set, chassis_move_t *ch
 		if (orientation_count[2] < 210){	orientation_count[3]++; }
 		vy_set_channel = chassis_move_rc_to_vector->vy_min_speed * (slope_percentage + (((fp32)orientation_count[3]) / 300.0f));
 	}
-	
+
 	if (!(chassis_move_rc_to_vector->chassis_RC->key.v & CHASSIS_FRONT_KEY)){ orientation_count[0] = 0; }
 	if (!(chassis_move_rc_to_vector->chassis_RC->key.v & CHASSIS_BACK_KEY )){ orientation_count[1] = 0; }
 	if (!(chassis_move_rc_to_vector->chassis_RC->key.v & CHASSIS_LEFT_KEY )){ orientation_count[2] = 0; }
 	if (!(chassis_move_rc_to_vector->chassis_RC->key.v & CHASSIS_RIGHT_KEY)){ orientation_count[3] = 0; }
-	
-	// 涓€闃舵护娉㈠櫒骞虫粦閫熷害杈撳叆
+
+	// 一阶滤波平滑速度指令
 	first_order_filter_cali(&chassis_move_rc_to_vector->chassis_cmd_slow_set_vx, vx_set_channel);
 	first_order_filter_cali(&chassis_move_rc_to_vector->chassis_cmd_slow_set_vy, vy_set_channel);
-	
-	// 閬ユ帶鍣ㄦ鍖鸿緭鍑虹疆闆?
+
+	// 小输入直接置零
 	if (vx_set_channel < CHASSIS_RC_DEADLINE * CHASSIS_VX_RC_SEN && vx_set_channel > -CHASSIS_RC_DEADLINE * CHASSIS_VX_RC_SEN)
 	{
 		chassis_move_rc_to_vector->chassis_cmd_slow_set_vx.out = 0.0f;
@@ -263,16 +221,15 @@ void chassis_rc_to_control_vector(fp32 *vx_set, fp32 *vy_set, chassis_move_t *ch
 	{
 		chassis_move_rc_to_vector->chassis_cmd_slow_set_vy.out = 0.0f;
 	}
-	
+
 	*vx_set =  chassis_move_rc_to_vector->chassis_cmd_slow_set_vx.out;
 	*vy_set = -chassis_move_rc_to_vector->chassis_cmd_slow_set_vy.out;
 }
 
-// 璋冭瘯鐢ㄥ叏灞€鍋忕疆锛屼究浜庡悗缁仈璋冩椂缁熶竴璋冩暣
 
 /**
-  * @brief          璁剧疆搴曠洏鎺у埗杈撳嚭
-  * @param[out]     chassis_move_control: 搴曠洏杩愯鏁版嵁鎸囬拡
+  * @brief          根据底盘模式生成速度和角度指令
+  * @param[out]     chassis_move_control: 底盘状态结构体指针
   * @retval         none
   */
 static void chassis_set_contorl(chassis_move_t *chassis_move_control)
@@ -280,13 +237,13 @@ static void chassis_set_contorl(chassis_move_t *chassis_move_control)
 	fp32 vector[2];
 
 	if (chassis_move_control == NULL) return;
-	
+
 	fp32 vx_set = 0.0f, vy_set = 0.0f, wz_set = 0.0f;
 
-	// 鑾峰彇涓夎酱鎺у埗閲?
+	// 由行为层生成基础速度指令
 	chassis_behaviour_control_set(&vx_set, &vy_set, &wz_set, chassis_move_control);
 	wz_set = - wz_set;
-	
+
 	if (chassis_move_control->chassis_mode == CHASSIS_VECTOR_RETURN)
 	{
 		chassis_move_control->wz_set = -chassis_move_control->return_wz_set * 0.00006f;
@@ -311,13 +268,13 @@ static void chassis_set_contorl(chassis_move_t *chassis_move_control)
 		chassis_move_control->vy_set = vy_set = 0.0f;
 		chassis_move_control->wz_set = wz_set = 0.0f;
 	}
-	// 璺熼殢浜戝彴妯″紡
 	else if (chassis_move_control->chassis_mode == CHASSIS_VECTOR_FOLLOW_GIMBAL_YAW)
 	{
 		chassis_move_control->wz_set = wz_set;
-		
+
 		vector[0] = vx_set;
 		vector[1] = vy_set;
+		// 跟随云台模式下，车体坐标系要旋转到云台坐标系
 		vector_rotate(chassis_move_control->gimbal_radian_of_ecd + chassis_follow_gimbal_yaw_offset, vector);
 		vx_set = vector[0];
 		vy_set = vector[1];
@@ -339,11 +296,11 @@ static void chassis_set_contorl(chassis_move_t *chassis_move_control)
 }
 
 /*************************************************************
-  * @brief          鍩轰簬杞﹁締鍔ㄥ姏瀛︾殑 3508 鐢垫満鐢垫祦妯″瀷
-  * @param[in]      motor_idx: 鐢垫満绱㈠紩 0-3
-  * @param[in]      set_speed: 鐩爣閫熷害
-  * @param[in]      ref_speed: 褰撳墠閫熷害
-  * @retval         鐢垫満鎺у埗鐢垫祦
+  * @brief          3508 电机模型控制
+  * @param[in]      motor_idx: 电机索引 0-3
+  * @param[in]      set_speed: 目标速度
+  * @param[in]      ref_speed: 实际速度
+  * @retval         电流输出
  ************************************************************/
 static fp32 Model_Based_Control(uint8_t motor_idx, fp32 set_speed, fp32 ref_speed)
 {
@@ -424,10 +381,10 @@ static fp32 Model_Based_Control(uint8_t motor_idx, fp32 set_speed, fp32 ref_spee
 }
 
 /*************************************************************
-  * @brief          澶勭悊鑸佃疆瑙掑害璺冲彉鏃剁殑 PID 璁＄畻
-  * @param[in]      chassis_pid_calc: 搴曠洏杩愯鏁版嵁鎸囬拡
+  * @brief          处理底盘 PID 与回正逻辑
+  * @param[in]      chassis_pid_calc: 底盘状态结构体指针
   * @retval         none
-  ************************************************************/
+ ************************************************************/
 static void PID_Calc_Jump(chassis_move_t *chassis_pid_calc)
 {
 	static int32_t count = 0;
@@ -518,6 +475,7 @@ static void PID_Calc_Jump(chassis_move_t *chassis_pid_calc)
 	}
 }
 
+/* 底盘控制环路 */
 static void chassis_control_loop(chassis_move_t *chassis_move_control_loop)
 {
 	fp32 wheel_speed[CHASSIS_MODULE_NUM] = {0.0f, 0.0f};
@@ -561,6 +519,7 @@ static void chassis_control_loop(chassis_move_t *chassis_move_control_loop)
 	chassis_power_control(chassis_move_control_loop);
 }
 
+/* 底盘任务主循环 */
 void chassis_task(void const *pvParameters)
 {
 	vTaskDelay(CHASSIS_TASK_INIT_TIME);
@@ -584,19 +543,7 @@ void chassis_task(void const *pvParameters)
 		if (!(toe_is_error(CHASSIS_MOTOR1_TOE) && toe_is_error(CHASSIS_MOTOR2_TOE) &&
 		      toe_is_error(CHASSIS_MOTOR3_TOE) && toe_is_error(CHASSIS_MOTOR4_TOE)))
 		{
-			/*
-			if (toe_is_error(DBUS_TOE))
-			{
-				CAN_cmd_CHASSIS_ALL(0, 0, 0, 0);
-			}
-			else
-			{
-				CAN_cmd_CHASSIS_ALL(chassis_move.chassis_3508[0].give_current,
-				                    chassis_move.chassis_3508[1].give_current,
-				                    chassis_move.chassis_6020[0].give_current,
-				                    chassis_move.chassis_6020[1].give_current);
-			}
-			*/
+		/* 当前使用固定零电流发送，保留的是调试接口。 */
 			CAN_cmd_CHASSIS_ALL(0, 0, 0, 0);
 		}
 

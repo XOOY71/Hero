@@ -62,5 +62,4 @@ ctrlboard-h7_ws1812\chassis_power_control.o: ..\User\APP_Support\robot_param.h
 ctrlboard-h7_ws1812\chassis_power_control.o: ../User/APP/detect_task.h
 ctrlboard-h7_ws1812\chassis_power_control.o: ..\User\APP_Support\referee.h
 ctrlboard-h7_ws1812\chassis_power_control.o: ..\User\APP_Support\protocol.h
-ctrlboard-h7_ws1812\chassis_power_control.o: ../User/APP/voltage_task.h
 ctrlboard-h7_ws1812\chassis_power_control.o: ..\User\APP_Support\pm01_api.h

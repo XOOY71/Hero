@@ -11,25 +11,27 @@
 #include "gimbal_behaviour.h"
 #include "shoot_task.h"
 
-/*
- * 灯位状态表�? * 0：遥�?键鼠 DBUS 链路，绿�?在线，红�?离线�? * 1�? 个底盘驱动电机聚合状态，绿色=全部在线，红�?存在离线�? * 2�? 个摩擦轮电机聚合状态，绿色=全部在线，红�?存在离线，黄�?已使能但平均转速低�?100rpm，青�?已使能且平均转速高�?200rpm�? * 3：自瞄通信链路，绿�?在线，红�?离线�? * 4~6：底盘行为模式，蓝色=静止，青�?跟随云台，紫�?小陀螺，黄色=回正/默认�? * 7：云台行为模式，红色=无力/静止，黄�?初始�?校准，紫�?小陀螺，绿色=角度控制�? * 8：超级电容状态，蓝色=正在使用，绿�?准备就绪，黄橙色=充电/默认�? * 9：灯光任务心跳，灰色闪烁=light_task 周期运行�? */
+/* 灯位状态定义：0=DBUS 在线，1=底盘电机在线，2=摩擦轮在线，3=自瞄在线，4~6=底盘行为，7=云台行为，8=超级电容，9=任务心跳。 */
 
-/* 灯板串口帧格式：0xAA 0x55 + 10 颗灯 RGB 数据 + 0x55 0xAA�?*/
+
+
+/* 灯板串口帧格式：帧头 0xAA 0x55，帧尾 0x55 0xAA，中间是 10 路灯的 RGB 数据。 */
 #define LIGHT_FRAME_HEAD0 0xAAU
 #define LIGHT_FRAME_HEAD1 0x55U
 #define LIGHT_FRAME_TAIL0 0x55U
 #define LIGHT_FRAME_TAIL1 0xAAU
 
-/* 亮度档位：集中定义后，状态颜色只组合档位，不直接散落魔法数�?*/
-#define LIGHT_LOW 8U
+/* 亮度档位统一集中定义，状态颜色只组合这些档位值。 */
+#define LIGHT_LOW 4U
 #define LIGHT_DIM LIGHT_LOW
 #define LIGHT_MID LIGHT_LOW
 #define LIGHT_HIGH LIGHT_LOW
+#define LIGHT_HEARTBEAT_BREATH_TICKS 128U
 #define LIGHT_FRIC_WORK_MIN_RPM 100.0f
 #define LIGHT_FRIC_RUNNING_RPM 200.0f
 #define LIGHT_FRIC_FDB_TIMEOUT 300U
 
-/* 在线状态灯位：一个在线检测对象对应一颗灯�?*/
+/* 在线状态灯位：一个检测对象对应一颗灯。 */
 #define LIGHT_DBUS_ONLINE_LED 0U
 #define LIGHT_CHASSIS_ONLINE_LED 1U
 #define LIGHT_FRIC_ONLINE_LED 2U
@@ -40,16 +42,19 @@
 #define LIGHT_CAP_STATUS_LED 8U
 #define LIGHT_HEARTBEAT_LED 9U
 
+/* 在线状态缓存：灯光任务先汇总各模块在线结果，再统一渲染到灯板。 */
 typedef struct
 {
-    bool dbus_online;          /* 遥控/键鼠 DBUS 链路在线状态�?*/
-    bool chassis_motor_online; /* 8 个底盘驱动电机聚合在线状态�?*/
-    bool fric_motor_online;    /* 3 个摩擦轮电机聚合在线状态�?*/
-    bool fric_motor_working;   /* 摩擦轮使能后平均转速是否达到工作阈值�?*/
-    bool fric_motor_running;   /* 摩擦轮使能后平均转速是否达到运行指示阈值�?*/
-    bool auto_aim_online;      /* 自瞄通信链路在线状态�?*/
+    bool dbus_online;
+    bool chassis_motor_online;
+    bool fric_motor_online;
+    bool fric_motor_working;
+    bool fric_motor_running;
+    bool auto_aim_online;
+    bool auto_aim_active;
 } light_online_t;
 
+/* 灯光任务控制块：保存任务句柄、工作模式、灯数组和串口帧缓存。 */
 typedef struct
 {
     osThreadId task_handle;
@@ -84,16 +89,16 @@ static void light_pack_frame(void);
 static void light_send_frame(void);
 static void light_fill(uint8_t first, uint8_t last, uint8_t r, uint8_t g, uint8_t b);
 
-/**
-  * @brief  创建灯光任务�?  * @note   任务只负责状态显示和串口发送，不参与控制闭环�?  */
+
+/* 创建灯光任务，任务只负责状态显示和串口发送，不参与控制闭环。 */
 void LightTask_Init(void)
 {
     osThreadDef(lightTask, light_task, osPriorityLow, 0, 256);
     light_control.task_handle = osThreadCreate(osThread(lightTask), NULL);
 }
 
-/**
-  * @brief  灯光任务主循环�?  * @note   自动模式周期计算状态灯；手动模式保持调用方写入的灯值并周期发送�?  */
+
+/* 灯光任务主循环：自动模式周期刷新状态灯，手动模式保持外部写入的灯值并周期发送。 */
 void light_task(void const *pvParameters)
 {
     (void)pvParameters;
@@ -114,15 +119,8 @@ void light_task(void const *pvParameters)
     }
 }
 
-/**
-  * @brief  自动灯效总入口�?  * @note   灯位分配�?  *         0：DBUS 在线状态；
-  *         1：底盘电机组在线状态；
-  *         2：摩擦轮电机组在线状态；
-  *         3：自瞄在线状态；
-  *         4~6：底盘行为模式；
-  *         7：云台行为模式；
-  *         8：超级电容状态；
-  *         9：任务心跳�?  */
+
+/* 自动灯效入口：按在线状态、底盘、云台、电容和心跳刷新灯板。 */
 static void light_render_auto(void)
 {
     static uint8_t tick = 0U;
@@ -139,10 +137,13 @@ static void light_render_auto(void)
     tick++;
 }
 
-/**
-  * @brief  更新灯光任务内部在线状态缓存�?  * @note   缓存集中放在 light_control.online，渲染层只读取该结构体�?  */
+
+/* 更新灯光任务内部的在线状态缓存，渲染层只读取这个缓存。 */
 static void light_update_online_status(void)
 {
+    const uint8_t auto_aim_online = *((volatile uint8_t *)&aim.online);
+    const uint8_t auto_aim_flag = *((volatile uint8_t *)&aim.auto_aim_flag);
+
     light_control.online.dbus_online =
         (toe_is_error(DBUS_TOE) == 0U);
     light_control.online.chassis_motor_online =
@@ -154,11 +155,13 @@ static void light_update_online_status(void)
     light_control.online.fric_motor_running =
         light_fric_motor_running();
     light_control.online.auto_aim_online =
-        (aim.online != 0U);
+        (auto_aim_online != 0U);
+    light_control.online.auto_aim_active =
+        ((auto_aim_online != 0U) && (auto_aim_flag == AIM_ON));
 }
 
-/**
-  * @brief  判定 8 个底盘驱动电机的聚合在线状态�?  * @retval true  8 个底盘驱动电机均�?detect_task 错误�?  * @retval false 任意一个底盘驱动电机离线或错误�?  */
+
+/* 判断 8 个底盘驱动电机是否全部在线。 */
 static bool light_chassis_motor_online(void)
 {
     for (uint8_t toe = CHASSIS_MOTOR1_TOE; toe <= CHASSIS_MOTOR4_TOE; toe++)
@@ -172,8 +175,8 @@ static bool light_chassis_motor_online(void)
     return true;
 }
 
-/**
-  * @brief  判定 3 个摩擦轮电机的聚合在线状态�?  * @retval true  三路摩擦轮反馈均�?LIGHT_FRIC_FDB_TIMEOUT 时间窗内更新�?  * @retval false 任意一路摩擦轮反馈超时或反馈指针未绑定�?  */
+
+/* 判断 3 个摩擦轮电机是否全部在线。 */
 static bool light_fric_motor_online(void)
 {
     const uint32_t now = HAL_GetTick();
@@ -183,8 +186,8 @@ static bool light_fric_motor_online(void)
            light_fric_one_motor_online(&shoot_task_control.fric3, now);
 }
 
-/**
-  * @brief  判定单个摩擦轮电机在线状态�?  * @param  motor 摩擦轮运行时对象�?  * @param  now   当前系统毫秒时间�?  */
+
+/* 判断单个摩擦轮电机是否在线。 */
 static bool light_fric_one_motor_online(const shoot_task_motor_t *motor, uint32_t now)
 {
     if ((motor == NULL) || (motor->measure == NULL))
@@ -200,8 +203,8 @@ static bool light_fric_one_motor_online(const shoot_task_motor_t *motor, uint32_
     return ((now - motor->measure->last_fdb_time) <= LIGHT_FRIC_FDB_TIMEOUT);
 }
 
-/**
-  * @brief  判定摩擦轮使能后的实际工作状态�?  * @retval true  摩擦轮未使能，或三路平均转速达到工作阈值�?  * @retval false 摩擦轮已使能，但三路平均转速低�?LIGHT_FRIC_WORK_MIN_RPM�?  */
+
+/* 判断摩擦轮使能后是否达到工作转速。 */
 static bool light_fric_motor_working(void)
 {
     if (!shoot_task_control.friction_enable)
@@ -212,8 +215,8 @@ static bool light_fric_motor_working(void)
     return (light_fric_average_speed_rpm() >= LIGHT_FRIC_WORK_MIN_RPM);
 }
 
-/**
-  * @brief  判定摩擦轮使能后的运行指示状态�?  * @retval true  摩擦轮已使能，且三路平均转速高�?LIGHT_FRIC_RUNNING_RPM�?  * @retval false 摩擦轮未使能，或平均转速未达到运行指示阈值�?  */
+
+/* 判断摩擦轮使能后是否达到运行转速。 */
 static bool light_fric_motor_running(void)
 {
     if (!shoot_task_control.friction_enable)
@@ -224,8 +227,8 @@ static bool light_fric_motor_running(void)
     return (light_fric_average_speed_rpm() > LIGHT_FRIC_RUNNING_RPM);
 }
 
-/**
-  * @brief  计算三路摩擦轮平均转速绝对值，单位 rpm�?  */
+
+/* 计算 3 路摩擦轮平均转速的绝对值，单位 rpm。 */
 static float light_fric_average_speed_rpm(void)
 {
     return (light_abs_float(shoot_task_control.fric1.speed_rpm) +
@@ -234,15 +237,15 @@ static float light_fric_average_speed_rpm(void)
            3.0f;
 }
 
-/**
-  * @brief  float 绝对值，避免为简单阈值判断额外引入数学库依赖�?  */
+
+/* 返回浮点绝对值，供阈值判断使用。 */
 static float light_abs_float(float value)
 {
     return (value < 0.0f) ? -value : value;
 }
 
-/**
-  * @brief  渲染 0�?�?�? 号在线状态灯�?  * @note   在线显示绿色；离线统一红色；摩擦轮使能未达速时黄色，运行时青色�?  */
+
+/* 刷新 0~3 号在线状态灯。 */
 static void light_render_online_status(void)
 {
     if (light_control.online.dbus_online)
@@ -283,9 +286,13 @@ static void light_render_online_status(void)
         light_set_pixel(LIGHT_FRIC_ONLINE_LED, LIGHT_HIGH, 0U, 0U);
     }
 
-    if (light_control.online.auto_aim_online)
+    if (light_control.online.auto_aim_active)
     {
         light_set_pixel(LIGHT_AUTO_AIM_ONLINE_LED, 0U, LIGHT_MID, 0U);
+    }
+    else if (light_control.online.auto_aim_online)
+    {
+        light_set_pixel(LIGHT_AUTO_AIM_ONLINE_LED, LIGHT_HIGH, LIGHT_HIGH, 0U);
     }
     else
     {
@@ -293,8 +300,8 @@ static void light_render_online_status(void)
     }
 }
 
-/**
-  * @brief  渲染 3�?�? 号灯，用于显示底盘行为模式�?  */
+
+/* 刷新 4~6 号灯，显示底盘行为模式。 */
 static void light_render_chassis_status(void)
 {
     switch (chassis_behaviour_mode)
@@ -334,8 +341,8 @@ static void light_render_chassis_status(void)
     }
 }
 
-/**
-  * @brief  渲染 6 号灯，用于显示云台行为模式�?  * @note   红色表示无力/静止，黄色表示初始化/校准，紫色表示小陀螺，绿色表示正常角度控制�?  */
+
+/* 刷新 7 号灯，显示云台行为模式。 */
 static void light_render_gimbal_status(void)
 {
     switch (gimbal_behaviour)
@@ -362,8 +369,8 @@ static void light_render_gimbal_status(void)
     }
 }
 
-/**
-  * @brief  渲染 7 号灯，用于显示超级电容状态�?  * @note   蓝色表示正在使用电容，绿色表示准备就绪，黄橙色表示充电或默认状态�?  */
+
+/* 刷新 8 号灯，显示超级电容状态。 */
 static void light_render_cap_status(void)
 {
     switch (super_cap_mode)
@@ -383,22 +390,22 @@ static void light_render_cap_status(void)
     }
 }
 
-/**
-  * @brief  渲染 9 号灯，用于显示灯光任务心跳�?  * @note   灰色闪烁表示 light_task 仍按周期运行�?  */
+
+/* 刷新 9 号灯作为任务心跳。 */
 static void light_render_heartbeat(uint8_t tick)
 {
-    if ((tick & 0x01U) == 0U)
-    {
-        light_set_pixel(LIGHT_HEARTBEAT_LED, LIGHT_LOW, LIGHT_LOW, LIGHT_LOW);
-    }
-    else
-    {
-        light_set_pixel(LIGHT_HEARTBEAT_LED, 0U, 0U, 0U);
-    }
+    const uint8_t phase = tick % LIGHT_HEARTBEAT_BREATH_TICKS;
+    const uint8_t ramp = (phase < (LIGHT_HEARTBEAT_BREATH_TICKS / 2U)) ?
+                         phase :
+                         (uint8_t)(LIGHT_HEARTBEAT_BREATH_TICKS - 1U - phase);
+    const uint8_t brightness =
+        (uint8_t)((uint16_t)ramp * LIGHT_LOW / ((LIGHT_HEARTBEAT_BREATH_TICKS / 2U) - 1U));
+
+    light_set_pixel(LIGHT_HEARTBEAT_LED, brightness, 0U, brightness);
 }
 
-/**
-  * @brief  �?light_control.leds[] 打包成灯板串口协议帧�?  */
+
+/* 把 light_control.leds[] 打包成灯板串口帧。 */
 static void light_pack_frame(void)
 {
     uint8_t frame_index = 0U;
@@ -417,16 +424,16 @@ static void light_pack_frame(void)
     light_control.frame[frame_index] = LIGHT_FRAME_TAIL1;
 }
 
-/**
-  * @brief  发送当前灯效帧�?  */
+
+/* 发送当前灯效帧。 */
 static void light_send_frame(void)
 {
     light_pack_frame();
     USART7_Transmit(light_control.frame, (uint16_t)sizeof(light_control.frame));
 }
 
-/**
-  * @brief  将指定闭区间灯珠设置为同一 RGB 颜色�?  * @param  first 起始灯号�?  * @param  last  结束灯号，超出范围时裁剪到最后一颗灯�?  * @param  r,g,b RGB 亮度�?  */
+
+/* 将指定区间的灯珠设置为同一 RGB 颜色。 */
 static void light_fill(uint8_t first, uint8_t last, uint8_t r, uint8_t g, uint8_t b)
 {
     if (first >= LIGHT_LED_COUNT)
@@ -447,28 +454,28 @@ static void light_fill(uint8_t first, uint8_t last, uint8_t r, uint8_t g, uint8_
     }
 }
 
-/** @brief 切回自动状态灯模式�?*/
+/* 切换到自动灯效模式。 */
 void light_set_auto_mode(void)
 {
     light_control.mode = LIGHT_MODE_AUTO;
 }
 
-/** @brief 切到手动调灯模式，自动渲染暂停�?*/
+/* 切换到手动调灯模式，自动刷新暂停。 */
 void light_set_manual_mode(void)
 {
     light_control.mode = LIGHT_MODE_MANUAL;
 }
 
-/**
-  * @brief  手动设置整板颜色�?  * @note   调用后进�?LIGHT_MODE_MANUAL�?  */
+
+/* 手动设置整板颜色。 */
 void light_set_all(uint8_t r, uint8_t g, uint8_t b)
 {
     light_set_manual_mode();
     light_fill(0U, LIGHT_LED_COUNT - 1U, r, g, b);
 }
 
-/**
-  * @brief  设置单颗灯颜色�?  * @note   index 超出范围时直接返回，避免数组越界�?  */
+
+/* 设置单颗灯珠颜色。 */
 void light_set_pixel(uint8_t index, uint8_t r, uint8_t g, uint8_t b)
 {
     if (index >= LIGHT_LED_COUNT)
@@ -481,13 +488,13 @@ void light_set_pixel(uint8_t index, uint8_t r, uint8_t g, uint8_t b)
     light_control.leds[index].b = b;
 }
 
-/** @brief 清空所有灯�?RGB 值�?*/
+/* 清空所有灯珠颜色。 */
 void light_clear(void)
 {
     memset(light_control.leds, 0, sizeof(light_control.leds));
 }
 
-/** @brief 立即按当前灯值刷新灯板�?*/
+/* 立即按当前灯值刷新灯板。 */
 void light_refresh_now(void)
 {
     light_send_frame();

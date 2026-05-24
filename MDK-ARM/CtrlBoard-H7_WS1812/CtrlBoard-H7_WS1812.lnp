@@ -55,7 +55,6 @@
 "ctrlboard-h7_ws1812\light_task.o"
 "ctrlboard-h7_ws1812\chassis_task.o"
 "ctrlboard-h7_ws1812\detect_task.o"
-"ctrlboard-h7_ws1812\voltage_task.o"
 "ctrlboard-h7_ws1812\chassis_behaviour.o"
 "ctrlboard-h7_ws1812\chassis_calculate.o"
 "ctrlboard-h7_ws1812\chassis_power_control.o"
