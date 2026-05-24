@@ -165,6 +165,10 @@ static inline uint16_t usb_tx_read_pos(void)
 /* 閸愬懘鍎撮敍姘�? USB 缁屾椽妫介弮鏈电矤闂冪喎鍨崣鎴??浣风瑓娑??濞堢绱欓棃鐐烘▎婵夌儑�?? */
 static void start_usb_tx_if_idle(void)
 {
+    if (hUsbDeviceHS.dev_state != USBD_STATE_CONFIGURED) {
+        return;
+    }
+
     USBD_CDC_HandleTypeDef *hcdc = (USBD_CDC_HandleTypeDef*)hUsbDeviceHS.pClassData;
     if (hcdc == NULL) return;
 
@@ -256,6 +260,15 @@ USBD_CDC_ItfTypeDef USBD_Interface_fops_HS =
 static int8_t CDC_Init_HS(void)
 {
   /* USER CODE BEGIN 8 */
+  uint32_t primask = __get_PRIMASK();
+  __disable_irq();
+  usb_tx_wpos = 0;
+  usb_tx_count = 0;
+  tx_done = 1;
+  if (primask == 0U) {
+    __enable_irq();
+  }
+  usb_cdc_port_reset_rx();
   /* Set Application Buffers */
   USBD_CDC_SetTxBuffer(&hUsbDeviceHS, UserTxBufferHS, 0);
   USBD_CDC_SetRxBuffer(&hUsbDeviceHS, UserRxBufferHS);
@@ -271,6 +284,15 @@ static int8_t CDC_Init_HS(void)
 static int8_t CDC_DeInit_HS(void)
 {
   /* USER CODE BEGIN 9 */
+  uint32_t primask = __get_PRIMASK();
+  __disable_irq();
+  usb_tx_wpos = 0;
+  usb_tx_count = 0;
+  tx_done = 1;
+  if (primask == 0U) {
+    __enable_irq();
+  }
+  usb_cdc_port_reset_rx();
   return (USBD_OK);
   /* USER CODE END 9 */
 }
@@ -366,7 +388,7 @@ static int8_t CDC_Control_HS(uint8_t cmd, uint8_t* pbuf, uint16_t length)
 static int8_t CDC_Receive_HS(uint8_t* Buf, uint32_t *Len)
 {
   /* USER CODE BEGIN 11 */
-  /* Directly feed raw USB bytes to uproto; do not pre-filter/clear Buf */
+  /* Queue raw USB bytes; protocol parsing runs in comm_app_task. */
   if (Len && *Len) {
     usb_cdc_port_on_rx(Buf, *Len);
   }
@@ -387,7 +409,15 @@ uint8_t CDC_Transmit_HS(uint8_t* Buf, uint16_t Len)
 {
   uint8_t result = USBD_OK;
   /* USER CODE BEGIN 12 */
+  if (hUsbDeviceHS.dev_state != USBD_STATE_CONFIGURED) {
+    return USBD_FAIL;
+  }
+
   USBD_CDC_HandleTypeDef *hcdc = (USBD_CDC_HandleTypeDef*)hUsbDeviceHS.pClassData;
+  if (hcdc == NULL) {
+    return USBD_FAIL;
+  }
+
   if (hcdc->TxState != 0){
     return USBD_BUSY;
   }

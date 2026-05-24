@@ -10,7 +10,7 @@
 #define AUTO_AIM_TIME     1U
 
 #ifndef AUTO_AIM_SOFT_ENABLE
-#define AUTO_AIM_SOFT_ENABLE 1
+#define AUTO_AIM_SOFT_ENABLE 0
 #endif
 
 typedef enum

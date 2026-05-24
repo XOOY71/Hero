@@ -11,6 +11,7 @@
 #include "cmsis_os.h"
 #include "stm32h7xx_hal.h"
 #include "usb_device.h"
+#include "usb_cdc_port.h"
 #include "usbd_cdc_if.h"
 #include "usbd_core.h"
 
@@ -312,6 +313,7 @@ void comm_app_task(void const *arg) {
     (void)arg;
     extern USBD_HandleTypeDef hUsbDeviceHS;
     MX_USB_DEVICE_Init();
+    usb_cdc_port_init();
 #if defined(TFMINI_ENABLE) && (TFMINI_ENABLE == 1)
     /* Init TFmini RX early; do not wait for USB enumeration. */
     tfmini_uart_init(&huart10);
@@ -329,6 +331,7 @@ void comm_app_task(void const *arg) {
 
     for(;;) {
 #if COMM_PROTO_ENABLE
+        usb_cdc_port_poll_rx();
         uproto_tick(&proto_ctx);
         camera_channel_tick(&g_camera);
         ch_uproto_arbiter_tick(&g_bind);

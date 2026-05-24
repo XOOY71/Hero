@@ -57,7 +57,7 @@
 
 /* 摩擦轮目标与保护配置 */
 #ifndef SHOOT_FRIC_TARGET_SPEED_RPM
-#define SHOOT_FRIC_TARGET_SPEED_RPM 3820  // 三路摩擦轮统一目标转速，单位 rpm
+#define SHOOT_FRIC_TARGET_SPEED_RPM 4530  // 三路摩擦轮统一目标转速，单位 rpm
 #endif
 
 #ifndef SHOOT_FRIC_WHEEL_RADIUS_M

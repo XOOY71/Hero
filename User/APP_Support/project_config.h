@@ -61,9 +61,9 @@ extern "C" {
 #define AUTO_AIM_YAW_GYRO_ABSOLUTE_PID_MAX_OUT      2.0f
 #define AUTO_AIM_YAW_GYRO_ABSOLUTE_PID_MAX_IOUT     0.0f
 
-#define AUTO_AIM_PITCH_ENCODE_RELATIVE_PID_KP       8.8f
+#define AUTO_AIM_PITCH_ENCODE_RELATIVE_PID_KP       4.8f
 #define AUTO_AIM_PITCH_ENCODE_RELATIVE_PID_KI       0.0f
-#define AUTO_AIM_PITCH_ENCODE_RELATIVE_PID_KD       0.70f
+#define AUTO_AIM_PITCH_ENCODE_RELATIVE_PID_KD       1.20f
 #define AUTO_AIM_PITCH_ENCODE_RELATIVE_PID_MAX_OUT  2.0f
 #define AUTO_AIM_PITCH_ENCODE_RELATIVE_PID_MAX_IOUT 0.0f
 
@@ -77,13 +77,13 @@ extern "C" {
 #define YAW_REF_VEL_FILTER_ALPHA           0.05f  // yaw 鐩爣瑙掑樊鍒嗛€熷害浣庨€氱郴鏁帮紝瓒婂皬鍓嶉瓒婂钩婊?
 #define YAW_REF_ACCEL_LIMIT                100.0f // yaw 鎯噺鍓嶉鍙傝€冨姞閫熷害闄愬箙锛岄槻姝㈤仴鎺ц緭鍏ヨ烦鍙樹骇鐢熷姏鐭╁皷宄?
 #define PITCH_RELATIVE_SPEED_FILTER_ALPHA  0.20f  // pitch 缂栫爜鍣ㄥ樊鍒嗛€熷害浣庨€氱郴鏁?
-#define PITCH_VELOCITY_FF_GAIN             0.24f  // pitch 閫熷害鍓嶉绯绘暟锛屽崟浣?N*m/(rad/s)
+#define PITCH_VELOCITY_FF_GAIN             0.1f  // pitch 閫熷害鍓嶉绯绘暟锛屽崟浣?N*m/(rad/s)
 
 /* 鎯噺鍓嶉锛歵orque_ff = J * alpha_ref */
 #define YAW_INERTIA_KGM2                   0.013  // yaw 杞姩鎯噺 J锛屽崟浣?kg*m^2
 
 #define PITCH_EQ_MASS_KG                   1.5f   // pitch 閲嶅姏琛ュ伩浣跨敤鐨勭瓑鏁堣川閲?
-#define PITCH_INERTIA_KGM2                 0.0039 // pitch 杞姩鎯噺 J锛屽崟浣?kg*m^2
+#define PITCH_INERTIA_KGM2                 0.00245 // pitch 杞姩鎯噺 J锛屽崟浣?kg*m^2
 
 /* ========================= 閬ユ帶鍣?榧犳爣杈撳叆閰嶇疆 ========================= */
 #define GIMBAL_ANGLE_Z_RC_SEN              0.0000005f // 灏忛檧铻?搴曠洏鏃嬭浆瑙掗€熷害杈撳叆鐏垫晱搴?

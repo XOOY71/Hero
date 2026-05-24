@@ -64,6 +64,9 @@ ctrlboard-h7_ws1812\comm_app.o: D:\Keil5\ARM\ARMCC\Bin\..\include\stdio.h
 ctrlboard-h7_ws1812\comm_app.o: D:\Keil5\ARM\ARMCC\Bin\..\include\stdlib.h
 ctrlboard-h7_ws1812\comm_app.o: D:\Keil5\ARM\ARMCC\Bin\..\include\string.h
 ctrlboard-h7_ws1812\comm_app.o: ../Core/Inc/main.h
+ctrlboard-h7_ws1812\comm_app.o: ..\User\Communication\example\device\usb_cdc_port.h
+ctrlboard-h7_ws1812\comm_app.o: ../User/Communication/core/uproto.h
+ctrlboard-h7_ws1812\comm_app.o: D:\Keil5\ARM\ARMCC\Bin\..\include\stdbool.h
 ctrlboard-h7_ws1812\comm_app.o: ../USB_DEVICE/App/usbd_cdc_if.h
 ctrlboard-h7_ws1812\comm_app.o: ../Middlewares/ST/STM32_USB_Device_Library/Class/CDC/Inc/usbd_cdc.h
 ctrlboard-h7_ws1812\comm_app.o: ../Middlewares/ST/STM32_USB_Device_Library/Core/Inc/usbd_ioreq.h
@@ -72,7 +75,6 @@ ctrlboard-h7_ws1812\comm_app.o: ../Middlewares/ST/STM32_USB_Device_Library/Core/
 ctrlboard-h7_ws1812\comm_app.o: ../Middlewares/ST/STM32_USB_Device_Library/Core/Inc/usbd_ctlreq.h
 ctrlboard-h7_ws1812\comm_app.o: ../Core/Inc/usart.h
 ctrlboard-h7_ws1812\comm_app.o: ..\User\Communication\example\device\../../channel/camera/camera_channel.h
-ctrlboard-h7_ws1812\comm_app.o: D:\Keil5\ARM\ARMCC\Bin\..\include\stdbool.h
 ctrlboard-h7_ws1812\comm_app.o: ..\User\Communication\example\device\../../channel/camera/../../core/comm.h
 ctrlboard-h7_ws1812\comm_app.o: ..\User\Communication\example\device\../../channel/camera/../../core/config.h
 ctrlboard-h7_ws1812\comm_app.o: ..\User\Communication\example\device\../../channel/camera/../../core/comm_utils.h
@@ -82,7 +84,6 @@ ctrlboard-h7_ws1812\comm_app.o: ..\User\Communication\example\device\../../chann
 ctrlboard-h7_ws1812\comm_app.o: ..\User\Communication\example\device\../../channel/time_sync/time_sync_channel.h
 ctrlboard-h7_ws1812\comm_app.o: ..\User\Communication\example\device\../../channel/time_sync/time_sync_config.h
 ctrlboard-h7_ws1812\comm_app.o: ..\User\Communication\example\device\../../core/platform.h
-ctrlboard-h7_ws1812\comm_app.o: ..\User\Communication\example\device\../../core/uproto.h
 ctrlboard-h7_ws1812\comm_app.o: ..\User\Communication\example\device\../shared/protocol_ids.h
 ctrlboard-h7_ws1812\comm_app.o: ../User/BSP/bsp_dwt.h
 ctrlboard-h7_ws1812\comm_app.o: ../User/BSP/bsp_tim24.h

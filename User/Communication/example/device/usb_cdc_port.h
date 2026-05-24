@@ -21,8 +21,14 @@ uint32_t usb_cdc_port_write(void *user, const uint8_t *data, uint32_t len);
 /* Bind uproto ctx so CDC RX callback can feed bytes in */
 void usb_cdc_port_bind_uproto(uproto_context_t *ctx);
 
-/* Feed RX bytes from CDC_Receive_xx callback */
+/* Queue RX bytes from CDC_Receive_xx callback */
 void usb_cdc_port_on_rx(const uint8_t *data, uint32_t len);
+
+/* Parse queued RX bytes from task context */
+void usb_cdc_port_poll_rx(void);
+
+/* Clear queued RX bytes on USB close/reset */
+void usb_cdc_port_reset_rx(void);
 
 #ifdef __cplusplus
 }

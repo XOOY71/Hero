@@ -7,7 +7,7 @@
 extern "C" {
 #endif
 
-#define OUTPUT_SCALE 0.68f
+#define OUTPUT_SCALE 0.72f
 
 struct gimbal_control_t;
 

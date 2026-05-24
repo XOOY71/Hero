@@ -29,17 +29,33 @@ gimbal_control_t gimbal_control;
 #define GIMBAL_YAW_MIT_INDEX 0U
 #endif
 
-#ifndef GIMBAL_STATIC_FRICTION_COMP
-#define GIMBAL_STATIC_FRICTION_COMP 0.28f
+#ifndef GIMBAL_YAW_STATIC_FRICTION_COMP
+#define GIMBAL_YAW_STATIC_FRICTION_COMP 0.28f
 #endif
-#ifndef GIMBAL_STATIC_FRICTION_DEADBAND
-#define GIMBAL_STATIC_FRICTION_DEADBAND 0.002f
+#ifndef GIMBAL_YAW_STATIC_FRICTION_DEADBAND
+#define GIMBAL_YAW_STATIC_FRICTION_DEADBAND 0.002f
 #endif
-#ifndef GIMBAL_STATIC_FRICTION_FULLBAND
-#define GIMBAL_STATIC_FRICTION_FULLBAND 0.006f
+#ifndef GIMBAL_YAW_STATIC_FRICTION_FULLBAND
+#define GIMBAL_YAW_STATIC_FRICTION_FULLBAND 0.006f
 #endif
-#ifndef GIMBAL_STATIC_FRICTION_FILTER_ALPHA
-#define GIMBAL_STATIC_FRICTION_FILTER_ALPHA 0.2f
+#ifndef GIMBAL_YAW_STATIC_FRICTION_FILTER_ALPHA
+#define GIMBAL_YAW_STATIC_FRICTION_FILTER_ALPHA 0.2f
+#endif
+
+#ifndef GIMBAL_PITCH_STATIC_FRICTION_COMP_UP
+#define GIMBAL_PITCH_STATIC_FRICTION_COMP_UP 0.1f
+#endif
+#ifndef GIMBAL_PITCH_STATIC_FRICTION_COMP_DOWN
+#define GIMBAL_PITCH_STATIC_FRICTION_COMP_DOWN 0.00f
+#endif
+#ifndef GIMBAL_PITCH_STATIC_FRICTION_DEADBAND
+#define GIMBAL_PITCH_STATIC_FRICTION_DEADBAND 0.004f
+#endif
+#ifndef GIMBAL_PITCH_STATIC_FRICTION_FULLBAND
+#define GIMBAL_PITCH_STATIC_FRICTION_FULLBAND 0.008f
+#endif
+#ifndef GIMBAL_PITCH_STATIC_FRICTION_FILTER_ALPHA
+#define GIMBAL_PITCH_STATIC_FRICTION_FILTER_ALPHA 0.1f
 #endif
 
 static osThreadId gimbalTaskHandle = NULL;
@@ -49,8 +65,8 @@ static void gimbal_task(void const *pvParameters);
 static float gimbal_wrap_angle(float angle);
 static float gimbal_take_auto_aim_bias(gimbal_motor_t *motor);
 static float gimbal_clamp(float value, float min_value, float max_value);
-static float gimbal_calc_static_friction_comp_raw(float angle_error);
-static float gimbal_update_static_friction_comp(float *friction_comp, float angle_error);
+static float gimbal_calc_static_friction_comp_raw(const gimbal_motor_t *motor, float angle_error);
+static float gimbal_update_static_friction_comp(gimbal_motor_t *motor, float *friction_comp, float angle_error);
 static float gimbal_float_to_torque_cmd(float output);
 static float gimbal_calc_feedforward(gimbal_motor_t *motor, float ref_vel, float ref_accel);
 static float gimbal_calc_feedback_torque(gimbal_motor_t *motor, gimbal_pid_t *angle_pid, float angle_get, float angle_set, float *friction_comp);
@@ -90,7 +106,7 @@ static void gimbal_task(void const *pvParameters)
         gimbal_send_cmd(&gimbal_control);
         shoot_task_loop();
 
-        gimbal_vofa_send_strum();
+        gimbal_vofa_send_yaw_pitch_half();
 
         vTaskDelayUntil(&last_wake_time, GIMBAL_CONTROL_TIME);
     }
@@ -441,52 +457,80 @@ static float gimbal_clamp(float value, float min_value, float max_value)
     return value;
 }
 
-static float gimbal_calc_static_friction_comp_raw(float angle_error)
+static float gimbal_calc_static_friction_comp_raw(const gimbal_motor_t *motor, float angle_error)
 {
     float abs_error;
     float comp_scale;
+    float deadband;
+    float fullband;
+
+    if (motor == &gimbal_control.gimbal_pitch_motor)
+    {
+        deadband = GIMBAL_PITCH_STATIC_FRICTION_DEADBAND;
+        fullband = GIMBAL_PITCH_STATIC_FRICTION_FULLBAND;
+    }
+    else
+    {
+        deadband = GIMBAL_YAW_STATIC_FRICTION_DEADBAND;
+        fullband = GIMBAL_YAW_STATIC_FRICTION_FULLBAND;
+    }
 
     abs_error = fabsf(angle_error);
-    if (abs_error <= GIMBAL_STATIC_FRICTION_DEADBAND)
+    if (abs_error <= deadband)
     {
         return 0.0f;
     }
 
-    if (GIMBAL_STATIC_FRICTION_FULLBAND <= GIMBAL_STATIC_FRICTION_DEADBAND ||
-        abs_error >= GIMBAL_STATIC_FRICTION_FULLBAND)
+    if (fullband <= deadband ||
+        abs_error >= fullband)
     {
         comp_scale = 1.0f;
     }
     else
     {
         comp_scale =
-            (abs_error - GIMBAL_STATIC_FRICTION_DEADBAND) /
-            (GIMBAL_STATIC_FRICTION_FULLBAND - GIMBAL_STATIC_FRICTION_DEADBAND);
+            (abs_error - deadband) /
+            (fullband - deadband);
     }
 
     if (angle_error > 0.0f)
     {
-        return GIMBAL_STATIC_FRICTION_COMP * comp_scale;
+        if (motor == &gimbal_control.gimbal_pitch_motor)
+        {
+            return GIMBAL_PITCH_STATIC_FRICTION_COMP_UP * comp_scale;
+        }
+        return GIMBAL_YAW_STATIC_FRICTION_COMP * comp_scale;
     }
     if (angle_error < 0.0f)
     {
-        return -GIMBAL_STATIC_FRICTION_COMP * comp_scale;
+        if (motor == &gimbal_control.gimbal_pitch_motor)
+        {
+            return -GIMBAL_PITCH_STATIC_FRICTION_COMP_DOWN * comp_scale;
+        }
+        return -GIMBAL_YAW_STATIC_FRICTION_COMP * comp_scale;
     }
     return 0.0f;
 }
 
-static float gimbal_update_static_friction_comp(float *friction_comp, float angle_error)
+static float gimbal_update_static_friction_comp(gimbal_motor_t *motor, float *friction_comp, float angle_error)
 {
     float alpha;
     float comp_cmd;
 
-    comp_cmd = gimbal_calc_static_friction_comp_raw(angle_error);
+    comp_cmd = gimbal_calc_static_friction_comp_raw(motor, angle_error);
     if (friction_comp == 0)
     {
         return comp_cmd;
     }
 
-    alpha = gimbal_clamp(GIMBAL_STATIC_FRICTION_FILTER_ALPHA, 0.0f, 1.0f);
+    if (motor == &gimbal_control.gimbal_pitch_motor)
+    {
+        alpha = gimbal_clamp(GIMBAL_PITCH_STATIC_FRICTION_FILTER_ALPHA, 0.0f, 1.0f);
+    }
+    else
+    {
+        alpha = gimbal_clamp(GIMBAL_YAW_STATIC_FRICTION_FILTER_ALPHA, 0.0f, 1.0f);
+    }
     *friction_comp += alpha * (comp_cmd - *friction_comp);
 
     return *friction_comp;
@@ -527,7 +571,7 @@ static float gimbal_calc_feedback_torque(gimbal_motor_t *motor, gimbal_pid_t *an
     motor->gyro_set = motor->ref_vel;
     angle_error = angle_set - angle_get;
     angle_torque = gimbal_pid_calc(angle_pid, angle_get, angle_set, 0.0f);
-    return gimbal_clamp(angle_torque + gimbal_update_static_friction_comp(friction_comp, angle_error),
+    return gimbal_clamp(angle_torque + gimbal_update_static_friction_comp(motor, friction_comp, angle_error),
                         -angle_pid->max_out,
                         angle_pid->max_out);
 }
@@ -553,7 +597,7 @@ static float gimbal_calc_angle_speed_torque(gimbal_motor_t *motor, gimbal_pid_t 
     pid->Iout = 0.0f;
     pid->Dout = pid->Kd * speed_error;
 
-    output = pid->Pout + pid->Dout + gimbal_update_static_friction_comp(friction_comp, angle_error);
+    output = pid->Pout + pid->Dout + gimbal_update_static_friction_comp(motor, friction_comp, angle_error);
     output = gimbal_clamp(output, -pid->max_out, pid->max_out);
     pid->out = output;
 
