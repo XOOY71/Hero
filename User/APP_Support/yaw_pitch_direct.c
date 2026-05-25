@@ -120,8 +120,6 @@ static void gimbal_feedforward_clear(gimbal_motor_t *motor)
     motor->auto_ref_target_last = 0.0f;
     motor->auto_ref_target_init = 0u;
     motor->ff_torque = 0.0f;
-    motor->rc_ff_torque = 0.0f;
-    motor->auto_ff_torque = 0.0f;
     gimbal_auto_aim_clear_target_vel(motor);
 }
 
@@ -133,10 +131,8 @@ static void gimbal_pitch_zero_output(gimbal_motor_t *motor)
     }
 
     gimbal_feedforward_clear(motor);
-    gimbal_pid_clear(&motor->rc_absolute_angle_pid);
-    gimbal_pid_clear(&motor->rc_relative_angle_pid);
-    gimbal_pid_clear(&motor->auto_absolute_angle_pid);
-    gimbal_pid_clear(&motor->auto_relative_angle_pid);
+    gimbal_pid_clear(&motor->absolute_angle_pid);
+    gimbal_pid_clear(&motor->relative_angle_pid);
 
     motor->mode = GIMBAL_MOTOR_RAW;
     motor->last_mode = GIMBAL_MOTOR_RAW;
@@ -145,13 +141,7 @@ static void gimbal_pitch_zero_output(gimbal_motor_t *motor)
     motor->output = 0.0f;
     motor->given_current = 0.0f;
     motor->pid_torque = 0.0f;
-    motor->rc_pid_torque = 0.0f;
-    motor->auto_pid_torque = 0.0f;
     motor->static_friction_comp = 0.0f;
-    motor->rc_static_friction_comp = 0.0f;
-    motor->auto_static_friction_comp = 0.0f;
-    motor->rc_current_set = 0.0f;
-    motor->auto_current_set = 0.0f;
     motor->rc_control_enable = 0u;
     motor->auto_control_enable = 0u;
     motor->absolute_angle_set = motor->absolute_angle;
@@ -178,7 +168,6 @@ static void gimbal_feedforward_clear_source(gimbal_motor_t *motor,
         motor->auto_ref_accel = 0.0f;
         motor->auto_ref_target_last = 0.0f;
         motor->auto_ref_target_init = 0u;
-        motor->auto_ff_torque = 0.0f;
         gimbal_auto_aim_clear_target_vel(motor);
         return;
     }
@@ -188,7 +177,6 @@ static void gimbal_feedforward_clear_source(gimbal_motor_t *motor,
     motor->rc_ref_accel = 0.0f;
     motor->rc_ref_target_last = 0.0f;
     motor->rc_ref_target_init = 0u;
-    motor->rc_ff_torque = 0.0f;
 }
 
 static void gimbal_feedforward_track_target(gimbal_motor_t *motor,
@@ -476,14 +464,10 @@ static void gimbal_total_pid_clear(gimbal_control_t *control)
         return;
     }
 
-    gimbal_pid_clear(&control->gimbal_yaw_motor.rc_absolute_angle_pid);
-    gimbal_pid_clear(&control->gimbal_yaw_motor.rc_relative_angle_pid);
-    gimbal_pid_clear(&control->gimbal_yaw_motor.auto_absolute_angle_pid);
-    gimbal_pid_clear(&control->gimbal_yaw_motor.auto_relative_angle_pid);
-    gimbal_pid_clear(&control->gimbal_pitch_motor.rc_absolute_angle_pid);
-    gimbal_pid_clear(&control->gimbal_pitch_motor.rc_relative_angle_pid);
-    gimbal_pid_clear(&control->gimbal_pitch_motor.auto_absolute_angle_pid);
-    gimbal_pid_clear(&control->gimbal_pitch_motor.auto_relative_angle_pid);
+    gimbal_pid_clear(&control->gimbal_yaw_motor.absolute_angle_pid);
+    gimbal_pid_clear(&control->gimbal_yaw_motor.relative_angle_pid);
+    gimbal_pid_clear(&control->gimbal_pitch_motor.absolute_angle_pid);
+    gimbal_pid_clear(&control->gimbal_pitch_motor.relative_angle_pid);
 }
 
 /**
@@ -512,55 +496,31 @@ void gimbal_init(gimbal_control_t *control)
     control->gimbal_pitch_motor.mode = GIMBAL_MOTOR_RAW;
     control->gimbal_pitch_motor.last_mode = GIMBAL_MOTOR_RAW;
 
-    gimbal_pid_init(&control->gimbal_yaw_motor.rc_absolute_angle_pid,
+    gimbal_pid_init(&control->gimbal_yaw_motor.absolute_angle_pid,
                     YAW_GYRO_ABSOLUTE_PID_KP,
                     YAW_GYRO_ABSOLUTE_PID_KI,
                     YAW_GYRO_ABSOLUTE_PID_KD,
                     YAW_GYRO_ABSOLUTE_PID_MAX_OUT,
                     YAW_GYRO_ABSOLUTE_PID_MAX_IOUT);
-    gimbal_pid_init(&control->gimbal_yaw_motor.rc_relative_angle_pid,
+    gimbal_pid_init(&control->gimbal_yaw_motor.relative_angle_pid,
                     YAW_ENCODE_RELATIVE_PID_KP,
                     YAW_ENCODE_RELATIVE_PID_KI,
                     YAW_ENCODE_RELATIVE_PID_KD,
                     YAW_ENCODE_RELATIVE_PID_MAX_OUT,
                     YAW_ENCODE_RELATIVE_PID_MAX_IOUT);
-    gimbal_pid_init(&control->gimbal_yaw_motor.auto_absolute_angle_pid,
-                    AUTO_AIM_YAW_GYRO_ABSOLUTE_PID_KP,
-                    AUTO_AIM_YAW_GYRO_ABSOLUTE_PID_KI,
-                    AUTO_AIM_YAW_GYRO_ABSOLUTE_PID_KD,
-                    AUTO_AIM_YAW_GYRO_ABSOLUTE_PID_MAX_OUT,
-                    AUTO_AIM_YAW_GYRO_ABSOLUTE_PID_MAX_IOUT);
-    gimbal_pid_init(&control->gimbal_yaw_motor.auto_relative_angle_pid,
-                    AUTO_AIM_YAW_ENCODE_RELATIVE_PID_KP,
-                    AUTO_AIM_YAW_ENCODE_RELATIVE_PID_KI,
-                    AUTO_AIM_YAW_ENCODE_RELATIVE_PID_KD,
-                    AUTO_AIM_YAW_ENCODE_RELATIVE_PID_MAX_OUT,
-                    AUTO_AIM_YAW_ENCODE_RELATIVE_PID_MAX_IOUT);
 
-    gimbal_pid_init(&control->gimbal_pitch_motor.rc_absolute_angle_pid,
+    gimbal_pid_init(&control->gimbal_pitch_motor.absolute_angle_pid,
                     PITCH_GYRO_ABSOLUTE_PID_KP,
                     PITCH_GYRO_ABSOLUTE_PID_KI,
                     PITCH_GYRO_ABSOLUTE_PID_KD,
                     PITCH_GYRO_ABSOLUTE_PID_MAX_OUT,
                     PITCH_GYRO_ABSOLUTE_PID_MAX_IOUT);
-    gimbal_pid_init(&control->gimbal_pitch_motor.rc_relative_angle_pid,
+    gimbal_pid_init(&control->gimbal_pitch_motor.relative_angle_pid,
                     PITCH_ENCODE_RELATIVE_PID_KP,
                     PITCH_ENCODE_RELATIVE_PID_KI,
                     PITCH_ENCODE_RELATIVE_PID_KD,
                     PITCH_ENCODE_RELATIVE_PID_MAX_OUT,
                     PITCH_ENCODE_RELATIVE_PID_MAX_IOUT);
-    gimbal_pid_init(&control->gimbal_pitch_motor.auto_absolute_angle_pid,
-                    AUTO_AIM_PITCH_GYRO_ABSOLUTE_PID_KP,
-                    AUTO_AIM_PITCH_GYRO_ABSOLUTE_PID_KI,
-                    AUTO_AIM_PITCH_GYRO_ABSOLUTE_PID_KD,
-                    AUTO_AIM_PITCH_GYRO_ABSOLUTE_PID_MAX_OUT,
-                    AUTO_AIM_PITCH_GYRO_ABSOLUTE_PID_MAX_IOUT);
-    gimbal_pid_init(&control->gimbal_pitch_motor.auto_relative_angle_pid,
-                    AUTO_AIM_PITCH_ENCODE_RELATIVE_PID_KP,
-                    AUTO_AIM_PITCH_ENCODE_RELATIVE_PID_KI,
-                    AUTO_AIM_PITCH_ENCODE_RELATIVE_PID_KD,
-                    AUTO_AIM_PITCH_ENCODE_RELATIVE_PID_MAX_OUT,
-                    AUTO_AIM_PITCH_ENCODE_RELATIVE_PID_MAX_IOUT);
 
     control->gimbal_yaw_motor.max_relative_angle = YAW_MAX_RELATIVE_ANGLE;
     control->gimbal_yaw_motor.min_relative_angle = YAW_MIN_RELATIVE_ANGLE;

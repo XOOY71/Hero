@@ -49,30 +49,6 @@ extern "C" {
 #define YAW_ENCODE_RELATIVE_PID_MAX_OUT    0.8f
 #define YAW_ENCODE_RELATIVE_PID_MAX_IOUT   0.0f
 
-#define AUTO_AIM_PITCH_GYRO_ABSOLUTE_PID_KP         4.0f
-#define AUTO_AIM_PITCH_GYRO_ABSOLUTE_PID_KI         0.0f
-#define AUTO_AIM_PITCH_GYRO_ABSOLUTE_PID_KD         0.05f
-#define AUTO_AIM_PITCH_GYRO_ABSOLUTE_PID_MAX_OUT    1.0f
-#define AUTO_AIM_PITCH_GYRO_ABSOLUTE_PID_MAX_IOUT   0.0f
-
-#define AUTO_AIM_YAW_GYRO_ABSOLUTE_PID_KP           5.0f
-#define AUTO_AIM_YAW_GYRO_ABSOLUTE_PID_KI           0.01f
-#define AUTO_AIM_YAW_GYRO_ABSOLUTE_PID_KD           0.74f
-#define AUTO_AIM_YAW_GYRO_ABSOLUTE_PID_MAX_OUT      2.0f
-#define AUTO_AIM_YAW_GYRO_ABSOLUTE_PID_MAX_IOUT     0.0f
-
-#define AUTO_AIM_PITCH_ENCODE_RELATIVE_PID_KP       4.8f
-#define AUTO_AIM_PITCH_ENCODE_RELATIVE_PID_KI       0.0f
-#define AUTO_AIM_PITCH_ENCODE_RELATIVE_PID_KD       1.20f
-#define AUTO_AIM_PITCH_ENCODE_RELATIVE_PID_MAX_OUT  2.0f
-#define AUTO_AIM_PITCH_ENCODE_RELATIVE_PID_MAX_IOUT 0.0f
-
-#define AUTO_AIM_YAW_ENCODE_RELATIVE_PID_KP         1.8f
-#define AUTO_AIM_YAW_ENCODE_RELATIVE_PID_KI         0.0f
-#define AUTO_AIM_YAW_ENCODE_RELATIVE_PID_KD         0.2f
-#define AUTO_AIM_YAW_ENCODE_RELATIVE_PID_MAX_OUT    0.8f
-#define AUTO_AIM_YAW_ENCODE_RELATIVE_PID_MAX_IOUT   0.0f
-
 /* ========================= 浜戝彴鍓嶉涓庤緭鍑洪厤缃?========================= */
 #define YAW_REF_VEL_FILTER_ALPHA           0.05f  // yaw 鐩爣瑙掑樊鍒嗛€熷害浣庨€氱郴鏁帮紝瓒婂皬鍓嶉瓒婂钩婊?
 #define YAW_REF_ACCEL_LIMIT                100.0f // yaw 鎯噺鍓嶉鍙傝€冨姞閫熷害闄愬箙锛岄槻姝㈤仴鎺ц緭鍏ヨ烦鍙樹骇鐢熷姏鐭╁皷宄?
@@ -123,7 +99,7 @@ extern "C" {
 /* ========================= 浜戝彴鏈烘闄愪綅涓庡垵濮嬪寲閰嶇疆 ========================= */
 #define YAW_MAX_RELATIVE_ANGLE             1.5707963f  // yaw 鐩稿瑙掍笂闄?
 #define YAW_MIN_RELATIVE_ANGLE            -1.5707963f  // yaw 鐩稿瑙掍笅闄?
-#define PITCH_MAX_RELATIVE_ANGLE           0.0f        // pitch 杞欢涓婇檺锛屽崟浣?rad
+#define PITCH_MAX_RELATIVE_ANGLE           0.1f        // pitch 杞欢涓婇檺锛屽崟浣?rad
 #define PITCH_MIN_RELATIVE_ANGLE          -0.71f       // pitch 杞欢涓嬮檺锛屽崟浣?rad
 #define HALF_ECD_RANGE                     4096        // 缂栫爜鍣ㄥ崐閲忕▼
 #define ECD_RANGE                          8191        // 缂栫爜鍣ㄦ€婚噺绋?

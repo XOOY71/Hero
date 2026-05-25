@@ -73,7 +73,7 @@ I (../Core/Inc/gpio.h)(0x69185E4C)
 I (../User/BSP/bsp_fdcan.h)(0x6A0F7A1C)
 I (D:\Keil5\ARM\ARMCC\include\stdbool.h)(0x588B8344)
 I (../User/BSP/bsp_usart.h)(0x69DFD54D)
-I (../User/APP_Support/project_config.h)(0x6A13590A)
+I (../User/APP_Support/project_config.h)(0x6A149E18)
 I (../User/Devices/ws2812.h)(0x69DFC225)
 I (../User/APP/safewarning.h)(0x69DFB53F)
 I (../User/Communication/core/uproto.h)(0x69A81FD7)
@@ -180,9 +180,9 @@ I (../Middlewares/Third_Party/FreeRTOS/Source/include/timers.h)(0x69DF8B32)
 I (../Middlewares/Third_Party/FreeRTOS/Source/include/queue.h)(0x69DF8B32)
 I (../Middlewares/Third_Party/FreeRTOS/Source/include/semphr.h)(0x69DF8B32)
 I (../Middlewares/Third_Party/FreeRTOS/Source/include/event_groups.h)(0x69DF8B32)
-I (../User/APP/gimbal_task.h)(0x6A0F01BE)
+I (../User/APP/gimbal_task.h)(0x6A13645D)
 I (D:\Keil5\ARM\ARMCC\include\stdbool.h)(0x588B8344)
-I (../User/APP_Support/project_config.h)(0x6A13590A)
+I (../User/APP_Support/project_config.h)(0x6A149E18)
 I (../User/BSP/remote_control.h)(0x69DFCB48)
 I (../User/BSP/bsp_usart.h)(0x69DFD54D)
 I (D:\Keil5\ARM\ARMCC\include\string.h)(0x588B8344)
@@ -1935,7 +1935,7 @@ I (../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_pcd.h)(0x69DF8BA6)
 I (../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_ll_usb.h)(0x69DF8BA7)
 I (../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_pcd_ex.h)(0x69DF8BA7)
 I (D:\Keil5\ARM\ARMCC\include\string.h)(0x588B8344)
-I (../User/APP_Support/project_config.h)(0x6A13590A)
+I (../User/APP_Support/project_config.h)(0x6A149E18)
 I (../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS/cmsis_os.h)(0x69DF8B32)
 I (../Middlewares/Third_Party/FreeRTOS/Source/include/FreeRTOS.h)(0x69DF8B32)
 I (../Core/Inc/FreeRTOSConfig.h)(0x69B2FA12)
@@ -1951,11 +1951,11 @@ I (../Middlewares/Third_Party/FreeRTOS/Source/include/queue.h)(0x69DF8B32)
 I (../Middlewares/Third_Party/FreeRTOS/Source/include/semphr.h)(0x69DF8B32)
 I (../Middlewares/Third_Party/FreeRTOS/Source/include/event_groups.h)(0x69DF8B32)
 I (D:\Keil5\ARM\ARMCC\include\stdbool.h)(0x588B8344)
-F (..\User\APP\gimbal_task.c)(0x6A135F34)(--c99 --gnu -c --cpu Cortex-M7.fp.dp -g -O3 --apcs=interwork --split_sections -I ../Core/Inc -I ../Drivers/STM32H7xx_HAL_Driver/Inc -I ../Drivers/STM32H7xx_HAL_Driver/Inc/Legacy -I ../Drivers/CMSIS/Device/ST/STM32H7xx/Include -I ../Drivers/CMSIS/Include -I ../Middlewares/Third_Party/FreeRTOS/Source/include -I ../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS -I ../Middlewares/Third_Party/FreeRTOS/Source/portable/RVDS/ARM_CM4F -I ../User/APP -I ../User/APP_Support -I ../User/BSP -I ../User/Devices -I ../User/Algorithm -I ../User/Algorithm/Include -I ../User/Communication/core -I ../User/Communication/channel/gimbal -I ../User/Communication/channel/camera -I ../User/Communication/channel/time_sync -I ../User/Communication/example/device -I ../User/Communication/example/shared -I ../USB_DEVICE/App -I ../USB_DEVICE/Target -I ../Middlewares/ST/STM32_USB_Device_Library/Core/Inc -I ../Middlewares/ST/STM32_USB_Device_Library/Class/CDC/Inc-I.\RTE\_CtrlBoard-H7_WS1812-ID:\Keil5\ARM\PACK\ARM\CMSIS\6.1.0\CMSIS\Core\Include-D__UVISION_VERSION="540" -DSTM32H723xx -D_RTE_ -DUSE_HAL_DRIVER -DSTM32H723xx -DUSE_PWR_LDO_SUPPLY-o ctrlboard-h7_ws1812\gimbal_task.o --omf_browse ctrlboard-h7_ws1812\gimbal_task.crf --depend ctrlboard-h7_ws1812\gimbal_task.d)
-I (..\User\APP\gimbal_task.h)(0x6A0F01BE)
+F (..\User\APP\gimbal_task.c)(0x6A136425)(--c99 --gnu -c --cpu Cortex-M7.fp.dp -g -O3 --apcs=interwork --split_sections -I ../Core/Inc -I ../Drivers/STM32H7xx_HAL_Driver/Inc -I ../Drivers/STM32H7xx_HAL_Driver/Inc/Legacy -I ../Drivers/CMSIS/Device/ST/STM32H7xx/Include -I ../Drivers/CMSIS/Include -I ../Middlewares/Third_Party/FreeRTOS/Source/include -I ../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS -I ../Middlewares/Third_Party/FreeRTOS/Source/portable/RVDS/ARM_CM4F -I ../User/APP -I ../User/APP_Support -I ../User/BSP -I ../User/Devices -I ../User/Algorithm -I ../User/Algorithm/Include -I ../User/Communication/core -I ../User/Communication/channel/gimbal -I ../User/Communication/channel/camera -I ../User/Communication/channel/time_sync -I ../User/Communication/example/device -I ../User/Communication/example/shared -I ../USB_DEVICE/App -I ../USB_DEVICE/Target -I ../Middlewares/ST/STM32_USB_Device_Library/Core/Inc -I ../Middlewares/ST/STM32_USB_Device_Library/Class/CDC/Inc-I.\RTE\_CtrlBoard-H7_WS1812-ID:\Keil5\ARM\PACK\ARM\CMSIS\6.1.0\CMSIS\Core\Include-D__UVISION_VERSION="540" -DSTM32H723xx -D_RTE_ -DUSE_HAL_DRIVER -DSTM32H723xx -DUSE_PWR_LDO_SUPPLY-o ctrlboard-h7_ws1812\gimbal_task.o --omf_browse ctrlboard-h7_ws1812\gimbal_task.crf --depend ctrlboard-h7_ws1812\gimbal_task.d)
+I (..\User\APP\gimbal_task.h)(0x6A13645D)
 I (D:\Keil5\ARM\ARMCC\include\stdint.h)(0x691DDF33)
 I (D:\Keil5\ARM\ARMCC\include\stdbool.h)(0x588B8344)
-I (../User/APP_Support/project_config.h)(0x6A13590A)
+I (../User/APP_Support/project_config.h)(0x6A149E18)
 I (../User/BSP/remote_control.h)(0x69DFCB48)
 I (../User/BSP/bsp_usart.h)(0x69DFD54D)
 I (../Core/Inc/main.h)(0x69DFB329)
@@ -2092,7 +2092,7 @@ I (../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_uart_ex.h)(0x69DF8BA7)
 I (../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_pcd.h)(0x69DF8BA6)
 I (../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_ll_usb.h)(0x69DF8BA7)
 I (../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_pcd_ex.h)(0x69DF8BA7)
-I (../User/APP_Support/project_config.h)(0x6A13590A)
+I (../User/APP_Support/project_config.h)(0x6A149E18)
 I (..\User\APP\auto_aim.h)(0x6A134E85)
 I (../User/BSP/remote_control.h)(0x69DFCB48)
 I (../User/APP_Support/chassis_behaviour.h)(0x69A81FD8)
@@ -2100,7 +2100,7 @@ I (../User/APP/chassis_task.h)(0x6A0F8C2F)
 I (../User/APP_Support/CAN_receive.h)(0x6A0F7A1C)
 I (../User/BSP/bsp_fdcan.h)(0x6A0F7A1C)
 I (../Core/Inc/fdcan.h)(0x69DF8BAE)
-I (../User/APP/gimbal_task.h)(0x6A0F01BE)
+I (../User/APP/gimbal_task.h)(0x6A13645D)
 I (../User/Algorithm/pid.h)(0x69DFC251)
 I (../User/Algorithm/gravity_comp.h)(0x6A13590A)
 I (../User/Devices/hwt_imu.h)(0x6A0CC700)
@@ -2171,14 +2171,14 @@ I (../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_pcd.h)(0x69DF8BA6)
 I (../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_ll_usb.h)(0x69DF8BA7)
 I (../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_pcd_ex.h)(0x69DF8BA7)
 I (D:\Keil5\ARM\ARMCC\include\string.h)(0x588B8344)
-I (../User/APP_Support/project_config.h)(0x6A13590A)
+I (../User/APP_Support/project_config.h)(0x6A149E18)
 I (../User/APP_Support/CAN_receive.h)(0x6A0F7A1C)
 I (../User/BSP/bsp_fdcan.h)(0x6A0F7A1C)
 I (../Core/Inc/fdcan.h)(0x69DF8BAE)
 I (D:\Keil5\ARM\ARMCC\include\stdbool.h)(0x588B8344)
 I (../User/APP_Support/chassis_behaviour.h)(0x69A81FD8)
 I (../User/APP/chassis_task.h)(0x6A0F8C2F)
-I (../User/APP/gimbal_task.h)(0x6A0F01BE)
+I (../User/APP/gimbal_task.h)(0x6A13645D)
 I (../User/BSP/remote_control.h)(0x69DFCB48)
 I (../User/Algorithm/pid.h)(0x69DFC251)
 I (../User/Algorithm/gravity_comp.h)(0x6A13590A)
@@ -2265,7 +2265,7 @@ I (../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_pcd.h)(0x69DF8BA6)
 I (../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_ll_usb.h)(0x69DF8BA7)
 I (../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_pcd_ex.h)(0x69DF8BA7)
 I (D:\Keil5\ARM\ARMCC\include\string.h)(0x588B8344)
-I (../User/APP_Support/project_config.h)(0x6A13590A)
+I (../User/APP_Support/project_config.h)(0x6A149E18)
 I (../Core/Inc/usart.h)(0x69DFCD40)
 F (..\User\APP_Support\CAN_receive.h)(0x6A0F7A1C)()
 F (..\User\APP_Support\chassis_behaviour.c)(0x6A0C4E2A)(--c99 --gnu -c --cpu Cortex-M7.fp.dp -g -O3 --apcs=interwork --split_sections -I ../Core/Inc -I ../Drivers/STM32H7xx_HAL_Driver/Inc -I ../Drivers/STM32H7xx_HAL_Driver/Inc/Legacy -I ../Drivers/CMSIS/Device/ST/STM32H7xx/Include -I ../Drivers/CMSIS/Include -I ../Middlewares/Third_Party/FreeRTOS/Source/include -I ../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS -I ../Middlewares/Third_Party/FreeRTOS/Source/portable/RVDS/ARM_CM4F -I ../User/APP -I ../User/APP_Support -I ../User/BSP -I ../User/Devices -I ../User/Algorithm -I ../User/Algorithm/Include -I ../User/Communication/core -I ../User/Communication/channel/gimbal -I ../User/Communication/channel/camera -I ../User/Communication/channel/time_sync -I ../User/Communication/example/device -I ../User/Communication/example/shared -I ../USB_DEVICE/App -I ../USB_DEVICE/Target -I ../Middlewares/ST/STM32_USB_Device_Library/Core/Inc -I ../Middlewares/ST/STM32_USB_Device_Library/Class/CDC/Inc-I.\RTE\_CtrlBoard-H7_WS1812-ID:\Keil5\ARM\PACK\ARM\CMSIS\6.1.0\CMSIS\Core\Include-D__UVISION_VERSION="540" -DSTM32H723xx -D_RTE_ -DUSE_HAL_DRIVER -DSTM32H723xx -DUSE_PWR_LDO_SUPPLY-o ctrlboard-h7_ws1812\chassis_behaviour.o --omf_browse ctrlboard-h7_ws1812\chassis_behaviour.crf --depend ctrlboard-h7_ws1812\chassis_behaviour.d)
@@ -2317,8 +2317,8 @@ I (../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_ll_usb.h)(0x69DF8BA7)
 I (../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_pcd_ex.h)(0x69DF8BA7)
 I (../Core/Inc/fdcan.h)(0x69DF8BAE)
 I (D:\Keil5\ARM\ARMCC\include\stdbool.h)(0x588B8344)
-I (../User/APP/gimbal_task.h)(0x6A0F01BE)
-I (../User/APP_Support/project_config.h)(0x6A13590A)
+I (../User/APP/gimbal_task.h)(0x6A13645D)
+I (../User/APP_Support/project_config.h)(0x6A149E18)
 I (../User/BSP/remote_control.h)(0x69DFCB48)
 I (../User/BSP/bsp_usart.h)(0x69DFD54D)
 I (D:\Keil5\ARM\ARMCC\include\string.h)(0x588B8344)
@@ -2390,14 +2390,14 @@ I (../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_pcd.h)(0x69DF8BA6)
 I (../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_ll_usb.h)(0x69DF8BA7)
 I (../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_pcd_ex.h)(0x69DF8BA7)
 I (D:\Keil5\ARM\ARMCC\include\string.h)(0x588B8344)
-I (../User/APP_Support/project_config.h)(0x6A13590A)
+I (../User/APP_Support/project_config.h)(0x6A149E18)
 I (..\User\APP_Support\chassis_calculate.h)(0x6A0F8C7C)
 I (../User/APP/chassis_task.h)(0x6A0F8C2F)
 I (../User/APP_Support/CAN_receive.h)(0x6A0F7A1C)
 I (../User/BSP/bsp_fdcan.h)(0x6A0F7A1C)
 I (../Core/Inc/fdcan.h)(0x69DF8BAE)
 I (D:\Keil5\ARM\ARMCC\include\stdbool.h)(0x588B8344)
-I (../User/APP/gimbal_task.h)(0x6A0F01BE)
+I (../User/APP/gimbal_task.h)(0x6A13645D)
 I (../User/BSP/remote_control.h)(0x69DFCB48)
 I (../User/Algorithm/pid.h)(0x69DFC251)
 I (../User/Algorithm/gravity_comp.h)(0x6A13590A)
@@ -2456,8 +2456,8 @@ I (../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_ll_usb.h)(0x69DF8BA7)
 I (../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_pcd_ex.h)(0x69DF8BA7)
 I (../Core/Inc/fdcan.h)(0x69DF8BAE)
 I (D:\Keil5\ARM\ARMCC\include\stdbool.h)(0x588B8344)
-I (../User/APP/gimbal_task.h)(0x6A0F01BE)
-I (../User/APP_Support/project_config.h)(0x6A13590A)
+I (../User/APP/gimbal_task.h)(0x6A13645D)
+I (../User/APP_Support/project_config.h)(0x6A149E18)
 I (../User/BSP/remote_control.h)(0x69DFCB48)
 I (../User/BSP/bsp_usart.h)(0x69DFD54D)
 I (D:\Keil5\ARM\ARMCC\include\string.h)(0x588B8344)
@@ -2475,9 +2475,9 @@ F (..\User\APP_Support\chassis_power_control.h)(0x6A0F7C1B)()
 F (..\User\APP_Support\gimbal_behaviour.c)(0x69FF7E4B)(--c99 --gnu -c --cpu Cortex-M7.fp.dp -g -O3 --apcs=interwork --split_sections -I ../Core/Inc -I ../Drivers/STM32H7xx_HAL_Driver/Inc -I ../Drivers/STM32H7xx_HAL_Driver/Inc/Legacy -I ../Drivers/CMSIS/Device/ST/STM32H7xx/Include -I ../Drivers/CMSIS/Include -I ../Middlewares/Third_Party/FreeRTOS/Source/include -I ../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS -I ../Middlewares/Third_Party/FreeRTOS/Source/portable/RVDS/ARM_CM4F -I ../User/APP -I ../User/APP_Support -I ../User/BSP -I ../User/Devices -I ../User/Algorithm -I ../User/Algorithm/Include -I ../User/Communication/core -I ../User/Communication/channel/gimbal -I ../User/Communication/channel/camera -I ../User/Communication/channel/time_sync -I ../User/Communication/example/device -I ../User/Communication/example/shared -I ../USB_DEVICE/App -I ../USB_DEVICE/Target -I ../Middlewares/ST/STM32_USB_Device_Library/Core/Inc -I ../Middlewares/ST/STM32_USB_Device_Library/Class/CDC/Inc-I.\RTE\_CtrlBoard-H7_WS1812-ID:\Keil5\ARM\PACK\ARM\CMSIS\6.1.0\CMSIS\Core\Include-D__UVISION_VERSION="540" -DSTM32H723xx -D_RTE_ -DUSE_HAL_DRIVER -DSTM32H723xx -DUSE_PWR_LDO_SUPPLY-o ctrlboard-h7_ws1812\gimbal_behaviour.o --omf_browse ctrlboard-h7_ws1812\gimbal_behaviour.crf --depend ctrlboard-h7_ws1812\gimbal_behaviour.d)
 I (..\User\APP_Support\gimbal_behaviour.h)(0x69DFEB9F)
 I (D:\Keil5\ARM\ARMCC\include\stdbool.h)(0x588B8344)
-I (../User/APP/gimbal_task.h)(0x6A0F01BE)
+I (../User/APP/gimbal_task.h)(0x6A13645D)
 I (D:\Keil5\ARM\ARMCC\include\stdint.h)(0x691DDF33)
-I (../User/APP_Support/project_config.h)(0x6A13590A)
+I (../User/APP_Support/project_config.h)(0x6A149E18)
 I (../User/BSP/remote_control.h)(0x69DFCB48)
 I (../User/BSP/bsp_usart.h)(0x69DFD54D)
 I (../Core/Inc/main.h)(0x69DFB329)
@@ -2575,8 +2575,8 @@ I (D:\Keil5\ARM\ARMCC\include\stdbool.h)(0x588B8344)
 I (..\User\APP_Support\chassis_power_control.h)(0x6A0F7C1B)
 I (../User/APP/chassis_task.h)(0x6A0F8C2F)
 I (../User/APP_Support/CAN_receive.h)(0x6A0F7A1C)
-I (../User/APP/gimbal_task.h)(0x6A0F01BE)
-I (../User/APP_Support/project_config.h)(0x6A13590A)
+I (../User/APP/gimbal_task.h)(0x6A13645D)
+I (../User/APP_Support/project_config.h)(0x6A149E18)
 I (../User/BSP/remote_control.h)(0x69DFCB48)
 I (../User/BSP/bsp_usart.h)(0x69DFD54D)
 I (D:\Keil5\ARM\ARMCC\include\string.h)(0x588B8344)
@@ -2587,7 +2587,7 @@ I (../User/APP_Support/struct_typedef.h)(0x6A0C073B)
 I (../User/Algorithm/user_lib.h)(0x6A114D66)
 I (..\User\APP_Support\robot_param.h)(0x6A0F8C96)
 F (..\User\APP_Support\pm01_api.h)(0x6A0C06DD)()
-F (..\User\APP_Support\project_config.h)(0x6A13590A)()
+F (..\User\APP_Support\project_config.h)(0x6A149E18)()
 F (..\User\APP_Support\protocol.h)(0x69AA499E)()
 F (..\User\APP_Support\referee.c)(0x69DF4C18)(--c99 --gnu -c --cpu Cortex-M7.fp.dp -g -O3 --apcs=interwork --split_sections -I ../Core/Inc -I ../Drivers/STM32H7xx_HAL_Driver/Inc -I ../Drivers/STM32H7xx_HAL_Driver/Inc/Legacy -I ../Drivers/CMSIS/Device/ST/STM32H7xx/Include -I ../Drivers/CMSIS/Include -I ../Middlewares/Third_Party/FreeRTOS/Source/include -I ../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS -I ../Middlewares/Third_Party/FreeRTOS/Source/portable/RVDS/ARM_CM4F -I ../User/APP -I ../User/APP_Support -I ../User/BSP -I ../User/Devices -I ../User/Algorithm -I ../User/Algorithm/Include -I ../User/Communication/core -I ../User/Communication/channel/gimbal -I ../User/Communication/channel/camera -I ../User/Communication/channel/time_sync -I ../User/Communication/example/device -I ../User/Communication/example/shared -I ../USB_DEVICE/App -I ../USB_DEVICE/Target -I ../Middlewares/ST/STM32_USB_Device_Library/Core/Inc -I ../Middlewares/ST/STM32_USB_Device_Library/Class/CDC/Inc-I.\RTE\_CtrlBoard-H7_WS1812-ID:\Keil5\ARM\PACK\ARM\CMSIS\6.1.0\CMSIS\Core\Include-D__UVISION_VERSION="540" -DSTM32H723xx -D_RTE_ -DUSE_HAL_DRIVER -DSTM32H723xx -DUSE_PWR_LDO_SUPPLY-o ctrlboard-h7_ws1812\referee.o --omf_browse ctrlboard-h7_ws1812\referee.crf --depend ctrlboard-h7_ws1812\referee.d)
 I (..\User\APP_Support\referee.h)(0x6A114D66)
@@ -2688,12 +2688,12 @@ I (../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_pcd.h)(0x69DF8BA6)
 I (../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_ll_usb.h)(0x69DF8BA7)
 I (../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_pcd_ex.h)(0x69DF8BA7)
 I (../Core/Inc/fdcan.h)(0x69DF8BAE)
-I (..\User\APP_Support\project_config.h)(0x6A13590A)
+I (..\User\APP_Support\project_config.h)(0x6A149E18)
 I (../User/BSP/remote_control.h)(0x69DFCB48)
 I (../User/BSP/bsp_usart.h)(0x69DFD54D)
 I (D:\Keil5\ARM\ARMCC\include\string.h)(0x588B8344)
 I (..\User\APP_Support\gimbal_behaviour.h)(0x69DFEB9F)
-I (../User/APP/gimbal_task.h)(0x6A0F01BE)
+I (../User/APP/gimbal_task.h)(0x6A13645D)
 I (../User/Algorithm/pid.h)(0x69DFC251)
 I (../User/Algorithm/gravity_comp.h)(0x6A13590A)
 F (..\User\APP_Support\shoot_task.h)(0x6A134AD5)()
@@ -2701,15 +2701,15 @@ F (..\User\APP_Support\struct_typedef.h)(0x6A0C073B)()
 F (..\User\APP_Support\target_curve.c)(0x69DFADE2)(--c99 --gnu -c --cpu Cortex-M7.fp.dp -g -O3 --apcs=interwork --split_sections -I ../Core/Inc -I ../Drivers/STM32H7xx_HAL_Driver/Inc -I ../Drivers/STM32H7xx_HAL_Driver/Inc/Legacy -I ../Drivers/CMSIS/Device/ST/STM32H7xx/Include -I ../Drivers/CMSIS/Include -I ../Middlewares/Third_Party/FreeRTOS/Source/include -I ../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS -I ../Middlewares/Third_Party/FreeRTOS/Source/portable/RVDS/ARM_CM4F -I ../User/APP -I ../User/APP_Support -I ../User/BSP -I ../User/Devices -I ../User/Algorithm -I ../User/Algorithm/Include -I ../User/Communication/core -I ../User/Communication/channel/gimbal -I ../User/Communication/channel/camera -I ../User/Communication/channel/time_sync -I ../User/Communication/example/device -I ../User/Communication/example/shared -I ../USB_DEVICE/App -I ../USB_DEVICE/Target -I ../Middlewares/ST/STM32_USB_Device_Library/Core/Inc -I ../Middlewares/ST/STM32_USB_Device_Library/Class/CDC/Inc-I.\RTE\_CtrlBoard-H7_WS1812-ID:\Keil5\ARM\PACK\ARM\CMSIS\6.1.0\CMSIS\Core\Include-D__UVISION_VERSION="540" -DSTM32H723xx -D_RTE_ -DUSE_HAL_DRIVER -DSTM32H723xx -DUSE_PWR_LDO_SUPPLY-o ctrlboard-h7_ws1812\target_curve.o --omf_browse ctrlboard-h7_ws1812\target_curve.crf --depend ctrlboard-h7_ws1812\target_curve.d)
 I (..\User\APP_Support\target_curve.h)(0x6A0C5485)
 I (D:\Keil5\ARM\ARMCC\include\stdint.h)(0x691DDF33)
-I (..\User\APP_Support\project_config.h)(0x6A13590A)
+I (..\User\APP_Support\project_config.h)(0x6A149E18)
 I (D:\Keil5\ARM\ARMCC\include\math.h)(0x588B8344)
 F (..\User\APP_Support\target_curve.h)(0x6A0C5485)()
-F (..\User\APP_Support\yaw_pitch_direct.c)(0x6A1342A1)(--c99 --gnu -c --cpu Cortex-M7.fp.dp -g -O3 --apcs=interwork --split_sections -I ../Core/Inc -I ../Drivers/STM32H7xx_HAL_Driver/Inc -I ../Drivers/STM32H7xx_HAL_Driver/Inc/Legacy -I ../Drivers/CMSIS/Device/ST/STM32H7xx/Include -I ../Drivers/CMSIS/Include -I ../Middlewares/Third_Party/FreeRTOS/Source/include -I ../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS -I ../Middlewares/Third_Party/FreeRTOS/Source/portable/RVDS/ARM_CM4F -I ../User/APP -I ../User/APP_Support -I ../User/BSP -I ../User/Devices -I ../User/Algorithm -I ../User/Algorithm/Include -I ../User/Communication/core -I ../User/Communication/channel/gimbal -I ../User/Communication/channel/camera -I ../User/Communication/channel/time_sync -I ../User/Communication/example/device -I ../User/Communication/example/shared -I ../USB_DEVICE/App -I ../USB_DEVICE/Target -I ../Middlewares/ST/STM32_USB_Device_Library/Core/Inc -I ../Middlewares/ST/STM32_USB_Device_Library/Class/CDC/Inc-I.\RTE\_CtrlBoard-H7_WS1812-ID:\Keil5\ARM\PACK\ARM\CMSIS\6.1.0\CMSIS\Core\Include-D__UVISION_VERSION="540" -DSTM32H723xx -D_RTE_ -DUSE_HAL_DRIVER -DSTM32H723xx -DUSE_PWR_LDO_SUPPLY-o ctrlboard-h7_ws1812\yaw_pitch_direct.o --omf_browse ctrlboard-h7_ws1812\yaw_pitch_direct.crf --depend ctrlboard-h7_ws1812\yaw_pitch_direct.d)
+F (..\User\APP_Support\yaw_pitch_direct.c)(0x6A136448)(--c99 --gnu -c --cpu Cortex-M7.fp.dp -g -O3 --apcs=interwork --split_sections -I ../Core/Inc -I ../Drivers/STM32H7xx_HAL_Driver/Inc -I ../Drivers/STM32H7xx_HAL_Driver/Inc/Legacy -I ../Drivers/CMSIS/Device/ST/STM32H7xx/Include -I ../Drivers/CMSIS/Include -I ../Middlewares/Third_Party/FreeRTOS/Source/include -I ../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS -I ../Middlewares/Third_Party/FreeRTOS/Source/portable/RVDS/ARM_CM4F -I ../User/APP -I ../User/APP_Support -I ../User/BSP -I ../User/Devices -I ../User/Algorithm -I ../User/Algorithm/Include -I ../User/Communication/core -I ../User/Communication/channel/gimbal -I ../User/Communication/channel/camera -I ../User/Communication/channel/time_sync -I ../User/Communication/example/device -I ../User/Communication/example/shared -I ../USB_DEVICE/App -I ../USB_DEVICE/Target -I ../Middlewares/ST/STM32_USB_Device_Library/Core/Inc -I ../Middlewares/ST/STM32_USB_Device_Library/Class/CDC/Inc-I.\RTE\_CtrlBoard-H7_WS1812-ID:\Keil5\ARM\PACK\ARM\CMSIS\6.1.0\CMSIS\Core\Include-D__UVISION_VERSION="540" -DSTM32H723xx -D_RTE_ -DUSE_HAL_DRIVER -DSTM32H723xx -DUSE_PWR_LDO_SUPPLY-o ctrlboard-h7_ws1812\yaw_pitch_direct.o --omf_browse ctrlboard-h7_ws1812\yaw_pitch_direct.crf --depend ctrlboard-h7_ws1812\yaw_pitch_direct.d)
 I (..\User\APP_Support\yaw_pitch_direct.h)(0x69FEC709)
-I (../User/APP/gimbal_task.h)(0x6A0F01BE)
+I (../User/APP/gimbal_task.h)(0x6A13645D)
 I (D:\Keil5\ARM\ARMCC\include\stdint.h)(0x691DDF33)
 I (D:\Keil5\ARM\ARMCC\include\stdbool.h)(0x588B8344)
-I (../User/APP_Support/project_config.h)(0x6A13590A)
+I (../User/APP_Support/project_config.h)(0x6A149E18)
 I (../User/BSP/remote_control.h)(0x69DFCB48)
 I (../User/BSP/bsp_usart.h)(0x69DFD54D)
 I (../Core/Inc/main.h)(0x69DFB329)
@@ -3003,8 +3003,8 @@ I (..\User\Communication\example\device\../../core/platform.h)(0x69A81FD7)
 I (..\User\Communication\example\device\../shared/protocol_ids.h)(0x69A81FD7)
 I (../User/BSP/bsp_dwt.h)(0x69A81F10)
 I (../User/BSP/bsp_tim24.h)(0x69A81FD7)
-I (../User/APP/gimbal_task.h)(0x6A0F01BE)
-I (../User/APP_Support/project_config.h)(0x6A13590A)
+I (../User/APP/gimbal_task.h)(0x6A13645D)
+I (../User/APP_Support/project_config.h)(0x6A149E18)
 I (../User/BSP/remote_control.h)(0x69DFCB48)
 I (../User/BSP/bsp_usart.h)(0x69DFD54D)
 I (../User/Algorithm/pid.h)(0x69DFC251)
@@ -3120,7 +3120,7 @@ I (../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_pcd.h)(0x69DF8BA6)
 I (../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_ll_usb.h)(0x69DF8BA7)
 I (../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_pcd_ex.h)(0x69DF8BA7)
 I (D:\Keil5\ARM\ARMCC\include\string.h)(0x588B8344)
-I (../User/APP_Support/project_config.h)(0x6A13590A)
+I (../User/APP_Support/project_config.h)(0x6A149E18)
 F (..\User\Communication\channel\camera\camera_channel.c)(0x69ABE494)(--c99 --gnu -c --cpu Cortex-M7.fp.dp -g -O3 --apcs=interwork --split_sections -I ../Core/Inc -I ../Drivers/STM32H7xx_HAL_Driver/Inc -I ../Drivers/STM32H7xx_HAL_Driver/Inc/Legacy -I ../Drivers/CMSIS/Device/ST/STM32H7xx/Include -I ../Drivers/CMSIS/Include -I ../Middlewares/Third_Party/FreeRTOS/Source/include -I ../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS -I ../Middlewares/Third_Party/FreeRTOS/Source/portable/RVDS/ARM_CM4F -I ../User/APP -I ../User/APP_Support -I ../User/BSP -I ../User/Devices -I ../User/Algorithm -I ../User/Algorithm/Include -I ../User/Communication/core -I ../User/Communication/channel/gimbal -I ../User/Communication/channel/camera -I ../User/Communication/channel/time_sync -I ../User/Communication/example/device -I ../User/Communication/example/shared -I ../USB_DEVICE/App -I ../USB_DEVICE/Target -I ../Middlewares/ST/STM32_USB_Device_Library/Core/Inc -I ../Middlewares/ST/STM32_USB_Device_Library/Class/CDC/Inc-I.\RTE\_CtrlBoard-H7_WS1812-ID:\Keil5\ARM\PACK\ARM\CMSIS\6.1.0\CMSIS\Core\Include-D__UVISION_VERSION="540" -DSTM32H723xx -D_RTE_ -DUSE_HAL_DRIVER -DSTM32H723xx -DUSE_PWR_LDO_SUPPLY-o ctrlboard-h7_ws1812\camera_channel.o --omf_browse ctrlboard-h7_ws1812\camera_channel.crf --depend ctrlboard-h7_ws1812\camera_channel.d)
 I (..\User\Communication\channel\camera\camera_channel.h)(0x69A81FD7)
 I (D:\Keil5\ARM\ARMCC\include\stdbool.h)(0x588B8344)
@@ -3185,7 +3185,7 @@ I (../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_ll_usb.h)(0x69DF8BA7)
 I (../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_pcd_ex.h)(0x69DF8BA7)
 I (../Core/Inc/fdcan.h)(0x69DF8BAE)
 I (D:\Keil5\ARM\ARMCC\include\stdbool.h)(0x588B8344)
-I (../User/APP_Support/project_config.h)(0x6A13590A)
+I (../User/APP_Support/project_config.h)(0x6A149E18)
 I (../User/APP/detect_task.h)(0x6A0C06DD)
 I (../User/APP_Support/struct_typedef.h)(0x6A0C073B)
 I (../User/APP_Support/pm01_api.h)(0x6A0C06DD)
@@ -3234,10 +3234,10 @@ I (../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_pcd.h)(0x69DF8BA6)
 I (../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_ll_usb.h)(0x69DF8BA7)
 I (../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_pcd_ex.h)(0x69DF8BA7)
 I (D:\Keil5\ARM\ARMCC\include\string.h)(0x588B8344)
-I (../User/APP_Support/project_config.h)(0x6A13590A)
+I (../User/APP_Support/project_config.h)(0x6A149E18)
 I (../Core/Inc/usart.h)(0x69DFCD40)
 I (..\User\BSP\remote_control.h)(0x69DFCB48)
-I (../User/APP/gimbal_task.h)(0x6A0F01BE)
+I (../User/APP/gimbal_task.h)(0x6A13645D)
 I (D:\Keil5\ARM\ARMCC\include\stdbool.h)(0x588B8344)
 I (../User/Algorithm/pid.h)(0x69DFC251)
 I (../User/Algorithm/gravity_comp.h)(0x6A13590A)
@@ -3288,7 +3288,7 @@ I (../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_pcd.h)(0x69DF8BA6)
 I (../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_ll_usb.h)(0x69DF8BA7)
 I (../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_pcd_ex.h)(0x69DF8BA7)
 I (D:\Keil5\ARM\ARMCC\include\string.h)(0x588B8344)
-I (../User/APP_Support/project_config.h)(0x6A13590A)
+I (../User/APP_Support/project_config.h)(0x6A149E18)
 F (..\User\BSP\bsp_tim24.c)(0x69A81FD7)(--c99 --gnu -c --cpu Cortex-M7.fp.dp -g -O3 --apcs=interwork --split_sections -I ../Core/Inc -I ../Drivers/STM32H7xx_HAL_Driver/Inc -I ../Drivers/STM32H7xx_HAL_Driver/Inc/Legacy -I ../Drivers/CMSIS/Device/ST/STM32H7xx/Include -I ../Drivers/CMSIS/Include -I ../Middlewares/Third_Party/FreeRTOS/Source/include -I ../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS -I ../Middlewares/Third_Party/FreeRTOS/Source/portable/RVDS/ARM_CM4F -I ../User/APP -I ../User/APP_Support -I ../User/BSP -I ../User/Devices -I ../User/Algorithm -I ../User/Algorithm/Include -I ../User/Communication/core -I ../User/Communication/channel/gimbal -I ../User/Communication/channel/camera -I ../User/Communication/channel/time_sync -I ../User/Communication/example/device -I ../User/Communication/example/shared -I ../USB_DEVICE/App -I ../USB_DEVICE/Target -I ../Middlewares/ST/STM32_USB_Device_Library/Core/Inc -I ../Middlewares/ST/STM32_USB_Device_Library/Class/CDC/Inc-I.\RTE\_CtrlBoard-H7_WS1812-ID:\Keil5\ARM\PACK\ARM\CMSIS\6.1.0\CMSIS\Core\Include-D__UVISION_VERSION="540" -DSTM32H723xx -D_RTE_ -DUSE_HAL_DRIVER -DSTM32H723xx -DUSE_PWR_LDO_SUPPLY-o ctrlboard-h7_ws1812\bsp_tim24.o --omf_browse ctrlboard-h7_ws1812\bsp_tim24.crf --depend ctrlboard-h7_ws1812\bsp_tim24.d)
 I (..\User\BSP\bsp_tim24.h)(0x69A81FD7)
 I (D:\Keil5\ARM\ARMCC\include\stdint.h)(0x691DDF33)
@@ -3426,7 +3426,7 @@ I (../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_pcd_ex.h)(0x69DF8BA7)
 F (..\User\Devices\hwt_imu.c)(0x6A0C5473)(--c99 --gnu -c --cpu Cortex-M7.fp.dp -g -O3 --apcs=interwork --split_sections -I ../Core/Inc -I ../Drivers/STM32H7xx_HAL_Driver/Inc -I ../Drivers/STM32H7xx_HAL_Driver/Inc/Legacy -I ../Drivers/CMSIS/Device/ST/STM32H7xx/Include -I ../Drivers/CMSIS/Include -I ../Middlewares/Third_Party/FreeRTOS/Source/include -I ../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS -I ../Middlewares/Third_Party/FreeRTOS/Source/portable/RVDS/ARM_CM4F -I ../User/APP -I ../User/APP_Support -I ../User/BSP -I ../User/Devices -I ../User/Algorithm -I ../User/Algorithm/Include -I ../User/Communication/core -I ../User/Communication/channel/gimbal -I ../User/Communication/channel/camera -I ../User/Communication/channel/time_sync -I ../User/Communication/example/device -I ../User/Communication/example/shared -I ../USB_DEVICE/App -I ../USB_DEVICE/Target -I ../Middlewares/ST/STM32_USB_Device_Library/Core/Inc -I ../Middlewares/ST/STM32_USB_Device_Library/Class/CDC/Inc-I.\RTE\_CtrlBoard-H7_WS1812-ID:\Keil5\ARM\PACK\ARM\CMSIS\6.1.0\CMSIS\Core\Include-D__UVISION_VERSION="540" -DSTM32H723xx -D_RTE_ -DUSE_HAL_DRIVER -DSTM32H723xx -DUSE_PWR_LDO_SUPPLY-o ctrlboard-h7_ws1812\hwt_imu.o --omf_browse ctrlboard-h7_ws1812\hwt_imu.crf --depend ctrlboard-h7_ws1812\hwt_imu.d)
 I (..\User\Devices\hwt_imu.h)(0x6A0CC700)
 I (D:\Keil5\ARM\ARMCC\include\stdint.h)(0x691DDF33)
-I (../User/APP_Support/project_config.h)(0x6A13590A)
+I (../User/APP_Support/project_config.h)(0x6A149E18)
 I (D:\Keil5\ARM\ARMCC\include\string.h)(0x588B8344)
 F (..\User\Algorithm\adrc.c)(0x69D0F3C8)(--c99 --gnu -c --cpu Cortex-M7.fp.dp -g -O3 --apcs=interwork --split_sections -I ../Core/Inc -I ../Drivers/STM32H7xx_HAL_Driver/Inc -I ../Drivers/STM32H7xx_HAL_Driver/Inc/Legacy -I ../Drivers/CMSIS/Device/ST/STM32H7xx/Include -I ../Drivers/CMSIS/Include -I ../Middlewares/Third_Party/FreeRTOS/Source/include -I ../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS -I ../Middlewares/Third_Party/FreeRTOS/Source/portable/RVDS/ARM_CM4F -I ../User/APP -I ../User/APP_Support -I ../User/BSP -I ../User/Devices -I ../User/Algorithm -I ../User/Algorithm/Include -I ../User/Communication/core -I ../User/Communication/channel/gimbal -I ../User/Communication/channel/camera -I ../User/Communication/channel/time_sync -I ../User/Communication/example/device -I ../User/Communication/example/shared -I ../USB_DEVICE/App -I ../USB_DEVICE/Target -I ../Middlewares/ST/STM32_USB_Device_Library/Core/Inc -I ../Middlewares/ST/STM32_USB_Device_Library/Class/CDC/Inc-I.\RTE\_CtrlBoard-H7_WS1812-ID:\Keil5\ARM\PACK\ARM\CMSIS\6.1.0\CMSIS\Core\Include-D__UVISION_VERSION="540" -DSTM32H723xx -D_RTE_ -DUSE_HAL_DRIVER -DSTM32H723xx -DUSE_PWR_LDO_SUPPLY-o ctrlboard-h7_ws1812\adrc.o --omf_browse ctrlboard-h7_ws1812\adrc.crf --depend ctrlboard-h7_ws1812\adrc.d)
 I (..\User\Algorithm\adrc.h)(0x69D0F3B6)
@@ -3440,9 +3440,9 @@ F (..\User\Algorithm\CRC8_CRC16.h)(0x69DFC1CE)()
 F (..\User\Algorithm\gravity_comp.c)(0x69FDBEC5)(--c99 --gnu -c --cpu Cortex-M7.fp.dp -g -O3 --apcs=interwork --split_sections -I ../Core/Inc -I ../Drivers/STM32H7xx_HAL_Driver/Inc -I ../Drivers/STM32H7xx_HAL_Driver/Inc/Legacy -I ../Drivers/CMSIS/Device/ST/STM32H7xx/Include -I ../Drivers/CMSIS/Include -I ../Middlewares/Third_Party/FreeRTOS/Source/include -I ../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS -I ../Middlewares/Third_Party/FreeRTOS/Source/portable/RVDS/ARM_CM4F -I ../User/APP -I ../User/APP_Support -I ../User/BSP -I ../User/Devices -I ../User/Algorithm -I ../User/Algorithm/Include -I ../User/Communication/core -I ../User/Communication/channel/gimbal -I ../User/Communication/channel/camera -I ../User/Communication/channel/time_sync -I ../User/Communication/example/device -I ../User/Communication/example/shared -I ../USB_DEVICE/App -I ../USB_DEVICE/Target -I ../Middlewares/ST/STM32_USB_Device_Library/Core/Inc -I ../Middlewares/ST/STM32_USB_Device_Library/Class/CDC/Inc-I.\RTE\_CtrlBoard-H7_WS1812-ID:\Keil5\ARM\PACK\ARM\CMSIS\6.1.0\CMSIS\Core\Include-D__UVISION_VERSION="540" -DSTM32H723xx -D_RTE_ -DUSE_HAL_DRIVER -DSTM32H723xx -DUSE_PWR_LDO_SUPPLY-o ctrlboard-h7_ws1812\gravity_comp.o --omf_browse ctrlboard-h7_ws1812\gravity_comp.crf --depend ctrlboard-h7_ws1812\gravity_comp.d)
 I (..\User\Algorithm\gravity_comp.h)(0x6A13590A)
 I (D:\Keil5\ARM\ARMCC\include\stdint.h)(0x691DDF33)
-I (../User/APP/gimbal_task.h)(0x6A0F01BE)
+I (../User/APP/gimbal_task.h)(0x6A13645D)
 I (D:\Keil5\ARM\ARMCC\include\stdbool.h)(0x588B8344)
-I (../User/APP_Support/project_config.h)(0x6A13590A)
+I (../User/APP_Support/project_config.h)(0x6A149E18)
 I (../User/BSP/remote_control.h)(0x69DFCB48)
 I (../User/BSP/bsp_usart.h)(0x69DFD54D)
 I (../Core/Inc/main.h)(0x69DFB329)
@@ -3499,7 +3499,7 @@ F (..\User\Algorithm\user_lib.c)(0x6A114D66)(--c99 --gnu -c --cpu Cortex-M7.fp.d
 I (..\User\Algorithm\user_lib.h)(0x6A114D66)
 I (../User/APP_Support/struct_typedef.h)(0x6A0C073B)
 I (D:\Keil5\ARM\ARMCC\include\stdint.h)(0x691DDF33)
-I (../User/APP_Support/project_config.h)(0x6A13590A)
+I (../User/APP_Support/project_config.h)(0x6A149E18)
 F (..\User\Algorithm\user_lib.h)(0x6A114D66)()
 F (../USB_DEVICE/App/usb_device.c)(0x69A81FD7)(--c99 --gnu -c --cpu Cortex-M7.fp.dp -g -O3 --apcs=interwork --split_sections -I ../Core/Inc -I ../Drivers/STM32H7xx_HAL_Driver/Inc -I ../Drivers/STM32H7xx_HAL_Driver/Inc/Legacy -I ../Drivers/CMSIS/Device/ST/STM32H7xx/Include -I ../Drivers/CMSIS/Include -I ../Middlewares/Third_Party/FreeRTOS/Source/include -I ../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS -I ../Middlewares/Third_Party/FreeRTOS/Source/portable/RVDS/ARM_CM4F -I ../User/APP -I ../User/APP_Support -I ../User/BSP -I ../User/Devices -I ../User/Algorithm -I ../User/Algorithm/Include -I ../User/Communication/core -I ../User/Communication/channel/gimbal -I ../User/Communication/channel/camera -I ../User/Communication/channel/time_sync -I ../User/Communication/example/device -I ../User/Communication/example/shared -I ../USB_DEVICE/App -I ../USB_DEVICE/Target -I ../Middlewares/ST/STM32_USB_Device_Library/Core/Inc -I ../Middlewares/ST/STM32_USB_Device_Library/Class/CDC/Inc-I.\RTE\_CtrlBoard-H7_WS1812-ID:\Keil5\ARM\PACK\ARM\CMSIS\6.1.0\CMSIS\Core\Include-D__UVISION_VERSION="540" -DSTM32H723xx -D_RTE_ -DUSE_HAL_DRIVER -DSTM32H723xx -DUSE_PWR_LDO_SUPPLY-o ctrlboard-h7_ws1812\usb_device.o --omf_browse ctrlboard-h7_ws1812\usb_device.crf --depend ctrlboard-h7_ws1812\usb_device.d)
 I (../USB_DEVICE/App/usb_device.h)(0x69A81FD7)

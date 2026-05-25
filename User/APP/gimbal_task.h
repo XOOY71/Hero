@@ -66,21 +66,13 @@ typedef struct
     float auto_ref_target_last;
     uint8_t auto_ref_target_init;
     float pid_torque;                // PID 反馈输出力矩
-    float rc_pid_torque;
-    float auto_pid_torque;
     float ff_torque;                 // 惯量前馈输出力矩
-    float rc_ff_torque;
-    float auto_ff_torque;
     float static_friction_comp;      // 静摩擦补偿输出力矩
-    float rc_static_friction_comp;
-    float auto_static_friction_comp;
     float inertia_kgm2;              // 转动惯量参数 J，单位 kg*m^2
 
     float raw_cmd;                   // RAW 模式下直接输出命令
     float output;                    // 控制器最终输出值
     float current_set;               // 目标电流/目标力矩命令
-    float rc_current_set;
-    float auto_current_set;
     float given_current;             // 实际发送给电机的电流/力矩命令
 
     float max_relative_angle;        // 相对角度上限
@@ -93,10 +85,8 @@ typedef struct
     float auto_absolute_angle_set;
     uint8_t rc_control_enable;
     uint8_t auto_control_enable;
-    gimbal_pid_t rc_absolute_angle_pid;
-    gimbal_pid_t rc_relative_angle_pid;
-    gimbal_pid_t auto_absolute_angle_pid;
-    gimbal_pid_t auto_relative_angle_pid;
+    gimbal_pid_t absolute_angle_pid;
+    gimbal_pid_t relative_angle_pid;
 } gimbal_motor_t;
 
 typedef struct
