@@ -8,6 +8,7 @@
 #include <stddef.h>
 
 #define AUTO_AIM_UDEG_TO_RAD (PI / 180000000.0f)
+#define AUTO_AIM_PITCH_COMPENSATION_RAD ( - 3.0f * PI / 180.0f)
 
 typedef struct
 {
@@ -84,7 +85,9 @@ void auto_aim_apply_delta_udeg(int32_t dyaw_udeg,
                                uint64_t ts_us)
 {
     const float yaw_err_rad = (float)dyaw_udeg * AUTO_AIM_UDEG_TO_RAD;
-    const float pitch_err_rad = (float)dpitch_udeg * AUTO_AIM_UDEG_TO_RAD;
+    const float pitch_err_rad =
+        ((float)dpitch_udeg * AUTO_AIM_UDEG_TO_RAD) +
+        AUTO_AIM_PITCH_COMPENSATION_RAD;
 
     taskENTER_CRITICAL();
     s_auto_aim_error.yaw_err_rad = yaw_err_rad;
