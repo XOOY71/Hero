@@ -84,10 +84,13 @@ void auto_aim_apply_delta_udeg(int32_t dyaw_udeg,
                                uint16_t status,
                                uint64_t ts_us)
 {
-    const float yaw_err_rad = (float)dyaw_udeg * AUTO_AIM_UDEG_TO_RAD;
+    const bool no_aim_data = (dyaw_udeg == 0) && (dpitch_udeg == 0);
+    const float yaw_err_rad =
+        no_aim_data ? 0.0f : ((float)dyaw_udeg * AUTO_AIM_UDEG_TO_RAD);
     const float pitch_err_rad =
-        ((float)dpitch_udeg * AUTO_AIM_UDEG_TO_RAD) +
-        AUTO_AIM_PITCH_COMPENSATION_RAD;
+        no_aim_data ? 0.0f :
+        (((float)dpitch_udeg * AUTO_AIM_UDEG_TO_RAD) +
+         AUTO_AIM_PITCH_COMPENSATION_RAD);
 
     taskENTER_CRITICAL();
     s_auto_aim_error.yaw_err_rad = yaw_err_rad;

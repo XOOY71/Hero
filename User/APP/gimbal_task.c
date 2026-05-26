@@ -21,47 +21,9 @@
 
 gimbal_control_t gimbal_control;
 
-#ifndef GIMBAL_MIT_FEEDBACK_INIT_DELAY
-#define GIMBAL_MIT_FEEDBACK_INIT_DELAY 100U
-#endif
-
-#ifndef GIMBAL_YAW_MIT_INDEX
-#define GIMBAL_YAW_MIT_INDEX 0U
-#endif
-
-#ifndef GIMBAL_YAW_STATIC_FRICTION_COMP
-#define GIMBAL_YAW_STATIC_FRICTION_COMP 0.28f
-#endif
-#ifndef GIMBAL_YAW_STATIC_FRICTION_DEADBAND
-#define GIMBAL_YAW_STATIC_FRICTION_DEADBAND 0.002f
-#endif
-#ifndef GIMBAL_YAW_STATIC_FRICTION_FULLBAND
-#define GIMBAL_YAW_STATIC_FRICTION_FULLBAND 0.006f
-#endif
-#ifndef GIMBAL_YAW_STATIC_FRICTION_FILTER_ALPHA
-#define GIMBAL_YAW_STATIC_FRICTION_FILTER_ALPHA 0.2f
-#endif
-
-#ifndef GIMBAL_PITCH_STATIC_FRICTION_COMP_UP
-#define GIMBAL_PITCH_STATIC_FRICTION_COMP_UP 0.1f
-#endif
-#ifndef GIMBAL_PITCH_STATIC_FRICTION_COMP_DOWN
-#define GIMBAL_PITCH_STATIC_FRICTION_COMP_DOWN 0.00f
-#endif
-#ifndef GIMBAL_PITCH_STATIC_FRICTION_DEADBAND
-#define GIMBAL_PITCH_STATIC_FRICTION_DEADBAND 0.004f
-#endif
-#ifndef GIMBAL_PITCH_STATIC_FRICTION_FULLBAND
-#define GIMBAL_PITCH_STATIC_FRICTION_FULLBAND 0.008f
-#endif
-#ifndef GIMBAL_PITCH_STATIC_FRICTION_FILTER_ALPHA
-#define GIMBAL_PITCH_STATIC_FRICTION_FILTER_ALPHA 0.1f
-#endif
-
 static osThreadId gimbalTaskHandle = NULL;
 
 static void gimbal_task(void const *pvParameters);
-#define GIMBAL_PI PI
 static float gimbal_wrap_angle(float angle);
 static float gimbal_take_auto_aim_bias(gimbal_motor_t *motor);
 static float gimbal_clamp(float value, float min_value, float max_value);
@@ -105,7 +67,7 @@ static void gimbal_task(void const *pvParameters)
         gimbal_send_cmd(&gimbal_control);
         shoot_task_loop();
 
-        gimbal_vofa_send_yaw_pitch_half();
+        gimbal_vofa_send_strum();
 
         vTaskDelayUntil(&last_wake_time, GIMBAL_CONTROL_TIME);
     }

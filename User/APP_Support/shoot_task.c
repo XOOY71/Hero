@@ -380,6 +380,9 @@ static void shoot_task_control_strum(shoot_task_control_t *control)
     static bool long_press_active = false;
     static bool release_follow_active = false;
     static uint16_t hold_ticks = 0U;
+    static uint16_t single_ff_ticks = 0U;
+    static uint16_t single_ff_release_ticks = 0U;
+    static float single_ff_torque = 0.0f;
     static float target_pos = 0.0f;
     static float target_cmd_pos = 0.0f;
     static float feedback_pos_last = 0.0f;
@@ -388,15 +391,18 @@ static void shoot_task_control_strum(shoot_task_control_t *control)
     MITMeasure_t *strum_measure;
     uint32_t now;
     uint16_t long_press_ticks;
+    uint16_t single_ff_release_total_ticks;
     bool feedback_ready;
     bool press_l;
     bool strum_ready;
+    bool single_ff_active;
     const float release_lock_vel = SHOOT_STRUM_RELEASE_LOCK_VEL_RADPS;
     float feedback_pos;
     float feedback_vel;
     float position_error;
     float torque_cmd;
     float pid_out;
+    float single_ff_target;
 
     if (control == NULL || control->rc == NULL)
     {
@@ -417,6 +423,9 @@ static void shoot_task_control_strum(shoot_task_control_t *control)
         long_press_active = false;
         release_follow_active = false;
         hold_ticks = 0U;
+        single_ff_ticks = 0U;
+        single_ff_release_ticks = 0U;
+        single_ff_torque = 0.0f;
         target_pos = 0.0f;
         target_cmd_pos = 0.0f;
         feedback_pos_last = 0.0f;
@@ -457,6 +466,7 @@ static void shoot_task_control_strum(shoot_task_control_t *control)
     }
 
     long_press_ticks = shoot_task_ms_to_ticks(SHOOT_STRUM_LONG_PRESS_MS);
+    single_ff_release_total_ticks = shoot_task_ms_to_ticks(SHOOT_STRUM_SINGLE_FF_RELEASE_MS);
     torque_cmd = 0.0f;
 
     if (!strum_ready)
@@ -464,6 +474,9 @@ static void shoot_task_control_strum(shoot_task_control_t *control)
         target_pos = feedback_pos_continuous;
         target_cmd_pos = target_pos;
         hold_ticks = 0U;
+        single_ff_ticks = 0U;
+        single_ff_release_ticks = 0U;
+        single_ff_torque = 0.0f;
         long_press_active = false;
         release_follow_active = false;
         pid_iout = 0.0f;
@@ -476,6 +489,8 @@ static void shoot_task_control_strum(shoot_task_control_t *control)
             hold_ticks = 0U;
             long_press_active = false;
             release_follow_active = false;
+            single_ff_ticks = shoot_task_ms_to_ticks(SHOOT_STRUM_SINGLE_FF_TIME_MS);
+            single_ff_release_ticks = 0U;
             pid_iout = 0.0f;
         }
         else
@@ -497,6 +512,9 @@ static void shoot_task_control_strum(shoot_task_control_t *control)
             target_pos = feedback_pos_continuous;
             target_cmd_pos = target_pos;
             pid_iout = 0.0f;
+            single_ff_ticks = 0U;
+            single_ff_release_ticks = 0U;
+            single_ff_torque = 0.0f;
             torque_cmd = SHOOT_STRUM_DIRECTION * SHOOT_STRUM_LONG_PRESS_TORQUE_NM;
         }
     }
@@ -530,6 +548,11 @@ static void shoot_task_control_strum(shoot_task_control_t *control)
         }
     }
 
+    single_ff_active = strum_ready &&
+                       ((single_ff_ticks > 0U) ||
+                        (single_ff_release_ticks > 0U) ||
+                        (fabsf(single_ff_torque) >= 0.001f));
+
     if (strum_ready && !long_press_active && !release_follow_active)
     {
         target_cmd_pos += SHOOT_STRUM_TARGET_LPF_ALPHA * (target_pos - target_cmd_pos);
@@ -541,26 +564,56 @@ static void shoot_task_control_strum(shoot_task_control_t *control)
         }
         else
         {
-            pid_iout += SHOOT_STRUM_TORQUE_PID_KI * position_error;
-            pid_iout = shoot_task_clamp_float(pid_iout,
-                                              -SHOOT_STRUM_TORQUE_PID_MAX_IOUT,
-                                              SHOOT_STRUM_TORQUE_PID_MAX_IOUT);
+            if (single_ff_active)
+            {
+                pid_iout = 0.0f;
+            }
+            else
+            {
+                pid_iout += SHOOT_STRUM_TORQUE_PID_KI * position_error;
+                pid_iout = shoot_task_clamp_float(pid_iout,
+                                                  -SHOOT_STRUM_TORQUE_PID_MAX_IOUT,
+                                                  SHOOT_STRUM_TORQUE_PID_MAX_IOUT);
+            }
         }
 
-        pid_out = SHOOT_STRUM_TORQUE_PID_KP * position_error +
-                  pid_iout +
-                  (-SHOOT_STRUM_TORQUE_PID_KD * feedback_vel);
+        pid_out = SHOOT_STRUM_TORQUE_PID_KP * position_error + pid_iout;
+        if (!single_ff_active)
+        {
+            pid_out += -SHOOT_STRUM_TORQUE_PID_KD * feedback_vel;
+        }
         pid_out = shoot_task_clamp_float(pid_out,
                                          -SHOOT_STRUM_TORQUE_PID_MAX_OUT,
                                          SHOOT_STRUM_TORQUE_PID_MAX_OUT);
         torque_cmd = pid_out;
-        if (position_error != 0.0f)
+    }
+
+    single_ff_target = 0.0f;
+    if (strum_ready && (single_ff_ticks > 0U))
+    {
+        single_ff_target = SHOOT_STRUM_DIRECTION * SHOOT_STRUM_SINGLE_TORQUE_FF_NM;
+        single_ff_ticks--;
+        if (single_ff_ticks == 0U)
         {
-            torque_cmd += (position_error > 0.0f) ?
-                          SHOOT_STRUM_SINGLE_TORQUE_FF_NM :
-                          -SHOOT_STRUM_SINGLE_TORQUE_FF_NM;
+            single_ff_release_ticks = single_ff_release_total_ticks;
         }
     }
+    else if (strum_ready && (single_ff_release_ticks > 0U))
+    {
+        single_ff_target =
+            SHOOT_STRUM_DIRECTION * SHOOT_STRUM_SINGLE_TORQUE_FF_NM *
+            ((float)single_ff_release_ticks / (float)single_ff_release_total_ticks);
+        single_ff_release_ticks--;
+    }
+    single_ff_torque +=
+        SHOOT_STRUM_SINGLE_FF_FILTER_ALPHA * (single_ff_target - single_ff_torque);
+    if ((single_ff_ticks == 0U) &&
+        (single_ff_release_ticks == 0U) &&
+        (fabsf(single_ff_torque) < 0.001f))
+    {
+        single_ff_torque = 0.0f;
+    }
+    torque_cmd += single_ff_torque;
 
     torque_cmd = shoot_task_clamp_float(torque_cmd, T_MIN, T_MAX);
     strum_measure->set.POS = target_cmd_pos;
