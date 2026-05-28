@@ -3,7 +3,7 @@
 
 #include "struct_typedef.h"
 
-/* Hero steering chassis fixed configuration. */
+/* Hero four-omni chassis fixed configuration. */
 
 /*
  * Chassis geometry for inverse kinematics.
@@ -13,6 +13,12 @@
  */
 #define HALF_LENGTH 14.142136f
 #define HALF_WIDTH  14.142136f
+#define CHASSIS_OMNI_ROTATE_RADIUS (HALF_LENGTH + HALF_WIDTH)
+
+#define CHASSIS_WHEEL_LF_DIRECTION 1.0f
+#define CHASSIS_WHEEL_LB_DIRECTION 1.0f
+#define CHASSIS_WHEEL_RB_DIRECTION 1.0f
+#define CHASSIS_WHEEL_RF_DIRECTION 1.0f
 
 /* Steering motor zero offsets. */
 #define CHASSIS_6020_INIT_ANGLE_0 (-0.14f)

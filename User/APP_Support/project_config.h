@@ -180,13 +180,13 @@ extern "C" {
 #define CAN_FRIC3_ID                        0X203 // 摩擦轮 3 电机 ID
 
 #define CAN_CHASSIS_ALL_ID                0x1FF  // chassis motor broadcast ID
-#define CAN_M1_3508_ID                    0x205  // module1 3508 ID
-#define CAN_M2_3508_ID                    0x206  // module2 3508 ID
-#define CAN_M1_6020_ID                    0x207  // module1 6020 ID
-#define CAN_M2_6020_ID                    0x208  // module2 6020 ID
+#define CAN_M1_3508_ID                    0x205  // chassis 3508 ID 1
+#define CAN_M2_3508_ID                    0x206  // chassis 3508 ID 2
+#define CAN_M3_3508_ID                    0x207  // chassis 3508 ID 3
+#define CAN_M4_3508_ID                    0x208  // chassis 3508 ID 4
 
-#define CHASSIS_MODULE_NUM                  2U
-#define CHASSIS_MOTOR_NUM                 (CHASSIS_MODULE_NUM * 2U)
+#define CHASSIS_MODULE_NUM                  4U
+#define CHASSIS_MOTOR_NUM                 CHASSIS_MODULE_NUM
 
 /* ========================= MIT 协议参数范围 ========================= */
 #define P_MIN                              -12.5663704f // 位置最小值

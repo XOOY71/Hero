@@ -15,11 +15,6 @@ void chassis_wheel_angle_offset_init(void)
 		chassis_move.wheel_angle_offset.last[i] = 0.0f;
 		chassis_move.wheel_angle_offset.initial[i] = 0.0f;
 	}
-
-	chassis_move.wheel_angle_offset.now[0] = chassis_move.wheel_angle_offset.initial[0] = CHASSIS_6020_INIT_ANGLE_0;
-	chassis_move.wheel_angle_offset.last[0] = CHASSIS_6020_INIT_ANGLE_0;
-	chassis_move.wheel_angle_offset.now[1] = chassis_move.wheel_angle_offset.initial[1] = CHASSIS_6020_INIT_ANGLE_1;
-	chassis_move.wheel_angle_offset.last[1] = CHASSIS_6020_INIT_ANGLE_1;
 }
 
 void vector_rotate(fp32 angle, fp32 *vector)
@@ -36,28 +31,26 @@ void vector_rotate(fp32 angle, fp32 *vector)
 	vector[1] = sin_value * x_temp + cos_value * vector[1];
 }
 
-static void smooth_control(fp32 *wheel_angle, fp32 *wheel_speed)
+static void limit_chassis_wheel_speed(fp32 *wheel_speed)
 {
-	fp32 factor = 0.50f;
-	fp32 angle_delta[CHASSIS_MODULE_NUM], Current_angle[CHASSIS_MODULE_NUM];
+	fp32 max_speed = 0.0f;
 
 	for(uint8_t i = 0; i < CHASSIS_MODULE_NUM; i++)
 	{
-		Current_angle[i] = chassis_move.chassis_6020[i].angle;
-		angle_delta[i] = rad_format(wheel_angle[i] - Current_angle[i]);
-
-		if(angle_delta[i] > PI * factor)
+		fp32 speed_abs = fabsf(wheel_speed[i]);
+		if(speed_abs > max_speed)
 		{
-			wheel_angle[i] -= PI;
-			wheel_speed[i] = -wheel_speed[i];
+			max_speed = speed_abs;
 		}
-		else if(angle_delta[i] < -PI * factor)
-		{
-			wheel_angle[i] += PI;
-			wheel_speed[i] = -wheel_speed[i];
-		}
+	}
 
-		wheel_angle[i] = rad_format(wheel_angle[i]);
+	if(max_speed > MAX_WHEEL_SPEED)
+	{
+		fp32 scale = MAX_WHEEL_SPEED / max_speed;
+		for(uint8_t i = 0; i < CHASSIS_MODULE_NUM; i++)
+		{
+			wheel_speed[i] *= scale;
+		}
 	}
 }
 
@@ -72,20 +65,17 @@ void chas_inv_cal(fp32 vx_set, fp32 vy_set, fp32 wz_set, fp32 *wheel_angle, fp32
 {
 	if((wheel_angle == NULL) || (wheel_speed == NULL)) return;
 
-	fp32 vx_total[CHASSIS_MODULE_NUM], vy_total[CHASSIS_MODULE_NUM];
-	const fp32 module_pos[CHASSIS_MODULE_NUM][2] = {
-		{-HALF_LENGTH,  HALF_WIDTH},
-		{ HALF_LENGTH, -HALF_WIDTH},
-	};
+	const fp32 wz_speed = wz_set * CHASSIS_OMNI_ROTATE_RADIUS;
+
+	wheel_speed[WHEEL_LF] = ( vx_set - vy_set - wz_speed) * CHASSIS_WHEEL_LF_DIRECTION;
+	wheel_speed[WHEEL_LB] = ( vx_set + vy_set - wz_speed) * CHASSIS_WHEEL_LB_DIRECTION;
+	wheel_speed[WHEEL_RB] = ( vx_set - vy_set + wz_speed) * CHASSIS_WHEEL_RB_DIRECTION;
+	wheel_speed[WHEEL_RF] = ( vx_set + vy_set + wz_speed) * CHASSIS_WHEEL_RF_DIRECTION;
 
 	for(uint8_t i = 0; i < CHASSIS_MODULE_NUM; i++)
 	{
-		vx_total[i] = vx_set - wz_set * module_pos[i][1];
-		vy_total[i] = vy_set + wz_set * module_pos[i][0];
-		wheel_speed[i] = sqrtf(vx_total[i] * vx_total[i] + vy_total[i] * vy_total[i]);
-		wheel_angle[i] = atan2f(vy_total[i], vx_total[i]) - chassis_move.wheel_angle_offset.now[i] + offset;
-		wheel_angle[i] = rad_format(wheel_angle[i]);
+		wheel_angle[i] = 0.0f;
 	}
 
-	smooth_control(wheel_angle, wheel_speed);
+	limit_chassis_wheel_speed(wheel_speed);
 }

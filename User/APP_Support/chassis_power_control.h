@@ -26,9 +26,6 @@ typedef struct {
     float set_motorcurrent[CHASSIS_MODULE_NUM];
     float now_motorcurrent[CHASSIS_MODULE_NUM];
     float set_power;
-    float set_6020_current[CHASSIS_MODULE_NUM];
-    float now_6020_current[CHASSIS_MODULE_NUM];
-    float cur_6020_speed[CHASSIS_MODULE_NUM];
     float P_origin;
     float P_bus;
     float P_in;

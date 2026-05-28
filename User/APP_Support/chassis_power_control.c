@@ -78,11 +78,8 @@ void Current_RestraintRelation_Calc(PowerLimit_t *PowerLimit_Cur)
 		
 		// 获取6020电机实时数据（修正字段名与结构体匹配�?
 		// 6020电机当前实际转速（rpm�?
-		PowerLimit_Cur->cur_6020_speed[i] = chassis_move.chassis_6020[i].chassis_motor_measure->speed_rpm;
 		// 6020电机目标电流（A），来自速度环PID输出
-		PowerLimit_Cur->set_6020_current[i] = chassis_move.chas_6020_speed_pid[i].out;
 		// 6020电机实际发送的电流值（A�?
-		PowerLimit_Cur->now_6020_current[i] = chassis_move.chassis_6020[i].give_current;
 	}
 }
 
@@ -99,9 +96,8 @@ void Current_RestraintRelation_Calc(PowerLimit_t *PowerLimit_Cur)
 void Predict_Power(PowerLimit_t *PowerLimit_Pre, chassis_move_t *chassis_move)
 {
 	// 6020电机预留功率（W），保证云台/其他关节电机基础功�?
-	const float reserved_power_for_6020 = 16.0f;
 	// 3508底盘电机可用功率 = 总额定功�?- 6020预留功率
-	const float available_power = PowerLimit_Pre->set_power - reserved_power_for_6020;
+	const float available_power = PowerLimit_Pre->set_power;
 
 	// 初始化功率计算中间变�?
 	float sum_omega_I = 0.0f;   // ω*I_cmd 项累加和
@@ -162,7 +158,6 @@ for(int i = 0; i < CHASSIS_MODULE_NUM; i++)
     // 3508电机电流应用衰减系数，转换为整型发送�?
     chassis_move->chassis_3508[i].give_current = (int16_t)(PowerLimit_Pre->set_motorcurrent[i] * PowerLimit_Pre->K_Reduction);
     // 6020电机不做衰减，直接使用PID输出�?
-    chassis_move->chassis_6020[i].give_current = (int16_t)(chassis_move->chas_6020_speed_pid[i].out);
     
     // 计算衰减后的总线实际功率�?508电机�?
     PowerLimit.P_bus = PowerLimit_Pre->a + \
@@ -202,7 +197,6 @@ void chassis_power_control(chassis_move_t *chassis_move)
 		for(int i = 0; i < CHASSIS_MODULE_NUM; i++)
 		{
 			chassis_move->chassis_3508[i].give_current = (int16_t)(chassis_move->model_3508_out[i]);
-			chassis_move->chassis_6020[i].give_current = (int16_t)(chassis_move->chas_6020_speed_pid[i].out);
 		}
 		/********************** 无超级电容时使用的代�?**********************/
 }

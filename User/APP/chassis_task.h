@@ -143,14 +143,11 @@ typedef struct
     chassis_mode_e last_chassis_mode;
 
     chassis_motor_t chassis_3508[CHASSIS_MODULE_NUM];
-    chassis_motor_t chassis_6020[CHASSIS_MODULE_NUM];
     wheel_angle_offset_t wheel_angle_offset;
 
     fp32 model_3508_out[CHASSIS_MODULE_NUM];
     fp32 model_accel[CHASSIS_MODULE_NUM];
 
-    pid_type_def chas_6020_angle_pid[CHASSIS_MODULE_NUM];
-    pid_type_def chas_6020_speed_pid[CHASSIS_MODULE_NUM];
     pid_type_def chassis_angle_pid;
     pid_type_def chas_return_pid;
 
