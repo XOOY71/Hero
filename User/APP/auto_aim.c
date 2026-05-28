@@ -6,9 +6,12 @@
 
 #include <stdbool.h>
 #include <stddef.h>
+#include <math.h>
 
 #define AUTO_AIM_UDEG_TO_RAD (PI / 180000000.0f)
-#define AUTO_AIM_PITCH_COMPENSATION_RAD ( - 3.0f * PI / 180.0f)
+#define AUTO_AIM_BALLISTIC_DROP_K_MM_PER_M2 18.0f
+#define AUTO_AIM_BALLISTIC_DISTANCE_M 3.9f
+#define AUTO_AIM_MM_PER_M 1000.0f
 
 typedef struct
 {
@@ -20,9 +23,29 @@ auto_aim_t aim;
 
 static auto_aim_error_t s_auto_aim_error = {0};
 
+static float auto_aim_calc_pitch_compensation_rad(float horizontal_distance_m);
 static void auto_aim_init(auto_aim_t *aim_obj);
 static void auto_aim_set(auto_aim_t *aim_obj);
 static void auto_aim_feedback_update(auto_aim_t *aim_obj);
+
+static float auto_aim_calc_pitch_compensation_rad(float horizontal_distance_m)
+{
+    const float drop_ratio =
+        (AUTO_AIM_BALLISTIC_DROP_K_MM_PER_M2 * horizontal_distance_m) /
+        AUTO_AIM_MM_PER_M;
+    const float discriminant = 1.0f - 4.0f * drop_ratio * drop_ratio;
+    float tan_comp;
+
+    if (horizontal_distance_m <= 0.0f || drop_ratio <= 0.0f ||
+        discriminant <= 0.0f)
+    {
+        return 0.0f;
+    }
+
+    tan_comp = (1.0f - sqrtf(discriminant)) / (2.0f * drop_ratio);
+
+    return -atanf(tan_comp);
+}
 
 static void auto_aim_clear_error(void)
 {
@@ -90,7 +113,7 @@ void auto_aim_apply_delta_udeg(int32_t dyaw_udeg,
     const float pitch_err_rad =
         no_aim_data ? 0.0f :
         (((float)dpitch_udeg * AUTO_AIM_UDEG_TO_RAD) +
-         AUTO_AIM_PITCH_COMPENSATION_RAD);
+         auto_aim_calc_pitch_compensation_rad(AUTO_AIM_BALLISTIC_DISTANCE_M));
 
     taskENTER_CRITICAL();
     s_auto_aim_error.yaw_err_rad = yaw_err_rad;
