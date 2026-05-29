@@ -9,7 +9,8 @@ extern "C" {
 #include "struct_typedef.h"
 
 #define VOFA_CH_COUNT 6U
-#define VOFA_AI_POWER_CH_COUNT 31U
+#define VOFA_AI_POWER_MOTOR_COUNT 4U
+#define VOFA_AI_POWER_CH_COUNT 9U
 #define VOFA_AI_CSV_BUFFER_SIZE 512U
 #define VOFA_ENABLE_CSV_TEXT 0
 
@@ -50,9 +51,9 @@ typedef struct
 
 #if VOFA_ENABLE_CSV_TEXT
 void VOFA_SendAiPowerCsvHeader(void);
-void VOFA_SendAiPowerCsv(const VOFA_AiPowerCsv_t *log);
+void VOFA_SendAiPowerCsv(const VOFA_AiPowerCsv_t *log, uint8_t motor_idx);
 #endif
-void VOFA_SendAiPowerJustFloat(const VOFA_AiPowerCsv_t *log);
+void VOFA_SendAiPowerJustFloat(const VOFA_AiPowerCsv_t *log, uint8_t motor_idx);
 
 
 #ifdef __cplusplus

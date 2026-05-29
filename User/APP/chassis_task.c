@@ -494,7 +494,7 @@ static void chassis_ai_log_to_vofa(const chassis_move_t *chassis_move_log)
 		log.s_label[i] = (fabsf(model_current) > 1.0f) ? (give_current / model_current) : 0.0f;
 	}
 
-	VOFA_SendAiPowerJustFloat(&log);
+	VOFA_SendAiPowerJustFloat(&log, 0U);
 }
 #endif
 /* 底盘任务主循�?*/

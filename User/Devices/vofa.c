@@ -60,16 +60,13 @@ void VOFA_Send6(float ch0, float ch1, float ch2, float ch3, float ch4, float ch5
 void VOFA_SendAiPowerCsvHeader(void)
 {
     static const char header[] =
-        "t_ms,"
         "vx_set,vy_set,wz_set,"
-        "wheel_speed_set_0,wheel_speed_set_1,wheel_speed_set_2,wheel_speed_set_3,"
-        "motor_speed_0,motor_speed_1,motor_speed_2,motor_speed_3,"
-        "model_current_0,model_current_1,model_current_2,model_current_3,"
-        "give_current_0,give_current_1,give_current_2,give_current_3,"
-        "set_power,buffer_energy,"
-        "pm01_v_out,pm01_i_out,pm01_temp,pm01_p_out,"
-        "k_label,"
-        "s_label_0,s_label_1,s_label_2,s_label_3\r\n";
+        "wheel_speed_set,"
+        "motor_speed,"
+        "model_current,"
+        "give_current,"
+        "set_power,"
+        "pm01_p_out\r\n";
 
     if (huart1.gState != HAL_UART_STATE_READY)
     {
@@ -80,7 +77,7 @@ void VOFA_SendAiPowerCsvHeader(void)
     HAL_UART_Transmit_DMA(&huart1, s_vofa_csv_buf, (uint16_t)(sizeof(header) - 1U));
 }
 
-void VOFA_SendAiPowerCsv(const VOFA_AiPowerCsv_t *log)
+void VOFA_SendAiPowerCsv(const VOFA_AiPowerCsv_t *log, uint8_t motor_idx)
 {
     int len;
 
@@ -89,59 +86,44 @@ void VOFA_SendAiPowerCsv(const VOFA_AiPowerCsv_t *log)
         return;
     }
 
+    if (motor_idx >= VOFA_AI_POWER_MOTOR_COUNT)
+    {
+        return;
+    }
+
     len = snprintf((char *)s_vofa_csv_buf,
                    sizeof(s_vofa_csv_buf),
-                   "%lu,"
                    "%.4f,%.4f,%.4f,"
-                   "%.4f,%.4f,%.4f,%.4f,"
-                   "%.4f,%.4f,%.4f,%.4f,"
-                   "%.2f,%.2f,%.2f,%.2f,"
-                   "%.2f,%.2f,%.2f,%.2f,"
-                   "%.2f,%.2f,"
-                   "%.2f,%.2f,%.2f,%.2f,"
                    "%.4f,"
-                   "%.4f,%.4f,%.4f,%.4f\r\n",
-                   (unsigned long)log->t_ms,
+                   "%.4f,"
+                   "%.2f,"
+                   "%.2f,"
+                   "%.2f,"
+                   "%.2f\r\n",
                    log->vx_set,
                    log->vy_set,
                    log->wz_set,
-                   log->wheel_speed_set[0],
-                   log->wheel_speed_set[1],
-                   log->wheel_speed_set[2],
-                   log->wheel_speed_set[3],
-                   log->motor_speed[0],
-                   log->motor_speed[1],
-                   log->motor_speed[2],
-                   log->motor_speed[3],
-                   log->model_current[0],
-                   log->model_current[1],
-                   log->model_current[2],
-                   log->model_current[3],
-                   log->give_current[0],
-                   log->give_current[1],
-                   log->give_current[2],
-                   log->give_current[3],
+                   log->wheel_speed_set[motor_idx],
+                   log->motor_speed[motor_idx],
+                   log->model_current[motor_idx],
+                   log->give_current[motor_idx],
                    log->set_power,
-                   log->buffer_energy,
-                   log->pm01_v_out,
-                   log->pm01_i_out,
-                   log->pm01_temp,
-                   log->pm01_p_out,
-                   log->k_label,
-                   log->s_label[0],
-                   log->s_label[1],
-                   log->s_label[2],
-                   log->s_label[3]);
+                   log->pm01_p_out);
 
     VOFA_SendCsvBuffer(len);
 }
 #endif
 
-void VOFA_SendAiPowerJustFloat(const VOFA_AiPowerCsv_t *log)
+void VOFA_SendAiPowerJustFloat(const VOFA_AiPowerCsv_t *log, uint8_t motor_idx)
 {
     float *ch = s_vofa_ai_power_frame.fdata;
 
     if (log == NULL)
+    {
+        return;
+    }
+
+    if (motor_idx >= VOFA_AI_POWER_MOTOR_COUNT)
     {
         return;
     }
@@ -151,37 +133,15 @@ void VOFA_SendAiPowerJustFloat(const VOFA_AiPowerCsv_t *log)
         return;
     }
 
-    ch[0] = (float)log->t_ms;
-    ch[1] = log->vx_set;
-    ch[2] = log->vy_set;
-    ch[3] = log->wz_set;
-    ch[4] = log->wheel_speed_set[0];
-    ch[5] = log->wheel_speed_set[1];
-    ch[6] = log->wheel_speed_set[2];
-    ch[7] = log->wheel_speed_set[3];
-    ch[8] = log->motor_speed[0];
-    ch[9] = log->motor_speed[1];
-    ch[10] = log->motor_speed[2];
-    ch[11] = log->motor_speed[3];
-    ch[12] = log->model_current[0];
-    ch[13] = log->model_current[1];
-    ch[14] = log->model_current[2];
-    ch[15] = log->model_current[3];
-    ch[16] = log->give_current[0];
-    ch[17] = log->give_current[1];
-    ch[18] = log->give_current[2];
-    ch[19] = log->give_current[3];
-    ch[20] = log->set_power;
-    ch[21] = log->buffer_energy;
-    ch[22] = log->pm01_v_out;
-    ch[23] = log->pm01_i_out;
-    ch[24] = log->pm01_temp;
-    ch[25] = log->pm01_p_out;
-    ch[26] = log->k_label;
-    ch[27] = log->s_label[0];
-    ch[28] = log->s_label[1];
-    ch[29] = log->s_label[2];
-    ch[30] = log->s_label[3];
+    ch[0] = log->vx_set;
+    ch[1] = log->vy_set;
+    ch[2] = log->wz_set;
+    ch[3] = log->wheel_speed_set[motor_idx];
+    ch[4] = log->motor_speed[motor_idx];
+    ch[5] = log->model_current[motor_idx];
+    ch[6] = log->give_current[motor_idx];
+    ch[7] = log->set_power;
+    ch[8] = log->pm01_p_out;
 
     HAL_UART_Transmit_DMA(&huart1,
                           (uint8_t *)&s_vofa_ai_power_frame,
