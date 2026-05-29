@@ -1,6 +1,7 @@
 ctrlboard-h7_ws1812\vofa.o: ..\User\Devices\vofa.c
 ctrlboard-h7_ws1812\vofa.o: ..\User\Devices\vofa.h
 ctrlboard-h7_ws1812\vofa.o: D:\Keil5\ARM\ARMCC\Bin\..\include\stdint.h
+ctrlboard-h7_ws1812\vofa.o: ../User/APP_Support/struct_typedef.h
 ctrlboard-h7_ws1812\vofa.o: ../Core/Inc/usart.h
 ctrlboard-h7_ws1812\vofa.o: ../Core/Inc/main.h
 ctrlboard-h7_ws1812\vofa.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal.h

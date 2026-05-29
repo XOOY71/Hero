@@ -340,7 +340,7 @@
               <MiscControls></MiscControls>
               <Define>USE_HAL_DRIVER,STM32H723xx,USE_PWR_LDO_SUPPLY</Define>
               <Undefine></Undefine>
-              <IncludePath>../Core/Inc;../Drivers/STM32H7xx_HAL_Driver/Inc;../Drivers/STM32H7xx_HAL_Driver/Inc/Legacy;../Drivers/CMSIS/Device/ST/STM32H7xx/Include;../Drivers/CMSIS/Include;../Middlewares/Third_Party/FreeRTOS/Source/include;../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS;../Middlewares/Third_Party/FreeRTOS/Source/portable/RVDS/ARM_CM4F;../User/APP;../User/APP_Support;../User/BSP;../User/Devices;../User/Algorithm;../User/Algorithm/Include;../User/Communication/core;../User/Communication/channel/gimbal;../User/Communication/channel/camera;../User/Communication/channel/time_sync;../User/Communication/example/device;../User/Communication/example/shared;../USB_DEVICE/App;../USB_DEVICE/Target;../Middlewares/ST/STM32_USB_Device_Library/Core/Inc;../Middlewares/ST/STM32_USB_Device_Library/Class/CDC/Inc</IncludePath>
+              <IncludePath>../Core/Inc;../Drivers/STM32H7xx_HAL_Driver/Inc;../Drivers/STM32H7xx_HAL_Driver/Inc/Legacy;../Drivers/CMSIS/Device/ST/STM32H7xx/Include;../Drivers/CMSIS/Include;../Middlewares/Third_Party/FreeRTOS/Source/include;../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS;../Middlewares/Third_Party/FreeRTOS/Source/portable/RVDS/ARM_CM4F;../User/APP;../User/APP_Support;../User/BSP;../User/Devices;../User/Algorithm;../User/Algorithm/Include;../User/Communication/core;../User/Communication/channel/gimbal;../User/Communication/channel/camera;../User/Communication/channel/time_sync;../User/Communication/example/device;../User/Communication/example/shared;../USB_DEVICE/App;../USB_DEVICE/Target;../Middlewares/ST/STM32_USB_Device_Library/Core/Inc;../Middlewares/ST/STM32_USB_Device_Library/Class/CDC/Inc;..\AI</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -2661,6 +2661,21 @@
                   </Cads>
                 </FileArmAds>
               </FileOption>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>AI</GroupName>
+          <Files>
+            <File>
+              <FileName>libneai.a</FileName>
+              <FileType>4</FileType>
+              <FilePath>..\AI\libneai.a</FilePath>
+            </File>
+            <File>
+              <FileName>NanoEdgeAI.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\AI\NanoEdgeAI.h</FilePath>
             </File>
           </Files>
         </Group>
