@@ -77,7 +77,3 @@ ctrlboard-h7_ws1812\chassis_task.o: ../Middlewares/Third_Party/FreeRTOS/Source/i
 ctrlboard-h7_ws1812\chassis_task.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/semphr.h
 ctrlboard-h7_ws1812\chassis_task.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/event_groups.h
 ctrlboard-h7_ws1812\chassis_task.o: ..\User\APP\detect_task.h
-ctrlboard-h7_ws1812\chassis_task.o: ../User/APP_Support/pm01_api.h
-ctrlboard-h7_ws1812\chassis_task.o: ../User/APP_Support/referee.h
-ctrlboard-h7_ws1812\chassis_task.o: ../User/APP_Support/protocol.h
-ctrlboard-h7_ws1812\chassis_task.o: ../User/Devices/vofa.h

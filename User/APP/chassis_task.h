@@ -40,6 +40,9 @@
 
 #define MAX_6020_CAN_CURRENT       16000.0f
 #define MAX_3508_CAN_CURRENT       16000.0f
+#define CHASSIS_CURRENT_CMD_FULL_SCALE 16384.0f
+#define CHASSIS_CURRENT_FULL_SCALE_A   20.0f
+#define CHASSIS_CURRENT_CMD_TO_A       (CHASSIS_CURRENT_FULL_SCALE_A / CHASSIS_CURRENT_CMD_FULL_SCALE)
 
 #define M3508_RR                   19.20320855f
 #define GM6020_Angle_Ratio         1303.63813886f
@@ -47,6 +50,7 @@
 #define Wheel_Perimeter            0.35625661f
 #define MPS_to_RPM                 3234.16461897f
 #define RPM_to_Icmd                1.55125592f
+#define CHASSIS_RPM_TO_RAD_PER_SEC 0.104719755f
 
 #define ROBOT_MASS                 11.0f
 #define M3508_TORQUE_CONSTANT      0.3f
@@ -66,6 +70,7 @@
 #define M3505_MOTOR_SPEED_PID_KP       30000.0f
 #define M3505_MOTOR_SPEED_PID_KI       10.0f
 #define M3505_MOTOR_SPEED_PID_KD       0.0f
+#define M3505_MOTOR_SPEED_RUN_MAX_OUT  5734
 #define M3505_MOTOR_SPEED_PID_MAX_OUT  16000.0f
 #define M3505_MOTOR_SPEED_PID_MAX_IOUT 100.0f
 
@@ -122,10 +127,12 @@ typedef struct
     const MOTOR_MEASURE_t *chassis_motor_measure;
     fp32 accel;
     fp32 speed;
+    fp32 speed_rad_s;
     fp32 speed_set;
     fp32 angle;
     fp32 angle_set;
     int16_t give_current;
+    fp32 given_current_a;
 } chassis_motor_t;
 
 typedef struct
@@ -150,6 +157,7 @@ typedef struct
 
     fp32 model_3508_out[CHASSIS_MODULE_NUM];
     fp32 model_accel[CHASSIS_MODULE_NUM];
+    fp32 ai_predicted_power;
 
     pid_type_def chassis_angle_pid;
     pid_type_def chas_return_pid;

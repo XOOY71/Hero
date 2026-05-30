@@ -193,10 +193,6 @@ void chassis_power_control(chassis_move_t *chassis_move)
 		PowerLimit.set_power = robot_status.chassis_power_limit * 0.8f;
 	}
 	
-		/********************** 无超级电容时使用的代�?**********************/
-		for(int i = 0; i < CHASSIS_MODULE_NUM; i++)
-		{
-			chassis_move->chassis_3508[i].give_current = (int16_t)(chassis_move->model_3508_out[i]);
-		}
-		/********************** 无超级电容时使用的代�?**********************/
+	Current_RestraintRelation_Calc(&PowerLimit);
+	Predict_Power(&PowerLimit, chassis_move);
 }

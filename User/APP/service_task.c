@@ -9,6 +9,7 @@
 #include "cmsis_os.h"
 #include "safewarning.h"
 #include "hwt_imu.h"
+#include "vofa.h"
 service_control_t service_control;
 
 /**/
@@ -43,6 +44,7 @@ static void service_task(void const *pvParameters)
       service_control.service_time += SERVICE_CONTROL_TIME;
 			ws2812_task();
 			Beep_Task();
+			VOFA_ServiceSend();
 
 			vTaskDelay(SERVICE_CONTROL_TIME);
     }

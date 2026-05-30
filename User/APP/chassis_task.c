@@ -8,13 +8,13 @@
 #include "cmsis_os.h"
 #include "detect_task.h"
 #include "hwt_imu.h"
-#include "pm01_api.h"
+
 #include "pid.h"
 #include "remote_control.h"
-#include "referee.h"
+
 #include "robot_param.h"
 #include "user_lib.h"
-#include "vofa.h"
+
 #include <math.h>
 #include <stdbool.h>
 
@@ -63,6 +63,8 @@ static void chassis_feedback_update(chassis_move_t *chassis_move_update)
 	for (uint8_t i = 0; i < CHASSIS_MODULE_NUM; i++)
 	{
 		chassis_move_update->chassis_3508[i].speed = chassis_move_update->chassis_3508[i].chassis_motor_measure->speed_rpm / MPS_to_RPM;
+		chassis_move_update->chassis_3508[i].speed_rad_s = (fp32)chassis_move_update->chassis_3508[i].chassis_motor_measure->speed_rpm * CHASSIS_RPM_TO_RAD_PER_SEC;
+		chassis_move_update->chassis_3508[i].given_current_a = (fp32)chassis_move_update->chassis_3508[i].chassis_motor_measure->given_current * CHASSIS_CURRENT_CMD_TO_A;
 		chassis_move_update->chassis_3508[i].accel = (chassis_move_update->chassis_3508[i].speed - last_speed[i]) * CHASSIS_CONTROL_FREQUENCE;
 		last_speed[i] = chassis_move_update->chassis_3508[i].speed;
 	}
@@ -352,6 +354,15 @@ static fp32 Model_Based_Control(uint8_t motor_idx, fp32 set_speed, fp32 ref_spee
 	Current_A = Torque_output / M3508_TORQUE_CONSTANT;
 	out = Current_A * (16384.0f / 20.0f) + I_friction + I_hold_p;
 
+	if (out > M3505_MOTOR_SPEED_RUN_MAX_OUT)
+	{
+		out = M3505_MOTOR_SPEED_RUN_MAX_OUT;
+	}
+	else if (out < -M3505_MOTOR_SPEED_RUN_MAX_OUT)
+	{
+		out = -M3505_MOTOR_SPEED_RUN_MAX_OUT;
+	}
+
 	if (out > M3505_MOTOR_SPEED_PID_MAX_OUT)
 	{
 		out = M3505_MOTOR_SPEED_PID_MAX_OUT;
@@ -448,69 +459,25 @@ static void chassis_control_loop(chassis_move_t *chassis_move_control_loop)
 	slip_control(chassis_move_control_loop);
 	PID_Calc_Jump(chassis_move_control_loop);
 	chassis_power_control(chassis_move_control_loop);
-	chassis_ai_power_predict_update(chassis_move_control_loop, 0U);
+	chassis_ai_power_predict_update(chassis_move_control_loop, 1U);
+	chassis_move_control_loop->ai_predicted_power = chassis_ai_power_predict_get_power();
 }
 
 
-#if CHASSIS_AI_LOG_ENABLE
-static void chassis_ai_log_to_vofa(const chassis_move_t *chassis_move_log)
-{
-	VOFA_AiPowerCsv_t log;
-	static uint32_t last_send_ms = 0U;
-	uint32_t now_ms;
-
-	if (chassis_move_log == NULL)
-	{
-		return;
-	}
-
-
-	now_ms = HAL_GetTick();
-	if ((now_ms - last_send_ms) < CHASSIS_AI_LOG_PERIOD_MS)
-	{
-		return;
-	}
-	last_send_ms = now_ms;
-
-	log.t_ms = now_ms;
-	log.vx_set = chassis_move_log->vx_set;
-	log.vy_set = chassis_move_log->vy_set;
-	log.wz_set = chassis_move_log->wz_set;
-	log.set_power = PowerLimit.set_power;
-	log.buffer_energy = (fp32)get_buffer_energy();
-	log.pm01_v_out = (fp32)pm01_od.v_out * 0.01f;
-	log.pm01_i_out = (fp32)pm01_od.i_out * 0.01f;
-	log.pm01_temp = (fp32)pm01_od.temp;
-	log.pm01_p_out = (fp32)pm01_od.p_out * 0.01f;
-	log.k_label = PowerLimit.K_Reduction;
-
-	for (uint8_t i = 0U; i < CHASSIS_MODULE_NUM; i++)
-	{
-		fp32 model_current = chassis_move_log->model_3508_out[i];
-		fp32 give_current = (fp32)chassis_move_log->chassis_3508[i].give_current;
-
-		log.wheel_speed_set[i] = chassis_move_log->chassis_3508[i].speed_set;
-		log.motor_speed[i] = chassis_move_log->chassis_3508[i].speed;
-		log.model_current[i] = model_current;
-		log.give_current[i] = give_current;
-		log.s_label[i] = (fabsf(model_current) > 1.0f) ? (give_current / model_current) : 0.0f;
-	}
-
-	VOFA_SendAiPowerJustFloat(&log, 0U);
-}
-#endif
 /* 底盘任务主循�?*/
 void chassis_task(void const *pvParameters)
 {
 	vTaskDelay(CHASSIS_TASK_INIT_TIME);
 	chassis_init(&chassis_move);
 
+	/*
 	while (toe_is_error(CHASSIS_MOTOR1_TOE) || toe_is_error(CHASSIS_MOTOR2_TOE) ||
 	       toe_is_error(CHASSIS_MOTOR3_TOE) || toe_is_error(CHASSIS_MOTOR4_TOE) ||
 	       toe_is_error(DBUS_TOE))
 	{
 		vTaskDelay(CHASSIS_CONTROL_TIME_MS);
 	}
+	*/
 
 	while (1)
 	{
@@ -519,9 +486,6 @@ void chassis_task(void const *pvParameters)
 		chassis_feedback_update(&chassis_move);
 		chassis_set_contorl(&chassis_move);
 		chassis_control_loop(&chassis_move);
-		#if CHASSIS_AI_LOG_ENABLE
-			chassis_ai_log_to_vofa(&chassis_move);
-		#endif
 
 		if (!(toe_is_error(CHASSIS_MOTOR1_TOE) && toe_is_error(CHASSIS_MOTOR2_TOE) &&
 		      toe_is_error(CHASSIS_MOTOR3_TOE) && toe_is_error(CHASSIS_MOTOR4_TOE)))

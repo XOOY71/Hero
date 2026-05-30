@@ -70,6 +70,4 @@ ctrlboard-h7_ws1812\gimbal_task.o: ../Middlewares/Third_Party/FreeRTOS/Source/in
 ctrlboard-h7_ws1812\gimbal_task.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/queue.h
 ctrlboard-h7_ws1812\gimbal_task.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/semphr.h
 ctrlboard-h7_ws1812\gimbal_task.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/event_groups.h
-ctrlboard-h7_ws1812\gimbal_task.o: ../User/Devices/vofa.h
-ctrlboard-h7_ws1812\gimbal_task.o: ../User/APP_Support/struct_typedef.h
 ctrlboard-h7_ws1812\gimbal_task.o: ../User/Devices/hwt_imu.h

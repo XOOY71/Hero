@@ -1,11 +1,10 @@
 #include "chassis_ai_power_predict.h"
 #include "NanoEdgeAI.h"
 
-#define CHASSIS_AI_CURRENT_CMD_TO_A (20.0f / 16384.0f)
 #define CHASSIS_AI_AXIS_COUNT 2U
 
 #if NEAI_INPUT_AXIS_NUMBER != CHASSIS_AI_AXIS_COUNT
-#error "NanoEdgeAI axis count must be 2: current_a, speed_rpm."
+#error "NanoEdgeAI axis count must be 2: current_a, speed_rad_s."
 #endif
 
 static float s_input_signal[NEAI_INPUT_SIGNAL_LENGTH * NEAI_INPUT_AXIS_NUMBER];
@@ -14,11 +13,6 @@ static uint16_t s_sample_count = 0U;
 static uint8_t s_ready = 0U;
 static uint8_t s_initialized = 0U;
 static int s_last_state = NEAI_NOT_INITIALIZED;
-
-static fp32 chassis_ai_current_cmd_to_a(int16_t current_cmd)
-{
-    return (fp32)current_cmd * CHASSIS_AI_CURRENT_CMD_TO_A;
-}
 
 void chassis_ai_power_predict_init(void)
 {
@@ -40,7 +34,7 @@ void chassis_ai_power_predict_update(const chassis_move_t *chassis_move, uint8_t
     const chassis_motor_t *motor;
     uint16_t offset;
     fp32 current_a;
-    fp32 speed_rpm;
+    fp32 speed_rad_s;
     float prediction = 0.0f;
     enum neai_state state;
 
@@ -60,16 +54,12 @@ void chassis_ai_power_predict_update(const chassis_move_t *chassis_move, uint8_t
     }
 
     motor = &chassis_move->chassis_3508[motor_idx];
-    current_a = chassis_ai_current_cmd_to_a(motor->give_current);
-    speed_rpm = 0.0f;
-    if (motor->chassis_motor_measure != NULL)
-    {
-        speed_rpm = (fp32)motor->chassis_motor_measure->speed_rpm;
-    }
+    current_a = motor->given_current_a;
+    speed_rad_s = motor->speed_rad_s;
 
     offset = (uint16_t)(s_sample_count * CHASSIS_AI_AXIS_COUNT);
     s_input_signal[offset] = current_a;
-    s_input_signal[offset + 1U] = speed_rpm;
+    s_input_signal[offset + 1U] = speed_rad_s;
     s_sample_count++;
 
     if (s_sample_count < NEAI_INPUT_SIGNAL_LENGTH)

@@ -9,6 +9,7 @@ extern "C" {
 #include "struct_typedef.h"
 
 #define VOFA_CH_COUNT 6U
+#define VOFA_CHASSIS_MOTOR_COUNT 4U
 #define VOFA_AI_POWER_MOTOR_COUNT 4U
 #define VOFA_AI_POWER_CH_COUNT 9U
 #define VOFA_AI_CSV_BUFFER_SIZE 512U
@@ -26,8 +27,14 @@ typedef struct
     uint8_t tail[4];
 } VOFA_AiPowerJustFloatFrame_t;
 
-/* 发送 6 通道浮点数据到 VOFA */
-void VOFA_Send6(float ch0, float ch1, float ch2, float ch3, float ch4, float ch5);
+void VOFA_ServiceSend(void);
+void VOFA_SendChassisMotorMeasure(uint8_t motor_idx);
+void VOFA_SendChassisAiPowerJustFloat(uint8_t motor_idx);
+void VOFA_SendGimbalFric(void);
+void VOFA_SendGimbalYaw(void);
+void VOFA_SendGimbalPitch(void);
+void VOFA_SendGimbalYawPitchHalf(void);
+void VOFA_SendGimbalStrum(void);
 
 typedef struct
 {

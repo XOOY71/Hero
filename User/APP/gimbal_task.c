@@ -16,7 +16,6 @@
 #include "cmsis_os.h"
 #include <math.h>
 #include <stddef.h>
-#include "vofa.h"
 #include "hwt_imu.h"
 
 gimbal_control_t gimbal_control;
@@ -33,11 +32,6 @@ static float gimbal_float_to_torque_cmd(float output);
 static float gimbal_calc_feedforward(gimbal_motor_t *motor);
 static float gimbal_calc_feedback_torque(gimbal_motor_t *motor, gimbal_pid_t *angle_pid, float angle_get, float angle_set);
 static float gimbal_calc_angle_speed_torque(gimbal_motor_t *motor, gimbal_pid_t *pid, float angle_error);
-void gimbal_vofa_send_fric(void);
-void gimbal_vofa_send_yaw(void);
-void gimbal_vofa_send_pitch(void);
-void gimbal_vofa_send_yaw_pitch_half(void);
-void gimbal_vofa_send_strum(void);
 
 void GimbalTask_Init(void)
 {
@@ -66,8 +60,6 @@ static void gimbal_task(void const *pvParameters)
         gravity_comp_execute(&gimbal_control);
         gimbal_send_cmd(&gimbal_control);
         shoot_task_loop();
-
-        gimbal_vofa_send_strum();
 
         vTaskDelayUntil(&last_wake_time, GIMBAL_CONTROL_TIME);
     }
@@ -416,69 +408,4 @@ static float gimbal_calc_angle_speed_torque(gimbal_motor_t *motor, gimbal_pid_t 
     motor->pid_torque = output;
 
     return motor->pid_torque;
-}
-
-void gimbal_vofa_send_fric(void)
-{
-    float current_avg;
-
-    current_avg = (shoot_task_control.fric1.give_current_a +
-                   shoot_task_control.fric2.give_current_a +
-                   shoot_task_control.fric3.give_current_a) / 3.0f;
-
-    VOFA_Send6(shoot_task_control.fric1.speed_rpm,
-               shoot_task_control.fric2.speed_rpm,
-               shoot_task_control.fric3.speed_rpm,
-               current_avg,
-               shoot_task_control.bullet_speed_min_avg_rpm,
-               shoot_task_control.estimated_bullet_speed_mps);
-}
-
-void gimbal_vofa_send_yaw(void)
-{
-    const gimbal_motor_t *yaw = &gimbal_control.gimbal_yaw_motor;
-
-    VOFA_Send6(yaw->relative_angle_set,
-               yaw->relative_angle,
-               yaw->absolute_angle_set,
-               yaw->absolute_angle,
-               yaw->gyro,
-               yaw->current_set);
-}
-
-void gimbal_vofa_send_pitch(void)
-{
-    const gimbal_motor_t *pitch = &gimbal_control.gimbal_pitch_motor;
-
-    VOFA_Send6(pitch->relative_angle_set,
-               pitch->relative_angle,
-               pitch->absolute_angle_set,
-               pitch->absolute_angle,
-               pitch->gyro,
-               pitch->current_set);
-}
-
-void gimbal_vofa_send_yaw_pitch_half(void)
-{
-    const gimbal_motor_t *yaw = &gimbal_control.gimbal_yaw_motor;
-    const gimbal_motor_t *pitch = &gimbal_control.gimbal_pitch_motor;
-
-    VOFA_Send6(yaw->relative_angle_set,
-               yaw->relative_angle,
-               yaw->static_friction_comp,
-               pitch->relative_angle_set,
-               pitch->relative_angle,
-               pitch->static_friction_comp);
-}
-
-void gimbal_vofa_send_strum(void)
-{
-    const MITMeasure_t *strum = &MIT_MOTOR_MEASURE[SHOOT_STRUM_MIT_INDEX];
-
-    VOFA_Send6(strum->fdb.pos,
-               strum->set.POS,
-               strum->fdb.vel,
-               strum->fdb.tor,
-               strum->set.TOR,
-               strum->fdb.t_motor);
 }
