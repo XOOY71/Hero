@@ -1,6 +1,7 @@
 ctrlboard-h7_ws1812\chassis_ai_power_predict.o: ..\AI\chassis_ai_power_predict.c
 ctrlboard-h7_ws1812\chassis_ai_power_predict.o: ..\AI\chassis_ai_power_predict.h
 ctrlboard-h7_ws1812\chassis_ai_power_predict.o: D:\Keil5\ARM\ARMCC\Bin\..\include\stdint.h
+ctrlboard-h7_ws1812\chassis_ai_power_predict.o: ..\AI\NanoEdgeAI.h
 ctrlboard-h7_ws1812\chassis_ai_power_predict.o: ../User/APP/chassis_task.h
 ctrlboard-h7_ws1812\chassis_ai_power_predict.o: ../User/APP_Support/CAN_receive.h
 ctrlboard-h7_ws1812\chassis_ai_power_predict.o: ../User/BSP/bsp_fdcan.h
@@ -58,4 +59,3 @@ ctrlboard-h7_ws1812\chassis_ai_power_predict.o: ../User/Algorithm/gravity_comp.h
 ctrlboard-h7_ws1812\chassis_ai_power_predict.o: ../User/Devices/hwt_imu.h
 ctrlboard-h7_ws1812\chassis_ai_power_predict.o: ../User/APP_Support/struct_typedef.h
 ctrlboard-h7_ws1812\chassis_ai_power_predict.o: ../User/Algorithm/user_lib.h
-ctrlboard-h7_ws1812\chassis_ai_power_predict.o: ..\AI\NanoEdgeAI.h

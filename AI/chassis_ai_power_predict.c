@@ -1,38 +1,74 @@
 #include "chassis_ai_power_predict.h"
 #include "NanoEdgeAI.h"
 
-#define CHASSIS_AI_AXIS_COUNT 2U
-
-#if NEAI_INPUT_AXIS_NUMBER != CHASSIS_AI_AXIS_COUNT
+#if NEAI_INPUT_AXIS_NUMBER != CHASSIS_AI_POWER_AXIS_COUNT
 #error "NanoEdgeAI axis count must be 2: current_a, speed_rad_s."
 #endif
 
-static float s_input_signal[NEAI_INPUT_SIGNAL_LENGTH * NEAI_INPUT_AXIS_NUMBER];
-static fp32 s_predicted_power = 0.0f;
-static uint16_t s_sample_count = 0U;
-static uint8_t s_ready = 0U;
-static uint8_t s_initialized = 0U;
-static int s_last_state = NEAI_NOT_INITIALIZED;
+chassis_ai_power_predict_control_t chassis_ai_power_predict_control =
+{
+    .last_state = NEAI_NOT_INITIALIZED,
+};
+
+static void chassis_ai_power_predict_sum(void)
+{
+    fp32 total = 0.0f;
+
+    for (uint8_t i = 0U; i < CHASSIS_MODULE_NUM; i++)
+    {
+        total += chassis_ai_power_predict_control.predicted_power[i];
+    }
+
+    chassis_ai_power_predict_control.total_predicted_power = total;
+}
+
+static void chassis_ai_power_predict_push_sample(uint8_t motor_idx, fp32 current_a, fp32 speed_rad_s)
+{
+    float *signal = chassis_ai_power_predict_control.input_signal[motor_idx];
+    uint16_t sample_count = chassis_ai_power_predict_control.sample_count[motor_idx];
+    uint16_t offset;
+
+    if (sample_count < NEAI_INPUT_SIGNAL_LENGTH)
+    {
+        offset = (uint16_t)(sample_count * CHASSIS_AI_POWER_AXIS_COUNT);
+        chassis_ai_power_predict_control.sample_count[motor_idx]++;
+    }
+    else
+    {
+        for (uint16_t i = 0U; i < (NEAI_INPUT_SIGNAL_LENGTH - 1U) * CHASSIS_AI_POWER_AXIS_COUNT; i++)
+        {
+            signal[i] = signal[i + CHASSIS_AI_POWER_AXIS_COUNT];
+        }
+        offset = (uint16_t)((NEAI_INPUT_SIGNAL_LENGTH - 1U) * CHASSIS_AI_POWER_AXIS_COUNT);
+    }
+
+    signal[offset] = current_a;
+    signal[offset + 1U] = speed_rad_s;
+}
 
 void chassis_ai_power_predict_init(void)
 {
     enum neai_state state;
 
     state = neai_extrapolation_init();
-    s_last_state = (int)state;
+    chassis_ai_power_predict_control.last_state = (int)state;
     if (state == NEAI_OK)
     {
-        s_initialized = 1U;
-        s_sample_count = 0U;
-        s_ready = 0U;
-        s_predicted_power = 0.0f;
+        chassis_ai_power_predict_control.initialized = 1U;
+        chassis_ai_power_predict_control.total_predicted_power = 0.0f;
+
+        for (uint8_t i = 0U; i < CHASSIS_MODULE_NUM; i++)
+        {
+            chassis_ai_power_predict_control.sample_count[i] = 0U;
+            chassis_ai_power_predict_control.ready[i] = 0U;
+            chassis_ai_power_predict_control.predicted_power[i] = 0.0f;
+        }
     }
 }
 
 void chassis_ai_power_predict_update(const chassis_move_t *chassis_move, uint8_t motor_idx)
 {
     const chassis_motor_t *motor;
-    uint16_t offset;
     fp32 current_a;
     fp32 speed_rad_s;
     float prediction = 0.0f;
@@ -40,14 +76,14 @@ void chassis_ai_power_predict_update(const chassis_move_t *chassis_move, uint8_t
 
     if (chassis_move == NULL || motor_idx >= CHASSIS_MODULE_NUM)
     {
-        s_last_state = (int)NEAI_INVALID_PARAM;
+        chassis_ai_power_predict_control.last_state = (int)NEAI_INVALID_PARAM;
         return;
     }
 
-    if (s_initialized == 0U)
+    if (chassis_ai_power_predict_control.initialized == 0U)
     {
         chassis_ai_power_predict_init();
-        if (s_initialized == 0U)
+        if (chassis_ai_power_predict_control.initialized == 0U)
         {
             return;
         }
@@ -57,42 +93,47 @@ void chassis_ai_power_predict_update(const chassis_move_t *chassis_move, uint8_t
     current_a = motor->given_current_a;
     speed_rad_s = motor->speed_rad_s;
 
-    offset = (uint16_t)(s_sample_count * CHASSIS_AI_AXIS_COUNT);
-    s_input_signal[offset] = current_a;
-    s_input_signal[offset + 1U] = speed_rad_s;
-    s_sample_count++;
+    chassis_ai_power_predict_push_sample(motor_idx, current_a, speed_rad_s);
 
-    if (s_sample_count < NEAI_INPUT_SIGNAL_LENGTH)
+    if (chassis_ai_power_predict_control.sample_count[motor_idx] < NEAI_INPUT_SIGNAL_LENGTH)
     {
         return;
     }
 
-    s_sample_count = 0U;
-    state = neai_extrapolation(s_input_signal, &prediction);
-    s_last_state = (int)state;
+    state = neai_extrapolation(chassis_ai_power_predict_control.input_signal[motor_idx], &prediction);
+    chassis_ai_power_predict_control.last_state = (int)state;
     if (state == NEAI_OK)
     {
-        s_predicted_power = (fp32)prediction;
-        s_ready = 1U;
+        chassis_ai_power_predict_control.predicted_power[motor_idx] = (fp32)prediction;
+        chassis_ai_power_predict_control.ready[motor_idx] = 1U;
+        chassis_ai_power_predict_sum();
     }
 }
 
 fp32 chassis_ai_power_predict_get_power(void)
 {
-    return s_predicted_power;
+    return chassis_ai_power_predict_control.total_predicted_power;
 }
 
 uint8_t chassis_ai_power_predict_is_ready(void)
 {
-    return s_ready;
+    for (uint8_t i = 0U; i < CHASSIS_MODULE_NUM; i++)
+    {
+        if (chassis_ai_power_predict_control.ready[i] == 0U)
+        {
+            return 0U;
+        }
+    }
+
+    return 1U;
 }
 
 int chassis_ai_power_predict_get_state(void)
 {
-    return s_last_state;
+    return chassis_ai_power_predict_control.last_state;
 }
 
 uint16_t chassis_ai_power_predict_get_sample_count(void)
 {
-    return s_sample_count;
+    return chassis_ai_power_predict_control.sample_count[0];
 }

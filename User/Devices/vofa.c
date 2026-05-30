@@ -85,8 +85,8 @@ void VOFA_SendChassisMotorMeasure(uint8_t motor_idx)
     motor = &CHASSIS_MOTOR_MEASURE[motor_idx];
 
     s_vofa_frame.fdata[0] = (float)motor->ecd;
-    s_vofa_frame.fdata[1] = (float)motor->speed_rpm;
-    s_vofa_frame.fdata[2] = (float)motor->given_current;
+    s_vofa_frame.fdata[1] = chassis_move.chassis_3508[motor_idx].speed_rad_s;
+    s_vofa_frame.fdata[2] = chassis_move.chassis_3508[motor_idx].given_current_a;
     s_vofa_frame.fdata[3] = chassis_move.ai_predicted_power ;
     s_vofa_frame.fdata[4] = (float)motor->last_ecd;
     s_vofa_frame.fdata[5] = PowerLimit.P_origin;

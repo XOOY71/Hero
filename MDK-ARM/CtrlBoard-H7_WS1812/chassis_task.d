@@ -61,7 +61,8 @@ ctrlboard-h7_ws1812\chassis_task.o: ../User/Algorithm/user_lib.h
 ctrlboard-h7_ws1812\chassis_task.o: ../User/APP_Support/chassis_calculate.h
 ctrlboard-h7_ws1812\chassis_task.o: ../User/APP_Support/chassis_power_control.h
 ctrlboard-h7_ws1812\chassis_task.o: ../User/APP_Support/robot_param.h
-ctrlboard-h7_ws1812\chassis_task.o: ..\AI\chassis_ai_power_predict.h
+ctrlboard-h7_ws1812\chassis_task.o: ../AI/chassis_ai_power_predict.h
+ctrlboard-h7_ws1812\chassis_task.o: ../AI/NanoEdgeAI.h
 ctrlboard-h7_ws1812\chassis_task.o: ../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS/cmsis_os.h
 ctrlboard-h7_ws1812\chassis_task.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/FreeRTOS.h
 ctrlboard-h7_ws1812\chassis_task.o: ../Core/Inc/FreeRTOSConfig.h

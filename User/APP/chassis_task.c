@@ -47,12 +47,11 @@ static const fp32 chassis_yaw_return_pid_param[3] = {
 };
 static const fp32 chassis_x_order_filter = CHASSIS_ACCEL_X_NUM;
 static const fp32 chassis_y_order_filter = CHASSIS_ACCEL_Y_NUM;
-static fp32 chassis_follow_gimbal_yaw_offset = CHASSIS_FOLLOW_GIMBAL_YAW_OFFSET;
-static fp32 chassis_spin_offset = CHASSIS_SPIN_OFFSET;
 static fp32 chassis_return_target = CHASSIS_RETURN_TARGET;
 
 /**
-  * @brief          更新底盘反馈量，包括 3508 速度�?020 角度�?IMU 姿�?  * @param[out]     chassis_move_update: 底盘状态结构体指针
+  * @brief          更新底盘反馈量，包括 3508 速度、IMU 姿态等
+  * @param[out]     chassis_move_update: 底盘状态结构体指针
   * @retval         none
   */
 static void chassis_feedback_update(chassis_move_t *chassis_move_update)
@@ -75,7 +74,8 @@ static void chassis_feedback_update(chassis_move_t *chassis_move_update)
 }
 
 /**
-  * @brief          初始化底盘控制结构体和各控制�?  * @param[out]     chassis_move_init: 底盘状态结构体指针
+  * @brief          初始化底盘控制结构体和各控制器
+  * @param[out]     chassis_move_init: 底盘状态结构体指针
   * @retval         none
   */
 static void chassis_init(chassis_move_t *chassis_move_init)
@@ -125,7 +125,8 @@ static void chassis_set_mode(chassis_move_t *chassis_move_mode)
 }
 
 /**
-  * @brief          处理底盘模式切换时的状态过�?  * @param[out]     chassis_move_transit: 底盘状态结构体指针
+  * @brief          处理底盘模式切换时的状态过渡
+  * @param[out]     chassis_move_transit: 底盘状态结构体指针
   * @retval         none
   */
 static void chassis_mode_change_control_transit(chassis_move_t *chassis_move_transit)
@@ -215,7 +216,8 @@ void chassis_rc_to_control_vector(fp32 *vx_set, fp32 *vy_set, chassis_move_t *ch
 
 
 /**
-  * @brief          根据底盘模式生成速度和角度指�?  * @param[out]     chassis_move_control: 底盘状态结构体指针
+  * @brief          根据底盘模式生成速度和角速度指令
+  * @param[out]     chassis_move_control: 底盘状态结构体指针
   * @retval         none
   */
 static void chassis_set_contorl(chassis_move_t *chassis_move_control)
@@ -258,12 +260,6 @@ static void chassis_set_contorl(chassis_move_t *chassis_move_control)
 	{
 		chassis_move_control->wz_set = wz_set;
 
-		vector[0] = vx_set;
-		vector[1] = vy_set;
-		// 跟随云台模式下，车体坐标系要旋转到云台坐标系
-		vector_rotate(chassis_move_control->gimbal_radian_of_ecd + chassis_follow_gimbal_yaw_offset, vector);
-		vx_set = vector[0];
-		vy_set = vector[1];
 		chassis_move_control->vx_set = fp32_constrain(vx_set, chassis_move_control->vx_min_speed, chassis_move_control->vx_max_speed);
 		chassis_move_control->vy_set = fp32_constrain(vy_set, chassis_move_control->vy_min_speed, chassis_move_control->vy_max_speed);
 	}
@@ -271,11 +267,6 @@ static void chassis_set_contorl(chassis_move_t *chassis_move_control)
 	{
 		chassis_move_control->wz_set = wz_set;
 
-		vector[0] = vx_set;
-		vector[1] = vy_set;
-		vector_rotate(chassis_move_control->gimbal_radian_of_ecd + chassis_spin_offset, vector);
-		vx_set = vector[0];
-		vy_set = vector[1];
 		chassis_move_control->vx_set = fp32_constrain(vx_set, chassis_move_control->vx_min_speed, chassis_move_control->vx_max_speed);
 		chassis_move_control->vy_set = fp32_constrain(vy_set, chassis_move_control->vy_min_speed, chassis_move_control->vy_max_speed);
 	}
@@ -458,13 +449,16 @@ static void chassis_control_loop(chassis_move_t *chassis_move_control_loop)
 
 	slip_control(chassis_move_control_loop);
 	PID_Calc_Jump(chassis_move_control_loop);
-	chassis_power_control(chassis_move_control_loop);
-	chassis_ai_power_predict_update(chassis_move_control_loop, 1U);
+	for (i = 0; i < CHASSIS_MODULE_NUM; i++)
+	{
+		chassis_move_control_loop->chassis_3508[i].give_current = (int16_t)chassis_move_control_loop->model_3508_out[i];
+		chassis_ai_power_predict_update(chassis_move_control_loop, i);
+	}
 	chassis_move_control_loop->ai_predicted_power = chassis_ai_power_predict_get_power();
 }
 
 
-/* 底盘任务主循�?*/
+/* 底盘任务主循环 */
 void chassis_task(void const *pvParameters)
 {
 	vTaskDelay(CHASSIS_TASK_INIT_TIME);
@@ -496,7 +490,7 @@ void chassis_task(void const *pvParameters)
 			                    chassis_move.chassis_3508[3].give_current);
 		}
 
-		osDelay(1);
+		osDelay(2);
 
 		#if INCLUDE_uxTaskGetStackHighWaterMark
 			chassis_high_water = uxTaskGetStackHighWaterMark(NULL);

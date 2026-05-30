@@ -67,10 +67,10 @@ void chas_inv_cal(fp32 vx_set, fp32 vy_set, fp32 wz_set, fp32 *wheel_angle, fp32
 
 	const fp32 wz_speed = wz_set * CHASSIS_OMNI_ROTATE_RADIUS;
 
-	wheel_speed[WHEEL_LF] = ( vx_set - vy_set - wz_speed) * CHASSIS_WHEEL_LF_DIRECTION;
-	wheel_speed[WHEEL_LB] = ( vx_set + vy_set - wz_speed) * CHASSIS_WHEEL_LB_DIRECTION;
-	wheel_speed[WHEEL_RB] = ( vx_set - vy_set + wz_speed) * CHASSIS_WHEEL_RB_DIRECTION;
-	wheel_speed[WHEEL_RF] = ( vx_set + vy_set + wz_speed) * CHASSIS_WHEEL_RF_DIRECTION;
+	wheel_speed[WHEEL_REAR_205]  = (vx_set + wz_speed) * CHASSIS_WHEEL_205_DIRECTION;
+	wheel_speed[WHEEL_RIGHT_206] = (vy_set + wz_speed) * CHASSIS_WHEEL_206_DIRECTION;
+	wheel_speed[WHEEL_FRONT_207] = (vx_set - wz_speed) * CHASSIS_WHEEL_207_DIRECTION;
+	wheel_speed[WHEEL_LEFT_208]  = (vy_set - wz_speed) * CHASSIS_WHEEL_208_DIRECTION;
 
 	for(uint8_t i = 0; i < CHASSIS_MODULE_NUM; i++)
 	{

@@ -128,10 +128,10 @@ int main(void)
 //  	Servo_Mapping_Init();
 	bsp_can_init();
 	
-	HAL_UARTEx_ReceiveToIdle_DMA(&huart1, uart1_rebuffer, sizeof(uart1_rebuffer)*2);
+	HAL_UARTEx_ReceiveToIdle_DMA(&huart1, usart1_buf[0], USART_RX_BUF_LENGHT);
 	HAL_UARTEx_ReceiveToIdle_DMA(&huart5, remote_buff, SBUS_RX_BUF_NUM);
 	HAL_UARTEx_ReceiveToIdle_DMA(&huart7, usart7_buf, sizeof(usart7_buf));
-	HAL_UARTEx_ReceiveToIdle_DMA(&huart10, usart10_buf, sizeof(usart10_buf)*2);
+	HAL_UARTEx_ReceiveToIdle_DMA(&huart10, usart10_buf, sizeof(usart10_buf));
 
 	HAL_Delay (1000);
 	tim24_timebase_init();
