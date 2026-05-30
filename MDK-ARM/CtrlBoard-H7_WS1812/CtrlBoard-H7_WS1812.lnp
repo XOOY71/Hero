@@ -92,6 +92,7 @@
 "ctrlboard-h7_ws1812\usbd_ctlreq.o"
 "ctrlboard-h7_ws1812\usbd_ioreq.o"
 "ctrlboard-h7_ws1812\usbd_cdc.o"
+"ctrlboard-h7_ws1812\chassis_ai_power_predict.o"
 "..\AI\libneai.a"
 --strict --scatter "CtrlBoard-H7_WS1812\CtrlBoard-H7_WS1812.sct"
 --summary_stderr --info summarysizes --map --load_addr_map_info --xref --callgraph --symbols

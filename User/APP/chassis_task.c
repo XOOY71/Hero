@@ -3,6 +3,7 @@
 #include "chassis_behaviour.h"
 #include "chassis_calculate.h"
 #include "chassis_power_control.h"
+#include "chassis_ai_power_predict.h"
 #include "chassis_task.h"
 #include "cmsis_os.h"
 #include "detect_task.h"
@@ -447,6 +448,7 @@ static void chassis_control_loop(chassis_move_t *chassis_move_control_loop)
 	slip_control(chassis_move_control_loop);
 	PID_Calc_Jump(chassis_move_control_loop);
 	chassis_power_control(chassis_move_control_loop);
+	chassis_ai_power_predict_update(chassis_move_control_loop, 0U);
 }
 
 
