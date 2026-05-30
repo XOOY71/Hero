@@ -3,7 +3,7 @@
 <title>Static Call Graph - [CtrlBoard-H7_WS1812\CtrlBoard-H7_WS1812.axf]</title></head>
 <body><HR>
 <H1>Static Call Graph for image CtrlBoard-H7_WS1812\CtrlBoard-H7_WS1812.axf</H1><HR>
-<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 5060528: Last Updated: Sun May 31 02:18:32 2026
+<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 5060528: Last Updated: Sun May 31 02:43:10 2026
 <BR><P>
 <H3>Maximum Stack Usage =        940 bytes + Unknown(Functions without stacksize, Cycles, Untraceable Function Pointers)</H3><H3>
 Call chain for Maximum Stack Depth:</H3>
@@ -814,6 +814,8 @@ Global Symbols
 <LI><a href="#[1e5]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;MX_GPIO_Init
 <LI><a href="#[201]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;SystemClock_Config
 <LI><a href="#[1fe]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PeriphCommonClock_Config
+<LI><a href="#[1d6]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_UART_MspInit
+<LI><a href="#[1b8]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_TIM_MspPostInit
 <LI><a href="#[2e5]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;light_clear
 <LI><a href="#[2e4]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;hwt_imu_init
 <LI><a href="#[2c7]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;gimbal_init
@@ -822,8 +824,6 @@ Global Symbols
 <LI><a href="#[265]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ch_uproto_bind
 <LI><a href="#[323]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;shoot_task_motor_init
 <LI><a href="#[322]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;shoot_task_init_control
-<LI><a href="#[1d6]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_UART_MspInit
-<LI><a href="#[1b8]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_TIM_MspPostInit
 <LI><a href="#[32f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;time_sync_channel_init
 <LI><a href="#[2b5]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;gimbal_channel_init
 <LI><a href="#[1ce]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_UART_ErrorCallback
@@ -1537,17 +1537,17 @@ Global Symbols
 <LI><a href="#[195]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_PWREx_ConfigSupply
 <LI><a href="#[127]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_Delay
 <LI><a href="#[be]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;proto_time_now
-<LI><a href="#[2e9]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;light_update_online_status
-<LI><a href="#[2bd]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;gimbal_pitch_mit_feedback_ready
-<LI><a href="#[31e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;shoot_task_control_strum
-<LI><a href="#[312]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;shoot_task_control_friction
+<LI><a href="#[11e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_DMA_Abort
 <LI><a href="#[198]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;RCCEx_PLL3_Config
 <LI><a href="#[197]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;RCCEx_PLL2_Config
-<LI><a href="#[11e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_DMA_Abort
 <LI><a href="#[202]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;UART_WaitOnFlagUntilTimeout
 <LI><a href="#[1d9]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;UART_CheckIdleState
 <LI><a href="#[1a6]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_SPI_Transmit
 <LI><a href="#[1a7]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;SPI_WaitOnFlagUntilTimeout
+<LI><a href="#[2e9]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;light_update_online_status
+<LI><a href="#[2bd]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;gimbal_pitch_mit_feedback_ready
+<LI><a href="#[31e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;shoot_task_control_strum
+<LI><a href="#[312]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;shoot_task_control_friction
 <LI><a href="#[247]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;auto_aim_apply_delta_udeg
 <LI><a href="#[cd]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;comm_app_task
 <LI><a href="#[1c8]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;sbus_to_rc
@@ -2063,8 +2063,8 @@ Global Symbols
 <P><STRONG><a name="[14d]"></a>HAL_TIM_Base_Init</STRONG> (Thumb, 68 bytes, Stack size 8 bytes, stm32h7xx_hal_tim.o(i.HAL_TIM_Base_Init))
 <BR><BR>[Stack]<UL><LI>Max Depth = 40<LI>Call Chain = HAL_TIM_Base_Init &rArr; TIM_Base_SetConfig
 </UL>
-<BR>[Calls]<UL><LI><a href="#[1a8]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_TIM_Base_MspInit
-<LI><a href="#[1a9]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TIM_Base_SetConfig
+<BR>[Calls]<UL><LI><a href="#[1a9]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TIM_Base_SetConfig
+<LI><a href="#[1a8]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_TIM_Base_MspInit
 </UL>
 <BR>[Called By]<UL><LI><a href="#[1ec]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;MX_TIM6_Init
 <LI><a href="#[1eb]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;MX_TIM24_Init
@@ -2088,10 +2088,10 @@ Global Symbols
 <P><STRONG><a name="[1aa]"></a>HAL_TIM_ConfigClockSource</STRONG> (Thumb, 238 bytes, Stack size 16 bytes, stm32h7xx_hal_tim.o(i.HAL_TIM_ConfigClockSource))
 <BR><BR>[Stack]<UL><LI>Max Depth = 24<LI>Call Chain = HAL_TIM_ConfigClockSource &rArr; TIM_TI2_ConfigInputStage
 </UL>
-<BR>[Calls]<UL><LI><a href="#[1ad]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TIM_TI2_ConfigInputStage
+<BR>[Calls]<UL><LI><a href="#[1ab]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TIM_ETR_SetConfig
+<LI><a href="#[1ad]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TIM_TI2_ConfigInputStage
 <LI><a href="#[1ac]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TIM_TI1_ConfigInputStage
 <LI><a href="#[1ae]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TIM_ITRx_SetConfig
-<LI><a href="#[1ab]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TIM_ETR_SetConfig
 </UL>
 <BR>[Called By]<UL><LI><a href="#[1eb]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;MX_TIM24_Init
 </UL>
@@ -2133,12 +2133,12 @@ Global Symbols
 <P><STRONG><a name="[1b9]"></a>HAL_TIM_PWM_ConfigChannel</STRONG> (Thumb, 286 bytes, Stack size 16 bytes, stm32h7xx_hal_tim.o(i.HAL_TIM_PWM_ConfigChannel))
 <BR><BR>[Stack]<UL><LI>Max Depth = 52<LI>Call Chain = HAL_TIM_PWM_ConfigChannel &rArr; TIM_OC1_SetConfig
 </UL>
-<BR>[Calls]<UL><LI><a href="#[1bf]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TIM_OC6_SetConfig
+<BR>[Calls]<UL><LI><a href="#[1bb]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TIM_OC2_SetConfig
+<LI><a href="#[1bf]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TIM_OC6_SetConfig
 <LI><a href="#[1be]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TIM_OC5_SetConfig
 <LI><a href="#[1bd]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TIM_OC4_SetConfig
 <LI><a href="#[1bc]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TIM_OC3_SetConfig
 <LI><a href="#[1ba]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TIM_OC1_SetConfig
-<LI><a href="#[1bb]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TIM_OC2_SetConfig
 </UL>
 <BR>[Called By]<UL><LI><a href="#[1e9]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;MX_TIM12_Init
 </UL>
@@ -2146,8 +2146,8 @@ Global Symbols
 <P><STRONG><a name="[1c0]"></a>HAL_TIM_PWM_Init</STRONG> (Thumb, 68 bytes, Stack size 8 bytes, stm32h7xx_hal_tim.o(i.HAL_TIM_PWM_Init))
 <BR><BR>[Stack]<UL><LI>Max Depth = 40<LI>Call Chain = HAL_TIM_PWM_Init &rArr; TIM_Base_SetConfig
 </UL>
-<BR>[Calls]<UL><LI><a href="#[1c1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_TIM_PWM_MspInit
-<LI><a href="#[1a9]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TIM_Base_SetConfig
+<BR>[Calls]<UL><LI><a href="#[1a9]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TIM_Base_SetConfig
+<LI><a href="#[1c1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_TIM_PWM_MspInit
 </UL>
 <BR>[Called By]<UL><LI><a href="#[1e9]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;MX_TIM12_Init
 </UL>
@@ -3018,9 +3018,9 @@ Global Symbols
 <BR><BR>[Stack]<UL><LI>Max Depth = 320<LI>Call Chain = USBD_LL_Init &rArr; HAL_PCD_Init &rArr; HAL_PCD_MspInit &rArr; HAL_RCCEx_PeriphCLKConfig &rArr; RCCEx_PLL3_Config
 </UL>
 <BR>[Calls]<UL><LI><a href="#[188]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Error_Handler
+<LI><a href="#[17f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_PCD_Init
 <LI><a href="#[224]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_PCDEx_SetTxFiFo
 <LI><a href="#[223]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_PCDEx_SetRxFiFo
-<LI><a href="#[17f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_PCD_Init
 </UL>
 <BR>[Called By]<UL><LI><a href="#[1f3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_Init
 </UL>
@@ -3265,9 +3265,9 @@ Global Symbols
 <P><STRONG><a name="[164]"></a>USB_EP0_OutStart</STRONG> (Thumb, 84 bytes, Stack size 8 bytes, stm32h7xx_ll_usb.o(i.USB_EP0_OutStart))
 <BR><BR>[Stack]<UL><LI>Max Depth = 8<LI>Call Chain = USB_EP0_OutStart
 </UL>
-<BR>[Called By]<UL><LI><a href="#[166]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_PCD_IRQHandler
-<LI><a href="#[162]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_PCD_EP_SetStall
+<BR>[Called By]<UL><LI><a href="#[162]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_PCD_EP_SetStall
 <LI><a href="#[16c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PCD_EP_OutXfrComplete_int
+<LI><a href="#[166]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_PCD_IRQHandler
 </UL>
 
 <P><STRONG><a name="[15d]"></a>USB_EPClearStall</STRONG> (Thumb, 88 bytes, Stack size 0 bytes, stm32h7xx_ll_usb.o(i.USB_EPClearStall))
@@ -3306,8 +3306,8 @@ Global Symbols
 <P><STRONG><a name="[171]"></a>USB_FlushTxFifo</STRONG> (Thumb, 60 bytes, Stack size 12 bytes, stm32h7xx_ll_usb.o(i.USB_FlushTxFifo))
 <BR><BR>[Stack]<UL><LI>Max Depth = 12<LI>Call Chain = USB_FlushTxFifo
 </UL>
-<BR>[Called By]<UL><LI><a href="#[166]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_PCD_IRQHandler
-<LI><a href="#[184]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USB_DevInit
+<BR>[Called By]<UL><LI><a href="#[184]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USB_DevInit
+<LI><a href="#[166]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_PCD_IRQHandler
 </UL>
 
 <P><STRONG><a name="[178]"></a>USB_GetDevSpeed</STRONG> (Thumb, 26 bytes, Stack size 0 bytes, stm32h7xx_ll_usb.o(i.USB_GetDevSpeed))
@@ -3856,9 +3856,9 @@ Global Symbols
 <BR><BR>[Stack]<UL><LI>Max Depth = 92<LI>Call Chain = fdcan1_receive &rArr; detect_hook &rArr; detect_init
 </UL>
 <BR>[Calls]<UL><LI><a href="#[11f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_GetTick
+<LI><a href="#[29c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_FDCAN_GetRxMessage
 <LI><a href="#[2a0]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pm01_response_handle
 <LI><a href="#[297]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;detect_hook
-<LI><a href="#[29c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_FDCAN_GetRxMessage
 <LI><a href="#[29f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;get_motor_measure
 <LI><a href="#[29e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;get_mit_motor_index
 <LI><a href="#[29d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;fdcan_dlc_to_len
