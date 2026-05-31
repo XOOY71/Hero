@@ -25,7 +25,7 @@
 #define CHASSIS_RC_DEADLINE        25
 
 #define CHASSIS_CONTROL_TIME_MS    2
-#define CHASSIS_CONTROL_TIME       0.001f
+#define CHASSIS_CONTROL_TIME       0.002f
 #define CHASSIS_CONTROL_FREQUENCE  500.0f
 
 #define CHASSIS_AI_LOG_ENABLE      0
@@ -66,6 +66,20 @@
 #define TRACTION_ZERO_FORCE_THRESHOLD 1.0f
 #define SPEED_HOLD_ERROR_THRESHOLD 0.1f
 #define SPEED_HOLD_KP              600.0f
+
+#define CHASSIS_ACCEL_FILTER_TAU   0.02f
+#define CHASSIS_SPEED_PI_KP        1200.0f
+#define CHASSIS_SPEED_PI_KI        40.0f
+#define CHASSIS_SPEED_PI_MAX_OUT   2500.0f
+#define CHASSIS_SPEED_PI_MAX_IOUT  800.0f
+#define CHASSIS_FF_VISCOUS_GAIN    400.0f
+#define CHASSIS_FF_COULOMB_CURRENT FRICTION_CONSTANT_CURRENT
+#define CHASSIS_FF_COULOMB_SPEED_EPS 0.08f
+#define CHASSIS_FF_STATIC_CURRENT  120.0f
+#define CHASSIS_FF_STATIC_SPEED_EPS 0.05f
+#define CHASSIS_WZ_MAX_SPEED       0.10f
+#define CHASSIS_WZ_MAX_ACCEL       0.30f
+#define CHASSIS_WZ_MAX_JERK        3.0f
 
 #define M3505_MOTOR_SPEED_PID_KP       30000.0f
 #define M3505_MOTOR_SPEED_PID_KI       10.0f
@@ -157,6 +171,8 @@ typedef struct
 
     fp32 model_3508_out[CHASSIS_MODULE_NUM];
     fp32 model_accel[CHASSIS_MODULE_NUM];
+    fp32 model_last_speed_set[CHASSIS_MODULE_NUM];
+    fp32 speed_pi_iout[CHASSIS_MODULE_NUM];
     fp32 ai_predicted_power;
 
     pid_type_def chassis_angle_pid;
@@ -177,6 +193,12 @@ typedef struct
     fp32 last_vx_set;
     fp32 last_vy_set;
     fp32 last_wz_set;
+    fp32 vx_plan;
+    fp32 vy_plan;
+    fp32 wz_plan;
+    fp32 vx_plan_accel;
+    fp32 vy_plan_accel;
+    fp32 wz_plan_accel;
     fp32 return_wz_set;
     fp32 chassis_relative_angle;
     fp32 chassis_relative_angle_set;

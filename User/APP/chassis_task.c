@@ -49,6 +49,58 @@ static const fp32 chassis_x_order_filter = CHASSIS_ACCEL_X_NUM;
 static const fp32 chassis_y_order_filter = CHASSIS_ACCEL_Y_NUM;
 static fp32 chassis_return_target = CHASSIS_RETURN_TARGET;
 
+static void chassis_feedback_update(chassis_move_t *chassis_move_update);
+static void chassis_init(chassis_move_t *chassis_move_init);
+static void chassis_set_mode(chassis_move_t *chassis_move_mode);
+static void chassis_mode_change_control_transit(chassis_move_t *chassis_move_transit);
+static void chassis_set_contorl(chassis_move_t *chassis_move_control);
+static fp32 chassis_limit_abs(fp32 value, fp32 max_abs);
+static fp32 chassis_s_curve_update(fp32 cmd, fp32 *plan, fp32 *accel, fp32 max_speed, fp32 max_accel, fp32 max_jerk);
+static fp32 chassis_speed_pi_calc(chassis_move_t *chassis_move_pi, uint8_t motor_idx, fp32 error_v);
+static fp32 Model_Based_Control(uint8_t motor_idx, fp32 set_speed, fp32 ref_speed);
+static void PID_Calc_Jump(chassis_move_t *chassis_pid_calc);
+static void chassis_control_loop(chassis_move_t *chassis_move_control_loop);
+
+/* 底盘任务主循环 */
+void chassis_task(void const *pvParameters)
+{
+	vTaskDelay(CHASSIS_TASK_INIT_TIME);
+	chassis_init(&chassis_move);
+
+	/*
+	while (toe_is_error(CHASSIS_MOTOR1_TOE) || toe_is_error(CHASSIS_MOTOR2_TOE) ||
+	       toe_is_error(CHASSIS_MOTOR3_TOE) || toe_is_error(CHASSIS_MOTOR4_TOE) ||
+	       toe_is_error(DBUS_TOE))
+	{
+		vTaskDelay(CHASSIS_CONTROL_TIME_MS);
+	}
+	*/
+
+	while (1)
+	{
+		chassis_set_mode(&chassis_move);
+		chassis_mode_change_control_transit(&chassis_move);
+		chassis_feedback_update(&chassis_move);
+		chassis_set_contorl(&chassis_move);
+		chassis_control_loop(&chassis_move);
+
+		if (!(toe_is_error(CHASSIS_MOTOR1_TOE) && toe_is_error(CHASSIS_MOTOR2_TOE) &&
+		      toe_is_error(CHASSIS_MOTOR3_TOE) && toe_is_error(CHASSIS_MOTOR4_TOE)))
+		{
+			CAN_cmd_CHASSIS_ALL(chassis_move.chassis_3508[0].give_current,
+			                    chassis_move.chassis_3508[1].give_current,
+			                    chassis_move.chassis_3508[2].give_current,
+			                    chassis_move.chassis_3508[3].give_current);
+		}
+
+		osDelay(2);
+
+		#if INCLUDE_uxTaskGetStackHighWaterMark
+			chassis_high_water = uxTaskGetStackHighWaterMark(NULL);
+		#endif
+	}
+}
+
 /**
   * @brief          更新底盘反馈量，包括 3508 速度、IMU 姿态等
   * @param[out]     chassis_move_update: 底盘状态结构体指针
@@ -93,6 +145,8 @@ static void chassis_init(chassis_move_t *chassis_move_init)
 		chassis_move_init->chassis_3508[i].chassis_motor_measure = get_chassis_motor_measure_point(i);
 		chassis_move_init->model_3508_out[i] = 0.0f;
 		chassis_move_init->model_accel[i] = 0.0f;
+		chassis_move_init->model_last_speed_set[i] = 0.0f;
+		chassis_move_init->speed_pi_iout[i] = 0.0f;
 	}
 	PID_init(&chassis_move_init->chas_return_pid, PID_USUAL, chassis_yaw_return_pid_param, YAW_RETURN_PID_MAX_OUT, YAW_RETURN_PID_MAX_IOUT);
 
@@ -105,6 +159,12 @@ static void chassis_init(chassis_move_t *chassis_move_init)
 	chassis_move_init->vx_min_speed = -NORMAL_MAX_CHASSIS_SPEED_X;
 	chassis_move_init->vy_max_speed =  NORMAL_MAX_CHASSIS_SPEED_Y;
 	chassis_move_init->vy_min_speed = -NORMAL_MAX_CHASSIS_SPEED_Y;
+	chassis_move_init->vx_plan = 0.0f;
+	chassis_move_init->vy_plan = 0.0f;
+	chassis_move_init->wz_plan = 0.0f;
+	chassis_move_init->vx_plan_accel = 0.0f;
+	chassis_move_init->vy_plan_accel = 0.0f;
+	chassis_move_init->wz_plan_accel = 0.0f;
 
 	chassis_wheel_angle_offset_init();
 
@@ -272,6 +332,60 @@ static void chassis_set_contorl(chassis_move_t *chassis_move_control)
 	}
 }
 
+static fp32 chassis_limit_abs(fp32 value, fp32 max_abs)
+{
+	if (value > max_abs)
+	{
+		return max_abs;
+	}
+	else if (value < -max_abs)
+	{
+		return -max_abs;
+	}
+
+	return value;
+}
+
+static fp32 chassis_s_curve_update(fp32 cmd, fp32 *plan, fp32 *accel, fp32 max_speed, fp32 max_accel, fp32 max_jerk)
+{
+	fp32 accel_target;
+	fp32 accel_step;
+	fp32 next_plan;
+	fp32 target;
+
+	if (plan == NULL || accel == NULL) return 0.0f;
+
+	target = chassis_limit_abs(cmd, max_speed);
+	accel_target = chassis_limit_abs((target - *plan) / CHASSIS_CONTROL_TIME, max_accel);
+	accel_step = chassis_limit_abs(accel_target - *accel, max_jerk * CHASSIS_CONTROL_TIME);
+	*accel = chassis_limit_abs(*accel + accel_step, max_accel);
+
+	next_plan = *plan + *accel * CHASSIS_CONTROL_TIME;
+	if (((target - *plan) * (target - next_plan) <= 0.0f) &&
+	    (fabsf(target - *plan) <= fabsf(*accel * CHASSIS_CONTROL_TIME) + 0.0001f))
+	{
+		next_plan = target;
+		*accel = 0.0f;
+	}
+
+	*plan = chassis_limit_abs(next_plan, max_speed);
+	return *plan;
+}
+
+static fp32 chassis_speed_pi_calc(chassis_move_t *chassis_move_pi, uint8_t motor_idx, fp32 error_v)
+{
+	fp32 out;
+
+	if (chassis_move_pi == NULL || motor_idx >= CHASSIS_MODULE_NUM) return 0.0f;
+
+	chassis_move_pi->speed_pi_iout[motor_idx] += CHASSIS_SPEED_PI_KI * error_v * CHASSIS_CONTROL_TIME;
+	chassis_move_pi->speed_pi_iout[motor_idx] = chassis_limit_abs(chassis_move_pi->speed_pi_iout[motor_idx],
+	                                                              CHASSIS_SPEED_PI_MAX_IOUT);
+	out = CHASSIS_SPEED_PI_KP * error_v + chassis_move_pi->speed_pi_iout[motor_idx];
+
+	return chassis_limit_abs(out, CHASSIS_SPEED_PI_MAX_OUT);
+}
+
 /*************************************************************
   * @brief          3508 电机模型控制
   * @param[in]      motor_idx: 电机索引 0-3
@@ -282,55 +396,29 @@ static void chassis_set_contorl(chassis_move_t *chassis_move_control)
 static fp32 Model_Based_Control(uint8_t motor_idx, fp32 set_speed, fp32 ref_speed)
 {
 	fp32 error_v = set_speed - ref_speed;
-	fp32 accel_target = 0.0f;
-	fp32 accel_diff = 0.0f;
-	fp32 max_accel_diff = 0.0f;
+	fp32 accel_raw = 0.0f;
+	fp32 accel_alpha = 0.0f;
 	fp32 F_traction = 0.0f;
-	fp32 I_friction = 0.0f;
-	fp32 I_hold_p = 0.0f;
+	fp32 I_accel = 0.0f;
+	fp32 I_viscous = 0.0f;
+	fp32 I_coulomb = 0.0f;
+	fp32 I_static = 0.0f;
+	fp32 I_pi = 0.0f;
 	fp32 F_total = 0.0f;
 	fp32 Torque_output = 0.0f;
 	fp32 Current_A = 0.0f;
 	fp32 out = 0.0f;
 
-	accel_target = error_v / CONTROL_PERIOD_MODEL;
-	accel_diff = accel_target - chassis_move.model_accel[motor_idx];
-	max_accel_diff = CHASSIS_MAX_JERK * CHASSIS_CONTROL_TIME;
-	if (accel_diff > max_accel_diff)
-	{
-		accel_diff = max_accel_diff;
-	}
-	else if (accel_diff < -max_accel_diff)
-	{
-		accel_diff = -max_accel_diff;
-	}
+	if (motor_idx >= CHASSIS_MODULE_NUM) return 0.0f;
 
-	chassis_move.model_accel[motor_idx] += accel_diff;
-	if (chassis_move.model_accel[motor_idx] > CHASSIS_MAX_ACCEL)
-	{
-		chassis_move.model_accel[motor_idx] = CHASSIS_MAX_ACCEL;
-	}
-	else if (chassis_move.model_accel[motor_idx] < -CHASSIS_MAX_ACCEL)
-	{
-		chassis_move.model_accel[motor_idx] = -CHASSIS_MAX_ACCEL;
-	}
+	accel_raw = (set_speed - chassis_move.model_last_speed_set[motor_idx]) / CHASSIS_CONTROL_TIME;
+	chassis_move.model_last_speed_set[motor_idx] = set_speed;
+	accel_raw = chassis_limit_abs(accel_raw, CHASSIS_MAX_ACCEL);
+	accel_alpha = CHASSIS_CONTROL_TIME / (CHASSIS_ACCEL_FILTER_TAU + CHASSIS_CONTROL_TIME);
+	chassis_move.model_accel[motor_idx] += accel_alpha * (accel_raw - chassis_move.model_accel[motor_idx]);
+	chassis_move.model_accel[motor_idx] = chassis_limit_abs(chassis_move.model_accel[motor_idx], CHASSIS_MAX_ACCEL);
 
 	F_traction = (ROBOT_MASS / 4.0f) * chassis_move.model_accel[motor_idx];
-
-	if (fabsf(ref_speed) < FRICTION_SPEED_BAND)
-	{
-		I_friction = ref_speed * FRICTION_LINEAR_GAIN;
-	}
-	else
-	{
-		I_friction = sign(ref_speed) * FRICTION_CONSTANT_CURRENT;
-	}
-
-	if (fabsf(error_v) < SPEED_HOLD_ERROR_THRESHOLD)
-	{
-		I_hold_p = error_v * SPEED_HOLD_KP;
-	}
-
 	F_total = F_traction;
 	Torque_output = (F_total * Wheel_Radius) / CHASSIS_EFFICIENCY;
 	if (Torque_output > M3508_MAX_CONT_TORQUE * M3508_REDUCTION_RATIO)
@@ -343,7 +431,12 @@ static fp32 Model_Based_Control(uint8_t motor_idx, fp32 set_speed, fp32 ref_spee
 	}
 
 	Current_A = Torque_output / M3508_TORQUE_CONSTANT;
-	out = Current_A * (16384.0f / 20.0f) + I_friction + I_hold_p;
+	I_accel = Current_A * (CHASSIS_CURRENT_CMD_FULL_SCALE / CHASSIS_CURRENT_FULL_SCALE_A);
+	I_viscous = CHASSIS_FF_VISCOUS_GAIN * set_speed;
+	I_coulomb = CHASSIS_FF_COULOMB_CURRENT * tanhf(set_speed / CHASSIS_FF_COULOMB_SPEED_EPS);
+	I_static = CHASSIS_FF_STATIC_CURRENT * tanhf(set_speed / CHASSIS_FF_STATIC_SPEED_EPS);
+	I_pi = chassis_speed_pi_calc(&chassis_move, motor_idx, error_v);
+	out = I_accel + I_viscous + I_coulomb + I_static + I_pi;
 
 	if (out > M3505_MOTOR_SPEED_RUN_MAX_OUT)
 	{
@@ -416,29 +509,31 @@ static void chassis_control_loop(chassis_move_t *chassis_move_control_loop)
 	fp32 wheel_angle[CHASSIS_MODULE_NUM] = {0.0f};
 	uint8_t i;
 
-	if(chassis_move_control_loop->last_vx_set != 0 && chassis_move_control_loop->vx_set == 0)
-	{
-		chassis_move_control_loop->vx_set = chassis_move_control_loop->last_vx_set * 0.994f;
-		if(fabs(chassis_move_control_loop->vx_set) <= 0.1f) { chassis_move_control_loop->vx_set = 0.0f; }
-	}
-	if(chassis_move_control_loop->last_vy_set != 0 && chassis_move_control_loop->vy_set == 0)
-	{
-		chassis_move_control_loop->vy_set = chassis_move_control_loop->last_vy_set * 0.994f;
-		if(fabs(chassis_move_control_loop->vy_set) <= 0.1f) { chassis_move_control_loop->vy_set = 0.0f; }
-	}
-	if(chassis_move_control_loop->last_wz_set != 0 && chassis_move_control_loop->wz_set == 0)
-	{
-		chassis_move_control_loop->wz_set = chassis_move_control_loop->last_wz_set * 0.994f;
-		if(fabs(chassis_move_control_loop->wz_set) <= 0.001f) { chassis_move_control_loop->wz_set = 0.0f; }
-	}
-
 	chassis_move_control_loop->last_vx_set = chassis_move_control_loop->vx_set;
 	chassis_move_control_loop->last_vy_set = chassis_move_control_loop->vy_set;
 	chassis_move_control_loop->last_wz_set = chassis_move_control_loop->wz_set;
+	chassis_move_control_loop->vx_plan = chassis_s_curve_update(chassis_move_control_loop->vx_set,
+	                                                            &chassis_move_control_loop->vx_plan,
+	                                                            &chassis_move_control_loop->vx_plan_accel,
+	                                                            chassis_move_control_loop->vx_max_speed,
+	                                                            CHASSIS_MAX_ACCEL,
+	                                                            CHASSIS_MAX_JERK);
+	chassis_move_control_loop->vy_plan = chassis_s_curve_update(chassis_move_control_loop->vy_set,
+	                                                            &chassis_move_control_loop->vy_plan,
+	                                                            &chassis_move_control_loop->vy_plan_accel,
+	                                                            chassis_move_control_loop->vy_max_speed,
+	                                                            CHASSIS_MAX_ACCEL,
+	                                                            CHASSIS_MAX_JERK);
+	chassis_move_control_loop->wz_plan = chassis_s_curve_update(chassis_move_control_loop->wz_set,
+	                                                            &chassis_move_control_loop->wz_plan,
+	                                                            &chassis_move_control_loop->wz_plan_accel,
+	                                                            CHASSIS_WZ_MAX_SPEED,
+	                                                            CHASSIS_WZ_MAX_ACCEL,
+	                                                            CHASSIS_WZ_MAX_JERK);
 
-	chas_inv_cal(chassis_move_control_loop->vx_set,
-	             chassis_move_control_loop->vy_set,
-	             chassis_move_control_loop->wz_set,
+	chas_inv_cal(chassis_move_control_loop->vx_plan,
+	             chassis_move_control_loop->vy_plan,
+	             chassis_move_control_loop->wz_plan,
 	             wheel_angle,
 	             wheel_speed);
 
@@ -454,46 +549,8 @@ static void chassis_control_loop(chassis_move_t *chassis_move_control_loop)
 		chassis_move_control_loop->chassis_3508[i].give_current = (int16_t)chassis_move_control_loop->model_3508_out[i];
 		chassis_ai_power_predict_update(chassis_move_control_loop, i);
 	}
+	chassis_power_control(chassis_move_control_loop);
 	chassis_move_control_loop->ai_predicted_power = chassis_ai_power_predict_get_power();
 }
 
 
-/* 底盘任务主循环 */
-void chassis_task(void const *pvParameters)
-{
-	vTaskDelay(CHASSIS_TASK_INIT_TIME);
-	chassis_init(&chassis_move);
-
-	/*
-	while (toe_is_error(CHASSIS_MOTOR1_TOE) || toe_is_error(CHASSIS_MOTOR2_TOE) ||
-	       toe_is_error(CHASSIS_MOTOR3_TOE) || toe_is_error(CHASSIS_MOTOR4_TOE) ||
-	       toe_is_error(DBUS_TOE))
-	{
-		vTaskDelay(CHASSIS_CONTROL_TIME_MS);
-	}
-	*/
-
-	while (1)
-	{
-		chassis_set_mode(&chassis_move);
-		chassis_mode_change_control_transit(&chassis_move);
-		chassis_feedback_update(&chassis_move);
-		chassis_set_contorl(&chassis_move);
-		chassis_control_loop(&chassis_move);
-
-		if (!(toe_is_error(CHASSIS_MOTOR1_TOE) && toe_is_error(CHASSIS_MOTOR2_TOE) &&
-		      toe_is_error(CHASSIS_MOTOR3_TOE) && toe_is_error(CHASSIS_MOTOR4_TOE)))
-		{
-			CAN_cmd_CHASSIS_ALL(chassis_move.chassis_3508[0].give_current,
-			                    chassis_move.chassis_3508[1].give_current,
-			                    chassis_move.chassis_3508[2].give_current,
-			                    chassis_move.chassis_3508[3].give_current);
-		}
-
-		osDelay(2);
-
-		#if INCLUDE_uxTaskGetStackHighWaterMark
-			chassis_high_water = uxTaskGetStackHighWaterMark(NULL);
-		#endif
-	}
-}
