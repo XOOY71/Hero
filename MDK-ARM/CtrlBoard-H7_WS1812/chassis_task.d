@@ -45,7 +45,6 @@ ctrlboard-h7_ws1812\chassis_task.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7x
 ctrlboard-h7_ws1812\chassis_task.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_pcd_ex.h
 ctrlboard-h7_ws1812\chassis_task.o: D:\Keil5\ARM\ARMCC\Bin\..\include\string.h
 ctrlboard-h7_ws1812\chassis_task.o: ../User/APP_Support/project_config.h
-ctrlboard-h7_ws1812\chassis_task.o: ../User/APP_Support/CAN_receive.h
 ctrlboard-h7_ws1812\chassis_task.o: ../User/BSP/bsp_fdcan.h
 ctrlboard-h7_ws1812\chassis_task.o: ../Core/Inc/fdcan.h
 ctrlboard-h7_ws1812\chassis_task.o: D:\Keil5\ARM\ARMCC\Bin\..\include\stdbool.h
@@ -60,9 +59,6 @@ ctrlboard-h7_ws1812\chassis_task.o: ../User/APP_Support/struct_typedef.h
 ctrlboard-h7_ws1812\chassis_task.o: ../User/Algorithm/user_lib.h
 ctrlboard-h7_ws1812\chassis_task.o: ../User/APP_Support/chassis_calculate.h
 ctrlboard-h7_ws1812\chassis_task.o: ../User/APP_Support/chassis_power_control.h
-ctrlboard-h7_ws1812\chassis_task.o: ../User/APP_Support/robot_param.h
-ctrlboard-h7_ws1812\chassis_task.o: ../AI/chassis_ai_power_predict.h
-ctrlboard-h7_ws1812\chassis_task.o: ../AI/NanoEdgeAI.h
 ctrlboard-h7_ws1812\chassis_task.o: ../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS/cmsis_os.h
 ctrlboard-h7_ws1812\chassis_task.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/FreeRTOS.h
 ctrlboard-h7_ws1812\chassis_task.o: ../Core/Inc/FreeRTOSConfig.h

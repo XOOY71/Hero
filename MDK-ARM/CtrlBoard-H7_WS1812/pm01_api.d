@@ -48,7 +48,6 @@ ctrlboard-h7_ws1812\pm01_api.o: ../Core/Inc/fdcan.h
 ctrlboard-h7_ws1812\pm01_api.o: D:\Keil5\ARM\ARMCC\Bin\..\include\stdbool.h
 ctrlboard-h7_ws1812\pm01_api.o: ..\User\APP_Support\chassis_power_control.h
 ctrlboard-h7_ws1812\pm01_api.o: ../User/APP/chassis_task.h
-ctrlboard-h7_ws1812\pm01_api.o: ../User/APP_Support/CAN_receive.h
 ctrlboard-h7_ws1812\pm01_api.o: ../User/APP/gimbal_task.h
 ctrlboard-h7_ws1812\pm01_api.o: ../User/APP_Support/project_config.h
 ctrlboard-h7_ws1812\pm01_api.o: ../User/BSP/remote_control.h
@@ -59,4 +58,3 @@ ctrlboard-h7_ws1812\pm01_api.o: ../User/Algorithm/gravity_comp.h
 ctrlboard-h7_ws1812\pm01_api.o: ../User/Devices/hwt_imu.h
 ctrlboard-h7_ws1812\pm01_api.o: ../User/APP_Support/struct_typedef.h
 ctrlboard-h7_ws1812\pm01_api.o: ../User/Algorithm/user_lib.h
-ctrlboard-h7_ws1812\pm01_api.o: ..\User\APP_Support\robot_param.h

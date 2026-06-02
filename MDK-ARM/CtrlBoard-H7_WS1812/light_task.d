@@ -51,7 +51,6 @@ ctrlboard-h7_ws1812\light_task.o: ..\User\APP\auto_aim.h
 ctrlboard-h7_ws1812\light_task.o: ../User/BSP/remote_control.h
 ctrlboard-h7_ws1812\light_task.o: ../User/APP_Support/chassis_behaviour.h
 ctrlboard-h7_ws1812\light_task.o: ../User/APP/chassis_task.h
-ctrlboard-h7_ws1812\light_task.o: ../User/APP_Support/CAN_receive.h
 ctrlboard-h7_ws1812\light_task.o: ../User/BSP/bsp_fdcan.h
 ctrlboard-h7_ws1812\light_task.o: ../Core/Inc/fdcan.h
 ctrlboard-h7_ws1812\light_task.o: ../User/APP/gimbal_task.h
@@ -61,7 +60,6 @@ ctrlboard-h7_ws1812\light_task.o: ../User/Devices/hwt_imu.h
 ctrlboard-h7_ws1812\light_task.o: ../User/APP_Support/struct_typedef.h
 ctrlboard-h7_ws1812\light_task.o: ../User/Algorithm/user_lib.h
 ctrlboard-h7_ws1812\light_task.o: ../User/APP_Support/chassis_power_control.h
-ctrlboard-h7_ws1812\light_task.o: ../User/APP_Support/robot_param.h
 ctrlboard-h7_ws1812\light_task.o: ../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS/cmsis_os.h
 ctrlboard-h7_ws1812\light_task.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/FreeRTOS.h
 ctrlboard-h7_ws1812\light_task.o: ../Core/Inc/FreeRTOSConfig.h

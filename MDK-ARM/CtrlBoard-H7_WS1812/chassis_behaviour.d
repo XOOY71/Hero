@@ -1,7 +1,6 @@
 ctrlboard-h7_ws1812\chassis_behaviour.o: ..\User\APP_Support\chassis_behaviour.c
 ctrlboard-h7_ws1812\chassis_behaviour.o: ..\User\APP_Support\chassis_behaviour.h
 ctrlboard-h7_ws1812\chassis_behaviour.o: ../User/APP/chassis_task.h
-ctrlboard-h7_ws1812\chassis_behaviour.o: ../User/APP_Support/CAN_receive.h
 ctrlboard-h7_ws1812\chassis_behaviour.o: ../User/BSP/bsp_fdcan.h
 ctrlboard-h7_ws1812\chassis_behaviour.o: ../Core/Inc/main.h
 ctrlboard-h7_ws1812\chassis_behaviour.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal.h
@@ -59,7 +58,6 @@ ctrlboard-h7_ws1812\chassis_behaviour.o: ../User/Devices/hwt_imu.h
 ctrlboard-h7_ws1812\chassis_behaviour.o: ../User/APP_Support/struct_typedef.h
 ctrlboard-h7_ws1812\chassis_behaviour.o: ../User/Algorithm/user_lib.h
 ctrlboard-h7_ws1812\chassis_behaviour.o: ..\User\APP_Support\chassis_power_control.h
-ctrlboard-h7_ws1812\chassis_behaviour.o: ..\User\APP_Support\robot_param.h
 ctrlboard-h7_ws1812\chassis_behaviour.o: ../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS/cmsis_os.h
 ctrlboard-h7_ws1812\chassis_behaviour.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/FreeRTOS.h
 ctrlboard-h7_ws1812\chassis_behaviour.o: ../Core/Inc/FreeRTOSConfig.h

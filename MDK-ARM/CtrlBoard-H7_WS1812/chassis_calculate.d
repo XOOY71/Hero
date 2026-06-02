@@ -47,7 +47,6 @@ ctrlboard-h7_ws1812\chassis_calculate.o: D:\Keil5\ARM\ARMCC\Bin\..\include\strin
 ctrlboard-h7_ws1812\chassis_calculate.o: ../User/APP_Support/project_config.h
 ctrlboard-h7_ws1812\chassis_calculate.o: ..\User\APP_Support\chassis_calculate.h
 ctrlboard-h7_ws1812\chassis_calculate.o: ../User/APP/chassis_task.h
-ctrlboard-h7_ws1812\chassis_calculate.o: ../User/APP_Support/CAN_receive.h
 ctrlboard-h7_ws1812\chassis_calculate.o: ../User/BSP/bsp_fdcan.h
 ctrlboard-h7_ws1812\chassis_calculate.o: ../Core/Inc/fdcan.h
 ctrlboard-h7_ws1812\chassis_calculate.o: D:\Keil5\ARM\ARMCC\Bin\..\include\stdbool.h
@@ -58,5 +57,4 @@ ctrlboard-h7_ws1812\chassis_calculate.o: ../User/Algorithm/gravity_comp.h
 ctrlboard-h7_ws1812\chassis_calculate.o: ../User/Devices/hwt_imu.h
 ctrlboard-h7_ws1812\chassis_calculate.o: ../User/APP_Support/struct_typedef.h
 ctrlboard-h7_ws1812\chassis_calculate.o: ../User/Algorithm/user_lib.h
-ctrlboard-h7_ws1812\chassis_calculate.o: ..\User\APP_Support\robot_param.h
 ctrlboard-h7_ws1812\chassis_calculate.o: D:\Keil5\ARM\ARMCC\Bin\..\include\stdlib.h

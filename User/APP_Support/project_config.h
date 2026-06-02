@@ -194,8 +194,8 @@ extern "C" {
 #define CHASSIS_OMNI_ROTATE_RADIUS        CHASSIS_HALF_WHEELBASE // 底盘旋转半径，单位 m
 
 #define CHASSIS_WHEEL_205_DIRECTION       1.0f               // 205 号底盘电机方向系数
-#define CHASSIS_WHEEL_206_DIRECTION       1.0f               // 206 号底盘电机方向系数
-#define CHASSIS_WHEEL_207_DIRECTION       1.0f               // 207 号底盘电机方向系数
+#define CHASSIS_WHEEL_206_DIRECTION       -1.0f               // 206 号底盘电机方向系数
+#define CHASSIS_WHEEL_207_DIRECTION       -1.0f               // 207 号底盘电机方向系数
 #define CHASSIS_WHEEL_208_DIRECTION       1.0f               // 208 号底盘电机方向系数
 
 #define CHASSIS_RETURN_TARGET             ( 0.72f)           // 底盘回正目标角，单位 rad
@@ -258,7 +258,7 @@ extern "C" {
 #define CHASSIS_WZ_MAX_JERK               160.0f             // 底盘旋转最大角加加速度，单位 rad/s^3
 #define CHASSIS_LAT_ACCEL_LIMIT           6.8f               // 底盘高速转弯横向加速度上限，单位 m/s^2
 #define CHASSIS_LAT_SPEED_EPS             0.5f               // 横向加速度限幅启用的最小平移速度，单位 m/s
-#define CHASSIS_YAW_HOLD_RC_SEN           0.004f             // yaw 保持模式摇杆积分灵敏度，单位 rad/s/遥控计数
+#define CHASSIS_YAW_HOLD_RC_SEN           0.008f             // yaw 保持模式摇杆积分灵敏度，单位 rad/s/遥控计数
 #define CHASSIS_SPEED_PI_KP               900.0f             // 底盘轮速 PI 比例系数，单位 电流命令计数/(m/s)
 #define CHASSIS_SPEED_PI_KI               20.0f              // 底盘轮速 PI 积分系数，单位 电流命令计数/m
 #define CHASSIS_SPEED_PI_MAX_OUT          1800.0f            // 底盘轮速 PI 输出限幅，单位 电流命令计数

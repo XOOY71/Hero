@@ -69,7 +69,6 @@ ctrlboard-h7_ws1812\freertos.o: ../User/APP/auto_aim.h
 ctrlboard-h7_ws1812\freertos.o: ../User/Communication/example/device/comm_app.h
 ctrlboard-h7_ws1812\freertos.o: ../User/Communication/example/device/comm_app_config.h
 ctrlboard-h7_ws1812\freertos.o: ../User/APP/chassis_task.h
-ctrlboard-h7_ws1812\freertos.o: ../User/APP_Support/CAN_receive.h
 ctrlboard-h7_ws1812\freertos.o: ../User/BSP/bsp_fdcan.h
 ctrlboard-h7_ws1812\freertos.o: ../Core/Inc/fdcan.h
 ctrlboard-h7_ws1812\freertos.o: ../User/Devices/hwt_imu.h

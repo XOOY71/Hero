@@ -49,7 +49,6 @@ ctrlboard-h7_ws1812\vofa.o: ../Core/Inc/fdcan.h
 ctrlboard-h7_ws1812\vofa.o: D:\Keil5\ARM\ARMCC\Bin\..\include\stdbool.h
 ctrlboard-h7_ws1812\vofa.o: ../User/APP_Support/chassis_power_control.h
 ctrlboard-h7_ws1812\vofa.o: ../User/APP/chassis_task.h
-ctrlboard-h7_ws1812\vofa.o: ../User/APP_Support/CAN_receive.h
 ctrlboard-h7_ws1812\vofa.o: ../User/APP/gimbal_task.h
 ctrlboard-h7_ws1812\vofa.o: ../User/APP_Support/project_config.h
 ctrlboard-h7_ws1812\vofa.o: ../User/BSP/remote_control.h
@@ -59,10 +58,6 @@ ctrlboard-h7_ws1812\vofa.o: ../User/Algorithm/pid.h
 ctrlboard-h7_ws1812\vofa.o: ../User/Algorithm/gravity_comp.h
 ctrlboard-h7_ws1812\vofa.o: ../User/Devices/hwt_imu.h
 ctrlboard-h7_ws1812\vofa.o: ../User/Algorithm/user_lib.h
-ctrlboard-h7_ws1812\vofa.o: ../User/APP_Support/robot_param.h
-ctrlboard-h7_ws1812\vofa.o: ../User/APP_Support/pm01_api.h
-ctrlboard-h7_ws1812\vofa.o: ../User/APP_Support/referee.h
-ctrlboard-h7_ws1812\vofa.o: ../User/APP_Support/protocol.h
 ctrlboard-h7_ws1812\vofa.o: ../User/APP_Support/shoot_task.h
 ctrlboard-h7_ws1812\vofa.o: ../User/Algorithm/adrc.h
 ctrlboard-h7_ws1812\vofa.o: ../Core/Inc/usart.h

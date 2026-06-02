@@ -487,10 +487,10 @@ static void chassis_body_feedforward_update(chassis_move_t *chassis_move_ff)
 	torque_z = CHASSIS_BODY_FF_YAW_INERTIA_KGM2 * alpha;
 	yaw_force = (fabsf(CHASSIS_OMNI_ROTATE_RADIUS) > 0.0001f) ? (torque_z / CHASSIS_OMNI_ROTATE_RADIUS) : 0.0f;
 
-	wheel_force[WHEEL_REAR_205]  =  0.5f * force_y + 0.25f * yaw_force;
-	wheel_force[WHEEL_RIGHT_206] = -0.5f * force_x + 0.25f * yaw_force;
-	wheel_force[WHEEL_FRONT_207] = -0.5f * force_y + 0.25f * yaw_force;
-	wheel_force[WHEEL_LEFT_208]  =  0.5f * force_x + 0.25f * yaw_force;
+	wheel_force[WHEEL_REAR_205]  = ( 0.5f * force_y + 0.25f * yaw_force) * CHASSIS_WHEEL_205_DIRECTION;
+	wheel_force[WHEEL_RIGHT_206] = (0.5f * force_x - 0.25f * yaw_force) * CHASSIS_WHEEL_206_DIRECTION;
+	wheel_force[WHEEL_FRONT_207] = (0.5f * force_y - 0.25f * yaw_force) * CHASSIS_WHEEL_207_DIRECTION;
+	wheel_force[WHEEL_LEFT_208]  = ( 0.5f * force_x + 0.25f * yaw_force) * CHASSIS_WHEEL_208_DIRECTION;
 
 	for (uint8_t i = 0U; i < CHASSIS_MODULE_NUM; i++)
 	{

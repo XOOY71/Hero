@@ -1,7 +1,6 @@
 ctrlboard-h7_ws1812\chassis_power_control.o: ..\User\APP_Support\chassis_power_control.c
 ctrlboard-h7_ws1812\chassis_power_control.o: ..\User\APP_Support\chassis_power_control.h
 ctrlboard-h7_ws1812\chassis_power_control.o: ../User/APP/chassis_task.h
-ctrlboard-h7_ws1812\chassis_power_control.o: ../User/APP_Support/CAN_receive.h
 ctrlboard-h7_ws1812\chassis_power_control.o: ../User/BSP/bsp_fdcan.h
 ctrlboard-h7_ws1812\chassis_power_control.o: ../Core/Inc/main.h
 ctrlboard-h7_ws1812\chassis_power_control.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal.h
@@ -58,7 +57,6 @@ ctrlboard-h7_ws1812\chassis_power_control.o: ../User/Algorithm/gravity_comp.h
 ctrlboard-h7_ws1812\chassis_power_control.o: ../User/Devices/hwt_imu.h
 ctrlboard-h7_ws1812\chassis_power_control.o: ../User/APP_Support/struct_typedef.h
 ctrlboard-h7_ws1812\chassis_power_control.o: ../User/Algorithm/user_lib.h
-ctrlboard-h7_ws1812\chassis_power_control.o: ..\User\APP_Support\robot_param.h
 ctrlboard-h7_ws1812\chassis_power_control.o: ../User/APP/detect_task.h
 ctrlboard-h7_ws1812\chassis_power_control.o: ..\User\APP_Support\referee.h
 ctrlboard-h7_ws1812\chassis_power_control.o: ..\User\APP_Support\protocol.h
