@@ -53,6 +53,15 @@ void USART7_Transmit(uint8_t *pData, uint16_t Size)
   }
 }
 
+//串口8发送函数
+void USART8_Transmit(uint8_t *pData, uint16_t Size)
+{
+  if (huart8.gState == HAL_UART_STATE_READY)
+  {
+    HAL_UART_Transmit_DMA(&huart8, pData, Size);
+  }
+}
+
 //串口10发送函数
 //void USART10_Transmit(uint8_t *pData, uint16_t Size)
 //{

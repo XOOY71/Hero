@@ -10,7 +10,7 @@ Hero 是一套面向 RoboMaster 英雄机器人控制板的嵌入式固件工程
 - 自瞄通信：USB CDC + uproto + channel 框架，包含云台状态发布、自瞄增量注入、主机底盘/射击命令注入、相机触发和时间同步通道。
 - 裁判与功控：裁判系统结构解析入口、PM01 超级电容对象字典访问、底盘功率限制接口。
 - 在线检测：DBUS 和底盘电机在线状态检测，供底盘启动等待和灯板显示使用。
-- 灯板显示：主控 UART7 输出 10 路 RGB 状态帧，外置 CH32V003F4P 固件驱动 WS2812 灯珠。
+- 灯板显示：主控 UART8 输出 10 路 RGB 状态帧，外置 CH32V003F4P 固件驱动 WS2812 灯珠。
 - 调试支持：VOFA 数据发送、Keil 构建日志、弹道/惯量测试数据和 MATLAB 拟合脚本。
 
 ## 技术栈
@@ -19,7 +19,7 @@ Hero 是一套面向 RoboMaster 英雄机器人控制板的嵌入式固件工程
 - 主控框架：STM32CubeMX 生成工程 + STM32H7 HAL Driver
 - RTOS：FreeRTOS，CMSIS-RTOS v1
 - 构建工具：Keil MDK-ARM V5.27 工程文件
-- 通信接口：FDCAN1/FDCAN2/FDCAN3、UART5、UART7、USART1、USART10、USB CDC HS、SPI2、SPI6、TIM24
+- 通信接口：FDCAN1/FDCAN2/FDCAN3、UART5、UART7、UART8、USART1、USART10、USB CDC HS、SPI2、SPI6、TIM24
 - 控制算法：PID、ADRC、Kalman Filter、Quaternion EKF、重力补偿、低通滤波和数学工具函数
 - 上位机协议：uproto、channel manager、gimbal/camera/time_sync 通道
 - 外置灯板：CH32V003F4P + WS2812
@@ -67,13 +67,12 @@ Hero/
 │   │   ├── chassis_task.c / *.h            # 双舵轮底盘主任务
 │   │   ├── auto_aim.c / *.h                # 自瞄误差缓存、在线状态和软开关
 │   │   ├── detect_task.c / *.h             # DBUS 和底盘电机在线检测
-│   │   ├── light_task.c / *.h              # 外置灯板状态渲染和 UART7 帧发送
+│   │   ├── light_task.c / *.h              # 外置灯板状态渲染和 UART8 帧发送
 │   │   ├── service_task.c / *.h            # 蜂鸣器、IMU、板载灯服务入口
 │   │   ├── Safewarning.c / *.h             # 安全提示/蜂鸣器相关逻辑
 │   │   └── usb_task.c / *.h                # USB 任务保留入口
 │   ├── APP_Support/                        # 应用支撑层和参数层
-│   │   ├── project_config.h                # 全局模式、云台 PID、MIT ID、限位和公共参数
-│   │   ├── robot_param.h                   # 底盘几何、舵向零位和模式偏置
+│   │   ├── project_config.h                # 全局模式、云台 PID、底盘几何、MIT ID、限位和公共参数
 │   │   ├── gimbal_behaviour.c / *.h        # 云台行为状态机
 │   │   ├── yaw_pitch_direct.c / *.h        # yaw/pitch 反馈、目标和 MIT 下发链路
 │   │   ├── shoot_task.c / *.h              # 摩擦轮和拨弹控制
@@ -202,7 +201,7 @@ FreeRTOS 创建的主要任务：
 | COMM_APP | `comm_app_task` | BelowNormal | 640 | 1 ms | USB CDC、uproto、通道调度、主机命令注入 |
 | gimbalTask | `gimbal_task` | High | 1024 | 1 ms | 云台闭环、重力补偿、发射调度、VOFA 输出 |
 | service_task | `ServiceTask_Init` 创建 | Low | 待补充 | `SERVICE_CONTROL_TIME` | 蜂鸣器、IMU、板载灯等服务 |
-| lightTask | `light_task` | Low | 256 | 50 ms | 外置灯板状态帧生成和 UART7 发送 |
+| lightTask | `light_task` | Low | 256 | 50 ms | 外置灯板状态帧生成和 UART8 发送 |
 | detect | `detect_task` | Low | 128 | `DETECT_CONTROL_TIME` | DBUS 和底盘电机在线检测 |
 | chassis | `chassis_task` | High | 768 | 1 ms | 双舵轮底盘控制、功控、CAN 输出入口 |
 
@@ -223,17 +222,22 @@ FreeRTOS 创建的主要任务：
 | FDCAN2 | Classic CAN，1 Mbps | pitch MIT、三路摩擦轮 |
 | FDCAN3 | Classic CAN，1.25 Mbps | 预留接收入口 |
 | UART5 | 100000 baud，9B，Even，2 stop，DMA RX | DBUS/SBUS 遥控器 |
-| UART7 | 115200 baud，DMA RX/TX | HWT101 接收和外置灯板发送 |
+| UART7 | 115200 baud，DMA RX/TX | HWT101 接收 |
+| UART8 | 115200 baud，DMA TX | 外置灯板发送 |
 | USART1 | 921600 baud，DMA RX/TX | 裁判系统/串口通信入口 |
 | USART10 | 921600 baud，DMA RX/TX | HWT906 或扩展通信 |
 | USB_DEVICE | CDC HS | 上位机通信 |
 | TIM24 | 内部时钟，Prescaler 239 | 微秒时间基 |
 
+### 接线说明
+
+- 灯条的 RX 接开发板的 RX，第一版灯条画板丝印标错。
+- HWT101 的 232 板接开发板时，RX 接 RX，TX 接 TX。
+
 ### 主要参数文件
 
-- `User/APP_Support/project_config.h`：机器人模式、电容开关、云台 PID、MIT 电机 ID、角度限位、自瞄/发射相关公共参数。
-- `User/APP/chassis_task.h`：底盘通道映射、速度灵敏度、控制周期、3508/6020 控制参数和物理模型参数。
-- `User/APP_Support/robot_param.h`：舵轮底盘几何、舵向电机零位、模式偏置和最大速度。
+- `User/APP_Support/project_config.h`：机器人模式、电容开关、云台 PID、底盘几何、通道映射、底盘控制参数、物理前馈参数、MIT 电机 ID、角度限位、自瞄/发射相关公共参数。
+- `User/APP/chassis_task.h`：底盘控制结构体、模式枚举和任务接口。
 - `User/APP_Support/shoot_task.h`：摩擦轮目标转速、电流限制、ADRC 参数、拨弹 PID 和前馈参数。
 - `User/Communication/example/device/comm_app_config.h`：通信任务栈、优先级、通道 ID、USB 枚举超时、主机命令注入通道映射。
 - `User/APP/light_task.h`：灯珠数量、帧长度、灯板任务周期。
@@ -294,6 +298,6 @@ cd .\User\Communication\example\host
 
 业务代码优先放在 `User` 目录，`Core`、`Drivers`、`Middlewares` 和 `USB_DEVICE` 中的 CubeMX 生成代码只在外设配置变更时同步调整。控制链路按“BSP/Devices 解析反馈 -> APP 任务读取输入 -> APP_Support 生成目标和控制量 -> Algorithm 计算 -> BSP 下发 CAN/UART/USB”的路径组织。
 
-新增控制参数时优先放入对应模块头文件：全局和云台参数放入 `project_config.h`，底盘机械参数放入 `robot_param.h`，底盘控制参数放入 `chassis_task.h`，发射参数放入 `shoot_task.h`，通信参数放入 `comm_app_config.h`。修改 `.ioc` 后需要用 CubeMX 重新生成代码，并检查 `USER CODE BEGIN/END` 区域内的手写逻辑是否保留。
+新增控制参数时优先放入对应模块头文件：全局、云台、底盘机械和底盘控制参数放入 `project_config.h`，发射参数放入 `shoot_task.h`，通信参数放入 `comm_app_config.h`。修改 `.ioc` 后需要用 CubeMX 重新生成代码，并检查 `USER CODE BEGIN/END` 区域内的手写逻辑是否保留。
 
 当前 `chassis_task()` 已完成底盘目标生成、逆运动学、功控计算和电流变量写入，实际 CAN 下发入口当前发送 `CAN_cmd_CHASSIS_ALL(0, 0, 0, 0)`；恢复实车输出前需要按调试状态接入 `chassis_3508[i].give_current` 和 `chassis_6020[i].give_current`。`USART1` 已启动 DMA 接收，接收回调中的裁判系统解析接入状态待补充。

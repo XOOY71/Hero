@@ -49,7 +49,7 @@ PowerLimit_t PowerLimit = {
 	.k_2 = 1.23e-07f,   										// 电流平方项系数（功率计算模型�?
 	.a = 4.081f,        										// 功率模型基础偏移�?
 	.K_Reduction = 1.0f,										// 功率衰减系数（初始为1，无衰减�?
-	.set_power = SET_POWER_VALUE * 0.8f,		// 额定功率设定值（来自头文件宏定义�?
+	.set_power = SET_POWER_VALUE,		// 额定功率设定值（来自头文件宏定义�?
 	.P_origin = 0.0f,												// 原始功率计算值（未衰减前�?
 	.P_bus = 0.0f    												// 3508衰减后功率（衰减后）
 };
@@ -73,7 +73,7 @@ void Current_RestraintRelation_Calc(PowerLimit_t *PowerLimit_Cur)
 		// 获取3508电机实时数据
 		// 3508电机当前实际转速（rpm），来自电机反馈测量�?
 		PowerLimit_Cur->now_motorspeed[i] = chassis_move.chassis_3508[i].chassis_motor_measure->speed_rpm;
-		// 3508电机目标电流（A），来自底盘物理模型输出
+		// 3508���Ŀ���������ֵ��cmd�������Ե�������ģ�����
 		PowerLimit_Cur->set_motorcurrent[i] = chassis_move.model_3508_out[i];
 		
 		// 获取6020电机实时数据（修正字段名与结构体匹配�?
@@ -81,6 +81,80 @@ void Current_RestraintRelation_Calc(PowerLimit_t *PowerLimit_Cur)
 		// 6020电机目标电流（A），来自速度环PID输出
 		// 6020电机实际发送的电流值（A�?
 	}
+}
+static float chassis_motor_power_calc(const PowerLimit_t *PowerLimit_Pre, float omega, float current_cmd)
+{
+	const float current_power_coeff = (0.01562f * 0.001220703125f) / 9.55f;
+
+	return PowerLimit_Pre->a +
+	       current_power_coeff * omega * current_cmd +
+	       PowerLimit_Pre->k_1 * omega * omega +
+	       PowerLimit_Pre->k_2 * current_cmd * current_cmd;
+}
+
+static float chassis_select_power_solution(float i_cmd, float root_a, float root_b)
+{
+	if(i_cmd > 0.0f)
+	{
+		if(root_a >= 0.0f && root_b >= 0.0f)
+		{
+			return (fabsf(root_a - i_cmd) < fabsf(root_b - i_cmd)) ? root_a : root_b;
+		}
+		if(root_a >= 0.0f)
+		{
+			return root_a;
+		}
+		if(root_b >= 0.0f)
+		{
+			return root_b;
+		}
+		return 0.0f;
+	}
+
+	if(i_cmd < 0.0f)
+	{
+		if(root_a <= 0.0f && root_b <= 0.0f)
+		{
+			return (fabsf(root_a - i_cmd) < fabsf(root_b - i_cmd)) ? root_a : root_b;
+		}
+		if(root_a <= 0.0f)
+		{
+			return root_a;
+		}
+		if(root_b <= 0.0f)
+		{
+			return root_b;
+		}
+		return 0.0f;
+	}
+
+	return 0.0f;
+}
+
+static float chassis_current_from_power(const PowerLimit_t *PowerLimit_Pre,
+                                        float omega,
+                                        float i_cmd,
+                                        float target_power)
+{
+	const float current_power_coeff = (0.01562f * 0.001220703125f) / 9.55f;
+	const float A = PowerLimit_Pre->k_2;
+	const float B = current_power_coeff * omega;
+	const float C = PowerLimit_Pre->a + PowerLimit_Pre->k_1 * omega * omega - target_power;
+	const float discriminant = B * B - 4.0f * A * C;
+	float sqrt_disc;
+	float root_a;
+	float root_b;
+
+	if(discriminant < 0.0f || A == 0.0f)
+	{
+		return 0.0f;
+	}
+
+	sqrt_disc = sqrtf(discriminant);
+	root_a = (-B + sqrt_disc) / (2.0f * A);
+	root_b = (-B - sqrt_disc) / (2.0f * A);
+
+	return chassis_select_power_solution(i_cmd, root_a, root_b);
 }
 
 /**
@@ -98,76 +172,49 @@ void Predict_Power(PowerLimit_t *PowerLimit_Pre, chassis_move_t *chassis_move)
 	// 6020电机预留功率（W），保证云台/其他关节电机基础功�?
 	// 3508底盘电机可用功率 = 总额定功�?- 6020预留功率
 	const float available_power = PowerLimit_Pre->set_power;
+	float motor_power[CHASSIS_MODULE_NUM] = {0.0f};
+	float power_scale = 1.0f;
 
-	// 初始化功率计算中间变�?
-	float sum_omega_I = 0.0f;   // ω*I_cmd 项累加和
-	float sum_omega2 = 0.0f;    // ω² 项累加和
-	float sum_I2 = 0.0f;        // I_cmd² 项累加和
-	// 扭矩系数/单位转换系数（rpm转rad/s + 电流转扭矩的系数�?
-	float k_t = 0.01562 * 0.001220703125;
+	PowerLimit.P_origin = 0.0f;
+	PowerLimit.P_bus = 0.0f;
 
-	// 遍历4�?508电机通道，累加功率计算项
-	for(int i = 0; i < CHASSIS_MODULE_NUM; i++) {
-		float omega = PowerLimit_Pre->now_motorspeed[i];    // 3508电机当前转速（rpm�?
-		float I_cmd = PowerLimit_Pre->set_motorcurrent[i];  // 3508电机目标电流（A�?
-		
-		sum_omega_I += omega * I_cmd * k_t / 9.55f;  // ω*b*I_cmd 项（b初始�?），9.55为rpm转rad/s系数
-		sum_omega2 += omega * omega;                 // 转速平方项累加
-		sum_I2 += I_cmd * I_cmd;                     // 电流平方项累�?
-	}
-
-	// 计算原始功率（未衰减前的理论功率消耗）
-	PowerLimit.P_origin = PowerLimit_Pre->a + sum_omega_I + PowerLimit_Pre->k_1 * sum_omega2 + PowerLimit_Pre->k_2 * sum_I2;
-
-	// 构造一元二次方程求解衰减系数b（当原始功率超过可用功率时）
-	if(PowerLimit.P_origin > available_power)
+	for(int i = 0; i < CHASSIS_MODULE_NUM; i++)
 	{
-		// 一元二次方程：A*b² + B*b + C = 0
-		float A = PowerLimit_Pre->k_2 * sum_I2;
-		float B = sum_omega_I;
-		float C = PowerLimit_Pre->a + PowerLimit_Pre->k_1 * sum_omega2 - available_power;
-		float discriminant = B * B - 4 * A * C;  // 判别�?
+		const float omega = PowerLimit_Pre->now_motorspeed[i];
+		const float i_cmd = PowerLimit_Pre->set_motorcurrent[i];
 
-		// 判别式非负时，有实数�?
-		if(discriminant >= 0)
-		{
-			float sqrt_disc = sqrtf(discriminant);  // 判别式开�?
-			float b1 = (-B + sqrt_disc) / (2 * A);  // 第一个解
-			float b2 = (-B - sqrt_disc) / (2 * A);  // 第二个解
-			
-			// 选择0~1之间的衰减系数（保证电流只衰减不放大�?
-			PowerLimit_Pre->K_Reduction = (b1 > 0 && b1 <= 1) ? b1 : b2;
-			// 限幅衰减系数，防止超�?.01~1范围
-			PowerLimit_Pre->K_Reduction = LIMIT_MAX_MIN(PowerLimit_Pre->K_Reduction, 1.0f, 0.01f);
-		}
-		else
-		{
-			// 判别式为负（无实数解），默认衰减�?0%
-			PowerLimit_Pre->K_Reduction = 0.5f;
-		}
+		motor_power[i] = chassis_motor_power_calc(PowerLimit_Pre, omega, i_cmd);
+		PowerLimit.P_origin += motor_power[i];
 	}
-	else
+
+	if(PowerLimit.P_origin > available_power && PowerLimit.P_origin > 0.0f)
 	{
-		// 原始功率未超限，衰减系数设为1（无衰减�?
-		PowerLimit_Pre->K_Reduction = 1.0f;
+		power_scale = available_power / PowerLimit.P_origin;
+		power_scale = LIMIT_MAX_MIN(power_scale, 1.0f, 0.01f);
 	}
 
-// 应用衰减系数到电机电流，更新最终发送给电机的电流�?
-for(int i = 0; i < CHASSIS_MODULE_NUM; i++)
-{
-    // 3508电机电流应用衰减系数，转换为整型发送�?
-    chassis_move->chassis_3508[i].give_current = (int16_t)(PowerLimit_Pre->set_motorcurrent[i] * PowerLimit_Pre->K_Reduction);
-    // 6020电机不做衰减，直接使用PID输出�?
-    
-    // 计算衰减后的总线实际功率�?508电机�?
-    PowerLimit.P_bus = PowerLimit_Pre->a + \
-                                           sum_omega_I * PowerLimit_Pre->K_Reduction + \
-                                           PowerLimit_Pre->k_1 * sum_omega2 + \
-                                           PowerLimit_Pre->k_2 * sum_I2 * PowerLimit_Pre->K_Reduction * PowerLimit_Pre->K_Reduction;
+	PowerLimit_Pre->K_Reduction = power_scale;
+
+	for(int i = 0; i < CHASSIS_MODULE_NUM; i++)
+	{
+		const float omega = PowerLimit_Pre->now_motorspeed[i];
+		const float i_cmd = PowerLimit_Pre->set_motorcurrent[i];
+		float final_current = i_cmd;
+
+		if(power_scale < 1.0f && motor_power[i] > 0.0f)
+		{
+			final_current = chassis_current_from_power(PowerLimit_Pre,
+			                                          omega,
+			                                          i_cmd,
+			                                          motor_power[i] * power_scale);
+		}
+
+		chassis_move->chassis_3508[i].give_current = (int16_t)final_current;
+		PowerLimit.P_bus += chassis_motor_power_calc(PowerLimit_Pre, omega, final_current);
+	}
+
+
 }
-
-
-}  
 		
 		
 		

@@ -61,7 +61,7 @@ float PID_Calc(pid_type_def *pid, float ref, float set)
     {
         pid->Pout = pid->Kp * pid->error[0];
         //积分分离，防止静差导致超调
-				if(pid->error[0] > 0.05f){
+				if(fabsf(pid->error[0]) > 0.05f){
 					pid->Iout += pid->Ki * pid->error[0];
 				}
         pid->Dbuf[2] = pid->Dbuf[1];

@@ -32,12 +32,13 @@
 #include "chassis_task.h"
 #include "cmsis_os.h"
 #include "gimbal_behaviour.h"
-#include "robot_param.h"
+#include "project_config.h"
 #include <stdbool.h>
 
 /* 函数声明区 */
 static void chassis_no_move_control											(fp32 *vx_set, fp32 *vy_set, fp32 *wz_set, chassis_move_t *chassis_move_rc_to_vector);
 static void chassis_infantry_follow_gimbal_yaw_control	(fp32 *vx_set, fp32 *vy_set, fp32 *wz_set, chassis_move_t *chassis_move_rc_to_vector);
+static void chassis_yaw_hold_control										(fp32 *vx_set, fp32 *vy_set, fp32 *wz_set, chassis_move_t *chassis_move_rc_to_vector);
 static void chassis_spin_control												(fp32 *vx_set, fp32 *vy_set, fp32 *wz_set, chassis_move_t *chassis_move_rc_to_vector);
 
 
@@ -58,7 +59,7 @@ void chassis_behaviour_mode_set(chassis_move_t *chassis_move_mode)
 	//CHASSIS_ZERO_FORCE, CHASSIS_NO_MOVE, CHASSIS_FOLLOW_GIMBAL_YAW, CHASSIS_OPEN, CHASSIS_SPIN
 	if (switch_is_down(chassis_move_mode->chassis_RC->rc.s[CHASSIS_MODE_CHANNEL]) || chassis_move_mode->chassis_return_flag == 0)
 	{
-		chassis_behaviour_mode = CHASSIS_FOLLOW_GIMBAL_YAW;		//下档跟随云台模式
+		chassis_behaviour_mode = CHASSIS_YAW_HOLD;		//下档底盘yaw目标角闭环
 	}
 	else if (switch_is_mid(chassis_move_mode->chassis_RC->rc.s[CHASSIS_MODE_CHANNEL]))
 	{
@@ -106,6 +107,10 @@ void chassis_behaviour_mode_set(chassis_move_t *chassis_move_mode)
 	{
 		chassis_move_mode->chassis_mode = CHASSIS_VECTOR_FOLLOW_GIMBAL_YAW; 	//速度跟随云台模式
 	}
+	else if (chassis_behaviour_mode == CHASSIS_YAW_HOLD)
+	{
+		chassis_move_mode->chassis_mode = CHASSIS_VECTOR_YAW_HOLD;	//底盘yaw目标角闭环
+	}
 	else if(chassis_behaviour_mode == CHASSIS_SPIN)		//小陀螺模式
 	{
 		chassis_move_mode->chassis_mode = CHASSIS_VECTOR_SPIN;	//速度小陀螺模式
@@ -147,6 +152,10 @@ void chassis_behaviour_control_set(fp32 *vx_set, fp32 *vy_set, fp32 *wz_set, cha
 	else if (chassis_behaviour_mode == CHASSIS_FOLLOW_GIMBAL_YAW)
 	{
 		chassis_infantry_follow_gimbal_yaw_control(vx_set, vy_set, wz_set, chassis_move_rc_to_vector);
+	}
+	else if (chassis_behaviour_mode == CHASSIS_YAW_HOLD)
+	{
+		chassis_yaw_hold_control(vx_set, vy_set, wz_set, chassis_move_rc_to_vector);
 	}
 	else if(chassis_behaviour_mode == CHASSIS_SPIN)
 	{
@@ -194,6 +203,18 @@ static void chassis_infantry_follow_gimbal_yaw_control(fp32 *vx_set, fp32 *vy_se
 	rc_deadband_limit(chassis_move_rc_to_vector->chassis_RC->rc.ch[CHASSIS_WZ_CHANNEL], wz_channel, CHASSIS_RC_DEADLINE);
 	
 	*wz_set = -(fp32)wz_channel * chassis_wz_rc_sen;
+}
+
+static void chassis_yaw_hold_control(fp32 *vx_set, fp32 *vy_set, fp32 *wz_set, chassis_move_t *chassis_move_rc_to_vector)
+{
+	if (vx_set == NULL || vy_set == NULL || wz_set == NULL || chassis_move_rc_to_vector == NULL) return;
+
+	chassis_rc_to_control_vector(vx_set, vy_set, chassis_move_rc_to_vector);
+
+	int16_t wz_channel = 0;
+	rc_deadband_limit(chassis_move_rc_to_vector->chassis_RC->rc.ch[CHASSIS_WZ_CHANNEL], wz_channel, CHASSIS_RC_DEADLINE);
+
+	*wz_set = -(fp32)wz_channel;
 }
 
 fp32 chassis_spin_speed = CHASSIS_SPIN_SPEED;

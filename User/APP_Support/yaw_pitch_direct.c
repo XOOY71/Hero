@@ -617,8 +617,7 @@ void gimbal_feedback_update(gimbal_control_t *control)
 
         if (control->gimbal_yaw_motor.angle_offset_init == 0u)
         {
-            control->gimbal_yaw_motor.angle_offset =
-                control->gimbal_yaw_motor.absolute_angle - chassis_yaw;
+            control->gimbal_yaw_motor.angle_offset = 0.0f;
 
             control->gimbal_yaw_motor.relative_angle = 0.0f;
             control->gimbal_yaw_motor.relative_angle_set = 0.0f;

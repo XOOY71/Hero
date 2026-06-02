@@ -132,6 +132,7 @@ extern remoter_t remoter;
 
 extern void USART1_Transmit_DMA(uint8_t *pData, uint16_t Size);
 extern void USART7_Transmit(uint8_t *pData, uint16_t Size);
+extern void USART8_Transmit(uint8_t *pData, uint16_t Size);
 extern void USART10_Transmit(uint8_t *pData, uint16_t Size);
 extern void USART10_Transmit_IT(uint8_t *pData, uint16_t Size);
 void USART1_Transmit(uint8_t *pData, uint16_t Size);

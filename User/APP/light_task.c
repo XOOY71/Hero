@@ -429,7 +429,7 @@ static void light_pack_frame(void)
 static void light_send_frame(void)
 {
     light_pack_frame();
-    USART7_Transmit(light_control.frame, (uint16_t)sizeof(light_control.frame));
+    USART8_Transmit(light_control.frame, (uint16_t)sizeof(light_control.frame));
 }
 
 

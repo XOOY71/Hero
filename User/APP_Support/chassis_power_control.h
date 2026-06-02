@@ -2,7 +2,7 @@
 #define CHASSIS_POWER_CONTROL_H
 
 #include "chassis_task.h"
-#include "robot_param.h"
+#include "project_config.h"
 
 #ifndef LIMIT_MAX_MIN
 #define LIMIT_MAX_MIN(val, max, min) ((val) > (max) ? (max) : ((val) < (min) ? (min) : (val)))

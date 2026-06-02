@@ -3,15 +3,9 @@
 #include "chassis_power_control.h"
 #include "chassis_task.h"
 #include "gimbal_task.h"
-#include "pm01_api.h"
-#include "referee.h"
 #include "shoot_task.h"
 #include "usart.h"
 #include <math.h>
-#if VOFA_ENABLE_CSV_TEXT
-#include <stdio.h>
-#include <string.h>
-#endif
 
 #ifndef VOFA_SERVICE_CHASSIS_MOTOR_INDEX
 #define VOFA_SERVICE_CHASSIS_MOTOR_INDEX 1U
@@ -21,35 +15,6 @@ static VOFA_JustFloatFrame_t s_vofa_frame =
 {
     .tail = {0x00, 0x00, 0x80, 0x7F}
 };
-
-static VOFA_AiPowerJustFloatFrame_t s_vofa_ai_power_frame =
-{
-    .tail = {0x00, 0x00, 0x80, 0x7F}
-};
-
-#if VOFA_ENABLE_CSV_TEXT
-static uint8_t s_vofa_csv_buf[VOFA_AI_CSV_BUFFER_SIZE];
-
-static void VOFA_SendCsvBuffer(int len)
-{
-    if (len <= 0)
-    {
-        return;
-    }
-
-    if (len > (int)sizeof(s_vofa_csv_buf))
-    {
-        len = (int)sizeof(s_vofa_csv_buf);
-    }
-
-    if (huart1.gState != HAL_UART_STATE_READY)
-    {
-        return;
-    }
-
-    HAL_UART_Transmit_DMA(&huart1, s_vofa_csv_buf, (uint16_t)len);
-}
-#endif
 
 static void VOFA_Send6(float ch0, float ch1, float ch2, float ch3, float ch4, float ch5)
 {
@@ -87,148 +52,70 @@ void VOFA_SendChassisMotorMeasure(uint8_t motor_idx)
     s_vofa_frame.fdata[0] = (float)motor->ecd;
     s_vofa_frame.fdata[1] = chassis_move.chassis_3508[motor_idx].speed_rad_s;
     s_vofa_frame.fdata[2] = chassis_move.chassis_3508[motor_idx].given_current_a;
-    s_vofa_frame.fdata[3] = chassis_move.ai_predicted_power ;
+    s_vofa_frame.fdata[3] = PowerLimit.P_bus;
     s_vofa_frame.fdata[4] = (float)motor->last_ecd;
     s_vofa_frame.fdata[5] = PowerLimit.P_origin;
 
     HAL_UART_Transmit_DMA(&huart1, (uint8_t *)&s_vofa_frame, sizeof(s_vofa_frame));
 }
 
-#if VOFA_ENABLE_CSV_TEXT
-void VOFA_SendAiPowerCsvHeader(void)
+void VOFA_SendChassisPowerDebug(uint8_t motor_idx)
 {
-    static const char header[] =
-        "vx_set,vy_set,wz_set,"
-        "wheel_speed_set,"
-        "motor_speed,"
-        "model_current,"
-        "give_current,"
-        "set_power,"
-        "pm01_p_out\r\n";
-
-    if (huart1.gState != HAL_UART_STATE_READY)
+    if (motor_idx >= VOFA_CHASSIS_MOTOR_COUNT)
     {
         return;
     }
 
-    memcpy(s_vofa_csv_buf, header, sizeof(header) - 1U);
-    HAL_UART_Transmit_DMA(&huart1, s_vofa_csv_buf, (uint16_t)(sizeof(header) - 1U));
+    VOFA_Send6(PowerLimit.set_power,
+               PowerLimit.P_origin,
+               PowerLimit.K_Reduction,
+               chassis_move.model_3508_out[motor_idx],
+               (float)chassis_move.chassis_3508[motor_idx].give_current,
+               PowerLimit.P_bus);
 }
 
-void VOFA_SendAiPowerCsv(const VOFA_AiPowerCsv_t *log, uint8_t motor_idx)
+void VOFA_SendChassisSpeedAccel(void)
 {
-    int len;
-
-    if (log == NULL)
-    {
-        return;
-    }
-
-    if (motor_idx >= VOFA_AI_POWER_MOTOR_COUNT)
-    {
-        return;
-    }
-
-    len = snprintf((char *)s_vofa_csv_buf,
-                   sizeof(s_vofa_csv_buf),
-                   "%.4f,%.4f,%.4f,"
-                   "%.4f,"
-                   "%.4f,"
-                   "%.2f,"
-                   "%.2f,"
-                   "%.2f,"
-                   "%.2f\r\n",
-                   log->vx_set,
-                   log->vy_set,
-                   log->wz_set,
-                   log->wheel_speed_set[motor_idx],
-                   log->motor_speed[motor_idx],
-                   log->model_current[motor_idx],
-                   log->give_current[motor_idx],
-                   log->set_power,
-                   log->pm01_p_out);
-
-    VOFA_SendCsvBuffer(len);
-}
-#endif
-
-void VOFA_SendAiPowerJustFloat(const VOFA_AiPowerCsv_t *log, uint8_t motor_idx)
-{
-    float *ch = s_vofa_ai_power_frame.fdata;
-
-    if (log == NULL)
-    {
-        return;
-    }
-
-    if (motor_idx >= VOFA_AI_POWER_MOTOR_COUNT)
-    {
-        return;
-    }
-
-    if (huart1.gState != HAL_UART_STATE_READY)
-    {
-        return;
-    }
-
-    ch[0] = log->vx_set;
-    ch[1] = log->vy_set;
-    ch[2] = log->wz_set;
-    ch[3] = log->wheel_speed_set[motor_idx];
-    ch[4] = log->motor_speed[motor_idx];
-    ch[5] = log->model_current[motor_idx];
-    ch[6] = log->give_current[motor_idx];
-    ch[7] = log->set_power;
-    ch[8] = log->pm01_p_out;
-
-    HAL_UART_Transmit_DMA(&huart1,
-                          (uint8_t *)&s_vofa_ai_power_frame,
-                          sizeof(s_vofa_ai_power_frame));
+    VOFA_Send6(chassis_move.vx_plan,
+               chassis_move.vy_plan,
+               chassis_move.wz_plan,
+               chassis_move.vx_plan_accel,
+               chassis_move.vy_plan_accel,
+               chassis_move.wz_plan_accel);
 }
 
-void VOFA_SendChassisAiPowerJustFloat(uint8_t motor_idx)
+void VOFA_SendChassisAnglePidDebug(void)
 {
-    VOFA_AiPowerCsv_t log;
-    static uint32_t last_send_ms = 0U;
-    uint32_t now_ms;
+    float target = chassis_move.chassis_angle_pid.set;
+    float actual = chassis_move.chassis_angle_pid.fdb;
+    float error;
+    float actual_vel = chassis_move.chassis_yaw_rate;
 
-    if (motor_idx >= VOFA_AI_POWER_MOTOR_COUNT)
+    if (chassis_move.chassis_mode == CHASSIS_VECTOR_FOLLOW_GIMBAL_YAW)
     {
-        return;
+        target = chassis_move.chassis_relative_angle_set;
+        actual = chassis_move.chassis_relative_angle;
+        actual_vel = 0.0f;
+    }
+    else if (chassis_move.chassis_mode == CHASSIS_VECTOR_YAW_HOLD)
+    {
+        target = chassis_move.chassis_yaw_set;
+        actual = chassis_move.chassis_yaw;
+        actual_vel = chassis_move.chassis_yaw_rate;
     }
 
-    now_ms = HAL_GetTick();
-    if ((now_ms - last_send_ms) < CHASSIS_AI_LOG_PERIOD_MS)
+    error = target - actual;
+    if (fabsf(error) > PI)
     {
-        return;
-    }
-    last_send_ms = now_ms;
-
-    log.t_ms = now_ms;
-    log.vx_set = chassis_move.vx_set;
-    log.vy_set = chassis_move.vy_set;
-    log.wz_set = chassis_move.wz_set;
-    log.set_power = PowerLimit.set_power;
-    log.buffer_energy = (fp32)get_buffer_energy();
-    log.pm01_v_out = (fp32)pm01_od.v_out * 0.01f;
-    log.pm01_i_out = (fp32)pm01_od.i_out * 0.01f;
-    log.pm01_temp = (fp32)pm01_od.temp;
-    log.pm01_p_out = (fp32)pm01_od.p_out * 0.01f;
-    log.k_label = PowerLimit.K_Reduction;
-
-    for (uint8_t i = 0U; i < CHASSIS_MODULE_NUM; i++)
-    {
-        fp32 model_current = chassis_move.model_3508_out[i];
-        fp32 give_current = (fp32)chassis_move.chassis_3508[i].give_current;
-
-        log.wheel_speed_set[i] = chassis_move.chassis_3508[i].speed_set;
-        log.motor_speed[i] = chassis_move.chassis_3508[i].speed;
-        log.model_current[i] = model_current;
-        log.give_current[i] = give_current;
-        log.s_label[i] = (fabsf(model_current) > 1.0f) ? (give_current / model_current) : 0.0f;
+        error += (error > 0.0f) ? (-2.0f * PI) : (2.0f * PI);
     }
 
-    VOFA_SendAiPowerJustFloat(&log, motor_idx);
+    VOFA_Send6(target,
+               actual,
+               error,
+               chassis_move.chassis_angle_pid.Pout,
+               chassis_move.chassis_angle_pid.Dout,
+               actual_vel);
 }
 
 void VOFA_SendGimbalFric(void)
@@ -298,5 +185,5 @@ void VOFA_SendGimbalStrum(void)
 
 void VOFA_ServiceSend(void)
 {
-    VOFA_SendChassisMotorMeasure(VOFA_SERVICE_CHASSIS_MOTOR_INDEX);
+    VOFA_SendChassisAnglePidDebug();
 }

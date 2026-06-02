@@ -124,6 +124,7 @@ int main(void)
   MX_USART10_UART_Init();
   MX_SPI2_Init();
   MX_TIM24_Init();
+  MX_UART8_Init();
   /* USER CODE BEGIN 2 */
 //  	Servo_Mapping_Init();
 	bsp_can_init();

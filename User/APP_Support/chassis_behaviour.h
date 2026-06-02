@@ -28,6 +28,7 @@ typedef enum
 {
 	CHASSIS_NO_MOVE,								//底盘保持静止
 	CHASSIS_FOLLOW_GIMBAL_YAW,			//底盘跟随云台yaw角度
+	CHASSIS_YAW_HOLD,							//底盘yaw目标角闭环
 	CHASSIS_SPIN,										//旋转模式
 	CHASSIS_RETURN,									//底盘回正
 	

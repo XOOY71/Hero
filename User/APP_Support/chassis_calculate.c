@@ -1,8 +1,8 @@
 #include "bsp_usart.h"
 #include "chassis_calculate.h"
 #include "chassis_task.h"
-#include "CAN_receive.h"
-#include "robot_param.h"
+#include "bsp_fdcan.h"
+#include "project_config.h"
 #include "user_lib.h"
 #include <math.h>
 #include "stdlib.h"
@@ -59,6 +59,29 @@ fp32 offset = 0.0f;
 void slip_control(chassis_move_t *chassis_move)
 {
 	(void)chassis_move;
+}
+
+/**
+ * @brief  根据横向加速度限制底盘旋转角速度
+ * @note   高速平移时，转弯横向加速度 a = v * wz 会增加侧翻力矩。
+ *         该函数用于在高速平移叠加旋转时压低 wz，降低内侧轮卸载、抬轮和侧翻风险。
+ * @param  vx 底盘 x 方向规划速度，单位 m/s
+ * @param  vy 底盘 y 方向规划速度，单位 m/s
+ * @param  wz 底盘规划旋转角速度，单位 rad/s
+ * @retval 限制后的底盘旋转角速度，单位 rad/s
+ */
+fp32 chassis_limit_wz_by_lateral_accel(fp32 vx, fp32 vy, fp32 wz)
+{
+	fp32 translational_speed = sqrtf(vx * vx + vy * vy);
+	fp32 wz_limit;
+
+	if(translational_speed < CHASSIS_LAT_SPEED_EPS)
+	{
+		return wz;
+	}
+
+	wz_limit = CHASSIS_LAT_ACCEL_LIMIT / translational_speed;
+	return fp32_constrain(wz, -wz_limit, wz_limit);
 }
 
 void chas_inv_cal(fp32 vx_set, fp32 vy_set, fp32 wz_set, fp32 *wheel_angle, fp32 *wheel_speed)

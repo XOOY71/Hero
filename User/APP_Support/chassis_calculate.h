@@ -46,6 +46,7 @@ PI/2	<―――――――――― -PI/2
 void chassis_wheel_angle_offset_init(void);
 void vector_rotate(fp32 angle, fp32 *vector);
 void slip_control(chassis_move_t *chassis_move);
+fp32 chassis_limit_wz_by_lateral_accel(fp32 vx, fp32 vy, fp32 wz);
 void chas_inv_cal(fp32 vx_set, fp32 vy_set, fp32 wz_set, fp32 *wheel_angle, fp32 *wheel_speed);
 void chas_for_cal(fp32 *wheel_angle, fp32 *wheel_speed, fp32 *vx, fp32 *vy, fp32 *wz);
 

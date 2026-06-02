@@ -179,14 +179,132 @@ extern "C" {
 #define CAN_FRIC2_ID                        0X202 // 摩擦轮 2 电机 ID
 #define CAN_FRIC3_ID                        0X203 // 摩擦轮 3 电机 ID
 
-#define CAN_CHASSIS_ALL_ID                0x1FF  // chassis motor broadcast ID
-#define CAN_M1_3508_ID                    0x205  // chassis 3508 ID 1
-#define CAN_M2_3508_ID                    0x206  // chassis 3508 ID 2
-#define CAN_M3_3508_ID                    0x207  // chassis 3508 ID 3
-#define CAN_M4_3508_ID                    0x208  // chassis 3508 ID 4
+#define CAN_CHASSIS_ALL_ID                0x1FF  // 底盘 3508 电机电流控制广播 ID
+#define CAN_M1_3508_ID                    0x205  // 底盘 3508 电机 1 反馈 ID
+#define CAN_M2_3508_ID                    0x206  // 底盘 3508 电机 2 反馈 ID
+#define CAN_M3_3508_ID                    0x207  // 底盘 3508 电机 3 反馈 ID
+#define CAN_M4_3508_ID                    0x208  // 底盘 3508 电机 4 反馈 ID
 
 #define CHASSIS_MODULE_NUM                  4U
 #define CHASSIS_MOTOR_NUM                 CHASSIS_MODULE_NUM
+
+/* ========================= 底盘固定参数 ========================= */
+/* 十字全向轮底盘：x 轴向右，y 轴向前，轮距 0.46 m */
+#define CHASSIS_HALF_WHEELBASE            0.23f              // 底盘半轮距，用于旋转速度分量计算，单位 m
+#define CHASSIS_OMNI_ROTATE_RADIUS        CHASSIS_HALF_WHEELBASE // 底盘旋转半径，单位 m
+
+#define CHASSIS_WHEEL_205_DIRECTION       1.0f               // 205 号底盘电机方向系数
+#define CHASSIS_WHEEL_206_DIRECTION       1.0f               // 206 号底盘电机方向系数
+#define CHASSIS_WHEEL_207_DIRECTION       1.0f               // 207 号底盘电机方向系数
+#define CHASSIS_WHEEL_208_DIRECTION       1.0f               // 208 号底盘电机方向系数
+
+#define CHASSIS_RETURN_TARGET             ( 0.72f)           // 底盘回正目标角，单位 rad
+#define CHASSIS_RETURN_OFFSET             ( 1.15f)           // 底盘回正坐标旋转偏置，单位 rad
+#define CHASSIS_FOLLOW_GIMBAL_YAW_OFFSET  (-2.12f)           // 底盘跟随云台 yaw 偏置，单位 rad
+#define CHASSIS_SPIN_OFFSET               (-1.60f)           // 小陀螺模式角度偏置，单位 rad
+
+/* 底盘电机 CAN ID 与数组索引映射：205 后轮，206 右轮，207 前轮，208 左轮 */
+#define WHEEL_REAR_205                    0                  // 205 号后轮数组索引
+#define WHEEL_RIGHT_206                   1                  // 206 号右轮数组索引
+#define WHEEL_FRONT_207                   2                  // 207 号前轮数组索引
+#define WHEEL_LEFT_208                    3                  // 208 号左轮数组索引
+
+#define CHASSIS_WZ_RC_SEN                 0.02f          // 底盘旋转摇杆灵敏度，单位 rad/s/遥控计数
+#define CHASSIS_SPIN_SPEED                25.0f             // 小陀螺固定旋转速度，单位 rad/s
+
+#define NORMAL_MAX_CHASSIS_SPEED_X        3.2f               // 底盘 x 方向最大速度，单位 m/s
+#define NORMAL_MAX_CHASSIS_SPEED_Y        3.2f               // 底盘 y 方向最大速度，单位 m/s
+
+/* ========================= 底盘任务与输入参数 ========================= */
+#define CHASSIS_TASK_INIT_TIME            500                // 底盘任务启动延时，单位 ms
+#define CHASSIS_CONTROL_TIME_MS           1                  // 底盘控制周期，单位 ms
+#define CHASSIS_CONTROL_TIME              0.001f             // 底盘控制周期，单位 s
+#define CHASSIS_CONTROL_FREQUENCE         1000.0f            // 底盘控制频率，单位 Hz
+
+#define CHASSIS_X_CHANNEL                 1                  // 底盘 x 方向遥控通道
+#define CHASSIS_Y_CHANNEL                 0                  // 底盘 y 方向遥控通道
+#define CHASSIS_WZ_CHANNEL                2                  // 底盘旋转遥控通道
+#define CHASSIS_MODE_CHANNEL              0                  // 底盘模式切换遥控通道
+
+#define CHASSIS_VX_RC_SEN                 0.005625f          // 底盘 x 方向遥控灵敏度，单位 (m/s)/遥控计数
+#define CHASSIS_VY_RC_SEN                 0.005625f          // 底盘 y 方向遥控灵敏度，单位 (m/s)/遥控计数
+#define CHASSIS_RC_DEADLINE               25                 // 底盘遥控死区
+
+#define CHASSIS_FRONT_KEY                 KEY_PRESSED_OFFSET_W // 底盘前进键
+#define CHASSIS_BACK_KEY                  KEY_PRESSED_OFFSET_S // 底盘后退键
+#define CHASSIS_LEFT_KEY                  KEY_PRESSED_OFFSET_A // 底盘左移键
+#define CHASSIS_RIGHT_KEY                 KEY_PRESSED_OFFSET_D // 底盘右移键
+
+
+/* ========================= 底盘量纲换算参数 ========================= */
+#define CHASSIS_CURRENT_CMD_FULL_SCALE    16384.0f           // 3508 电流命令满量程，单位 电流命令计数
+#define CHASSIS_CURRENT_FULL_SCALE_A      20.0f              // 3508 电流满量程，单位 A
+#define CHASSIS_CURRENT_CMD_TO_A          (CHASSIS_CURRENT_FULL_SCALE_A / CHASSIS_CURRENT_CMD_FULL_SCALE) // 电流命令转 A 系数，单位 A/电流命令计数
+
+#define MPS_to_RPM                        2445.72f           // 轮速 m/s 转电机 rpm 系数，单位 rpm/(m/s)
+#define CHASSIS_RPM_TO_RAD_PER_SEC        0.104719755f       // 电机 rpm 转 rad/s 系数，单位 (rad/s)/rpm
+
+/* ========================= 底盘控制参数 ========================= */
+#define CHASSIS_ACCEL_X_NUM               0.1f      // x 方向遥控速度一阶滤波系数，无量纲
+#define CHASSIS_ACCEL_Y_NUM               0.1f      // y 方向遥控速度一阶滤波系数，无量纲
+#define MAX_WHEEL_SPEED                   3.2f               // 单轮目标速度上限，单位 m/s
+
+#define CHASSIS_MAX_ACCEL                 10.0f               // 底盘平移最大加速度，单位 m/s^2
+#define CHASSIS_MAX_JERK                  50.0f              // 底盘平移最大加加速度，单位 m/s^3
+#define CHASSIS_STOP_DECEL                12.0f               // 底盘松杆停车减速度，单位 m/s^2
+#define CHASSIS_STOP_JERK                 200.0f             // 底盘松杆停车减速度变化率，单位 m/s^3
+#define CHASSIS_WZ_MAX_SPEED              10.0f              // 底盘旋转最大角速度，单位 rad/s
+#define CHASSIS_WZ_MAX_ACCEL              30.0f              // 底盘旋转最大角加速度，单位 rad/s^2
+#define CHASSIS_WZ_MAX_JERK               300.0f             // 底盘旋转最大角加加速度，单位 rad/s^3
+#define CHASSIS_LAT_ACCEL_LIMIT           6.8f               // 底盘高速转弯横向加速度上限，单位 m/s^2
+#define CHASSIS_LAT_SPEED_EPS             0.5f               // 横向加速度限幅启用的最小平移速度，单位 m/s
+#define CHASSIS_YAW_HOLD_RC_SEN           0.009f             // yaw 保持模式摇杆积分灵敏度，单位 rad/s/遥控计数
+#define CHASSIS_SPEED_PI_KP               1200.0f            // 底盘轮速 PI 比例系数，单位 电流命令计数/(m/s)
+#define CHASSIS_SPEED_PI_KI               40.0f              // 底盘轮速 PI 积分系数，单位 电流命令计数/m
+#define CHASSIS_SPEED_PI_MAX_OUT          2500.0f            // 底盘轮速 PI 输出限幅，单位 电流命令计数
+#define CHASSIS_SPEED_PI_MAX_IOUT         800.0f             // 底盘轮速 PI 积分限幅，单位 电流命令计数
+
+#define CHASSIS_CURRENT_BASE_LIMIT_A      3.0f               // 底盘单电机基础电流限幅，单位 A
+#define CHASSIS_CURRENT_DYNAMIC_POOL_A    4.0f               // 底盘四电机共享动态电流池，单位 A
+#define CHASSIS_CURRENT_SINGLE_MAX_A      7.0f               // 底盘单电机动态限幅上限，单位 A
+#define CHASSIS_CURRENT_LIMIT_SLEW_A_PER_S 80.0f             // 底盘单电机限幅变化率，单位 A/s
+#define CHASSIS_CURRENT_DEMAND_EPS_A      0.05f              // 底盘动态限幅需求电流阈值，单位 A
+#define M3505_MOTOR_SPEED_PID_MAX_OUT     16000.0f           // 底盘 3508 电流输出绝对限幅，单位 电流命令计数
+
+#define YAW_RETURN_PID_KP                 800.0f             // 底盘回正角度 PID 比例系数
+#define YAW_RETURN_PID_KI                 0.08f              // 底盘回正角度 PID 积分系数
+#define YAW_RETURN_PID_KD                 20.0f              // 底盘回正角度 PID 微分系数
+#define YAW_RETURN_PID_MAX_OUT            600.0f             // 底盘回正角度 PID 输出限幅，单位 PID输出计数
+#define YAW_RETURN_PID_MAX_IOUT           60.0f              // 底盘回正角度 PID 积分限幅，单位 PID输出计数
+#define CHASSIS_RETURN_WZ_SCALE           0.006f             // 底盘回正 PID 输出转角速度系数，单位 (rad/s)/PID输出计数
+
+#define CHASSIS_ANGLE_PD_KP                10.0f              // 底盘角度 PD 比例系数，单位 (rad/s)/rad
+#define CHASSIS_ANGLE_PD_KD                0.1f              // 底盘角度 PD 微分系数
+#define CHASSIS_ANGLE_PD_MAX_OUT           8.0f              // 底盘角度 PD 输出限幅，单位 rad/s
+
+#define CHASSIS_YAW_REF_ACCEL_LIMIT        100.0f            // 底盘 yaw 目标角加速度限幅，单位 rad/s^2
+#define CHASSIS_YAW_INERTIA_FF_GAIN        0.02f             // 底盘 yaw 惯量前馈系数，单位 (rad/s)/(rad/s^2)
+#define CHASSIS_YAW_INERTIA_FF_MAX_OUT     2.0f              // 底盘 yaw 惯量前馈输出限幅，单位 rad/s
+#define CHASSIS_YAW_RATE_FEEDBACK_SIGN     -1.0f             // 底盘 yaw 陀螺仪角速度反馈方向系数
+/* ========================= 底盘物理前馈参数 ========================= */
+#define Wheel_Radius                      0.075f            // 底盘轮半径，单位 m
+#define ROBOT_MASS                        8.0f              // 整车质量，单位 kg
+#define M3508_TORQUE_CONSTANT             0.3f               // M3508 电机转矩常数，用于转矩换算电流，单位 N*m/A
+#define M3508_REDUCTION_RATIO             19.2032f           // M3508 减速比
+#define CHASSIS_EFFICIENCY                0.92f              // 底盘传动效率
+#define M3508_MAX_CONT_TORQUE             2.8f               // M3508 电机持续输出转矩上限，单位 N*m
+
+#define CHASSIS_ACCEL_FILTER_TAU          0.02f              // 目标加速度低通滤波时间常数，单位 s
+#define CHASSIS_FF_VISCOUS_GAIN           200.0f             // 黏性摩擦前馈系数，单位 电流命令计数/(m/s)
+#define CHASSIS_FF_COULOMB_CURRENT        200.0f             // 库仑摩擦前馈电流，单位 电流命令计数
+#define CHASSIS_FF_COULOMB_SPEED_EPS      0.08f              // 库仑摩擦平滑速度阈值，单位 m/s
+#define CHASSIS_FF_STATIC_CURRENT         60.0f             // 静摩擦前馈电流，单位 电流命令计数
+#define CHASSIS_FF_STATIC_SPEED_EPS       0.05f              // 静摩擦平滑速度阈值，单位 m/s
+#define CHASSIS_BRAKE_FRICTION_FF_SCALE   0.0f               // 制动状态摩擦前馈保留比例
+#define CHASSIS_BRAKE_FF_CURRENT_A        1.2f               // 制动状态固定制动前馈电流，单位 A
+#define CHASSIS_BRAKE_FF_SPEED_EPS        0.005f              // 制动前馈方向平滑速度阈值，单位 m/s
+#define CHASSIS_BRAKE_ENTER_SPEED_EPS     0.04f              // 制动进入实测轮速阈值，单位 m/s
+#define CHASSIS_BRAKE_RELEASE_SPEED_EPS   0.002f             // 制动释放实测轮速阈值，单位 m/s
 
 /* ========================= MIT 协议参数范围 ========================= */
 #define P_MIN                              -12.5663704f // 位置最小值
