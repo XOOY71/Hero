@@ -104,10 +104,14 @@ typedef struct
     fp32 chassis_yaw_target;
     fp32 chassis_yaw_set;
     fp32 chassis_yaw_set_vel;
-    fp32 chassis_angle_ref_vel_last;
-    fp32 chassis_angle_ref_accel;
-    fp32 chassis_angle_ff_out;
-    uint8_t chassis_angle_ff_init;
+    fp32 last_vx_plan_ff;
+    fp32 last_vy_plan_ff;
+    fp32 last_wz_plan_ff;
+    fp32 body_ff_ax;
+    fp32 body_ff_ay;
+    fp32 body_ff_alpha;
+    fp32 body_ff_current[CHASSIS_MODULE_NUM];
+    uint8_t body_ff_init;
     fp32 gimbal_radian_of_ecd;
     fp32 chassis_yaw_rate;
 

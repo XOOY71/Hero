@@ -118,6 +118,25 @@ void VOFA_SendChassisAnglePidDebug(void)
                actual_vel);
 }
 
+void VOFA_SendChassisTranslatePairDebug(void)
+{
+    uint8_t motor_a = WHEEL_REAR_205;
+    uint8_t motor_b = WHEEL_FRONT_207;
+
+    if (fabsf(chassis_move.vx_plan) > fabsf(chassis_move.vy_plan))
+    {
+        motor_a = WHEEL_RIGHT_206;
+        motor_b = WHEEL_LEFT_208;
+    }
+
+    VOFA_Send6(chassis_move.chassis_3508[motor_a].speed_set,
+               chassis_move.chassis_3508[motor_a].speed,
+               (float)chassis_move.chassis_3508[motor_a].give_current,
+               chassis_move.chassis_3508[motor_b].speed_set,
+               chassis_move.chassis_3508[motor_b].speed,
+               (float)chassis_move.chassis_3508[motor_b].give_current);
+}
+
 void VOFA_SendGimbalFric(void)
 {
     float current_avg;
@@ -185,5 +204,5 @@ void VOFA_SendGimbalStrum(void)
 
 void VOFA_ServiceSend(void)
 {
-    VOFA_SendChassisAnglePidDebug();
+    VOFA_SendChassisTranslatePairDebug();
 }

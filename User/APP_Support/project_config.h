@@ -249,20 +249,20 @@ extern "C" {
 #define CHASSIS_ACCEL_Y_NUM               0.1f      // y 方向遥控速度一阶滤波系数，无量纲
 #define MAX_WHEEL_SPEED                   3.2f               // 单轮目标速度上限，单位 m/s
 
-#define CHASSIS_MAX_ACCEL                 10.0f               // 底盘平移最大加速度，单位 m/s^2
-#define CHASSIS_MAX_JERK                  50.0f              // 底盘平移最大加加速度，单位 m/s^3
-#define CHASSIS_STOP_DECEL                12.0f               // 底盘松杆停车减速度，单位 m/s^2
-#define CHASSIS_STOP_JERK                 200.0f             // 底盘松杆停车减速度变化率，单位 m/s^3
+#define CHASSIS_MAX_ACCEL                 6.0f               // 底盘平移最大加速度，单位 m/s^2
+#define CHASSIS_MAX_JERK                  35.0f              // 底盘平移最大加加速度，单位 m/s^3
+#define CHASSIS_STOP_DECEL                8.0f               // 底盘松杆停车减速度，单位 m/s^2
+#define CHASSIS_STOP_JERK                 120.0f             // 底盘松杆停车减速度变化率，单位 m/s^3
 #define CHASSIS_WZ_MAX_SPEED              10.0f              // 底盘旋转最大角速度，单位 rad/s
-#define CHASSIS_WZ_MAX_ACCEL              30.0f              // 底盘旋转最大角加速度，单位 rad/s^2
-#define CHASSIS_WZ_MAX_JERK               300.0f             // 底盘旋转最大角加加速度，单位 rad/s^3
+#define CHASSIS_WZ_MAX_ACCEL              18.0f              // 底盘旋转最大角加速度，单位 rad/s^2
+#define CHASSIS_WZ_MAX_JERK               160.0f             // 底盘旋转最大角加加速度，单位 rad/s^3
 #define CHASSIS_LAT_ACCEL_LIMIT           6.8f               // 底盘高速转弯横向加速度上限，单位 m/s^2
 #define CHASSIS_LAT_SPEED_EPS             0.5f               // 横向加速度限幅启用的最小平移速度，单位 m/s
-#define CHASSIS_YAW_HOLD_RC_SEN           0.009f             // yaw 保持模式摇杆积分灵敏度，单位 rad/s/遥控计数
-#define CHASSIS_SPEED_PI_KP               1200.0f            // 底盘轮速 PI 比例系数，单位 电流命令计数/(m/s)
-#define CHASSIS_SPEED_PI_KI               40.0f              // 底盘轮速 PI 积分系数，单位 电流命令计数/m
-#define CHASSIS_SPEED_PI_MAX_OUT          2500.0f            // 底盘轮速 PI 输出限幅，单位 电流命令计数
-#define CHASSIS_SPEED_PI_MAX_IOUT         800.0f             // 底盘轮速 PI 积分限幅，单位 电流命令计数
+#define CHASSIS_YAW_HOLD_RC_SEN           0.004f             // yaw 保持模式摇杆积分灵敏度，单位 rad/s/遥控计数
+#define CHASSIS_SPEED_PI_KP               900.0f             // 底盘轮速 PI 比例系数，单位 电流命令计数/(m/s)
+#define CHASSIS_SPEED_PI_KI               20.0f              // 底盘轮速 PI 积分系数，单位 电流命令计数/m
+#define CHASSIS_SPEED_PI_MAX_OUT          1800.0f            // 底盘轮速 PI 输出限幅，单位 电流命令计数
+#define CHASSIS_SPEED_PI_MAX_IOUT         400.0f             // 底盘轮速 PI 积分限幅，单位 电流命令计数
 
 #define CHASSIS_CURRENT_BASE_LIMIT_A      3.0f               // 底盘单电机基础电流限幅，单位 A
 #define CHASSIS_CURRENT_DYNAMIC_POOL_A    4.0f               // 底盘四电机共享动态电流池，单位 A
@@ -278,13 +278,13 @@ extern "C" {
 #define YAW_RETURN_PID_MAX_IOUT           60.0f              // 底盘回正角度 PID 积分限幅，单位 PID输出计数
 #define CHASSIS_RETURN_WZ_SCALE           0.006f             // 底盘回正 PID 输出转角速度系数，单位 (rad/s)/PID输出计数
 
-#define CHASSIS_ANGLE_PD_KP                10.0f              // 底盘角度 PD 比例系数，单位 (rad/s)/rad
-#define CHASSIS_ANGLE_PD_KD                0.1f              // 底盘角度 PD 微分系数
-#define CHASSIS_ANGLE_PD_MAX_OUT           8.0f              // 底盘角度 PD 输出限幅，单位 rad/s
+#define CHASSIS_ANGLE_PD_KP                7.0f              // 底盘角度 PD 比例系数，单位 (rad/s)/rad
+#define CHASSIS_ANGLE_PD_KD                0.25f             // 底盘角度 PD 微分系数
+#define CHASSIS_ANGLE_PD_MAX_OUT           6.0f              // 底盘角度 PD 输出限幅，单位 rad/s
 
-#define CHASSIS_YAW_REF_ACCEL_LIMIT        100.0f            // 底盘 yaw 目标角加速度限幅，单位 rad/s^2
-#define CHASSIS_YAW_INERTIA_FF_GAIN        0.02f             // 底盘 yaw 惯量前馈系数，单位 (rad/s)/(rad/s^2)
-#define CHASSIS_YAW_INERTIA_FF_MAX_OUT     2.0f              // 底盘 yaw 惯量前馈输出限幅，单位 rad/s
+#define CHASSIS_BODY_FF_YAW_INERTIA_KGM2   0.25f             // 底盘 yaw 轴转动惯量前馈参数，单位 kg*m^2
+#define CHASSIS_BODY_FF_YAW_ACCEL_LIMIT    60.0f             // 底盘 yaw 规划角加速度限幅，单位 rad/s^2
+#define CHASSIS_BODY_FF_MAX_CURRENT_CMD    2500.0f           // 底盘整车动力学前馈单轮电流命令限幅
 #define CHASSIS_YAW_RATE_FEEDBACK_SIGN     -1.0f             // 底盘 yaw 陀螺仪角速度反馈方向系数
 /* ========================= 底盘物理前馈参数 ========================= */
 #define Wheel_Radius                      0.075f            // 底盘轮半径，单位 m

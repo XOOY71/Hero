@@ -54,14 +54,14 @@ static void chassis_set_mode(chassis_move_t *chassis_move_mode);
 static void chassis_mode_change_control_transit(chassis_move_t *chassis_move_transit);
 static void chassis_set_contorl(chassis_move_t *chassis_move_control);
 static uint8_t chassis_hwt101_yaw_ready(void);
-static void chassis_angle_feedforward_clear(chassis_move_t *chassis_move_ff);
-static fp32 chassis_angle_feedforward_update(chassis_move_t *chassis_move_ff, fp32 target_vel);
 static fp32 chassis_angle_pd_calc(pid_type_def *pd, fp32 actual, fp32 target, uint8_t wrap_enable, fp32 target_vel, fp32 actual_vel);
 static fp32 chassis_follow_yaw_control(chassis_move_t *chassis_move_follow, fp32 manual_wz);
 static fp32 chassis_yaw_hold_control(chassis_move_t *chassis_move_yaw_hold, fp32 manual_wz);
 static fp32 chassis_limit_abs(fp32 value, fp32 max_abs);
 static fp32 chassis_s_curve_update(fp32 cmd, fp32 *plan, fp32 *accel, fp32 max_speed, fp32 max_accel, fp32 max_jerk, fp32 stop_accel, fp32 stop_jerk);
 static fp32 chassis_speed_pi_calc(chassis_move_t *chassis_move_pi, uint8_t motor_idx, fp32 error_v);
+static void chassis_body_feedforward_clear(chassis_move_t *chassis_move_ff);
+static void chassis_body_feedforward_update(chassis_move_t *chassis_move_ff);
 static fp32 Model_Based_Control(uint8_t motor_idx, fp32 set_speed, fp32 ref_speed);
 static void PID_Calc_Jump(chassis_move_t *chassis_pid_calc);
 static void chassis_dynamic_current_limit_update(chassis_move_t *chassis_move_limit);
@@ -195,10 +195,7 @@ static void chassis_init(chassis_move_t *chassis_move_init)
 	chassis_move_init->chassis_yaw_target = 0.0f;
 	chassis_move_init->chassis_yaw_set = 0.0f;
 	chassis_move_init->chassis_yaw_set_vel = 0.0f;
-	chassis_move_init->chassis_angle_ref_vel_last = 0.0f;
-	chassis_move_init->chassis_angle_ref_accel = 0.0f;
-	chassis_move_init->chassis_angle_ff_out = 0.0f;
-	chassis_move_init->chassis_angle_ff_init = 0u;
+	chassis_body_feedforward_clear(chassis_move_init);
 	chassis_move_init->chassis_yaw_rate = 0.0f;
 
 	chassis_wheel_angle_offset_init();
@@ -240,7 +237,7 @@ static void chassis_mode_change_control_transit(chassis_move_t *chassis_move_tra
 		chassis_move_transit->wz_plan = 0.0f;
 		chassis_move_transit->wz_plan_accel = 0.0f;
 		PID_clear(&chassis_move_transit->chassis_angle_pid);
-		chassis_angle_feedforward_clear(chassis_move_transit);
+		chassis_body_feedforward_clear(chassis_move_transit);
 	}
 	else if((chassis_move_transit->last_chassis_mode != CHASSIS_VECTOR_FOLLOW_GIMBAL_YAW) && chassis_move_transit->chassis_mode == CHASSIS_VECTOR_FOLLOW_GIMBAL_YAW)
 	{
@@ -248,7 +245,7 @@ static void chassis_mode_change_control_transit(chassis_move_t *chassis_move_tra
 		chassis_move_transit->chassis_relative_angle_set = 0.0f;
 		chassis_move_transit->chassis_relative_angle_set_vel = 0.0f;
 		PID_clear(&chassis_move_transit->chassis_angle_pid);
-		chassis_angle_feedforward_clear(chassis_move_transit);
+		chassis_body_feedforward_clear(chassis_move_transit);
 	}
 	else if((chassis_move_transit->last_chassis_mode != CHASSIS_VECTOR_YAW_HOLD) && chassis_move_transit->chassis_mode == CHASSIS_VECTOR_YAW_HOLD)
 	{
@@ -256,7 +253,7 @@ static void chassis_mode_change_control_transit(chassis_move_t *chassis_move_tra
 		chassis_move_transit->chassis_yaw_set = chassis_move_transit->chassis_yaw;
 		chassis_move_transit->chassis_yaw_set_vel = 0.0f;
 		PID_clear(&chassis_move_transit->chassis_angle_pid);
-		chassis_angle_feedforward_clear(chassis_move_transit);
+		chassis_body_feedforward_clear(chassis_move_transit);
 	}
 	else if((chassis_move_transit->last_chassis_mode != CHASSIS_VECTOR_SPIN) && chassis_move_transit->chassis_mode == CHASSIS_VECTOR_SPIN)
 	{
@@ -264,7 +261,7 @@ static void chassis_mode_change_control_transit(chassis_move_t *chassis_move_tra
 		chassis_move_transit->chassis_relative_angle_set = chassis_move_transit->chassis_yaw;
 		chassis_move_transit->chassis_relative_angle_set_vel = 0.0f;
 		PID_clear(&chassis_move_transit->chassis_angle_pid);
-		chassis_angle_feedforward_clear(chassis_move_transit);
+		chassis_body_feedforward_clear(chassis_move_transit);
 	}
 
 	chassis_move_transit->last_chassis_mode = chassis_move_transit->chassis_mode;
@@ -412,39 +409,93 @@ static uint8_t chassis_hwt101_yaw_ready(void)
 	return 0u;
 }
 
-static void chassis_angle_feedforward_clear(chassis_move_t *chassis_move_ff)
+static void chassis_body_feedforward_clear(chassis_move_t *chassis_move_ff)
 {
+	uint8_t i;
+
 	if (chassis_move_ff == NULL) return;
 
-	chassis_move_ff->chassis_angle_ref_vel_last = 0.0f;
-	chassis_move_ff->chassis_angle_ref_accel = 0.0f;
-	chassis_move_ff->chassis_angle_ff_out = 0.0f;
-	chassis_move_ff->chassis_angle_ff_init = 0u;
+	chassis_move_ff->last_vx_plan_ff = 0.0f;
+	chassis_move_ff->last_vy_plan_ff = 0.0f;
+	chassis_move_ff->last_wz_plan_ff = 0.0f;
+	chassis_move_ff->body_ff_ax = 0.0f;
+	chassis_move_ff->body_ff_ay = 0.0f;
+	chassis_move_ff->body_ff_alpha = 0.0f;
+	for (i = 0; i < CHASSIS_MODULE_NUM; i++)
+	{
+		chassis_move_ff->body_ff_current[i] = 0.0f;
+	}
+	chassis_move_ff->body_ff_init = 0u;
 }
 
-static fp32 chassis_angle_feedforward_update(chassis_move_t *chassis_move_ff, fp32 target_vel)
+static fp32 chassis_body_force_to_current_cmd(fp32 force_n)
 {
-	fp32 ref_accel;
+	fp32 torque_output;
+	fp32 current_a;
+	fp32 current_cmd;
 
-	if (chassis_move_ff == NULL) return 0.0f;
+	torque_output = (force_n * Wheel_Radius) / CHASSIS_EFFICIENCY;
+	torque_output = chassis_limit_abs(torque_output, M3508_MAX_CONT_TORQUE * M3508_REDUCTION_RATIO);
+	current_a = torque_output / M3508_TORQUE_CONSTANT;
+	current_cmd = current_a * (CHASSIS_CURRENT_CMD_FULL_SCALE / CHASSIS_CURRENT_FULL_SCALE_A);
 
-	if (chassis_move_ff->chassis_angle_ff_init == 0u)
+	return chassis_limit_abs(current_cmd, CHASSIS_BODY_FF_MAX_CURRENT_CMD);
+}
+
+static void chassis_body_feedforward_update(chassis_move_t *chassis_move_ff)
+{
+	fp32 ax;
+	fp32 ay;
+	fp32 alpha;
+	fp32 force_x;
+	fp32 force_y;
+	fp32 torque_z;
+	fp32 yaw_force;
+	fp32 wheel_force[CHASSIS_MODULE_NUM] = {0.0f};
+	const fp32 accel_limit = (CHASSIS_STOP_DECEL > CHASSIS_MAX_ACCEL) ? CHASSIS_STOP_DECEL : CHASSIS_MAX_ACCEL;
+
+	if (chassis_move_ff == NULL) return;
+
+	if (chassis_move_ff->body_ff_init == 0u)
 	{
-		chassis_move_ff->chassis_angle_ref_vel_last = target_vel;
-		chassis_move_ff->chassis_angle_ref_accel = 0.0f;
-		chassis_move_ff->chassis_angle_ff_out = 0.0f;
-		chassis_move_ff->chassis_angle_ff_init = 1u;
-		return 0.0f;
+		chassis_move_ff->last_vx_plan_ff = chassis_move_ff->vx_plan;
+		chassis_move_ff->last_vy_plan_ff = chassis_move_ff->vy_plan;
+		chassis_move_ff->last_wz_plan_ff = chassis_move_ff->wz_plan;
+		chassis_move_ff->body_ff_init = 1u;
+		return;
 	}
 
-	ref_accel = (target_vel - chassis_move_ff->chassis_angle_ref_vel_last) / CHASSIS_CONTROL_TIME;
-	ref_accel = chassis_limit_abs(ref_accel, CHASSIS_YAW_REF_ACCEL_LIMIT);
-	chassis_move_ff->chassis_angle_ref_vel_last = target_vel;
-	chassis_move_ff->chassis_angle_ref_accel = ref_accel;
-	chassis_move_ff->chassis_angle_ff_out =
-		chassis_limit_abs(CHASSIS_YAW_INERTIA_FF_GAIN * ref_accel, CHASSIS_YAW_INERTIA_FF_MAX_OUT);
+	ax = (chassis_move_ff->vx_plan - chassis_move_ff->last_vx_plan_ff) / CHASSIS_CONTROL_TIME;
+	ay = (chassis_move_ff->vy_plan - chassis_move_ff->last_vy_plan_ff) / CHASSIS_CONTROL_TIME;
+	alpha = (chassis_move_ff->wz_plan - chassis_move_ff->last_wz_plan_ff) / CHASSIS_CONTROL_TIME;
+	ax = chassis_limit_abs(ax, accel_limit);
+	ay = chassis_limit_abs(ay, accel_limit);
+	alpha = chassis_limit_abs(alpha, CHASSIS_BODY_FF_YAW_ACCEL_LIMIT);
 
-	return chassis_move_ff->chassis_angle_ff_out;
+	chassis_move_ff->last_vx_plan_ff = chassis_move_ff->vx_plan;
+	chassis_move_ff->last_vy_plan_ff = chassis_move_ff->vy_plan;
+	chassis_move_ff->last_wz_plan_ff = chassis_move_ff->wz_plan;
+	chassis_move_ff->vx_plan_accel = ax;
+	chassis_move_ff->vy_plan_accel = ay;
+	chassis_move_ff->wz_plan_accel = alpha;
+	chassis_move_ff->body_ff_ax = ax;
+	chassis_move_ff->body_ff_ay = ay;
+	chassis_move_ff->body_ff_alpha = alpha;
+
+	force_x = ROBOT_MASS * ax;
+	force_y = ROBOT_MASS * ay;
+	torque_z = CHASSIS_BODY_FF_YAW_INERTIA_KGM2 * alpha;
+	yaw_force = (fabsf(CHASSIS_OMNI_ROTATE_RADIUS) > 0.0001f) ? (torque_z / CHASSIS_OMNI_ROTATE_RADIUS) : 0.0f;
+
+	wheel_force[WHEEL_REAR_205]  =  0.5f * force_y + 0.25f * yaw_force;
+	wheel_force[WHEEL_RIGHT_206] = -0.5f * force_x + 0.25f * yaw_force;
+	wheel_force[WHEEL_FRONT_207] = -0.5f * force_y + 0.25f * yaw_force;
+	wheel_force[WHEEL_LEFT_208]  =  0.5f * force_x + 0.25f * yaw_force;
+
+	for (uint8_t i = 0U; i < CHASSIS_MODULE_NUM; i++)
+	{
+		chassis_move_ff->body_ff_current[i] = chassis_body_force_to_current_cmd(wheel_force[i]);
+	}
 }
 
 static fp32 chassis_angle_pd_calc(pid_type_def *pd, fp32 actual, fp32 target, uint8_t wrap_enable, fp32 target_vel, fp32 actual_vel)
@@ -481,7 +532,6 @@ static fp32 chassis_follow_yaw_control(chassis_move_t *chassis_move_follow, fp32
 	uint8_t wrap_enable = 1u;
 	fp32 target_vel;
 	fp32 pd_out;
-	fp32 ff_out;
 	fp32 wz_cmd;
 
 	if (chassis_move_follow == NULL) return 0.0f;
@@ -491,7 +541,6 @@ static fp32 chassis_follow_yaw_control(chassis_move_t *chassis_move_follow, fp32
 	    (chassis_move_follow->chassis_yaw_motor->angle_offset_init == 0u))
 	{
 		PID_clear(&chassis_move_follow->chassis_angle_pid);
-		chassis_angle_feedforward_clear(chassis_move_follow);
 		return 0.0f;
 	}
 
@@ -521,7 +570,6 @@ static fp32 chassis_follow_yaw_control(chassis_move_t *chassis_move_follow, fp32
 	chassis_move_follow->chassis_relative_angle_set =
 		chassis_move_follow->chassis_relative_angle_target;
 	chassis_move_follow->chassis_relative_angle_set_vel = target_vel;
-	ff_out = chassis_angle_feedforward_update(chassis_move_follow, target_vel);
 
 	pd_out = chassis_angle_pd_calc(&chassis_move_follow->chassis_angle_pid,
 	                               chassis_move_follow->chassis_relative_angle,
@@ -529,7 +577,7 @@ static fp32 chassis_follow_yaw_control(chassis_move_t *chassis_move_follow, fp32
 	                               wrap_enable,
 	                               chassis_move_follow->chassis_relative_angle_set_vel,
 	                               0.0f);
-	wz_cmd = -chassis_limit_abs(pd_out + ff_out, CHASSIS_WZ_MAX_SPEED);
+	wz_cmd = -chassis_limit_abs(pd_out, CHASSIS_WZ_MAX_SPEED);
 	return wz_cmd;
 }
 
@@ -537,7 +585,6 @@ static fp32 chassis_yaw_hold_control(chassis_move_t *chassis_move_yaw_hold, fp32
 {
 	fp32 yaw_rate_set;
 	fp32 pd_out;
-	fp32 ff_out;
 	fp32 wz_cmd;
 
 	if (chassis_move_yaw_hold == NULL) return 0.0f;
@@ -548,7 +595,6 @@ static fp32 chassis_yaw_hold_control(chassis_move_t *chassis_move_yaw_hold, fp32
 		chassis_move_yaw_hold->chassis_yaw_target = chassis_move_yaw_hold->chassis_yaw;
 		chassis_move_yaw_hold->chassis_yaw_set = chassis_move_yaw_hold->chassis_yaw;
 		chassis_move_yaw_hold->chassis_yaw_set_vel = 0.0f;
-		chassis_angle_feedforward_clear(chassis_move_yaw_hold);
 		return 0.0f;
 	}
 
@@ -562,7 +608,6 @@ static fp32 chassis_yaw_hold_control(chassis_move_t *chassis_move_yaw_hold, fp32
 	chassis_move_yaw_hold->chassis_yaw_set =
 		chassis_move_yaw_hold->chassis_yaw_target;
 	chassis_move_yaw_hold->chassis_yaw_set_vel = yaw_rate_set;
-	ff_out = chassis_angle_feedforward_update(chassis_move_yaw_hold, yaw_rate_set);
 
 	pd_out = chassis_angle_pd_calc(&chassis_move_yaw_hold->chassis_angle_pid,
 	                               chassis_move_yaw_hold->chassis_yaw,
@@ -570,7 +615,7 @@ static fp32 chassis_yaw_hold_control(chassis_move_t *chassis_move_yaw_hold, fp32
 	                               0u,
 	                               chassis_move_yaw_hold->chassis_yaw_set_vel,
 	                               chassis_move_yaw_hold->chassis_yaw_rate);
-	wz_cmd = -chassis_limit_abs(pd_out + ff_out, CHASSIS_WZ_MAX_SPEED);
+	wz_cmd = -chassis_limit_abs(pd_out, CHASSIS_WZ_MAX_SPEED);
 	return wz_cmd;
 }
 
@@ -674,19 +719,13 @@ static fp32 Model_Based_Control(uint8_t motor_idx, fp32 set_speed, fp32 ref_spee
 {
 	fp32 error_v = set_speed - ref_speed;
 	fp32 accel_raw = 0.0f;
-	fp32 accel_alpha = 0.0f;
-	fp32 F_traction = 0.0f;
 	fp32 I_accel = 0.0f;
 	fp32 I_viscous = 0.0f;
 	fp32 I_coulomb = 0.0f;
 	fp32 I_static = 0.0f;
 	fp32 I_brake = 0.0f;
 	fp32 I_pi = 0.0f;
-	fp32 F_total = 0.0f;
-	fp32 Torque_output = 0.0f;
-	fp32 Current_A = 0.0f;
 	fp32 out = 0.0f;
-	fp32 accel_limit = CHASSIS_MAX_ACCEL;
 	fp32 friction_ff_scale = 1.0f;
 	uint8_t brake_mode = 0u;
 
@@ -716,34 +755,12 @@ static fp32 Model_Based_Control(uint8_t motor_idx, fp32 set_speed, fp32 ref_spee
 
 	if (brake_mode != 0u)
 	{
-		accel_limit = CHASSIS_STOP_DECEL;
 		friction_ff_scale = CHASSIS_BRAKE_FRICTION_FF_SCALE;
-		if ((chassis_move.model_accel[motor_idx] * accel_raw) < 0.0f)
-		{
-			chassis_move.model_accel[motor_idx] = 0.0f;
-		}
 	}
 
 	chassis_move.model_last_speed_set[motor_idx] = set_speed;
-	accel_raw = chassis_limit_abs(accel_raw, accel_limit);
-	accel_alpha = CHASSIS_CONTROL_TIME / (CHASSIS_ACCEL_FILTER_TAU + CHASSIS_CONTROL_TIME);
-	chassis_move.model_accel[motor_idx] += accel_alpha * (accel_raw - chassis_move.model_accel[motor_idx]);
-	chassis_move.model_accel[motor_idx] = chassis_limit_abs(chassis_move.model_accel[motor_idx], accel_limit);
 
-	F_traction = (ROBOT_MASS / 4.0f) * chassis_move.model_accel[motor_idx];
-	F_total = F_traction;
-	Torque_output = (F_total * Wheel_Radius) / CHASSIS_EFFICIENCY;
-	if (Torque_output > M3508_MAX_CONT_TORQUE * M3508_REDUCTION_RATIO)
-	{
-		Torque_output = M3508_MAX_CONT_TORQUE * M3508_REDUCTION_RATIO;
-	}
-	else if (Torque_output < -M3508_MAX_CONT_TORQUE * M3508_REDUCTION_RATIO)
-	{
-		Torque_output = -M3508_MAX_CONT_TORQUE * M3508_REDUCTION_RATIO;
-	}
-
-	Current_A = Torque_output / M3508_TORQUE_CONSTANT;
-	I_accel = Current_A * (CHASSIS_CURRENT_CMD_FULL_SCALE / CHASSIS_CURRENT_FULL_SCALE_A);
+	I_accel = chassis_move.body_ff_current[motor_idx];
 	I_viscous = friction_ff_scale * CHASSIS_FF_VISCOUS_GAIN * set_speed;
 	I_coulomb = friction_ff_scale * CHASSIS_FF_COULOMB_CURRENT * tanhf(set_speed / CHASSIS_FF_COULOMB_SPEED_EPS);
 	I_static = friction_ff_scale * CHASSIS_FF_STATIC_CURRENT * tanhf(set_speed / CHASSIS_FF_STATIC_SPEED_EPS);
@@ -908,6 +925,7 @@ static void chassis_control_loop(chassis_move_t *chassis_move_control_loop)
 	chassis_move_control_loop->wz_plan = chassis_limit_wz_by_lateral_accel(chassis_move_control_loop->vx_plan,
 	                                                                       chassis_move_control_loop->vy_plan,
 	                                                                       chassis_move_control_loop->wz_plan);
+	chassis_body_feedforward_update(chassis_move_control_loop);
 
 	chas_inv_cal(chassis_move_control_loop->vx_plan,
 	             chassis_move_control_loop->vy_plan,
