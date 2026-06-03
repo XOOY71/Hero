@@ -33,6 +33,7 @@
 #include "cmsis_os.h"
 #include "gimbal_behaviour.h"
 #include "project_config.h"
+#include <math.h>
 #include <stdbool.h>
 
 /* 鍑芥暟澹版槑鍖?*/
@@ -40,6 +41,10 @@ static void chassis_no_move_control											(fp32 *vx_set, fp32 *vy_set, fp32 
 static void chassis_infantry_follow_gimbal_yaw_control	(fp32 *vx_set, fp32 *vy_set, fp32 *wz_set, chassis_move_t *chassis_move_rc_to_vector);
 static void chassis_yaw_hold_control										(fp32 *vx_set, fp32 *vy_set, fp32 *wz_set, chassis_move_t *chassis_move_rc_to_vector);
 static void chassis_spin_control												(fp32 *vx_set, fp32 *vy_set, fp32 *wz_set, chassis_move_t *chassis_move_rc_to_vector);
+static void chassis_release_reverse_update(fp32 *vx_set,
+                                           fp32 *vy_set,
+                                           bool stick_active,
+                                           chassis_move_t *chassis_move_rc_to_vector);
 
 
 //搴曠洏琛屼负妯″紡鍙橀噺, 浼氫繚瀛樺綋鍓嶅簳鐩樿涓烘ā寮? 鍒濆鍖栦负鏃犲姏妯″紡
@@ -247,12 +252,14 @@ void chassis_rc_to_control_vector(fp32 *vx_set, fp32 *vy_set, chassis_move_t *ch
 	int16_t vx_channel, vy_channel;
 	fp32 vx_set_channel, vy_set_channel;
 	fp32 slope_percentage = 0.30f;
+	bool stick_active;
 	static uint8_t orientation_count[4] = {0};
 
 	rc_deadband_limit(chassis_move_rc_to_vector->chassis_RC->rc.ch[CHASSIS_X_CHANNEL], vx_channel, CHASSIS_RC_DEADLINE);
 	rc_deadband_limit(chassis_move_rc_to_vector->chassis_RC->rc.ch[CHASSIS_Y_CHANNEL], vy_channel, CHASSIS_RC_DEADLINE);
 	vx_set_channel = vx_channel * (CHASSIS_VX_RC_SEN);
 	vy_set_channel = vy_channel * (CHASSIS_VY_RC_SEN);
+	stick_active = ((vx_channel != 0) || (vy_channel != 0));
 
 	if (chassis_move_rc_to_vector->chassis_RC->key.v & CHASSIS_FRONT_KEY)
 	{
@@ -296,4 +303,93 @@ void chassis_rc_to_control_vector(fp32 *vx_set, fp32 *vy_set, chassis_move_t *ch
 
 	*vx_set =  chassis_move_rc_to_vector->chassis_cmd_slow_set_vx.out;
 	*vy_set = -chassis_move_rc_to_vector->chassis_cmd_slow_set_vy.out;
+
+	chassis_release_reverse_update(vx_set,
+	                               vy_set,
+	                               stick_active,
+	                               chassis_move_rc_to_vector);
+}
+
+static void chassis_release_reverse_update(fp32 *vx_set,
+                                           fp32 *vy_set,
+                                           bool stick_active,
+                                           chassis_move_t *chassis_move_rc_to_vector)
+{
+#if (CHASSIS_RELEASE_REVERSE_ENABLE != 0U)
+	static bool last_stick_active = false;
+	static fp32 reverse_vx_set = 0.0f;
+	static fp32 reverse_vy_set = 0.0f;
+	static fp32 reverse_scale = 0.0f;
+	static fp32 reverse_decay_time = CHASSIS_RELEASE_REVERSE_MIN_TIME;
+	static bool reverse_lock_zero = false;
+
+	fp32 plan_speed;
+	fp32 decay_step;
+	fp32 speed_ratio;
+
+	if (vx_set == NULL || vy_set == NULL || chassis_move_rc_to_vector == NULL) return;
+
+	if (stick_active)
+	{
+		last_stick_active = true;
+		reverse_scale = 0.0f;
+		reverse_lock_zero = false;
+		return;
+	}
+
+	if (last_stick_active)
+	{
+		plan_speed = sqrtf(chassis_move_rc_to_vector->vx_plan * chassis_move_rc_to_vector->vx_plan +
+		                   chassis_move_rc_to_vector->vy_plan * chassis_move_rc_to_vector->vy_plan);
+		if (plan_speed > CHASSIS_RELEASE_REVERSE_LOCK_SPEED_EPS)
+		{
+			reverse_vx_set = -chassis_move_rc_to_vector->vx_plan;
+			reverse_vy_set = -chassis_move_rc_to_vector->vy_plan;
+			speed_ratio = plan_speed / CHASSIS_RELEASE_REVERSE_REF_SPEED;
+			if (speed_ratio > 1.0f)
+			{
+				speed_ratio = 1.0f;
+			}
+			reverse_decay_time = CHASSIS_RELEASE_REVERSE_MIN_TIME +
+			                     (CHASSIS_RELEASE_REVERSE_MAX_TIME - CHASSIS_RELEASE_REVERSE_MIN_TIME) *
+			                     speed_ratio;
+			reverse_scale = 1.0f;
+			reverse_lock_zero = false;
+		}
+		last_stick_active = false;
+	}
+
+	if (reverse_scale > 0.0f)
+	{
+		*vx_set = reverse_vx_set * reverse_scale;
+		*vy_set = reverse_vy_set * reverse_scale;
+
+		decay_step = CHASSIS_CONTROL_TIME / reverse_decay_time;
+		reverse_scale -= decay_step;
+		if (reverse_scale <= 0.0f)
+		{
+			reverse_scale = 0.0f;
+			reverse_lock_zero = true;
+		}
+	}
+
+	if (reverse_lock_zero)
+	{
+		*vx_set = 0.0f;
+		*vy_set = 0.0f;
+		chassis_move_rc_to_vector->chassis_cmd_slow_set_vx.out = 0.0f;
+		chassis_move_rc_to_vector->chassis_cmd_slow_set_vy.out = 0.0f;
+
+		if ((fabsf(chassis_move_rc_to_vector->vx_plan) < CHASSIS_RELEASE_REVERSE_LOCK_SPEED_EPS) &&
+		    (fabsf(chassis_move_rc_to_vector->vy_plan) < CHASSIS_RELEASE_REVERSE_LOCK_SPEED_EPS))
+		{
+			reverse_lock_zero = false;
+		}
+	}
+#else
+	(void)vx_set;
+	(void)vy_set;
+	(void)stick_active;
+	(void)chassis_move_rc_to_vector;
+#endif
 }

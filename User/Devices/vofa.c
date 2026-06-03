@@ -74,6 +74,16 @@ void VOFA_SendChassisPowerDebug(uint8_t motor_idx)
                PowerLimit.P_bus);
 }
 
+void VOFA_SendChassisPowerCurrentDebug(void)
+{
+    VOFA_Send6(PowerLimit.P_origin,
+               chassis_move.chassis_3508[0].given_current_a,
+               chassis_move.chassis_3508[1].given_current_a,
+               chassis_move.chassis_3508[2].given_current_a,
+               chassis_move.chassis_3508[3].given_current_a,
+               PowerLimit.P_bus);
+}
+
 void VOFA_SendChassisSpeedAccel(void)
 {
     VOFA_Send6(chassis_move.vx_plan,
@@ -223,5 +233,5 @@ void VOFA_SendGimbalStrum(void)
 
 void VOFA_ServiceSend(void)
 {
-    VOFA_SendChassisMotionDebug();
+    VOFA_SendChassisPowerCurrentDebug();
 }

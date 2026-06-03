@@ -529,11 +529,13 @@ static fp32 chassis_s_curve_update(fp32 cmd, fp32 *plan, fp32 *accel, fp32 max_s
 	fp32 decel_limit;
 	fp32 jerk_limit;
 	const fp32 stop_epsilon = 0.0001f;
+	uint8_t brake_to_zero;
 
 	if (plan == NULL || accel == NULL) return 0.0f;
 
 	target = chassis_limit_abs(cmd, max_speed);
-	if (fabsf(target) < stop_epsilon)
+	brake_to_zero = ((fabsf(target) < stop_epsilon) || ((*plan) * target < 0.0f)) ? 1u : 0u;
+	if (brake_to_zero != 0u)
 	{
 		decel_limit = (stop_accel > 0.0f) ? stop_accel : max_accel;
 		jerk_limit = (stop_jerk > 0.0f) ? stop_jerk : max_jerk;

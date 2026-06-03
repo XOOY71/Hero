@@ -261,6 +261,12 @@ extern "C" {
 #define CHASSIS_ACCEL_Y_NUM               0.1f      // y 方向遥控速度一阶滤波系数，无量纲
 #define MAX_WHEEL_SPEED                   3.2f               // 单轮目标速度上限，单位 m/s
 
+#define CHASSIS_RELEASE_REVERSE_ENABLE    1U                 // 1: 使能松杆反向速度脉冲
+#define CHASSIS_RELEASE_REVERSE_MIN_TIME  0.04f              // 低速松杆时的最小线性衰减时间，单位 s
+#define CHASSIS_RELEASE_REVERSE_MAX_TIME  0.4f              // 高速松杆时的最大线性衰减时间，单位 s
+#define CHASSIS_RELEASE_REVERSE_REF_SPEED 3.2f               // 衰减时间达到最大值的参考规划速度，单位 m/s
+#define CHASSIS_RELEASE_REVERSE_LOCK_SPEED_EPS 0.05f         // 反向衰减结束后解除锁零的规划速度阈值，单位 m/s
+
 #define CHASSIS_MAX_ACCEL                 6.0f               // 底盘平移最大加速度，单位 m/s^2
 #define CHASSIS_MAX_JERK                  35.0f              // 底盘平移最大加加速度，单位 m/s^3
 #define CHASSIS_STOP_DECEL                28.0f              // 底盘松杆停车减速度，单位 m/s^2
@@ -296,7 +302,7 @@ extern "C" {
 
 #define CHASSIS_BODY_FF_YAW_INERTIA_KGM2   0.25f             // 底盘 yaw 轴转动惯量前馈参数，单位 kg*m^2
 #define CHASSIS_BODY_FF_YAW_ACCEL_LIMIT    60.0f             // 底盘 yaw 规划角加速度限幅，单位 rad/s^2
-#define CHASSIS_BODY_FF_MAX_CURRENT_CMD    2500.0f           // 底盘整车动力学前馈单轮电流命令限幅
+#define CHASSIS_BODY_FF_MAX_CURRENT_CMD    3200.0f           // 底盘整车动力学前馈单轮电流命令限幅
 #define CHASSIS_YAW_RATE_FEEDBACK_SIGN     -1.0f             // 底盘 yaw 陀螺仪角速度反馈方向系数
 /* ========================= 底盘物理前馈参数 ========================= */
 #define Wheel_Radius                      0.075f            // 底盘轮半径，单位 m
