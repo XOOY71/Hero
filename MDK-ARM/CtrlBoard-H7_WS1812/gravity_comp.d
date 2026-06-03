@@ -3,7 +3,7 @@ ctrlboard-h7_ws1812\gravity_comp.o: ..\User\Algorithm\gravity_comp.h
 ctrlboard-h7_ws1812\gravity_comp.o: D:\Keil5\ARM\ARMCC\Bin\..\include\stdint.h
 ctrlboard-h7_ws1812\gravity_comp.o: ../User/APP/gimbal_task.h
 ctrlboard-h7_ws1812\gravity_comp.o: D:\Keil5\ARM\ARMCC\Bin\..\include\stdbool.h
-ctrlboard-h7_ws1812\gravity_comp.o: ../User/APP_Support/project_config.h
+ctrlboard-h7_ws1812\gravity_comp.o: ../User/APP_Support/common/project_config.h
 ctrlboard-h7_ws1812\gravity_comp.o: ../User/BSP/remote_control.h
 ctrlboard-h7_ws1812\gravity_comp.o: ../User/BSP/bsp_usart.h
 ctrlboard-h7_ws1812\gravity_comp.o: ../Core/Inc/main.h
@@ -49,4 +49,7 @@ ctrlboard-h7_ws1812\gravity_comp.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7x
 ctrlboard-h7_ws1812\gravity_comp.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_ll_usb.h
 ctrlboard-h7_ws1812\gravity_comp.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_pcd_ex.h
 ctrlboard-h7_ws1812\gravity_comp.o: D:\Keil5\ARM\ARMCC\Bin\..\include\string.h
+ctrlboard-h7_ws1812\gravity_comp.o: ../User/BSP/fifo.h
+ctrlboard-h7_ws1812\gravity_comp.o: D:\Keil5\ARM\ARMCC\Bin\..\include\stdio.h
+ctrlboard-h7_ws1812\gravity_comp.o: D:\Keil5\ARM\ARMCC\Bin\..\include\stdlib.h
 ctrlboard-h7_ws1812\gravity_comp.o: ../User/Algorithm/pid.h

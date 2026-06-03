@@ -58,10 +58,13 @@ ctrlboard-h7_ws1812\freertos.o: ../Middlewares/Third_Party/FreeRTOS/Source/inclu
 ctrlboard-h7_ws1812\freertos.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/event_groups.h
 ctrlboard-h7_ws1812\freertos.o: ../User/APP/gimbal_task.h
 ctrlboard-h7_ws1812\freertos.o: D:\Keil5\ARM\ARMCC\Bin\..\include\stdbool.h
-ctrlboard-h7_ws1812\freertos.o: ../User/APP_Support/project_config.h
+ctrlboard-h7_ws1812\freertos.o: ../User/APP_Support/common/project_config.h
 ctrlboard-h7_ws1812\freertos.o: ../User/BSP/remote_control.h
 ctrlboard-h7_ws1812\freertos.o: ../User/BSP/bsp_usart.h
 ctrlboard-h7_ws1812\freertos.o: D:\Keil5\ARM\ARMCC\Bin\..\include\string.h
+ctrlboard-h7_ws1812\freertos.o: ../User/BSP/fifo.h
+ctrlboard-h7_ws1812\freertos.o: D:\Keil5\ARM\ARMCC\Bin\..\include\stdio.h
+ctrlboard-h7_ws1812\freertos.o: D:\Keil5\ARM\ARMCC\Bin\..\include\stdlib.h
 ctrlboard-h7_ws1812\freertos.o: ../User/Algorithm/pid.h
 ctrlboard-h7_ws1812\freertos.o: ../User/Algorithm/gravity_comp.h
 ctrlboard-h7_ws1812\freertos.o: ../User/APP/service_task.h
@@ -72,7 +75,9 @@ ctrlboard-h7_ws1812\freertos.o: ../User/APP/chassis_task.h
 ctrlboard-h7_ws1812\freertos.o: ../User/BSP/bsp_fdcan.h
 ctrlboard-h7_ws1812\freertos.o: ../Core/Inc/fdcan.h
 ctrlboard-h7_ws1812\freertos.o: ../User/Devices/hwt_imu.h
-ctrlboard-h7_ws1812\freertos.o: ../User/APP_Support/struct_typedef.h
+ctrlboard-h7_ws1812\freertos.o: ../User/APP_Support/common/struct_typedef.h
 ctrlboard-h7_ws1812\freertos.o: ../User/Algorithm/user_lib.h
 ctrlboard-h7_ws1812\freertos.o: ../User/APP/detect_task.h
 ctrlboard-h7_ws1812\freertos.o: ../User/APP/light_task.h
+ctrlboard-h7_ws1812\freertos.o: ../User/APP/referee_usart_task.h
+ctrlboard-h7_ws1812\freertos.o: ../User/APP_Support/common/protocol.h

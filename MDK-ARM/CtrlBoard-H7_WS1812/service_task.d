@@ -20,4 +20,4 @@ ctrlboard-h7_ws1812\service_task.o: ../Middlewares/Third_Party/FreeRTOS/Source/i
 ctrlboard-h7_ws1812\service_task.o: ..\User\APP\safewarning.h
 ctrlboard-h7_ws1812\service_task.o: ../User/Devices/hwt_imu.h
 ctrlboard-h7_ws1812\service_task.o: ../User/Devices/vofa.h
-ctrlboard-h7_ws1812\service_task.o: ../User/APP_Support/struct_typedef.h
+ctrlboard-h7_ws1812\service_task.o: ../User/APP_Support/common/struct_typedef.h

@@ -46,10 +46,13 @@ ctrlboard-h7_ws1812\light_task.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_
 ctrlboard-h7_ws1812\light_task.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_pcd.h
 ctrlboard-h7_ws1812\light_task.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_ll_usb.h
 ctrlboard-h7_ws1812\light_task.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_pcd_ex.h
-ctrlboard-h7_ws1812\light_task.o: ../User/APP_Support/project_config.h
+ctrlboard-h7_ws1812\light_task.o: ../User/APP_Support/common/project_config.h
+ctrlboard-h7_ws1812\light_task.o: ../User/BSP/fifo.h
+ctrlboard-h7_ws1812\light_task.o: D:\Keil5\ARM\ARMCC\Bin\..\include\stdio.h
+ctrlboard-h7_ws1812\light_task.o: D:\Keil5\ARM\ARMCC\Bin\..\include\stdlib.h
 ctrlboard-h7_ws1812\light_task.o: ..\User\APP\auto_aim.h
 ctrlboard-h7_ws1812\light_task.o: ../User/BSP/remote_control.h
-ctrlboard-h7_ws1812\light_task.o: ../User/APP_Support/chassis_behaviour.h
+ctrlboard-h7_ws1812\light_task.o: ../User/APP_Support/chassis/chassis_behaviour.h
 ctrlboard-h7_ws1812\light_task.o: ../User/APP/chassis_task.h
 ctrlboard-h7_ws1812\light_task.o: ../User/BSP/bsp_fdcan.h
 ctrlboard-h7_ws1812\light_task.o: ../Core/Inc/fdcan.h
@@ -57,9 +60,9 @@ ctrlboard-h7_ws1812\light_task.o: ../User/APP/gimbal_task.h
 ctrlboard-h7_ws1812\light_task.o: ../User/Algorithm/pid.h
 ctrlboard-h7_ws1812\light_task.o: ../User/Algorithm/gravity_comp.h
 ctrlboard-h7_ws1812\light_task.o: ../User/Devices/hwt_imu.h
-ctrlboard-h7_ws1812\light_task.o: ../User/APP_Support/struct_typedef.h
+ctrlboard-h7_ws1812\light_task.o: ../User/APP_Support/common/struct_typedef.h
 ctrlboard-h7_ws1812\light_task.o: ../User/Algorithm/user_lib.h
-ctrlboard-h7_ws1812\light_task.o: ../User/APP_Support/chassis_power_control.h
+ctrlboard-h7_ws1812\light_task.o: ../User/APP_Support/power_control/chassis_power_control.h
 ctrlboard-h7_ws1812\light_task.o: ../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS/cmsis_os.h
 ctrlboard-h7_ws1812\light_task.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/FreeRTOS.h
 ctrlboard-h7_ws1812\light_task.o: ../Core/Inc/FreeRTOSConfig.h
@@ -75,6 +78,6 @@ ctrlboard-h7_ws1812\light_task.o: ../Middlewares/Third_Party/FreeRTOS/Source/inc
 ctrlboard-h7_ws1812\light_task.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/semphr.h
 ctrlboard-h7_ws1812\light_task.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/event_groups.h
 ctrlboard-h7_ws1812\light_task.o: ..\User\APP\detect_task.h
-ctrlboard-h7_ws1812\light_task.o: ../User/APP_Support/gimbal_behaviour.h
-ctrlboard-h7_ws1812\light_task.o: ../User/APP_Support/shoot_task.h
+ctrlboard-h7_ws1812\light_task.o: ../User/APP_Support/gimbal/gimbal_behaviour.h
+ctrlboard-h7_ws1812\light_task.o: ../User/APP_Support/shoot/shoot_task.h
 ctrlboard-h7_ws1812\light_task.o: ../User/Algorithm/adrc.h

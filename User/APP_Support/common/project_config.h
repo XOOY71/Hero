@@ -262,10 +262,11 @@ extern "C" {
 #define MAX_WHEEL_SPEED                   3.2f               // 单轮目标速度上限，单位 m/s
 
 #define CHASSIS_RELEASE_REVERSE_ENABLE    1U                 // 1: 使能松杆反向速度脉冲
-#define CHASSIS_RELEASE_REVERSE_MIN_TIME  0.04f              // 低速松杆时的最小线性衰减时间，单位 s
+#define CHASSIS_RELEASE_REVERSE_MIN_TIME  0.01f              // 低速松杆时的最小线性衰减时间，单位 s
 #define CHASSIS_RELEASE_REVERSE_MAX_TIME  0.4f              // 高速松杆时的最大线性衰减时间，单位 s
 #define CHASSIS_RELEASE_REVERSE_REF_SPEED 3.2f               // 衰减时间达到最大值的参考规划速度，单位 m/s
 #define CHASSIS_RELEASE_REVERSE_LOCK_SPEED_EPS 0.05f         // 反向衰减结束后解除锁零的规划速度阈值，单位 m/s
+#define CHASSIS_RELEASE_REVERSE_DIR_DOT_EPS (-0.30f)         // 新拨杆方向与上次松杆方向的换向判定点积阈值
 
 #define CHASSIS_MAX_ACCEL                 6.0f               // 底盘平移最大加速度，单位 m/s^2
 #define CHASSIS_MAX_JERK                  35.0f              // 底盘平移最大加加速度，单位 m/s^3

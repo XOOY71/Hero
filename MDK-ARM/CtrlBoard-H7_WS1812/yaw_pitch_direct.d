@@ -1,9 +1,9 @@
-ctrlboard-h7_ws1812\yaw_pitch_direct.o: ..\User\APP_Support\yaw_pitch_direct.c
-ctrlboard-h7_ws1812\yaw_pitch_direct.o: ..\User\APP_Support\yaw_pitch_direct.h
+ctrlboard-h7_ws1812\yaw_pitch_direct.o: ..\User\APP_Support\gimbal\yaw_pitch_direct.c
+ctrlboard-h7_ws1812\yaw_pitch_direct.o: ..\User\APP_Support\gimbal\yaw_pitch_direct.h
 ctrlboard-h7_ws1812\yaw_pitch_direct.o: ../User/APP/gimbal_task.h
 ctrlboard-h7_ws1812\yaw_pitch_direct.o: D:\Keil5\ARM\ARMCC\Bin\..\include\stdint.h
 ctrlboard-h7_ws1812\yaw_pitch_direct.o: D:\Keil5\ARM\ARMCC\Bin\..\include\stdbool.h
-ctrlboard-h7_ws1812\yaw_pitch_direct.o: ../User/APP_Support/project_config.h
+ctrlboard-h7_ws1812\yaw_pitch_direct.o: ../User/APP_Support/common/project_config.h
 ctrlboard-h7_ws1812\yaw_pitch_direct.o: ../User/BSP/remote_control.h
 ctrlboard-h7_ws1812\yaw_pitch_direct.o: ../User/BSP/bsp_usart.h
 ctrlboard-h7_ws1812\yaw_pitch_direct.o: ../Core/Inc/main.h
@@ -49,9 +49,12 @@ ctrlboard-h7_ws1812\yaw_pitch_direct.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm3
 ctrlboard-h7_ws1812\yaw_pitch_direct.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_ll_usb.h
 ctrlboard-h7_ws1812\yaw_pitch_direct.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_pcd_ex.h
 ctrlboard-h7_ws1812\yaw_pitch_direct.o: D:\Keil5\ARM\ARMCC\Bin\..\include\string.h
+ctrlboard-h7_ws1812\yaw_pitch_direct.o: ../User/BSP/fifo.h
+ctrlboard-h7_ws1812\yaw_pitch_direct.o: D:\Keil5\ARM\ARMCC\Bin\..\include\stdio.h
+ctrlboard-h7_ws1812\yaw_pitch_direct.o: D:\Keil5\ARM\ARMCC\Bin\..\include\stdlib.h
 ctrlboard-h7_ws1812\yaw_pitch_direct.o: ../User/Algorithm/pid.h
 ctrlboard-h7_ws1812\yaw_pitch_direct.o: ../User/Algorithm/gravity_comp.h
-ctrlboard-h7_ws1812\yaw_pitch_direct.o: ..\User\APP_Support\gimbal_behaviour.h
+ctrlboard-h7_ws1812\yaw_pitch_direct.o: ..\User\APP_Support\gimbal\gimbal_behaviour.h
 ctrlboard-h7_ws1812\yaw_pitch_direct.o: ../User/APP/auto_aim.h
 ctrlboard-h7_ws1812\yaw_pitch_direct.o: ../User/Devices/hwt_imu.h
 ctrlboard-h7_ws1812\yaw_pitch_direct.o: ../User/BSP/bsp_fdcan.h

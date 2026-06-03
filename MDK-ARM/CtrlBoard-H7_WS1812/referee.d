@@ -1,5 +1,5 @@
-ctrlboard-h7_ws1812\referee.o: ..\User\APP_Support\referee.c
-ctrlboard-h7_ws1812\referee.o: ..\User\APP_Support\referee.h
+ctrlboard-h7_ws1812\referee.o: ..\User\APP_Support\common\referee.c
+ctrlboard-h7_ws1812\referee.o: ..\User\APP_Support\common\referee.h
 ctrlboard-h7_ws1812\referee.o: ../Core/Inc/main.h
 ctrlboard-h7_ws1812\referee.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal.h
 ctrlboard-h7_ws1812\referee.o: ../Core/Inc/stm32h7xx_hal_conf.h
@@ -43,8 +43,8 @@ ctrlboard-h7_ws1812\referee.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal
 ctrlboard-h7_ws1812\referee.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_pcd.h
 ctrlboard-h7_ws1812\referee.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_ll_usb.h
 ctrlboard-h7_ws1812\referee.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_pcd_ex.h
-ctrlboard-h7_ws1812\referee.o: ..\User\APP_Support\protocol.h
-ctrlboard-h7_ws1812\referee.o: ..\User\APP_Support\struct_typedef.h
+ctrlboard-h7_ws1812\referee.o: ..\User\APP_Support\common\protocol.h
+ctrlboard-h7_ws1812\referee.o: ..\User\APP_Support\common\struct_typedef.h
 ctrlboard-h7_ws1812\referee.o: D:\Keil5\ARM\ARMCC\Bin\..\include\string.h
 ctrlboard-h7_ws1812\referee.o: D:\Keil5\ARM\ARMCC\Bin\..\include\stdio.h
 ctrlboard-h7_ws1812\referee.o: ../User/Algorithm/CRC8_CRC16.h

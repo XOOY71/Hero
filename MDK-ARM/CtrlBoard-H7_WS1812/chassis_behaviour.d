@@ -1,5 +1,5 @@
-ctrlboard-h7_ws1812\chassis_behaviour.o: ..\User\APP_Support\chassis_behaviour.c
-ctrlboard-h7_ws1812\chassis_behaviour.o: ..\User\APP_Support\chassis_behaviour.h
+ctrlboard-h7_ws1812\chassis_behaviour.o: ..\User\APP_Support\chassis\chassis_behaviour.c
+ctrlboard-h7_ws1812\chassis_behaviour.o: ..\User\APP_Support\chassis\chassis_behaviour.h
 ctrlboard-h7_ws1812\chassis_behaviour.o: ../User/APP/chassis_task.h
 ctrlboard-h7_ws1812\chassis_behaviour.o: ../User/BSP/bsp_fdcan.h
 ctrlboard-h7_ws1812\chassis_behaviour.o: ../Core/Inc/main.h
@@ -48,16 +48,19 @@ ctrlboard-h7_ws1812\chassis_behaviour.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm
 ctrlboard-h7_ws1812\chassis_behaviour.o: ../Core/Inc/fdcan.h
 ctrlboard-h7_ws1812\chassis_behaviour.o: D:\Keil5\ARM\ARMCC\Bin\..\include\stdbool.h
 ctrlboard-h7_ws1812\chassis_behaviour.o: ../User/APP/gimbal_task.h
-ctrlboard-h7_ws1812\chassis_behaviour.o: ../User/APP_Support/project_config.h
+ctrlboard-h7_ws1812\chassis_behaviour.o: ../User/APP_Support/common/project_config.h
 ctrlboard-h7_ws1812\chassis_behaviour.o: ../User/BSP/remote_control.h
 ctrlboard-h7_ws1812\chassis_behaviour.o: ../User/BSP/bsp_usart.h
 ctrlboard-h7_ws1812\chassis_behaviour.o: D:\Keil5\ARM\ARMCC\Bin\..\include\string.h
+ctrlboard-h7_ws1812\chassis_behaviour.o: ../User/BSP/fifo.h
+ctrlboard-h7_ws1812\chassis_behaviour.o: D:\Keil5\ARM\ARMCC\Bin\..\include\stdio.h
+ctrlboard-h7_ws1812\chassis_behaviour.o: D:\Keil5\ARM\ARMCC\Bin\..\include\stdlib.h
 ctrlboard-h7_ws1812\chassis_behaviour.o: ../User/Algorithm/pid.h
 ctrlboard-h7_ws1812\chassis_behaviour.o: ../User/Algorithm/gravity_comp.h
 ctrlboard-h7_ws1812\chassis_behaviour.o: ../User/Devices/hwt_imu.h
-ctrlboard-h7_ws1812\chassis_behaviour.o: ../User/APP_Support/struct_typedef.h
+ctrlboard-h7_ws1812\chassis_behaviour.o: ../User/APP_Support/common/struct_typedef.h
 ctrlboard-h7_ws1812\chassis_behaviour.o: ../User/Algorithm/user_lib.h
-ctrlboard-h7_ws1812\chassis_behaviour.o: ..\User\APP_Support\chassis_power_control.h
+ctrlboard-h7_ws1812\chassis_behaviour.o: ../User/APP_Support/power_control/chassis_power_control.h
 ctrlboard-h7_ws1812\chassis_behaviour.o: ../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS/cmsis_os.h
 ctrlboard-h7_ws1812\chassis_behaviour.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/FreeRTOS.h
 ctrlboard-h7_ws1812\chassis_behaviour.o: ../Core/Inc/FreeRTOSConfig.h
@@ -72,4 +75,4 @@ ctrlboard-h7_ws1812\chassis_behaviour.o: ../Middlewares/Third_Party/FreeRTOS/Sou
 ctrlboard-h7_ws1812\chassis_behaviour.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/queue.h
 ctrlboard-h7_ws1812\chassis_behaviour.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/semphr.h
 ctrlboard-h7_ws1812\chassis_behaviour.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/event_groups.h
-ctrlboard-h7_ws1812\chassis_behaviour.o: ..\User\APP_Support\gimbal_behaviour.h
+ctrlboard-h7_ws1812\chassis_behaviour.o: ../User/APP_Support/gimbal/gimbal_behaviour.h

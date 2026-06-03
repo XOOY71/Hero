@@ -2,7 +2,7 @@ ctrlboard-h7_ws1812\gimbal_task.o: ..\User\APP\gimbal_task.c
 ctrlboard-h7_ws1812\gimbal_task.o: ..\User\APP\gimbal_task.h
 ctrlboard-h7_ws1812\gimbal_task.o: D:\Keil5\ARM\ARMCC\Bin\..\include\stdint.h
 ctrlboard-h7_ws1812\gimbal_task.o: D:\Keil5\ARM\ARMCC\Bin\..\include\stdbool.h
-ctrlboard-h7_ws1812\gimbal_task.o: ../User/APP_Support/project_config.h
+ctrlboard-h7_ws1812\gimbal_task.o: ../User/APP_Support/common/project_config.h
 ctrlboard-h7_ws1812\gimbal_task.o: ../User/BSP/remote_control.h
 ctrlboard-h7_ws1812\gimbal_task.o: ../User/BSP/bsp_usart.h
 ctrlboard-h7_ws1812\gimbal_task.o: ../Core/Inc/main.h
@@ -48,11 +48,12 @@ ctrlboard-h7_ws1812\gimbal_task.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx
 ctrlboard-h7_ws1812\gimbal_task.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_ll_usb.h
 ctrlboard-h7_ws1812\gimbal_task.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_pcd_ex.h
 ctrlboard-h7_ws1812\gimbal_task.o: D:\Keil5\ARM\ARMCC\Bin\..\include\string.h
+ctrlboard-h7_ws1812\gimbal_task.o: ../User/BSP/fifo.h
+ctrlboard-h7_ws1812\gimbal_task.o: D:\Keil5\ARM\ARMCC\Bin\..\include\stdio.h
+ctrlboard-h7_ws1812\gimbal_task.o: D:\Keil5\ARM\ARMCC\Bin\..\include\stdlib.h
 ctrlboard-h7_ws1812\gimbal_task.o: ../User/Algorithm/pid.h
 ctrlboard-h7_ws1812\gimbal_task.o: ../User/Algorithm/gravity_comp.h
-ctrlboard-h7_ws1812\gimbal_task.o: ..\User\APP\auto_aim.h
-ctrlboard-h7_ws1812\gimbal_task.o: ../User/APP_Support/gimbal_behaviour.h
-ctrlboard-h7_ws1812\gimbal_task.o: ../User/APP_Support/shoot_task.h
+ctrlboard-h7_ws1812\gimbal_task.o: ../User/APP_Support/shoot/shoot_task.h
 ctrlboard-h7_ws1812\gimbal_task.o: ../User/Algorithm/adrc.h
 ctrlboard-h7_ws1812\gimbal_task.o: ../User/BSP/bsp_fdcan.h
 ctrlboard-h7_ws1812\gimbal_task.o: ../Core/Inc/fdcan.h
@@ -70,4 +71,3 @@ ctrlboard-h7_ws1812\gimbal_task.o: ../Middlewares/Third_Party/FreeRTOS/Source/in
 ctrlboard-h7_ws1812\gimbal_task.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/queue.h
 ctrlboard-h7_ws1812\gimbal_task.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/semphr.h
 ctrlboard-h7_ws1812\gimbal_task.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/event_groups.h
-ctrlboard-h7_ws1812\gimbal_task.o: ../User/Devices/hwt_imu.h

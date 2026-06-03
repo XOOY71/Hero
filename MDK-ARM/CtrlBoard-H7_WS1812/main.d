@@ -71,7 +71,8 @@ ctrlboard-h7_ws1812\main.o: ../Core/Inc/gpio.h
 ctrlboard-h7_ws1812\main.o: ../User/BSP/bsp_fdcan.h
 ctrlboard-h7_ws1812\main.o: D:\Keil5\ARM\ARMCC\Bin\..\include\stdbool.h
 ctrlboard-h7_ws1812\main.o: ../User/BSP/bsp_usart.h
-ctrlboard-h7_ws1812\main.o: ../User/APP_Support/project_config.h
+ctrlboard-h7_ws1812\main.o: ../User/APP_Support/common/project_config.h
+ctrlboard-h7_ws1812\main.o: ../User/BSP/fifo.h
 ctrlboard-h7_ws1812\main.o: ../User/Devices/ws2812.h
 ctrlboard-h7_ws1812\main.o: ../User/APP/safewarning.h
 ctrlboard-h7_ws1812\main.o: ../User/Communication/core/uproto.h

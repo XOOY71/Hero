@@ -44,6 +44,8 @@ static void chassis_spin_control												(fp32 *vx_set, fp32 *vy_set, fp32 *w
 static void chassis_release_reverse_update(fp32 *vx_set,
                                            fp32 *vy_set,
                                            bool stick_active,
+                                           fp32 stick_vx_set,
+                                           fp32 stick_vy_set,
                                            chassis_move_t *chassis_move_rc_to_vector);
 
 
@@ -251,6 +253,8 @@ void chassis_rc_to_control_vector(fp32 *vx_set, fp32 *vy_set, chassis_move_t *ch
 
 	int16_t vx_channel, vy_channel;
 	fp32 vx_set_channel, vy_set_channel;
+	fp32 stick_vx_set;
+	fp32 stick_vy_set;
 	fp32 slope_percentage = 0.30f;
 	bool stick_active;
 	static uint8_t orientation_count[4] = {0};
@@ -259,6 +263,8 @@ void chassis_rc_to_control_vector(fp32 *vx_set, fp32 *vy_set, chassis_move_t *ch
 	rc_deadband_limit(chassis_move_rc_to_vector->chassis_RC->rc.ch[CHASSIS_Y_CHANNEL], vy_channel, CHASSIS_RC_DEADLINE);
 	vx_set_channel = vx_channel * (CHASSIS_VX_RC_SEN);
 	vy_set_channel = vy_channel * (CHASSIS_VY_RC_SEN);
+	stick_vx_set = vx_set_channel;
+	stick_vy_set = -vy_set_channel;
 	stick_active = ((vx_channel != 0) || (vy_channel != 0));
 
 	if (chassis_move_rc_to_vector->chassis_RC->key.v & CHASSIS_FRONT_KEY)
@@ -307,16 +313,23 @@ void chassis_rc_to_control_vector(fp32 *vx_set, fp32 *vy_set, chassis_move_t *ch
 	chassis_release_reverse_update(vx_set,
 	                               vy_set,
 	                               stick_active,
+	                               stick_vx_set,
+	                               stick_vy_set,
 	                               chassis_move_rc_to_vector);
 }
 
 static void chassis_release_reverse_update(fp32 *vx_set,
                                            fp32 *vy_set,
                                            bool stick_active,
+                                           fp32 stick_vx_set,
+                                           fp32 stick_vy_set,
                                            chassis_move_t *chassis_move_rc_to_vector)
 {
 #if (CHASSIS_RELEASE_REVERSE_ENABLE != 0U)
 	static bool last_stick_active = false;
+	static bool reverse_cancel_once = false;
+	static fp32 last_release_dir_x = 0.0f;
+	static fp32 last_release_dir_y = 0.0f;
 	static fp32 reverse_vx_set = 0.0f;
 	static fp32 reverse_vy_set = 0.0f;
 	static fp32 reverse_scale = 0.0f;
@@ -326,11 +339,23 @@ static void chassis_release_reverse_update(fp32 *vx_set,
 	fp32 plan_speed;
 	fp32 decay_step;
 	fp32 speed_ratio;
+	fp32 stick_speed;
+	fp32 dot;
 
 	if (vx_set == NULL || vy_set == NULL || chassis_move_rc_to_vector == NULL) return;
 
 	if (stick_active)
 	{
+		stick_speed = sqrtf(stick_vx_set * stick_vx_set + stick_vy_set * stick_vy_set);
+		if (stick_speed > CHASSIS_RELEASE_REVERSE_LOCK_SPEED_EPS)
+		{
+			dot = (stick_vx_set / stick_speed) * last_release_dir_x +
+			      (stick_vy_set / stick_speed) * last_release_dir_y;
+			if (dot < CHASSIS_RELEASE_REVERSE_DIR_DOT_EPS)
+			{
+				reverse_cancel_once = true;
+			}
+		}
 		last_stick_active = true;
 		reverse_scale = 0.0f;
 		reverse_lock_zero = false;
@@ -343,18 +368,29 @@ static void chassis_release_reverse_update(fp32 *vx_set,
 		                   chassis_move_rc_to_vector->vy_plan * chassis_move_rc_to_vector->vy_plan);
 		if (plan_speed > CHASSIS_RELEASE_REVERSE_LOCK_SPEED_EPS)
 		{
-			reverse_vx_set = -chassis_move_rc_to_vector->vx_plan;
-			reverse_vy_set = -chassis_move_rc_to_vector->vy_plan;
-			speed_ratio = plan_speed / CHASSIS_RELEASE_REVERSE_REF_SPEED;
-			if (speed_ratio > 1.0f)
+			last_release_dir_x = chassis_move_rc_to_vector->vx_plan / plan_speed;
+			last_release_dir_y = chassis_move_rc_to_vector->vy_plan / plan_speed;
+			if (reverse_cancel_once)
 			{
-				speed_ratio = 1.0f;
+				reverse_scale = 0.0f;
+				reverse_lock_zero = true;
+				reverse_cancel_once = false;
 			}
-			reverse_decay_time = CHASSIS_RELEASE_REVERSE_MIN_TIME +
-			                     (CHASSIS_RELEASE_REVERSE_MAX_TIME - CHASSIS_RELEASE_REVERSE_MIN_TIME) *
-			                     speed_ratio;
-			reverse_scale = 1.0f;
-			reverse_lock_zero = false;
+			else
+			{
+				reverse_vx_set = -chassis_move_rc_to_vector->vx_plan;
+				reverse_vy_set = -chassis_move_rc_to_vector->vy_plan;
+				speed_ratio = plan_speed / CHASSIS_RELEASE_REVERSE_REF_SPEED;
+				if (speed_ratio > 1.0f)
+				{
+					speed_ratio = 1.0f;
+				}
+				reverse_decay_time = CHASSIS_RELEASE_REVERSE_MIN_TIME +
+				                     (CHASSIS_RELEASE_REVERSE_MAX_TIME - CHASSIS_RELEASE_REVERSE_MIN_TIME) *
+				                     speed_ratio;
+				reverse_scale = 1.0f;
+				reverse_lock_zero = false;
+			}
 		}
 		last_stick_active = false;
 	}
@@ -390,6 +426,8 @@ static void chassis_release_reverse_update(fp32 *vx_set,
 	(void)vx_set;
 	(void)vy_set;
 	(void)stick_active;
+	(void)stick_vx_set;
+	(void)stick_vy_set;
 	(void)chassis_move_rc_to_vector;
 #endif
 }

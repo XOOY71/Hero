@@ -1,4 +1,4 @@
-ctrlboard-h7_ws1812\chassis_calculate.o: ..\User\APP_Support\chassis_calculate.c
+ctrlboard-h7_ws1812\chassis_calculate.o: ..\User\APP_Support\chassis\chassis_calculate.c
 ctrlboard-h7_ws1812\chassis_calculate.o: ../User/BSP/bsp_usart.h
 ctrlboard-h7_ws1812\chassis_calculate.o: ../Core/Inc/main.h
 ctrlboard-h7_ws1812\chassis_calculate.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal.h
@@ -44,8 +44,11 @@ ctrlboard-h7_ws1812\chassis_calculate.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm
 ctrlboard-h7_ws1812\chassis_calculate.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_ll_usb.h
 ctrlboard-h7_ws1812\chassis_calculate.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_pcd_ex.h
 ctrlboard-h7_ws1812\chassis_calculate.o: D:\Keil5\ARM\ARMCC\Bin\..\include\string.h
-ctrlboard-h7_ws1812\chassis_calculate.o: ../User/APP_Support/project_config.h
-ctrlboard-h7_ws1812\chassis_calculate.o: ..\User\APP_Support\chassis_calculate.h
+ctrlboard-h7_ws1812\chassis_calculate.o: ../User/APP_Support/common/project_config.h
+ctrlboard-h7_ws1812\chassis_calculate.o: ../User/BSP/fifo.h
+ctrlboard-h7_ws1812\chassis_calculate.o: D:\Keil5\ARM\ARMCC\Bin\..\include\stdio.h
+ctrlboard-h7_ws1812\chassis_calculate.o: D:\Keil5\ARM\ARMCC\Bin\..\include\stdlib.h
+ctrlboard-h7_ws1812\chassis_calculate.o: ..\User\APP_Support\chassis\chassis_calculate.h
 ctrlboard-h7_ws1812\chassis_calculate.o: ../User/APP/chassis_task.h
 ctrlboard-h7_ws1812\chassis_calculate.o: ../User/BSP/bsp_fdcan.h
 ctrlboard-h7_ws1812\chassis_calculate.o: ../Core/Inc/fdcan.h
@@ -55,6 +58,5 @@ ctrlboard-h7_ws1812\chassis_calculate.o: ../User/BSP/remote_control.h
 ctrlboard-h7_ws1812\chassis_calculate.o: ../User/Algorithm/pid.h
 ctrlboard-h7_ws1812\chassis_calculate.o: ../User/Algorithm/gravity_comp.h
 ctrlboard-h7_ws1812\chassis_calculate.o: ../User/Devices/hwt_imu.h
-ctrlboard-h7_ws1812\chassis_calculate.o: ../User/APP_Support/struct_typedef.h
+ctrlboard-h7_ws1812\chassis_calculate.o: ../User/APP_Support/common/struct_typedef.h
 ctrlboard-h7_ws1812\chassis_calculate.o: ../User/Algorithm/user_lib.h
-ctrlboard-h7_ws1812\chassis_calculate.o: D:\Keil5\ARM\ARMCC\Bin\..\include\stdlib.h
