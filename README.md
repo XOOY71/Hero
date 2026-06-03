@@ -301,3 +301,13 @@ cd .\User\Communication\example\host
 新增控制参数时优先放入对应模块头文件：全局、云台、底盘机械和底盘控制参数放入 `project_config.h`，发射参数放入 `shoot_task.h`，通信参数放入 `comm_app_config.h`。修改 `.ioc` 后需要用 CubeMX 重新生成代码，并检查 `USER CODE BEGIN/END` 区域内的手写逻辑是否保留。
 
 当前 `chassis_task()` 已完成底盘目标生成、逆运动学、功控计算和电流变量写入，实际 CAN 下发入口当前发送 `CAN_cmd_CHASSIS_ALL(0, 0, 0, 0)`；恢复实车输出前需要按调试状态接入 `chassis_3508[i].give_current` 和 `chassis_6020[i].give_current`。`USART1` 已启动 DMA 接收，接收回调中的裁判系统解析接入状态待补充。
+
+## 底盘动力学前馈与急停制动说明
+
+底盘控制链路采用“速度规划 -> 整车动力学前馈 -> 单轮模型控制 -> 电流/功率限制”的结构。`vx_plan`、`vy_plan`、`wz_plan` 是底盘期望速度，整车前馈通过相邻控制周期的规划速度差分得到 `ax`、`ay`、`alpha`，再按整车质量和 yaw 转动惯量换算为车体所需的力和力矩，最后分解到 205、206、207、208 四个轮子的 `body_ff_current[]`。这样做的好处是加速、减速、旋转启动时可以在误差变大之前提前给出惯性补偿电流，速度 PI 只需要修正模型误差、摩擦误差和负载扰动。
+
+四轮前馈分解使用几何公式和电机方向系数分开处理。几何公式只描述底盘坐标系下各轮对 `vx`、`vy`、`wz` 的贡献，实际电机默认正方向通过 `CHASSIS_WHEEL_205_DIRECTION`、`CHASSIS_WHEEL_206_DIRECTION`、`CHASSIS_WHEEL_207_DIRECTION`、`CHASSIS_WHEEL_208_DIRECTION` 统一变换。这样可以把底盘运动学公式和电机安装方向解耦，后续只需要调整方向宏，不需要改控制公式。
+
+松杆急停保留速度规划停车分支：当遥控输入导致 `cmd=0` 时，`chassis_s_curve_update()` 先用 `CHASSIS_STOP_DECEL` 生成与当前 `vx_plan` 或 `vy_plan` 方向相反的目标加速度，再用 `CHASSIS_STOP_JERK` 限制加速度变化速度，最后每个控制周期用 `plan = plan + accel * CHASSIS_CONTROL_TIME` 把规划速度拉向 0。这个写法让减速过程每个周期都有连续的反向规划加速度，整车动力学前馈可以持续输出反向惯性补偿电流，速度目标也会平滑接近 0。
+
+固定制动前馈在单轮模型控制中生效。轮速目标进入减速或接近 0，且实测轮速大于 `CHASSIS_BRAKE_ENTER_SPEED_EPS` 时，`stop_brake_active` 置位；此时普通摩擦前馈按 `CHASSIS_BRAKE_FRICTION_FF_SCALE` 缩放，固定制动前馈 `I_brake` 按实测轮速方向给反向电流。轮速低于 `CHASSIS_BRAKE_RELEASE_SPEED_EPS` 或重新给出速度目标时，制动状态释放。这个写法的好处是急停力矩由三部分组成：整车反向加速度前馈补偿惯性，固定制动前馈提供稳定刹车力，速度 PI 根据实际轮速误差补足剩余制动力。

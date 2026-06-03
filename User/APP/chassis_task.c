@@ -769,6 +769,7 @@ static fp32 Model_Based_Control(uint8_t motor_idx, fp32 set_speed, fp32 ref_spee
 		I_brake = -(CHASSIS_BRAKE_FF_CURRENT_A / CHASSIS_CURRENT_CMD_TO_A) *
 		          tanhf(ref_speed / CHASSIS_BRAKE_FF_SPEED_EPS);
 	}
+
 	I_pi = chassis_speed_pi_calc(&chassis_move, motor_idx, error_v);
 	out = I_accel + I_viscous + I_coulomb + I_static + I_brake + I_pi;
 

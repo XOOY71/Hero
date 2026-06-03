@@ -3,7 +3,7 @@
 <title>Static Call Graph - [CtrlBoard-H7_WS1812\CtrlBoard-H7_WS1812.axf]</title></head>
 <body><HR>
 <H1>Static Call Graph for image CtrlBoard-H7_WS1812\CtrlBoard-H7_WS1812.axf</H1><HR>
-<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 5060528: Last Updated: Wed Jun 03 04:56:15 2026
+<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 5060528: Last Updated: Wed Jun 03 05:53:20 2026
 <BR><P>
 <H3>Maximum Stack Usage =        940 bytes + Unknown(Functions without stacksize, Cycles, Untraceable Function Pointers)</H3><H3>
 Call chain for Maximum Stack Depth:</H3>
@@ -3369,8 +3369,8 @@ Global Symbols
 </UL>
 <BR>[Address Reference Count : 1]<UL><LI> startup_stm32h723xx.o(RESET)
 </UL>
-<P><STRONG><a name="[233]"></a>VOFA_SendChassisTranslatePairDebug</STRONG> (Thumb, 96 bytes, Stack size 0 bytes, vofa.o(i.VOFA_SendChassisTranslatePairDebug))
-<BR><BR>[Stack]<UL><LI>Max Depth = 92<LI>Call Chain = VOFA_SendChassisTranslatePairDebug &rArr; VOFA_Send6 &rArr; HAL_UART_Transmit_DMA &rArr; HAL_DMA_Start_IT &rArr; DMA_SetConfig
+<P><STRONG><a name="[233]"></a>VOFA_SendChassisMotionDebug</STRONG> (Thumb, 44 bytes, Stack size 0 bytes, vofa.o(i.VOFA_SendChassisMotionDebug))
+<BR><BR>[Stack]<UL><LI>Max Depth = 92<LI>Call Chain = VOFA_SendChassisMotionDebug &rArr; VOFA_Send6 &rArr; HAL_UART_Transmit_DMA &rArr; HAL_DMA_Start_IT &rArr; DMA_SetConfig
 </UL>
 <BR>[Calls]<UL><LI><a href="#[232]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;VOFA_Send6
 </UL>
@@ -3378,9 +3378,9 @@ Global Symbols
 </UL>
 
 <P><STRONG><a name="[234]"></a>VOFA_ServiceSend</STRONG> (Thumb, 4 bytes, Stack size 0 bytes, vofa.o(i.VOFA_ServiceSend))
-<BR><BR>[Stack]<UL><LI>Max Depth = 92<LI>Call Chain = VOFA_ServiceSend &rArr; VOFA_SendChassisTranslatePairDebug &rArr; VOFA_Send6 &rArr; HAL_UART_Transmit_DMA &rArr; HAL_DMA_Start_IT &rArr; DMA_SetConfig
+<BR><BR>[Stack]<UL><LI>Max Depth = 92<LI>Call Chain = VOFA_ServiceSend &rArr; VOFA_SendChassisMotionDebug &rArr; VOFA_Send6 &rArr; HAL_UART_Transmit_DMA &rArr; HAL_DMA_Start_IT &rArr; DMA_SetConfig
 </UL>
-<BR>[Calls]<UL><LI><a href="#[233]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;VOFA_SendChassisTranslatePairDebug
+<BR>[Calls]<UL><LI><a href="#[233]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;VOFA_SendChassisMotionDebug
 </UL>
 <BR>[Called By]<UL><LI><a href="#[c4]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;service_task
 </UL>
@@ -5408,7 +5408,7 @@ Local Symbols
 <LI><a href="#[27c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;chassis_init
 </UL>
 
-<P><STRONG><a name="[26d]"></a>chassis_body_feedforward_update</STRONG> (Thumb, 394 bytes, Stack size 56 bytes, chassis_task.o(i.chassis_body_feedforward_update))
+<P><STRONG><a name="[26d]"></a>chassis_body_feedforward_update</STRONG> (Thumb, 406 bytes, Stack size 56 bytes, chassis_task.o(i.chassis_body_feedforward_update))
 <BR><BR>[Stack]<UL><LI>Max Depth = 56<LI>Call Chain = chassis_body_feedforward_update
 </UL>
 <BR>[Calls]<UL><LI><a href="#[1f1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;fabsf
@@ -6263,7 +6263,7 @@ Local Symbols
 </UL>
 <BR>[Calls]<UL><LI><a href="#[1d2]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_UART_Transmit_DMA
 </UL>
-<BR>[Called By]<UL><LI><a href="#[233]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;VOFA_SendChassisTranslatePairDebug
+<BR>[Called By]<UL><LI><a href="#[233]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;VOFA_SendChassisMotionDebug
 </UL>
 
 <P><STRONG><a name="[2f0]"></a>hwt_handle_frame</STRONG> (Thumb, 468 bytes, Stack size 16 bytes, hwt_imu.o(i.hwt_handle_frame))

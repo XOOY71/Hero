@@ -24,6 +24,7 @@ void VOFA_SendChassisPowerDebug(uint8_t motor_idx);
 void VOFA_SendChassisSpeedAccel(void);
 void VOFA_SendChassisAnglePidDebug(void);
 void VOFA_SendChassisTranslatePairDebug(void);
+void VOFA_SendChassisMotionDebug(void);
 void VOFA_SendGimbalFric(void);
 void VOFA_SendGimbalYaw(void);
 void VOFA_SendGimbalPitch(void);

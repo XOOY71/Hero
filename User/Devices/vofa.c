@@ -137,6 +137,25 @@ void VOFA_SendChassisTranslatePairDebug(void)
                (float)chassis_move.chassis_3508[motor_b].give_current);
 }
 
+void VOFA_SendChassisMotionDebug(void)
+{
+    float angle = chassis_move.chassis_yaw;
+    float target_angle = chassis_move.chassis_yaw_set;
+
+    if (chassis_move.chassis_mode == CHASSIS_VECTOR_FOLLOW_GIMBAL_YAW)
+    {
+        angle = chassis_move.chassis_relative_angle;
+        target_angle = chassis_move.chassis_relative_angle_set;
+    }
+
+    VOFA_Send6(chassis_move.vx_plan,
+               chassis_move.vy_plan,
+               chassis_move.body_ff_ax,
+               chassis_move.body_ff_ay,
+               angle,
+               target_angle);
+}
+
 void VOFA_SendGimbalFric(void)
 {
     float current_avg;
@@ -204,5 +223,5 @@ void VOFA_SendGimbalStrum(void)
 
 void VOFA_ServiceSend(void)
 {
-    VOFA_SendChassisTranslatePairDebug();
+    VOFA_SendChassisMotionDebug();
 }

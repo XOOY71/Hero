@@ -251,8 +251,8 @@ extern "C" {
 
 #define CHASSIS_MAX_ACCEL                 6.0f               // 底盘平移最大加速度，单位 m/s^2
 #define CHASSIS_MAX_JERK                  35.0f              // 底盘平移最大加加速度，单位 m/s^3
-#define CHASSIS_STOP_DECEL                8.0f               // 底盘松杆停车减速度，单位 m/s^2
-#define CHASSIS_STOP_JERK                 120.0f             // 底盘松杆停车减速度变化率，单位 m/s^3
+#define CHASSIS_STOP_DECEL                12.0f              // 底盘松杆停车减速度，单位 m/s^2
+#define CHASSIS_STOP_JERK                 240.0f             // 底盘松杆停车减速度变化率，单位 m/s^3
 #define CHASSIS_WZ_MAX_SPEED              10.0f              // 底盘旋转最大角速度，单位 rad/s
 #define CHASSIS_WZ_MAX_ACCEL              18.0f              // 底盘旋转最大角加速度，单位 rad/s^2
 #define CHASSIS_WZ_MAX_JERK               160.0f             // 底盘旋转最大角加加速度，单位 rad/s^3
@@ -301,7 +301,7 @@ extern "C" {
 #define CHASSIS_FF_STATIC_CURRENT         60.0f             // 静摩擦前馈电流，单位 电流命令计数
 #define CHASSIS_FF_STATIC_SPEED_EPS       0.05f              // 静摩擦平滑速度阈值，单位 m/s
 #define CHASSIS_BRAKE_FRICTION_FF_SCALE   0.0f               // 制动状态摩擦前馈保留比例
-#define CHASSIS_BRAKE_FF_CURRENT_A        1.2f               // 制动状态固定制动前馈电流，单位 A
+#define CHASSIS_BRAKE_FF_CURRENT_A        1.8f               // 制动状态固定制动前馈电流，单位 A
 #define CHASSIS_BRAKE_FF_SPEED_EPS        0.005f              // 制动前馈方向平滑速度阈值，单位 m/s
 #define CHASSIS_BRAKE_ENTER_SPEED_EPS     0.04f              // 制动进入实测轮速阈值，单位 m/s
 #define CHASSIS_BRAKE_RELEASE_SPEED_EPS   0.002f             // 制动释放实测轮速阈值，单位 m/s
