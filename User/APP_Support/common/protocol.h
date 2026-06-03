@@ -24,10 +24,13 @@
 #include "struct_typedef.h"
 
 #define HEADER_SOF 0xA5
-#define REF_PROTOCOL_FRAME_MAX_SIZE         300
+#ifndef REF_PROTOCOL_FRAME_MAX_SIZE
+#define REF_PROTOCOL_FRAME_MAX_SIZE         192
+#endif
 
 #define REF_PROTOCOL_HEADER_SIZE            5
-#define REF_PROTOCOL_CMD_SIZE               2
+#define REF_PROTOCOL_CMDID_SIZE             2
+#define REF_PROTOCOL_CMD_SIZE               REF_PROTOCOL_CMDID_SIZE
 #define REF_PROTOCOL_CRC16_SIZE             2
 #define REF_HEADER_CRC_CMDID_LEN            (REF_PROTOCOL_HEADER_SIZE + REF_PROTOCOL_CMD_SIZE + REF_PROTOCOL_CRC16_SIZE)
 
@@ -55,7 +58,7 @@ typedef enum
 typedef struct
 {
   frame_header_struct_t		*p_header;
-  uint16_t       					data_len;
+  uint16_t       					data_length;
   uint8_t									protocol_packet[REF_PROTOCOL_FRAME_MAX_SIZE];
   unpack_step_e						unpack_step;
   uint16_t								index;

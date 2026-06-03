@@ -1,4 +1,4 @@
-#ifndef CHASSIS_TASK_H
+﻿#ifndef CHASSIS_TASK_H
 #define CHASSIS_TASK_H
 
 #include "bsp_fdcan.h"
@@ -128,7 +128,13 @@ typedef struct
 } chassis_move_t;
 
 extern void chassis_task(void const *pvParameters);
-extern void chassis_rc_to_control_vector(fp32 *vx_set, fp32 *vy_set, chassis_move_t *chassis_move_rc_to_vector);
+void chassis_init(chassis_move_t *chassis_move_init);
+void chassis_set_mode(chassis_move_t *chassis_move_mode);
+void chassis_mode_change_control_transit(chassis_move_t *chassis_move_transit);
+void chassis_feedback_update(chassis_move_t *chassis_move_update);
+void chassis_set_contorl(chassis_move_t *chassis_move_control);
+void chassis_control_loop(chassis_move_t *chassis_move_control_loop);
+void chassis_send_cmd(chassis_move_t *chassis_move_send);
 
 extern chassis_move_t chassis_move;
 extern fp32 yaw_set;

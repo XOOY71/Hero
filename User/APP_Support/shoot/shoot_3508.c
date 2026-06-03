@@ -1,10 +1,12 @@
-#include "shoot_task.h"
+#include "shoot_3508.h"
 
 #include <math.h>
 #include <string.h>
 
 #include "fdcan.h"
 #include "gimbal_behaviour.h"
+
+#if (ROBOT_FRICTION == ROBOT_FRICTION_3508)
 
 #define SHOOT_FRICTION_CMD_ID 0x200U
 #define SHOOT_FRIC_RPM_TO_MPS (2.0f * PI * SHOOT_FRIC_WHEEL_RADIUS_M / 60.0f)
@@ -59,12 +61,12 @@ static float shoot_task_avg3(float a, float b, float c);
 static float shoot_task_min_float(float a, float b);
 static float shoot_task_clamp_float(float value, float min_value, float max_value);
 
-void shoot_task_init(void)
+__attribute__((used)) void shoot_init(void)
 {
     shoot_task_init_control(&shoot_task_control);
 }
 
-void shoot_task_loop(void)
+__attribute__((used)) void shoot_control_loop(void)
 {
 
     shoot_task_set_mode(&shoot_task_control);
@@ -86,6 +88,7 @@ void shoot_task_loop(void)
 
     shoot_task_control.last_mode = shoot_task_control.mode;
 }
+
 
 static void shoot_task_init_control(shoot_task_control_t *control)
 {
@@ -1014,3 +1017,4 @@ static bool shoot_task_motor_ready(const shoot_task_motor_t *motor, uint32_t now
 
     return true;
 }
+#endif

@@ -13,6 +13,7 @@
 #include "string.h"
 
 #include "project_config.h"
+#include "fifo.h"
 
 #define BUFF_SIZE	25
 #define CHASSIS_DATA_LENGTH 28
@@ -79,6 +80,9 @@ extern gimbal_data_t gimbal;
 extern float chassis_INS_yaw, chassis_INS_pitch, chassis_spin_speed;
 extern uint8_t remote_buff[SBUS_RX_BUF_NUM];
 extern uint8_t usart1_buf[2][USART_RX_BUF_LENGHT];
+extern uint8_t referee_fifo_buf[REFEREE_FIFO_BUF_LENGTH];
+extern fifo_s_t referee_fifo;
+extern uint8_t referee_fifo_ready;
 extern uint8_t usart7_buf[ USART_RX_BUF_LENGHT ];//设置缓冲区
 extern uint8_t usart10_buf[ USART_RX_BUF_LENGHT ];//设置缓冲区
 

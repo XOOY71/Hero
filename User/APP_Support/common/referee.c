@@ -70,9 +70,10 @@ enemy_ammo_t              				enemy_ammo;
 enemy_macro_status_t							enemy_macro_status;
 enemy_buff_t              				enemy_buff;
 enemy_wave_key_t               		enemy_wave_key;
+uint32_t g_referee_last_rx_ms = 0;
 
 
-void init_referee_struct_data(void)
+void init_referee_data(void)
 {
     memset(&referee_receive_header,			0, sizeof(frame_header_struct_t			));
     memset(&referee_send_header, 				0, sizeof(frame_header_struct_t			));
@@ -120,13 +121,19 @@ void init_referee_struct_data(void)
     memset(&enemy_macro_status,         0, sizeof(enemy_macro_status_t			));
     memset(&enemy_buff,                 0, sizeof(enemy_buff_t              ));
     memset(&enemy_wave_key,             0, sizeof(enemy_wave_key_t          ));
+    g_referee_last_rx_ms = 0;
 }
 
+void init_referee_struct_data(void)
+{
+    init_referee_data();
+}
 
-void referee_data_solve(uint8_t *frame)
+void referee_handle_data(uint8_t *frame)
 {
 	uint16_t cmd_id = 0;
 	uint8_t index = 0;
+	g_referee_last_rx_ms = HAL_GetTick();
 	
 	//下面这个size_of_header_struct_t的值是6, 因为没有强制按1字节对齐, 此函数后面的5都是直接赋值了
 	//uint8_t size_of_header_struct_t = sizeof(frame_header_struct_t);
@@ -189,6 +196,11 @@ void referee_data_solve(uint8_t *frame)
 	}
 }
 
+void referee_data_solve(uint8_t *frame)
+{
+	referee_handle_data(frame);
+}
+
 //获取机器人ID
 uint8_t get_robot_id(void)
 {
@@ -223,4 +235,56 @@ uint16_t get_shooter_17mm_heat(void)
 uint16_t get_shooter_42mm_heat(void)
 {
 	return power_heat_data.shooter_42mm_barrel_heat;
+}
+
+uint8_t referee_data_available(uint32_t timeout_ms)
+{
+	uint32_t now = HAL_GetTick();
+	uint8_t robot_id = robot_status.robot_id;
+
+	if((robot_id >= RED_HERO && robot_id <= RED_SENTRY) || (robot_id >= BLUE_HERO && robot_id <= BLUE_SENTRY))
+	{
+		return (uint8_t)((now - g_referee_last_rx_ms) <= timeout_ms);
+	}
+
+	return 0;
+}
+
+void get_chassis_power_and_buffer(uint16_t *power_limit, uint16_t *buffer)
+{
+	if(power_limit != NULL)
+	{
+		*power_limit = robot_status.chassis_power_limit;
+	}
+
+	if(buffer != NULL)
+	{
+		*buffer = power_heat_data.buffer_energy;
+	}
+}
+
+void get_shoot_heat0_limit_and_heat0(uint16_t *heat_limit, uint16_t *heat)
+{
+	if(heat_limit != NULL)
+	{
+		*heat_limit = robot_status.shooter_barrel_heat_limit;
+	}
+
+	if(heat != NULL)
+	{
+		*heat = power_heat_data.shooter_17mm_barrel_heat;
+	}
+}
+
+void get_shoot_heat1_limit_and_heat1(uint16_t *heat_limit, uint16_t *heat)
+{
+	if(heat_limit != NULL)
+	{
+		*heat_limit = robot_status.shooter_barrel_heat_limit;
+	}
+
+	if(heat != NULL)
+	{
+		*heat = power_heat_data.shooter_42mm_barrel_heat;
+	}
 }

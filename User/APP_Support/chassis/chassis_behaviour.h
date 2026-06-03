@@ -41,6 +41,7 @@ typedef enum
 extern void chassis_behaviour_mode_set(chassis_move_t *chassis_move_mode);
 //根据当前行为模式设置底盘控制参数
 extern void chassis_behaviour_control_set(fp32 *vx_set, fp32 *vy_set, fp32 *angle_set, chassis_move_t *chassis_move_rc_to_vector);
+extern void chassis_rc_to_control_vector(fp32 *vx_set, fp32 *vy_set, chassis_move_t *chassis_move_rc_to_vector);
 
 //全局变量，用于存储底盘行为模式
 extern chassis_behaviour_e chassis_behaviour_mode;

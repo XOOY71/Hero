@@ -298,6 +298,8 @@ typedef struct
 
 extern shoot_task_control_t shoot_task_control;
 
+void shoot_init(void);
+void shoot_control_loop(void);
 void shoot_task_init(void);
 void shoot_task_loop(void);
 

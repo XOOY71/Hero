@@ -33,6 +33,7 @@
 #include "chassis_task.h"
 #include "detect_task.h"
 #include "light_task.h"
+#include "referee_usart_task.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -125,6 +126,7 @@ void MX_FREERTOS_Init(void) {
 	osThreadCreate(osThread(detect), NULL);
 	osThreadDef(chassis, chassis_task, osPriorityHigh, 0, 768);
 	osThreadCreate(osThread(chassis), NULL);
+	RefereeUsartTask_Init();
   /* USER CODE END RTOS_THREADS */
 
 }
