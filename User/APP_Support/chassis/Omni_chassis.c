@@ -16,6 +16,7 @@
 
 #include <math.h>
 #include <stdbool.h>
+#include <stdlib.h>
 
 #if (ROBOT_CHASSIS == ROBOT_CHASSIS_OMNI)
 
@@ -128,6 +129,7 @@ __attribute__((used)) void chassis_init(chassis_move_t *chassis_move_init)
 		chassis_move_init->model_accel[i] = 0.0f;
 		chassis_move_init->model_last_speed_set[i] = 0.0f;
 		chassis_move_init->speed_pi_iout[i] = 0.0f;
+		chassis_move_init->speed_pid_last_error[i] = 0.0f;
 		chassis_move_init->stop_brake_active[i] = 0u;
 		chassis_move_init->motor_current_limit_a[i] = CHASSIS_CURRENT_BASE_LIMIT_A;
 		chassis_move_init->last_motor_current_limit_a[i] = CHASSIS_CURRENT_BASE_LIMIT_A;
@@ -358,6 +360,7 @@ static void chassis_zero_force_clear(chassis_move_t *chassis_move_zero)
 		chassis_move_zero->model_accel[i] = 0.0f;
 		chassis_move_zero->model_last_speed_set[i] = 0.0f;
 		chassis_move_zero->speed_pi_iout[i] = 0.0f;
+		chassis_move_zero->speed_pid_last_error[i] = 0.0f;
 		chassis_move_zero->stop_brake_active[i] = 0u;
 	}
 }
@@ -636,6 +639,7 @@ static fp32 chassis_s_curve_update(fp32 cmd, fp32 *plan, fp32 *accel, fp32 max_s
 
 static fp32 chassis_speed_pi_calc(chassis_move_t *chassis_move_pi, uint8_t motor_idx, fp32 error_v)
 {
+	fp32 error_d;
 	fp32 out;
 
 	if (chassis_move_pi == NULL || motor_idx >= CHASSIS_MODULE_NUM) return 0.0f;
@@ -643,7 +647,11 @@ static fp32 chassis_speed_pi_calc(chassis_move_t *chassis_move_pi, uint8_t motor
 	chassis_move_pi->speed_pi_iout[motor_idx] += CHASSIS_SPEED_PI_KI * error_v * CHASSIS_CONTROL_TIME;
 	chassis_move_pi->speed_pi_iout[motor_idx] = chassis_limit_abs(chassis_move_pi->speed_pi_iout[motor_idx],
 	                                                              CHASSIS_SPEED_PI_MAX_IOUT);
-	out = CHASSIS_SPEED_PI_KP * error_v + chassis_move_pi->speed_pi_iout[motor_idx];
+	error_d = (error_v - chassis_move_pi->speed_pid_last_error[motor_idx]) / CHASSIS_CONTROL_TIME;
+	chassis_move_pi->speed_pid_last_error[motor_idx] = error_v;
+	out = CHASSIS_SPEED_PI_KP * error_v +
+	      chassis_move_pi->speed_pi_iout[motor_idx] +
+	      CHASSIS_SPEED_PI_KD * error_d;
 
 	return chassis_limit_abs(out, CHASSIS_SPEED_PI_MAX_OUT);
 }
@@ -675,7 +683,7 @@ static fp32 Model_Based_Control(uint8_t motor_idx, fp32 set_speed, fp32 ref_spee
 	{
 		chassis_move.model_accel[motor_idx] = 0.0f;
 		chassis_move.model_last_speed_set[motor_idx] = 0.0f;
-		chassis_move.speed_pi_iout[motor_idx] = 0.0f;
+		chassis_move.speed_pid_last_error[motor_idx] = 0.0f;
 		chassis_move.stop_brake_active[motor_idx] = 0u;
 		return 0.0f;
 	}
@@ -736,6 +744,9 @@ static void PID_Calc_Jump(chassis_move_t *chassis_pid_calc)
 	fp32 actual = 0.0f;
 	fp32 adjusted_target = 0.0f;
 	uint8_t i;
+	uint8_t rc_all_zero = 1u;
+	uint8_t set_speed_all_zero = 1u;
+	static uint16_t zero_speed_i_clear_count = 0u;
 
 	if (chassis_pid_calc == NULL) return;
 
@@ -763,15 +774,56 @@ static void PID_Calc_Jump(chassis_move_t *chassis_pid_calc)
 		{
 			chassis_pid_calc->chassis_3508[i].speed_set = 0.0f;
 		}
+		if (fabsf(chassis_pid_calc->chassis_3508[i].speed_set) >= 0.0001f)
+		{
+			set_speed_all_zero = 0u;
+		}
 		if ((fabsf(chassis_pid_calc->chassis_3508[i].speed_set) < 0.0001f) &&
 		    (fabsf(chassis_pid_calc->chassis_3508[i].speed) < CHASSIS_BRAKE_RELEASE_SPEED_EPS))
 		{
 			chassis_pid_calc->model_accel[i] = 0.0f;
 			chassis_pid_calc->model_last_speed_set[i] = 0.0f;
-			chassis_pid_calc->speed_pi_iout[i] = 0.0f;
+			chassis_pid_calc->speed_pid_last_error[i] = 0.0f;
 			chassis_pid_calc->stop_brake_active[i] = 0u;
 		}
+	}
 
+	if (chassis_pid_calc->chassis_RC != NULL)
+	{
+		if ((abs(chassis_pid_calc->chassis_RC->rc.ch[CHASSIS_X_CHANNEL]) > CHASSIS_RC_DEADLINE) ||
+		    (abs(chassis_pid_calc->chassis_RC->rc.ch[CHASSIS_Y_CHANNEL]) > CHASSIS_RC_DEADLINE) ||
+		    (abs(chassis_pid_calc->chassis_RC->rc.ch[CHASSIS_WZ_CHANNEL]) > CHASSIS_RC_DEADLINE))
+		{
+			rc_all_zero = 0u;
+		}
+	}
+
+	if ((rc_all_zero != 0u) && (set_speed_all_zero != 0u))
+	{
+		if (zero_speed_i_clear_count < CHASSIS_ZERO_SPEED_I_CLEAR_CYCLES)
+		{
+			zero_speed_i_clear_count++;
+		}
+	}
+	else
+	{
+		zero_speed_i_clear_count = 0u;
+	}
+
+	if (zero_speed_i_clear_count >= CHASSIS_ZERO_SPEED_I_CLEAR_CYCLES)
+	{
+		for (i = 0; i < CHASSIS_MODULE_NUM; i++)
+		{
+			chassis_pid_calc->speed_pi_iout[i] = 0.0f;
+			chassis_pid_calc->speed_pid_last_error[i] = 0.0f;
+			chassis_pid_calc->model_accel[i] = 0.0f;
+			chassis_pid_calc->model_last_speed_set[i] = 0.0f;
+			chassis_pid_calc->stop_brake_active[i] = 0u;
+		}
+	}
+
+	for (i = 0; i < CHASSIS_MODULE_NUM; i++)
+	{
 		chassis_pid_calc->model_3508_out[i] = Model_Based_Control(i, chassis_pid_calc->chassis_3508[i].speed_set, chassis_pid_calc->chassis_3508[i].speed);
 	}
 }
@@ -825,56 +877,69 @@ __attribute__((used)) void chassis_control_loop(chassis_move_t *chassis_move_con
 	fp32 wheel_speed[CHASSIS_MODULE_NUM] = {0.0f};
 	fp32 wheel_angle[CHASSIS_MODULE_NUM] = {0.0f};
 	uint8_t i;
+	uint8_t zero_speed_cmd;
 
 	if (chassis_move_control_loop == NULL) return;
-
-	if (chassis_move_control_loop->chassis_mode == CHASSIS_VECTOR_NO_MOVE)
-	{
-		chassis_zero_force_clear(chassis_move_control_loop);
-		return;
-	}
 
 	chassis_move_control_loop->last_vx_set = chassis_move_control_loop->vx_set;
 	chassis_move_control_loop->last_vy_set = chassis_move_control_loop->vy_set;
 	chassis_move_control_loop->last_wz_set = chassis_move_control_loop->wz_set;
-	chassis_move_control_loop->vx_plan = chassis_s_curve_update(chassis_move_control_loop->vx_set,
-	                                                            &chassis_move_control_loop->vx_plan,
-	                                                            &chassis_move_control_loop->vx_plan_accel,
-	                                                            chassis_move_control_loop->vx_max_speed,
-	                                                            CHASSIS_MAX_ACCEL,
-	                                                            CHASSIS_MAX_JERK,
-	                                                            CHASSIS_STOP_DECEL,
-	                                                            CHASSIS_STOP_JERK);
-	chassis_move_control_loop->vy_plan = chassis_s_curve_update(chassis_move_control_loop->vy_set,
-	                                                            &chassis_move_control_loop->vy_plan,
-	                                                            &chassis_move_control_loop->vy_plan_accel,
-	                                                            chassis_move_control_loop->vy_max_speed,
-	                                                            CHASSIS_MAX_ACCEL,
-	                                                            CHASSIS_MAX_JERK,
-	                                                            CHASSIS_STOP_DECEL,
-	                                                            CHASSIS_STOP_JERK);
-	if ((chassis_move_control_loop->chassis_mode == CHASSIS_VECTOR_FOLLOW_GIMBAL_YAW) ||
-	    (chassis_move_control_loop->chassis_mode == CHASSIS_VECTOR_YAW_HOLD))
+
+	zero_speed_cmd = ((fabsf(chassis_move_control_loop->vx_set) < 0.0001f) &&
+	                  (fabsf(chassis_move_control_loop->vy_set) < 0.0001f) &&
+	                  (fabsf(chassis_move_control_loop->wz_set) < 0.0001f)) ? 1u : 0u;
+
+	if ((chassis_move_control_loop->chassis_mode == CHASSIS_VECTOR_NO_MOVE) || (zero_speed_cmd != 0u))
 	{
-		chassis_move_control_loop->wz_plan =
-			fp32_constrain(chassis_move_control_loop->wz_set, -CHASSIS_WZ_MAX_SPEED, CHASSIS_WZ_MAX_SPEED);
+		chassis_move_control_loop->vx_plan = 0.0f;
+		chassis_move_control_loop->vy_plan = 0.0f;
+		chassis_move_control_loop->wz_plan = 0.0f;
+		chassis_move_control_loop->vx_plan_accel = 0.0f;
+		chassis_move_control_loop->vy_plan_accel = 0.0f;
 		chassis_move_control_loop->wz_plan_accel = 0.0f;
+		chassis_body_feedforward_clear(chassis_move_control_loop);
 	}
 	else
 	{
-		chassis_move_control_loop->wz_plan = chassis_s_curve_update(chassis_move_control_loop->wz_set,
-		                                                            &chassis_move_control_loop->wz_plan,
-		                                                            &chassis_move_control_loop->wz_plan_accel,
-		                                                            CHASSIS_WZ_MAX_SPEED,
-		                                                            CHASSIS_WZ_MAX_ACCEL,
-		                                                            CHASSIS_WZ_MAX_JERK,
-		                                                            CHASSIS_WZ_MAX_ACCEL,
-		                                                            CHASSIS_WZ_MAX_JERK);
+		chassis_move_control_loop->vx_plan = chassis_s_curve_update(chassis_move_control_loop->vx_set,
+		                                                            &chassis_move_control_loop->vx_plan,
+		                                                            &chassis_move_control_loop->vx_plan_accel,
+		                                                            chassis_move_control_loop->vx_max_speed,
+		                                                            CHASSIS_MAX_ACCEL,
+		                                                            CHASSIS_MAX_JERK,
+		                                                            CHASSIS_STOP_DECEL,
+		                                                            CHASSIS_STOP_JERK);
+		chassis_move_control_loop->vy_plan = chassis_s_curve_update(chassis_move_control_loop->vy_set,
+		                                                            &chassis_move_control_loop->vy_plan,
+		                                                            &chassis_move_control_loop->vy_plan_accel,
+		                                                            chassis_move_control_loop->vy_max_speed,
+		                                                            CHASSIS_MAX_ACCEL,
+		                                                            CHASSIS_MAX_JERK,
+		                                                            CHASSIS_STOP_DECEL,
+		                                                            CHASSIS_STOP_JERK);
+		if ((chassis_move_control_loop->chassis_mode == CHASSIS_VECTOR_FOLLOW_GIMBAL_YAW) ||
+		    (chassis_move_control_loop->chassis_mode == CHASSIS_VECTOR_YAW_HOLD))
+		{
+			chassis_move_control_loop->wz_plan =
+				fp32_constrain(chassis_move_control_loop->wz_set, -CHASSIS_WZ_MAX_SPEED, CHASSIS_WZ_MAX_SPEED);
+			chassis_move_control_loop->wz_plan_accel = 0.0f;
+		}
+		else
+		{
+			chassis_move_control_loop->wz_plan = chassis_s_curve_update(chassis_move_control_loop->wz_set,
+			                                                            &chassis_move_control_loop->wz_plan,
+			                                                            &chassis_move_control_loop->wz_plan_accel,
+			                                                            CHASSIS_WZ_MAX_SPEED,
+			                                                            CHASSIS_WZ_MAX_ACCEL,
+			                                                            CHASSIS_WZ_MAX_JERK,
+			                                                            CHASSIS_WZ_MAX_ACCEL,
+			                                                            CHASSIS_WZ_MAX_JERK);
+		}
+		chassis_move_control_loop->wz_plan = chassis_limit_wz_by_lateral_accel(chassis_move_control_loop->vx_plan,
+		                                                                       chassis_move_control_loop->vy_plan,
+		                                                                       chassis_move_control_loop->wz_plan);
+		chassis_body_feedforward_update(chassis_move_control_loop);
 	}
-	chassis_move_control_loop->wz_plan = chassis_limit_wz_by_lateral_accel(chassis_move_control_loop->vx_plan,
-	                                                                       chassis_move_control_loop->vy_plan,
-	                                                                       chassis_move_control_loop->wz_plan);
-	chassis_body_feedforward_update(chassis_move_control_loop);
 
 	chas_inv_cal(chassis_move_control_loop->vx_plan,
 	             chassis_move_control_loop->vy_plan,

@@ -68,6 +68,7 @@ typedef struct
     fp32 model_accel[CHASSIS_MODULE_NUM];
     fp32 model_last_speed_set[CHASSIS_MODULE_NUM];
     fp32 speed_pi_iout[CHASSIS_MODULE_NUM];
+    fp32 speed_pid_last_error[CHASSIS_MODULE_NUM];
     uint8_t stop_brake_active[CHASSIS_MODULE_NUM];
     fp32 motor_current_limit_a[CHASSIS_MODULE_NUM];
     fp32 last_motor_current_limit_a[CHASSIS_MODULE_NUM];

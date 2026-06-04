@@ -266,7 +266,7 @@ extern "C" {
 #define CHASSIS_ACCEL_Y_NUM               0.1f      // y 方向遥控速度一阶滤波系数，无量纲
 #define MAX_WHEEL_SPEED                   3.2f               // 单轮目标速度上限，单位 m/s
 
-#define CHASSIS_RELEASE_REVERSE_ENABLE    1U                 // 1: 使能松杆反向速度脉冲
+#define CHASSIS_RELEASE_REVERSE_ENABLE    0U                 // 1: 使能松杆反向速度脉冲
 #define CHASSIS_RELEASE_REVERSE_MIN_TIME  0.005f              // 低速松杆时的最小线性衰减时间，单位 s
 #define CHASSIS_RELEASE_REVERSE_MAX_TIME  0.42f              // 高速松杆时的最大线性衰减时间，单位 s
 #define CHASSIS_RELEASE_REVERSE_REF_SPEED 3.4f               // 衰减时间达到最大值的参考规划速度，单位 m/s
@@ -283,10 +283,12 @@ extern "C" {
 #define CHASSIS_LAT_ACCEL_LIMIT           9.0f               // 底盘高速转弯横向加速度上限，单位 m/s^2
 #define CHASSIS_LAT_SPEED_EPS             0.5f               // 横向加速度限幅启用的最小平移速度，单位 m/s
 #define CHASSIS_YAW_HOLD_RC_SEN           0.008f             // yaw 保持模式摇杆积分灵敏度，单位 rad/s/遥控计数
-#define CHASSIS_SPEED_PI_KP               900.0f             // 底盘轮速 PI 比例系数，单位 电流命令计数/(m/s)
-#define CHASSIS_SPEED_PI_KI               20.0f              // 底盘轮速 PI 积分系数，单位 电流命令计数/m
-#define CHASSIS_SPEED_PI_MAX_OUT          1800.0f            // 底盘轮速 PI 输出限幅，单位 电流命令计数
-#define CHASSIS_SPEED_PI_MAX_IOUT         400.0f             // 底盘轮速 PI 积分限幅，单位 电流命令计数
+#define CHASSIS_SPEED_PI_KP               1600.0f            // 底盘轮速 PID 比例系数，单位 电流命令计数/(m/s)
+#define CHASSIS_SPEED_PI_KI               45.0f              // 底盘轮速 PID 积分系数，单位 电流命令计数/m
+#define CHASSIS_SPEED_PI_KD               300.0f               // 底盘轮速 PID 微分系数，单位 电流命令计数/(m/s^2)
+#define CHASSIS_SPEED_PI_MAX_OUT          3200.0f            // 底盘轮速 PID 输出限幅，单位 电流命令计数
+#define CHASSIS_SPEED_PI_MAX_IOUT         650.0f             // 底盘轮速 PID 积分限幅，单位 电流命令计数
+#define CHASSIS_ZERO_SPEED_I_CLEAR_CYCLES 10U                // 零输入零速保持后清理轮速 PI 积分的周期数，1ms 周期下为 10ms
 
 #define CHASSIS_CURRENT_BASE_LIMIT_A      3.0f               // 底盘单电机基础电流限幅，单位 A
 #define CHASSIS_CURRENT_DYNAMIC_POOL_A    4.0f               // 底盘四电机共享动态电流池，单位 A
@@ -326,7 +328,7 @@ extern "C" {
 #define CHASSIS_FF_STATIC_CURRENT         40.0f             // 静摩擦前馈电流，单位 电流命令计数
 #define CHASSIS_FF_STATIC_SPEED_EPS       0.05f              // 静摩擦平滑速度阈值，单位 m/s
 #define CHASSIS_BRAKE_FRICTION_FF_SCALE   0.0f               // 制动状态摩擦前馈保留比例
-#define CHASSIS_BRAKE_FF_CURRENT_A        4.0f               // 制动状态固定制动前馈电流，单位 A
+#define CHASSIS_BRAKE_FF_CURRENT_A        0.0f               // 制动状态固定制动前馈电流，单位 A
 #define CHASSIS_BRAKE_FF_SPEED_EPS        0.005f              // 制动前馈方向平滑速度阈值，单位 m/s
 #define CHASSIS_BRAKE_ENTER_SPEED_EPS     0.02f              // 制动进入实测轮速阈值，单位 m/s
 #define CHASSIS_BRAKE_RELEASE_SPEED_EPS   0.002f             // 制动释放实测轮速阈值，单位 m/s
