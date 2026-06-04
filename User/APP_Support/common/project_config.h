@@ -169,6 +169,11 @@ extern "C" {
 #define SHOOT_BULLET_SPEED_EST_COEFF_MPS_PER_RPM \
     ((3.0f * SHOOT_FRIC_ROTATING_INERTIA_KGM2 * 2.0f * PI) / \
      (60.0f * SHOOT_BULLET_42MM_MASS_KG * SHOOT_FRIC_WHEEL_RADIUS_M))
+#define SHOOT_FIRE_DETECT_TRIGGER_DROP_RPM 600.0f // 开火检测掉速阈值，单位 rpm
+#define SHOOT_FIRE_DETECT_MIN_SPEED_RATIO  0.85f  // 摩擦轮达到目标转速比例后允许检测
+#define SHOOT_FIRE_DETECT_CURRENT_A        2.0f   // 开火检测反馈电流阈值，单位 A
+#define SHOOT_FIRE_DETECT_WINDOW_MS        12U    // 掉速后等待电流响应的窗口，单位 ms
+#define SHOOT_FIRE_DETECT_LATCH_MS         50U    // 开火检测结果保持时间，单位 ms
 
 /* ========================= 串口与裁判系统配置 ========================= */
 #define USART_RX_BUF_LENGHT                64    // 串口接收缓冲区长度
@@ -262,9 +267,9 @@ extern "C" {
 #define MAX_WHEEL_SPEED                   3.2f               // 单轮目标速度上限，单位 m/s
 
 #define CHASSIS_RELEASE_REVERSE_ENABLE    1U                 // 1: 使能松杆反向速度脉冲
-#define CHASSIS_RELEASE_REVERSE_MIN_TIME  0.01f              // 低速松杆时的最小线性衰减时间，单位 s
-#define CHASSIS_RELEASE_REVERSE_MAX_TIME  0.4f              // 高速松杆时的最大线性衰减时间，单位 s
-#define CHASSIS_RELEASE_REVERSE_REF_SPEED 3.2f               // 衰减时间达到最大值的参考规划速度，单位 m/s
+#define CHASSIS_RELEASE_REVERSE_MIN_TIME  0.005f              // 低速松杆时的最小线性衰减时间，单位 s
+#define CHASSIS_RELEASE_REVERSE_MAX_TIME  0.42f              // 高速松杆时的最大线性衰减时间，单位 s
+#define CHASSIS_RELEASE_REVERSE_REF_SPEED 3.4f               // 衰减时间达到最大值的参考规划速度，单位 m/s
 #define CHASSIS_RELEASE_REVERSE_LOCK_SPEED_EPS 0.05f         // 反向衰减结束后解除锁零的规划速度阈值，单位 m/s
 #define CHASSIS_RELEASE_REVERSE_DIR_DOT_EPS (-0.30f)         // 新拨杆方向与上次松杆方向的换向判定点积阈值
 
@@ -272,10 +277,10 @@ extern "C" {
 #define CHASSIS_MAX_JERK                  35.0f              // 底盘平移最大加加速度，单位 m/s^3
 #define CHASSIS_STOP_DECEL                28.0f              // 底盘松杆停车减速度，单位 m/s^2
 #define CHASSIS_STOP_JERK                 1000.0f            // 底盘松杆停车减速度变化率，单位 m/s^3
-#define CHASSIS_WZ_MAX_SPEED              10.0f              // 底盘旋转最大角速度，单位 rad/s
+#define CHASSIS_WZ_MAX_SPEED              12.0f              // 底盘旋转最大角速度，单位 rad/s
 #define CHASSIS_WZ_MAX_ACCEL              18.0f              // 底盘旋转最大角加速度，单位 rad/s^2
 #define CHASSIS_WZ_MAX_JERK               160.0f             // 底盘旋转最大角加加速度，单位 rad/s^3
-#define CHASSIS_LAT_ACCEL_LIMIT           6.8f               // 底盘高速转弯横向加速度上限，单位 m/s^2
+#define CHASSIS_LAT_ACCEL_LIMIT           9.0f               // 底盘高速转弯横向加速度上限，单位 m/s^2
 #define CHASSIS_LAT_SPEED_EPS             0.5f               // 横向加速度限幅启用的最小平移速度，单位 m/s
 #define CHASSIS_YAW_HOLD_RC_SEN           0.008f             // yaw 保持模式摇杆积分灵敏度，单位 rad/s/遥控计数
 #define CHASSIS_SPEED_PI_KP               900.0f             // 底盘轮速 PI 比例系数，单位 电流命令计数/(m/s)
@@ -298,10 +303,11 @@ extern "C" {
 #define CHASSIS_RETURN_WZ_SCALE           0.006f             // 底盘回正 PID 输出转角速度系数，单位 (rad/s)/PID输出计数
 
 #define CHASSIS_ANGLE_PD_KP                7.0f              // 底盘角度 PD 比例系数，单位 (rad/s)/rad
-#define CHASSIS_ANGLE_PD_KD                0.25f             // 底盘角度 PD 微分系数
-#define CHASSIS_ANGLE_PD_MAX_OUT           6.0f              // 底盘角度 PD 输出限幅，单位 rad/s
+#define CHASSIS_ANGLE_PD_KD                0.4f             // 底盘角度 PD 微分系数
+#define CHASSIS_ANGLE_PD_DEADBAND          0.012f            // 底盘角度 PD 误差死区，单位 rad
+#define CHASSIS_ANGLE_PD_MAX_OUT           8.0f              // 底盘角度 PD 输出限幅，单位 rad/s
 
-#define CHASSIS_BODY_FF_YAW_INERTIA_KGM2   0.25f             // 底盘 yaw 轴转动惯量前馈参数，单位 kg*m^2
+#define CHASSIS_BODY_FF_YAW_INERTIA_KGM2   0.39f             // 底盘 yaw 轴转动惯量前馈参数，单位 kg*m^2
 #define CHASSIS_BODY_FF_YAW_ACCEL_LIMIT    60.0f             // 底盘 yaw 规划角加速度限幅，单位 rad/s^2
 #define CHASSIS_BODY_FF_MAX_CURRENT_CMD    3200.0f           // 底盘整车动力学前馈单轮电流命令限幅
 #define CHASSIS_YAW_RATE_FEEDBACK_SIGN     -1.0f             // 底盘 yaw 陀螺仪角速度反馈方向系数
@@ -314,10 +320,10 @@ extern "C" {
 #define M3508_MAX_CONT_TORQUE             2.8f               // M3508 电机持续输出转矩上限，单位 N*m
 
 #define CHASSIS_ACCEL_FILTER_TAU          0.02f              // 目标加速度低通滤波时间常数，单位 s
-#define CHASSIS_FF_VISCOUS_GAIN           200.0f             // 黏性摩擦前馈系数，单位 电流命令计数/(m/s)
-#define CHASSIS_FF_COULOMB_CURRENT        200.0f             // 库仑摩擦前馈电流，单位 电流命令计数
+#define CHASSIS_FF_VISCOUS_GAIN           0.100f             // 黏性摩擦前馈系数，单位 电流命令计数/(m/s)
+#define CHASSIS_FF_COULOMB_CURRENT        0.80f             // 库仑摩擦前馈电流，单位 电流命令计数
 #define CHASSIS_FF_COULOMB_SPEED_EPS      0.08f              // 库仑摩擦平滑速度阈值，单位 m/s
-#define CHASSIS_FF_STATIC_CURRENT         60.0f             // 静摩擦前馈电流，单位 电流命令计数
+#define CHASSIS_FF_STATIC_CURRENT         40.0f             // 静摩擦前馈电流，单位 电流命令计数
 #define CHASSIS_FF_STATIC_SPEED_EPS       0.05f              // 静摩擦平滑速度阈值，单位 m/s
 #define CHASSIS_BRAKE_FRICTION_FF_SCALE   0.0f               // 制动状态摩擦前馈保留比例
 #define CHASSIS_BRAKE_FF_CURRENT_A        4.0f               // 制动状态固定制动前馈电流，单位 A

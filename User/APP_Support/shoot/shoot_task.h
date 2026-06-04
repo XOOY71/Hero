@@ -294,6 +294,14 @@ typedef struct
     float bullet_speed_min_fric3_rpm;
     float bullet_speed_min_avg_rpm;
     float estimated_bullet_speed_mps;
+    bool fire_detect_active;
+    bool fire_detected;
+    bool fire_detect_latched;
+    uint16_t fire_detect_ticks;
+    uint16_t fire_detect_latch_ticks;
+    uint32_t fired_bullet_count;
+    float fire_detect_speed_drop_rpm;
+    float fire_detect_current_a;
 } shoot_task_control_t;
 
 extern shoot_task_control_t shoot_task_control;

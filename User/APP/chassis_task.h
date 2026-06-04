@@ -98,6 +98,7 @@ typedef struct
     fp32 wz_plan_accel;
     fp32 return_wz_set;
     fp32 chassis_relative_angle;
+    fp32 chassis_relative_angle_vel;
     fp32 chassis_relative_angle_target;
     fp32 chassis_relative_angle_set;
     fp32 chassis_relative_angle_set_vel;

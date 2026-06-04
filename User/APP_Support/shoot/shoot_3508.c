@@ -54,10 +54,15 @@ static bool shoot_task_motor_should_trigger_feedforward(const shoot_task_motor_t
 static void shoot_task_motor_apply_feedforward(shoot_task_motor_t *motor);
 static void shoot_task_update_history(shoot_task_control_t *control);
 static void shoot_task_update_bullet_speed_estimate(shoot_task_control_t *control);
+static void shoot_task_update_fire_detect(shoot_task_control_t *control);
 static bool shoot_task_should_start_bullet_speed_estimate(const shoot_task_control_t *control);
 static void shoot_task_start_bullet_speed_estimate(shoot_task_control_t *control);
+static bool shoot_task_should_start_fire_detect(const shoot_task_control_t *control, float *speed_drop_rpm);
+static float shoot_task_get_fire_detect_current_a(const shoot_task_control_t *control);
+static void shoot_task_set_fire_detected(shoot_task_control_t *control);
 static uint16_t shoot_task_ms_to_ticks(uint16_t ms);
 static float shoot_task_avg3(float a, float b, float c);
+static float shoot_task_max3(float a, float b, float c);
 static float shoot_task_min_float(float a, float b);
 static float shoot_task_clamp_float(float value, float min_value, float max_value);
 
@@ -331,6 +336,7 @@ static void shoot_task_control_friction(shoot_task_control_t *control)
                                      control->fric2.give_current,
                                      control->fric3.give_current);
     shoot_task_update_bullet_speed_estimate(control);
+    shoot_task_update_fire_detect(control);
     shoot_task_update_history(control);
 }
 
@@ -364,6 +370,13 @@ static void shoot_task_stop_friction(shoot_task_control_t *control)
     control->fric3.ff_current = 0;
     control->bullet_speed_est_active = false;
     control->bullet_speed_est_ticks = 0U;
+    control->fire_detect_active = false;
+    control->fire_detected = false;
+    control->fire_detect_latched = false;
+    control->fire_detect_ticks = 0U;
+    control->fire_detect_latch_ticks = 0U;
+    control->fire_detect_speed_drop_rpm = 0.0f;
+    control->fire_detect_current_a = 0.0f;
 
     if (control->last_mode != SHOOT_TASK_STOP)
     {
@@ -961,6 +974,64 @@ static void shoot_task_start_bullet_speed_estimate(shoot_task_control_t *control
                         control->bullet_speed_min_fric3_rpm);
 }
 
+static void shoot_task_update_fire_detect(shoot_task_control_t *control)
+{
+    float speed_drop_rpm = 0.0f;
+
+    if (control == NULL)
+    {
+        return;
+    }
+
+    control->fire_detected = false;
+
+    if (control->fire_detect_latch_ticks > 0U)
+    {
+        control->fire_detect_latch_ticks--;
+        if (control->fire_detect_latch_ticks == 0U)
+        {
+            control->fire_detect_latched = false;
+        }
+    }
+
+    if (!control->fire_detect_latched &&
+        !control->fire_detect_active &&
+        shoot_task_should_start_fire_detect(control, &speed_drop_rpm))
+    {
+        control->fire_detect_active = true;
+        control->fire_detect_ticks =
+            shoot_task_ms_to_ticks(SHOOT_FIRE_DETECT_WINDOW_MS);
+        control->fire_detect_speed_drop_rpm = speed_drop_rpm;
+        control->fire_detect_current_a = 0.0f;
+    }
+
+    if (!control->fire_detect_active)
+    {
+        return;
+    }
+
+    control->fire_detect_current_a =
+        shoot_task_max3(control->fire_detect_current_a,
+                        shoot_task_get_fire_detect_current_a(control),
+                        0.0f);
+
+    if (control->fire_detect_current_a >= SHOOT_FIRE_DETECT_CURRENT_A)
+    {
+        shoot_task_set_fire_detected(control);
+        return;
+    }
+
+    if (control->fire_detect_ticks > 0U)
+    {
+        control->fire_detect_ticks--;
+    }
+
+    if (control->fire_detect_ticks == 0U)
+    {
+        control->fire_detect_active = false;
+    }
+}
+
 static uint16_t shoot_task_ms_to_ticks(uint16_t ms)
 {
     uint16_t ticks;
@@ -977,6 +1048,83 @@ static uint16_t shoot_task_ms_to_ticks(uint16_t ms)
 static float shoot_task_avg3(float a, float b, float c)
 {
     return (a + b + c) / 3.0f;
+}
+
+static float shoot_task_max3(float a, float b, float c)
+{
+    float max_value = a;
+
+    if (b > max_value)
+    {
+        max_value = b;
+    }
+
+    if (c > max_value)
+    {
+        max_value = c;
+    }
+
+    return max_value;
+}
+
+static bool shoot_task_should_start_fire_detect(const shoot_task_control_t *control, float *speed_drop_rpm)
+{
+    float stable_speed_avg_rpm;
+    float max_speed_drop_rpm;
+
+    if (control == NULL)
+    {
+        return false;
+    }
+
+    stable_speed_avg_rpm =
+        shoot_task_avg3(control->fric1.last_speed_rpm,
+                        control->fric2.last_speed_rpm,
+                        control->fric3.last_speed_rpm);
+    if (stable_speed_avg_rpm <
+        SHOOT_FRIC_TARGET_SPEED_RPM * SHOOT_FIRE_DETECT_MIN_SPEED_RATIO)
+    {
+        return false;
+    }
+
+    max_speed_drop_rpm =
+        shoot_task_max3(control->fric1.last_speed_rpm - control->fric1.speed_rpm,
+                        control->fric2.last_speed_rpm - control->fric2.speed_rpm,
+                        control->fric3.last_speed_rpm - control->fric3.speed_rpm);
+    if (speed_drop_rpm != NULL)
+    {
+        *speed_drop_rpm = max_speed_drop_rpm;
+    }
+
+    return (max_speed_drop_rpm >= SHOOT_FIRE_DETECT_TRIGGER_DROP_RPM);
+}
+
+static float shoot_task_get_fire_detect_current_a(const shoot_task_control_t *control)
+{
+    if (control == NULL)
+    {
+        return 0.0f;
+    }
+
+    return shoot_task_max3(fabsf(control->fric1.given_current_a),
+                           fabsf(control->fric2.given_current_a),
+                           fabsf(control->fric3.given_current_a));
+}
+
+static void shoot_task_set_fire_detected(shoot_task_control_t *control)
+{
+    if (control == NULL)
+    {
+        return;
+    }
+
+    control->fire_detected = true;
+    control->fire_detect_latched = true;
+    control->fire_detect_latch_ticks =
+        shoot_task_ms_to_ticks(SHOOT_FIRE_DETECT_LATCH_MS);
+    control->fired_bullet_count++;
+    control->fire_detect_active = false;
+    control->fire_detect_ticks = 0U;
 }
 
 static float shoot_task_min_float(float a, float b)

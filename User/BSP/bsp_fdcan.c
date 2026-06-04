@@ -3,6 +3,7 @@
 #include "project_config.h"
 #include "detect_task.h"
 #include "pm01_api.h"
+#include "wattmeter_api.h"
 
 __IO CAN_t can = {0};
 __IO CAN_ErrorStatus can_error_status = CAN_ERROR_NONE;
@@ -30,13 +31,13 @@ motor_measure_t CHASSIS_MOTOR_MEASURE[4];
 /*
   MIT 电机反馈帧结构体
 */
-MITMeasure_t MIT_MOTOR_MEASURE[4];   // 单个电机反馈结构�?
+MITMeasure_t MIT_MOTOR_MEASURE[4];   // 单个电机反馈结构体
 /**
 ************************************************************************
 * @brief:      	bsp_can_init(void)
 * @param:       void
 * @retval:     	void
-* @details:    	CAN初始�?
+* @details:    	CAN初始化
 ************************************************************************
 **/
 void bsp_can_init(void)
@@ -72,9 +73,9 @@ void can1_filter_init(void)
 	FDCAN_FilterTypeDef fdcan_filter;
 	
 	fdcan_filter.IdType = FDCAN_STANDARD_ID;                       // 改为扩展ID
-	fdcan_filter.FilterIndex = 0;                                  // 滤波器索�?                  
+	fdcan_filter.FilterIndex = 0;                                  // 滤波器索引
 	fdcan_filter.FilterType = FDCAN_FILTER_MASK;                   
-	fdcan_filter.FilterConfig = FDCAN_FILTER_TO_RXFIFO0;           // 过滤�?关联到FIFO0  
+	fdcan_filter.FilterConfig = FDCAN_FILTER_TO_RXFIFO0;           // 过滤器关联到FIFO0
 	fdcan_filter.FilterID1 = 0x0000;                               // 滤波器ID1
 	fdcan_filter.FilterID2 = 0x0000;                               // 滤波器ID2
 
@@ -97,9 +98,9 @@ void can2_filter_init(void)
 	FDCAN_FilterTypeDef fdcan_filter;
 	
 	fdcan_filter.IdType = FDCAN_STANDARD_ID;                       // 改为扩展ID
-	fdcan_filter.FilterIndex = 0;                                  // 滤波器索�?                  
+	fdcan_filter.FilterIndex = 0;                                  // 滤波器索引
 	fdcan_filter.FilterType = FDCAN_FILTER_MASK;                   
-	fdcan_filter.FilterConfig = FDCAN_FILTER_TO_RXFIFO1;           // 过滤�?关联到FIFO1  
+	fdcan_filter.FilterConfig = FDCAN_FILTER_TO_RXFIFO1;           // 过滤器关联到FIFO1
 	fdcan_filter.FilterID1 = 0x0000;                               // 滤波器ID1
 	fdcan_filter.FilterID2 = 0x0000;                               // 滤波器ID2
 
@@ -122,9 +123,9 @@ void can3_filter_init(void)
 	FDCAN_FilterTypeDef fdcan_filter;
 	
 	fdcan_filter.IdType = FDCAN_STANDARD_ID;                       // 改为扩展ID
-	fdcan_filter.FilterIndex = 0;                                  // 滤波器索�?                  
+	fdcan_filter.FilterIndex = 0;                                  // 滤波器索引
 	fdcan_filter.FilterType = FDCAN_FILTER_MASK;                   
-	fdcan_filter.FilterConfig = FDCAN_FILTER_TO_RXFIFO0;           // 过滤�?关联到FIFO0  
+	fdcan_filter.FilterConfig = FDCAN_FILTER_TO_RXFIFO0;           // 过滤器关联到FIFO0
 	fdcan_filter.FilterID1 = 0x0000;                               // 滤波器ID1
 	fdcan_filter.FilterID2 = 0x0000;                               // 滤波器ID2
 
@@ -142,7 +143,7 @@ void can3_filter_init(void)
 	HAL_FDCAN_ConfigFifoWatermark(&hfdcan3, FDCAN_CFG_RX_FIFO0, 1);
 }
 
-// dji motor data read（宏改为内联函数�?
+// dji motor data read（宏改为内联函数）
 static inline void get_motor_measure(motor_measure_t *ptr, const uint8_t data[8])
 {
     ptr->last_ecd = ptr->ecd;
@@ -226,7 +227,7 @@ static uint8_t fdcan_dlc_to_len(uint32_t dlc)
 * @param:       data：要发送的数据
 * @param:       len：要发送的数据长度
 * @retval:     	0-成功, 1-失败
-* @details:    	发送数�?
+* @details:    	发送数据
 ************************************************************************
 **/
 uint8_t fdcanx_send_data(hcan_t *hfdcan, uint16_t id, uint8_t *data, uint32_t len)
@@ -236,15 +237,15 @@ uint8_t fdcanx_send_data(hcan_t *hfdcan, uint16_t id, uint8_t *data, uint32_t le
     pTxHeader.IdType = FDCAN_STANDARD_ID;
     pTxHeader.TxFrameType = FDCAN_DATA_FRAME;
     
-    // 经典CAN模式只支持最�?字节数据长度
+    // 经典CAN模式只支持最大8字节数据长度
     if(len > 8) {
-        len = 8; // 限制�?字节
+        len = 8; // 限制8字节
     }
-    pTxHeader.DataLength = fdcan_len_to_dlc(len); // 经典CAN模式下数据长度配�?
+    pTxHeader.DataLength = fdcan_len_to_dlc(len); // 经典CAN模式下数据长度配置
     
     pTxHeader.ErrorStateIndicator = FDCAN_ESI_ACTIVE;
-    pTxHeader.BitRateSwitch = FDCAN_BRS_OFF; // 经典CAN模式关闭比特率切�?
-    pTxHeader.FDFormat = FDCAN_CLASSIC_CAN;   // 经典CAN帧格�?
+    pTxHeader.BitRateSwitch = FDCAN_BRS_OFF; // 经典CAN模式关闭比特率切换
+    pTxHeader.FDFormat = FDCAN_CLASSIC_CAN;   // 经典CAN帧格式
     pTxHeader.TxEventFifoControl = FDCAN_NO_TX_EVENTS;
     pTxHeader.MessageMarker = 0;
  
@@ -253,8 +254,8 @@ uint8_t fdcanx_send_data(hcan_t *hfdcan, uint16_t id, uint8_t *data, uint32_t le
 	return 0; // 成功	
 }
 /**
- * @brief  MITFdbData: 获取 MIT 电机反馈数据（内联），含速度低通滤�?
- * @note   vel 噪声近似正弦，使用一阶低通平�?
+ * @brief  MITFdbData: 获取 MIT 电机反馈数据（内联），含速度低通滤波
+ * @note   vel 噪声近似正弦，使用一阶低通平滑
  */
 static inline void MITFdbData(MITMeasure_t *MIT_measure, const uint8_t rx_data[8], uint8_t index)
 {
@@ -272,7 +273,7 @@ static inline void MITFdbData(MITMeasure_t *MIT_measure, const uint8_t rx_data[8
 
     const float vel_raw = uint_to_float(MIT_measure->fdb.v_int, V_MIN, V_MAX, 12);
     const float alpha = 1.0f;
-    // 一阶低通滤波，直接操作全局静态变�?mit_vel_lpf
+    // 一阶低通滤波，直接操作全局静态变量mit_vel_lpf
     mit_vel_lpf[index] = mit_vel_lpf[index] + alpha * (vel_raw - mit_vel_lpf[index]);
     MIT_measure->fdb.vel = mit_vel_lpf[index];
 
@@ -363,6 +364,11 @@ uint8_t fdcan1_receive(hcan_t *hfdcan, uint16_t *rec_id, uint8_t *buf)
 			case 0x613:
 			{
 				pm01_response_handle((uint16_t)pRxHeader.Identifier, buf);
+				break;
+			}
+			case WATTMETER_CAN_ID:
+			{
+				wattmeter_feedback_handle((uint16_t)pRxHeader.Identifier, buf, len);
 				break;
 			}
 			default:
@@ -495,7 +501,7 @@ void HAL_FDCAN_ErrorCallback(FDCAN_HandleTypeDef *hfdcan)
         /* 清除旧状态（可根据需求选择清除全部或保留累积状态） */
         can_error_status = CAN_ERROR_NONE;
         
-        /* 映射 HAL 错误到自定义状�?*/
+        /* 映射 HAL 错误到自定义状态*/
         if (hal_error & FDCAN_IT_ERROR_WARNING)   can_error_status |= CAN_ERROR_WARNING;
         if (hal_error & FDCAN_IT_ERROR_PASSIVE)   can_error_status |= CAN_ERROR_PASSIVE;
         if (hal_error & FDCAN_IT_BUS_OFF)   can_error_status |= CAN_ERROR_BUS_OFF;
@@ -615,7 +621,7 @@ motor_measure_t *get_chassis_motor_measure_point(uint8_t i)
    // 发送CAN指令
   if(HAL_FDCAN_AddMessageToTxFifoQ(hcan, &TxHeader, data) != HAL_OK)
   {
-       // 发送失败处�?
+       // 发送失败处理
 //       Error_Handler();      
   }
 //	 HAL_FDCAN_AddMessageToTxFifoQ(hcan, &TxHeader, data);

@@ -49,3 +49,4 @@ ctrlboard-h7_ws1812\bsp_fdcan.o: ../User/APP_Support/common/project_config.h
 ctrlboard-h7_ws1812\bsp_fdcan.o: ../User/APP/detect_task.h
 ctrlboard-h7_ws1812\bsp_fdcan.o: ../User/APP_Support/common/struct_typedef.h
 ctrlboard-h7_ws1812\bsp_fdcan.o: ../User/APP_Support/power_control/pm01_api.h
+ctrlboard-h7_ws1812\bsp_fdcan.o: ../User/APP_Support/power_control/wattmeter_api.h

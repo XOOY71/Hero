@@ -105,7 +105,7 @@ void VOFA_SendChassisAnglePidDebug(void)
     {
         target = chassis_move.chassis_relative_angle_set;
         actual = chassis_move.chassis_relative_angle;
-        actual_vel = 0.0f;
+        actual_vel = chassis_move.chassis_relative_angle_vel;
     }
     else if (chassis_move.chassis_mode == CHASSIS_VECTOR_YAW_HOLD)
     {
@@ -233,5 +233,5 @@ void VOFA_SendGimbalStrum(void)
 
 void VOFA_ServiceSend(void)
 {
-    VOFA_SendChassisPowerCurrentDebug();
+    VOFA_SendChassisAnglePidDebug();
 }

@@ -54,6 +54,7 @@ static fp32 chassis_limit_abs(fp32 value, fp32 max_abs);
 static fp32 chassis_s_curve_update(fp32 cmd, fp32 *plan, fp32 *accel, fp32 max_speed, fp32 max_accel, fp32 max_jerk, fp32 stop_accel, fp32 stop_jerk);
 static fp32 chassis_speed_pi_calc(chassis_move_t *chassis_move_pi, uint8_t motor_idx, fp32 error_v);
 static void chassis_body_feedforward_clear(chassis_move_t *chassis_move_ff);
+static void chassis_zero_force_clear(chassis_move_t *chassis_move_zero);
 static void chassis_body_feedforward_update(chassis_move_t *chassis_move_ff);
 static fp32 Model_Based_Control(uint8_t motor_idx, fp32 set_speed, fp32 ref_speed);
 static void PID_Calc_Jump(chassis_move_t *chassis_pid_calc);
@@ -94,7 +95,14 @@ __attribute__((used)) void chassis_feedback_update(chassis_move_t *chassis_move_
 	{
 		chassis_move_update->chassis_relative_angle =
 			rad_format(chassis_move_update->chassis_yaw_motor->relative_angle);
+		chassis_move_update->chassis_relative_angle_vel =
+			chassis_move_update->chassis_yaw_motor->gyro -
+			chassis_move_update->chassis_yaw_rate;
 		chassis_move_update->gimbal_radian_of_ecd = chassis_move_update->chassis_relative_angle;
+	}
+	else
+	{
+		chassis_move_update->chassis_relative_angle_vel = 0.0f;
 	}
 }
 
@@ -142,6 +150,7 @@ __attribute__((used)) void chassis_init(chassis_move_t *chassis_move_init)
 	chassis_move_init->vy_plan_accel = 0.0f;
 	chassis_move_init->wz_plan_accel = 0.0f;
 	chassis_move_init->chassis_relative_angle = 0.0f;
+	chassis_move_init->chassis_relative_angle_vel = 0.0f;
 	chassis_move_init->chassis_relative_angle_target = 0.0f;
 	chassis_move_init->chassis_relative_angle_set = 0.0f;
 	chassis_move_init->chassis_relative_angle_set_vel = 0.0f;
@@ -191,6 +200,7 @@ __attribute__((used)) void chassis_mode_change_control_transit(chassis_move_t *c
 		chassis_move_transit->wz_plan_accel = 0.0f;
 		PID_clear(&chassis_move_transit->chassis_angle_pid);
 		chassis_body_feedforward_clear(chassis_move_transit);
+		chassis_zero_force_clear(chassis_move_transit);
 	}
 	else if((chassis_move_transit->last_chassis_mode != CHASSIS_VECTOR_FOLLOW_GIMBAL_YAW) && chassis_move_transit->chassis_mode == CHASSIS_VECTOR_FOLLOW_GIMBAL_YAW)
 	{
@@ -315,6 +325,43 @@ static void chassis_body_feedforward_clear(chassis_move_t *chassis_move_ff)
 	chassis_move_ff->body_ff_init = 0u;
 }
 
+static void chassis_zero_force_clear(chassis_move_t *chassis_move_zero)
+{
+	uint8_t i;
+
+	if (chassis_move_zero == NULL) return;
+
+	chassis_move_zero->vx_set = 0.0f;
+	chassis_move_zero->vy_set = 0.0f;
+	chassis_move_zero->wz_set = 0.0f;
+	chassis_move_zero->last_vx_set = 0.0f;
+	chassis_move_zero->last_vy_set = 0.0f;
+	chassis_move_zero->last_wz_set = 0.0f;
+	chassis_move_zero->vx_plan = 0.0f;
+	chassis_move_zero->vy_plan = 0.0f;
+	chassis_move_zero->wz_plan = 0.0f;
+	chassis_move_zero->vx_plan_accel = 0.0f;
+	chassis_move_zero->vy_plan_accel = 0.0f;
+	chassis_move_zero->wz_plan_accel = 0.0f;
+	chassis_move_zero->return_wz_set = 0.0f;
+	chassis_move_zero->chassis_cmd_slow_set_vx.out = 0.0f;
+	chassis_move_zero->chassis_cmd_slow_set_vy.out = 0.0f;
+	PID_clear(&chassis_move_zero->chassis_angle_pid);
+	PID_clear(&chassis_move_zero->chas_return_pid);
+	chassis_body_feedforward_clear(chassis_move_zero);
+
+	for (i = 0; i < CHASSIS_MODULE_NUM; i++)
+	{
+		chassis_move_zero->chassis_3508[i].speed_set = 0.0f;
+		chassis_move_zero->chassis_3508[i].give_current = 0;
+		chassis_move_zero->model_3508_out[i] = 0.0f;
+		chassis_move_zero->model_accel[i] = 0.0f;
+		chassis_move_zero->model_last_speed_set[i] = 0.0f;
+		chassis_move_zero->speed_pi_iout[i] = 0.0f;
+		chassis_move_zero->stop_brake_active[i] = 0u;
+	}
+}
+
 static fp32 chassis_body_force_to_current_cmd(fp32 force_n)
 {
 	fp32 torque_output;
@@ -396,6 +443,10 @@ static fp32 chassis_angle_pd_calc(pid_type_def *pd, fp32 actual, fp32 target, ui
 	{
 		error = rad_format(error);
 	}
+	if (fabsf(error) < CHASSIS_ANGLE_PD_DEADBAND)
+	{
+		error = 0.0f;
+	}
 
 	pd->set = target;
 	pd->fdb = actual;
@@ -463,7 +514,7 @@ static fp32 chassis_follow_yaw_control(chassis_move_t *chassis_move_follow, fp32
 	                               chassis_move_follow->chassis_relative_angle_set,
 	                               wrap_enable,
 	                               chassis_move_follow->chassis_relative_angle_set_vel,
-	                               0.0f);
+	                               chassis_move_follow->chassis_relative_angle_vel);
 	wz_cmd = -chassis_limit_abs(pd_out, CHASSIS_WZ_MAX_SPEED);
 	return wz_cmd;
 }
@@ -774,6 +825,14 @@ __attribute__((used)) void chassis_control_loop(chassis_move_t *chassis_move_con
 	fp32 wheel_speed[CHASSIS_MODULE_NUM] = {0.0f};
 	fp32 wheel_angle[CHASSIS_MODULE_NUM] = {0.0f};
 	uint8_t i;
+
+	if (chassis_move_control_loop == NULL) return;
+
+	if (chassis_move_control_loop->chassis_mode == CHASSIS_VECTOR_NO_MOVE)
+	{
+		chassis_zero_force_clear(chassis_move_control_loop);
+		return;
+	}
 
 	chassis_move_control_loop->last_vx_set = chassis_move_control_loop->vx_set;
 	chassis_move_control_loop->last_vy_set = chassis_move_control_loop->vy_set;
