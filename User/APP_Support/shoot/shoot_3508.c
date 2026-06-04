@@ -54,11 +54,13 @@ static void shoot_task_motor_apply_feedforward(shoot_task_motor_t *motor);
 static void shoot_task_update_history(shoot_task_control_t *control);
 static void shoot_task_update_bullet_speed_estimate(shoot_task_control_t *control);
 static void shoot_task_update_fire_detect(shoot_task_control_t *control);
+static void shoot_task_update_heat_model(shoot_task_control_t *control);
 static bool shoot_task_should_start_bullet_speed_estimate(const shoot_task_control_t *control);
 static void shoot_task_start_bullet_speed_estimate(shoot_task_control_t *control);
 static bool shoot_task_should_start_fire_detect(const shoot_task_control_t *control, float *speed_drop_rpm);
 static float shoot_task_get_fire_detect_current_a(const shoot_task_control_t *control);
 static void shoot_task_set_fire_detected(shoot_task_control_t *control);
+static bool shoot_task_fire_heat_would_over_limit(const shoot_task_control_t *control);
 static uint16_t shoot_task_ms_to_ticks(uint16_t ms);
 static float shoot_task_avg3(float a, float b, float c);
 static float shoot_task_max3(float a, float b, float c);
@@ -84,6 +86,7 @@ __attribute__((used)) void shoot_control_loop(void)
 {
     shoot_task_set_mode(&shoot_task_control);
     shoot_task_update_feedback(&shoot_task_control);
+    shoot_task_update_heat_model(&shoot_task_control);
 
     if (shoot_task_control.mode == SHOOT_TASK_READY_FRIC)
     {
@@ -453,6 +456,7 @@ static void shoot_task_control_strum(shoot_task_control_t *control)
     uint16_t long_press_ticks;
     uint16_t single_ff_release_total_ticks;
     bool feedback_ready;
+    bool heat_blocked;
     bool press_l;
     bool strum_ready;
     bool single_ff_active;
@@ -470,7 +474,9 @@ static void shoot_task_control_strum(shoot_task_control_t *control)
     }
 
     press_l = (control->rc->mouse.press_l != 0U);
-    strum_ready = (control->mode == SHOOT_TASK_READY_FRIC);
+    heat_blocked = shoot_task_fire_heat_would_over_limit(control);
+    strum_ready = (control->mode == SHOOT_TASK_READY_FRIC) && !heat_blocked;
+    control->heat_limit_active = heat_blocked;
     strum_measure = &MIT_MOTOR_MEASURE[SHOOT_STRUM_MIT_INDEX];
     now = HAL_GetTick();
     feedback_ready = shoot_task_strum_online() &&
@@ -1089,6 +1095,41 @@ static void shoot_task_update_fire_detect(shoot_task_control_t *control)
     }
 }
 
+/**
+  * @brief          更新发射热量自然冷却和禁发状态
+  * @note           热量每 50 ms 下降 1，对应每秒下降 20；预测下一发达到上限时置位禁发。
+  * @retval         none
+  */
+static void shoot_task_update_heat_model(shoot_task_control_t *control)
+{
+    uint16_t decay_ticks;
+
+    if (control == NULL)
+    {
+        return;
+    }
+
+    decay_ticks = shoot_task_ms_to_ticks(SHOOT_HEAT_DECAY_INTERVAL_MS);
+    if (control->heat > 0U)
+    {
+        if (control->heat_cool_ticks < decay_ticks)
+        {
+            control->heat_cool_ticks++;
+        }
+        else
+        {
+            control->heat--;
+            control->heat_cool_ticks = 0U;
+        }
+    }
+    else
+    {
+        control->heat_cool_ticks = 0U;
+    }
+
+    control->heat_limit_active = shoot_task_fire_heat_would_over_limit(control);
+}
+
 static uint16_t shoot_task_ms_to_ticks(uint16_t ms)
 {
     uint16_t ticks;
@@ -1180,8 +1221,31 @@ static void shoot_task_set_fire_detected(shoot_task_control_t *control)
     control->fire_detect_latch_ticks =
         shoot_task_ms_to_ticks(SHOOT_FIRE_DETECT_LATCH_MS);
     control->fired_bullet_count++;
+    if ((uint32_t)control->heat + SHOOT_HEAT_PER_BULLET >= SHOOT_HEAT_LIMIT)
+    {
+        control->heat = SHOOT_HEAT_LIMIT;
+    }
+    else
+    {
+        control->heat = (uint16_t)(control->heat + SHOOT_HEAT_PER_BULLET);
+    }
+    control->heat_limit_active = shoot_task_fire_heat_would_over_limit(control);
     control->fire_detect_active = false;
     control->fire_detect_ticks = 0U;
+}
+
+/**
+  * @brief          预测下一发是否会触发热量禁发
+  * @retval         true 表示下一发会达到或超过热量上限
+  */
+static bool shoot_task_fire_heat_would_over_limit(const shoot_task_control_t *control)
+{
+    if (control == NULL)
+    {
+        return true;
+    }
+
+    return ((uint32_t)control->heat + SHOOT_HEAT_PER_BULLET) >= SHOOT_HEAT_LIMIT;
 }
 
 static float shoot_task_min_float(float a, float b)

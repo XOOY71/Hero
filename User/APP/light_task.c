@@ -40,7 +40,7 @@ static float light_abs_float(float value);
 static void light_render_online_status(void);
 static void light_render_chassis_status(void);
 static void light_render_gimbal_status(void);
-static void light_render_cap_status(void);
+static void light_render_shoot_heat_status(void);
 static void light_render_heartbeat(uint8_t tick);
 static void light_pack_frame(void);
 static void light_send_frame(void);
@@ -97,7 +97,7 @@ static void light_render_auto(void)
     light_render_online_status();
     light_render_chassis_status();
     light_render_gimbal_status();
-    light_render_cap_status();
+    light_render_shoot_heat_status();
     light_render_heartbeat(tick);
 
     tick++;
@@ -336,24 +336,38 @@ static void light_render_gimbal_status(void)
 }
 
 
-/* 刷新 8 号灯，显示超级电容状态。 */
-static void light_render_cap_status(void)
+/* 刷新 8 号灯，按发射热量从绿到黄再到红渐变。 */
+static void light_render_shoot_heat_status(void)
 {
-    switch (super_cap_mode)
+    uint16_t heat = shoot_task_control.heat;
+    uint8_t red = 0U;
+    uint8_t green = 0U;
+    const uint16_t half_heat = SHOOT_HEAT_LIMIT / 2U;
+
+    if (heat >= SHOOT_HEAT_LIMIT || shoot_task_control.heat_limit_active)
     {
-        case SUPER_CAP_USING:
-            light_set_pixel(LIGHT_CAP_STATUS_LED, 0U, 0U, LIGHT_HIGH);
-            break;
-
-        case SUPER_CAP_PREPARED:
-            light_set_pixel(LIGHT_CAP_STATUS_LED, 0U, LIGHT_MID, 0U);
-            break;
-
-        case SUPER_CAP_CHARGING:
-        default:
-            light_set_pixel(LIGHT_CAP_STATUS_LED, LIGHT_MID, LIGHT_LOW, 0U);
-            break;
+        light_set_pixel(LIGHT_SHOOT_HEAT_LED, LIGHT_HIGH, 0U, 0U);
+        return;
     }
+
+    if (half_heat == 0U)
+    {
+        light_set_pixel(LIGHT_SHOOT_HEAT_LED, LIGHT_HIGH, 0U, 0U);
+        return;
+    }
+
+    if (heat <= half_heat)
+    {
+        red = (uint8_t)((uint32_t)heat * LIGHT_HIGH / half_heat);
+        green = LIGHT_HIGH;
+    }
+    else
+    {
+        red = LIGHT_HIGH;
+        green = (uint8_t)((uint32_t)(SHOOT_HEAT_LIMIT - heat) * LIGHT_HIGH / half_heat);
+    }
+
+    light_set_pixel(LIGHT_SHOOT_HEAT_LED, red, green, 0U);
 }
 
 

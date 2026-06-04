@@ -255,6 +255,23 @@
 #define SHOOT_FRIC3_DIRECTION 1           // fric3 实际安装方向
 #endif
 
+/* 发射热量模型配置 */
+#ifndef SHOOT_HEAT_PER_BULLET
+#define SHOOT_HEAT_PER_BULLET 100U        // 单发弹丸增加热量
+#endif
+
+#ifndef SHOOT_HEAT_LIMIT
+#define SHOOT_HEAT_LIMIT 200U             // 热量上限，预测达到或超过该值时禁止拨弹
+#endif
+
+#ifndef SHOOT_HEAT_COOL_PER_SECOND
+#define SHOOT_HEAT_COOL_PER_SECOND 20U    // 每秒自然冷却热量
+#endif
+
+#ifndef SHOOT_HEAT_DECAY_INTERVAL_MS
+#define SHOOT_HEAT_DECAY_INTERVAL_MS 50U  // 热量每 50 ms 下降 1，对应每秒下降 20
+#endif
+
 typedef enum
 {
     SHOOT_TASK_STOP = 0,
@@ -307,6 +324,9 @@ typedef struct
     uint32_t fired_bullet_count;
     float fire_detect_speed_drop_rpm;
     float fire_detect_current_a;
+    uint16_t heat;
+    uint16_t heat_cool_ticks;
+    bool heat_limit_active;
 } shoot_task_control_t;
 
 extern shoot_task_control_t shoot_task_control;

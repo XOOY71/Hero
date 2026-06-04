@@ -30,6 +30,7 @@ void GimbalTask_Init(void)
 {
     osThreadDef(gimbalTask, gimbal_task, osPriorityHigh, 0, 1024);
     gimbalTaskHandle = osThreadCreate(osThread(gimbalTask), NULL);
+    (void)gimbalTaskHandle;
 }
 
 /**

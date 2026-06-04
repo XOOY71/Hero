@@ -1,28 +1,32 @@
 # Hero
 
-Hero 是一套面向 RoboMaster 英雄机器人控制板的嵌入式固件工程。主控使用 STM32H723VGTx，基于 STM32 HAL、FreeRTOS CMSIS-RTOS v1、FDCAN、UART DMA 和 USB CDC 实现云台、底盘、发射、自瞄通信、裁判数据、在线检测和灯板状态显示等功能；`light/CH32V003F4P` 目录包含外置 WS2812 灯板固件。
+`Hero` 是一套面向 RoboMaster 英雄机器人的 STM32H723VGTx 控制板固件工程。主控基于 STM32 HAL、FreeRTOS CMSIS-RTOS v1、FDCAN、UART DMA 和 USB CDC，实现云台、底盘、发射、自瞄通信、裁判数据解析、在线检测、功率控制、VOFA 调试和外置灯板状态显示；`light/CH32V003F4P` 目录包含外置 WS2812 灯板固件。
+
+当前工程已经将机器人级参数文件整理为 `User/APP_Support/common/robot_param.h`，业务层代码规范见 `代码规范.md`。CubeMX 生成代码仍以 `CtrlBoard-H7_WS1812.ioc` 为入口，手写业务代码集中放在 `User` 目录。
 
 ## 功能特性
 
-- 云台控制：yaw/pitch 双轴 MIT 电机控制，支持陀螺仪绝对角、编码器相对角、RAW 输出、初始化、校准、静摩擦补偿、惯量前馈和 pitch 重力补偿。
-- 发射控制：三路摩擦轮 ADRC 闭环、掉速前馈补偿、拨弹 MIT 电机单发/长按控制、反馈超时和温度保护。
-- 舵轮底盘：双舵轮结构，3508 驱动轮速度控制，6020 舵向角控制，支持跟随云台、小陀螺、停止和回正相关状态。
+- 云台控制：yaw/pitch 双轴控制，支持陀螺仪绝对角、编码器相对角、RAW 输出、初始化、校准、静摩擦补偿、惯量前馈、目标曲线和 pitch 重力补偿。
+- 发射控制：三路 3508 摩擦轮 ADRC 闭环、掉速前馈补偿、拨弹 MIT 电机单发/长按控制、反馈超时保护、电机温度保护、开火检测、弹速估计和热量模型禁发。
+- 发射热量模型：初始热量为 0，开火检测确认一发弹丸后热量 `+100`，热量上限为 `200`，预测下一发会使热量 `>=200` 时禁止拨弹，热量每秒自然下降 `20`。
+- 底盘控制：全向底盘速度规划、运动学正解/逆解、轮速 PID、整车动力学前馈、单轮制动补偿、实际车速反馈、动态电流限制和底盘功率控制。
 - 自瞄通信：USB CDC + uproto + channel 框架，包含云台状态发布、自瞄增量注入、主机底盘/射击命令注入、相机触发和时间同步通道。
-- 裁判与功控：裁判系统结构解析入口、PM01 超级电容对象字典访问、底盘功率限制接口。
-- 在线检测：DBUS 和底盘电机在线状态检测，供底盘启动等待和灯板显示使用。
-- 灯板显示：主控 UART8 输出 10 路 RGB 状态帧，外置 CH32V003F4P 固件驱动 WS2812 灯珠。
-- 调试支持：VOFA 数据发送、Keil 构建日志、弹道/惯量测试数据和 MATLAB 拟合脚本。
+- 裁判与功控：裁判系统结构解析入口、枪口热量读取接口、底盘功率和缓冲能量读取接口、PM01 超级电容对象字典访问、底盘功率限制接口。
+- 在线检测：DBUS、底盘电机、云台电机、摩擦轮和拨弹电机在线状态检测，供任务保护、零输出保护和灯板显示使用。
+- 灯板显示：主控 UART8 输出 10 路 RGB 状态帧，外置 CH32V003F4P 固件驱动 WS2812 灯珠；8 号提示灯显示发射热量，颜色从绿到黄再到红。
+- 调试支持：VOFA 固定 6 通道数据发送、Keil 构建日志、弹道/惯量测试数据、MATLAB 拟合脚本和控制链路图。
 
 ## 技术栈
 
-- MCU：STM32H723VGTx，Cortex-M7，LQFP100
-- 主控框架：STM32CubeMX 生成工程 + STM32H7 HAL Driver
-- RTOS：FreeRTOS，CMSIS-RTOS v1
-- 构建工具：Keil MDK-ARM V5.27 工程文件
-- 通信接口：FDCAN1/FDCAN2/FDCAN3、UART5、UART7、UART8、USART1、USART10、USB CDC HS、SPI2、SPI6、TIM24
-- 控制算法：PID、ADRC、Kalman Filter、Quaternion EKF、重力补偿、低通滤波和数学工具函数
-- 上位机协议：uproto、channel manager、gimbal/camera/time_sync 通道
-- 外置灯板：CH32V003F4P + WS2812
+- MCU：STM32H723VGTx，Cortex-M7，LQFP100。
+- 主控框架：STM32CubeMX 生成工程 + STM32H7 HAL Driver。
+- RTOS：FreeRTOS，CMSIS-RTOS v1。
+- 构建工具：Keil MDK-ARM 工程文件，当前本机使用 μVision V5.40 / ARMCC V5.06。
+- 通信接口：FDCAN1、FDCAN2、FDCAN3、UART5、UART7、UART8、USART1、USART10、USB CDC HS、SPI2、SPI6、TIM24。
+- 控制算法：PID、ADRC、Kalman Filter、Quaternion EKF、目标曲线、重力补偿、惯量前馈、摩擦补偿、低通滤波和数学工具函数。
+- 上位机协议：uproto、channel manager、gimbal/camera/time_sync 通道。
+- 外置灯板：CH32V003F4P + WS2812。
+- 调试工具：Git、VOFA+、Keil build log、MATLAB。
 
 ## 目录结构
 
@@ -55,37 +59,48 @@ Hero/
 │       └── usbd_conf.c                     # USB PCD 底层配置
 ├── User/
 │   ├── Algorithm/                          # 控制算法和通用数学工具
-│   │   ├── pid.c / pid.h                   # 位置式 PID
+│   │   ├── pid.c / pid.h                   # PID 控制器
 │   │   ├── adrc.c / adrc.h                 # 摩擦轮 ADRC 控制器
 │   │   ├── gravity_comp.c / gravity_comp.h # pitch 重力补偿
+│   │   ├── target_curve.c / target_curve.h # 目标曲线工具
 │   │   ├── kalman_filter.c / *.h           # Kalman Filter
 │   │   ├── QuaternionEKF.c / *.h           # 四元数 EKF 姿态解算
 │   │   ├── controller.c / controller.h     # 控制器辅助接口
 │   │   └── user_lib.c / user_lib.h         # 角度归一化、限幅、滤波和数学工具
 │   ├── APP/                                # FreeRTOS 应用任务层
-│   │   ├── gimbal_task.c / *.h             # 云台闭环主任务，调度发射控制
-│   │   ├── chassis_task.c / *.h            # 双舵轮底盘主任务
-│   │   ├── auto_aim.c / *.h                # 自瞄误差缓存、在线状态和软开关
-│   │   ├── detect_task.c / *.h             # DBUS 和底盘电机在线检测
-│   │   ├── light_task.c / *.h              # 外置灯板状态渲染和 UART8 帧发送
+│   │   ├── gimbal_task.c / gimbal_task.h   # 云台闭环主任务，调度发射控制
+│   │   ├── chassis_task.c / chassis_task.h # 底盘主任务，调度底盘闭环和 CAN 下发
+│   │   ├── auto_aim.c / auto_aim.h         # 自瞄误差缓存、在线状态和软开关
+│   │   ├── detect_task.c / detect_task.h   # DBUS、电机和外设在线检测
+│   │   ├── light_task.c / light_task.h     # 外置灯板状态渲染和 UART8 帧发送
+│   │   ├── referee_usart_task.c / *.h      # 裁判串口任务入口
 │   │   ├── service_task.c / *.h            # 蜂鸣器、IMU、板载灯服务入口
-│   │   ├── Safewarning.c / *.h             # 安全提示/蜂鸣器相关逻辑
-│   │   └── usb_task.c / *.h                # USB 任务保留入口
+│   │   ├── Safewarning.c / Safewarning.h   # 安全提示/蜂鸣器相关逻辑
+│   │   └── usb_task.c / usb_task.h         # USB 任务保留入口
 │   ├── APP_Support/                        # 应用支撑层和参数层
-│   │   ├── robot_param.h                # 全局模式、云台 PID、底盘几何、MIT ID、限位和公共参数
-│   │   ├── gimbal_behaviour.c / *.h        # 云台行为状态机
-│   │   ├── yaw_pitch_direct.c / *.h        # yaw/pitch 反馈、目标和 MIT 下发链路
-│   │   ├── shoot_task.c / *.h              # 摩擦轮和拨弹控制
-│   │   ├── chassis_behaviour.c / *.h       # 底盘行为状态机
-│   │   ├── chassis_calculate.c / *.h       # 双舵轮逆运动学和角度平滑
-│   │   ├── chassis_power_control.c / *.h   # 底盘电流分配和 PM01 功控入口
-│   │   ├── pm01_api.c / *.h                # PM01 超级电容 CAN 对象字典访问
-│   │   ├── referee.c / referee.h           # 裁判系统数据结构和解析接口
-│   │   ├── target_curve.c / *.h            # 目标曲线工具
-│   │   └── struct_typedef.h / protocol.h   # 基础类型和协议结构
+│   │   ├── common/
+│   │   │   ├── robot_param.h               # 全局模式、CAN ID、云台/底盘/发射/功率公共参数
+│   │   │   ├── referee.c / referee.h       # 裁判系统数据结构和解析接口
+│   │   │   ├── protocol.h                  # 裁判协议结构体
+│   │   │   └── struct_typedef.h            # 基础类型定义
+│   │   ├── gimbal/
+│   │   │   ├── gimbal_behaviour.c / *.h    # 云台行为状态机
+│   │   │   ├── yaw_pitch_direct.c / *.h    # yaw/pitch 反馈、目标和 MIT 下发链路
+│   │   │   └── target_curve.c / *.h        # 云台目标曲线工具
+│   │   ├── chassis/
+│   │   │   ├── Omni_chassis.c / *.h        # 底盘执行层、速度规划、轮速控制、制动补偿
+│   │   │   ├── chassis_behaviour.c / *.h   # 底盘行为状态机
+│   │   │   └── chassis_calculate.c / *.h   # 底盘运动学正解/逆解和坐标转换
+│   │   ├── shoot/
+│   │   │   ├── shoot_task.c / *.h          # 发射弱接口和发射状态结构
+│   │   │   └── shoot_3508.c / *.h          # 摩擦轮、拨弹、开火检测、热量模型和保护逻辑
+│   │   └── power_control/
+│   │       ├── chassis_power_control.c / *.h # 底盘功率预测、限幅和电流缩放
+│   │       ├── pm01_api.c / *.h              # PM01 超级电容 CAN 对象字典访问
+│   │       └── wattmeter_api.c / *.h         # 功率计接口
 │   ├── BSP/                                # 板级驱动和外设分发层
-│   │   ├── bsp_fdcan.c / *.h               # FDCAN 收发、MIT/DJI/PM01 反馈分发、CAN 命令封装
-│   │   ├── bsp_usart.c / *.h               # UART DMA ReceiveToIdle 回调、SBUS/IMU 分发、串口发送
+│   │   ├── bsp_fdcan.c / bsp_fdcan.h       # FDCAN 收发、MIT/DJI/PM01 反馈分发、CAN 命令封装
+│   │   ├── bsp_usart.c / bsp_usart.h       # UART DMA ReceiveToIdle 回调、SBUS/IMU 分发、串口发送
 │   │   ├── remote_control.c / *.h          # SBUS 到 RC_ctrl_t 解析
 │   │   ├── bsp_tim24.c / *.h               # TIM24 微秒时间基
 │   │   └── bsp_dwt.c / *.h                 # DWT 高精度计时
@@ -100,7 +115,7 @@ Hero/
 │   │       ├── host/                       # C/C++ 主机端示例和 CMake 工程
 │   │       └── shared/                     # 主机与设备共享协议 ID
 │   └── Devices/                            # 具体设备驱动和调试输出
-│       ├── hwt_imu.c / *.h                 # HWT101/HWT906 IMU 数据解析
+│       ├── hwt_imu.c / hwt_imu.h           # HWT101/HWT906 IMU 数据解析
 │       ├── vofa.c / vofa.h                 # VOFA 调试数据发送
 │       └── ws2812.c / ws2812.h             # 板载 WS2812 驱动
 ├── light/
@@ -124,6 +139,7 @@ Hero/
 │   ├── DebugConfig/                        # 调试器配置
 │   └── RTE/                                # Keil RTE 组件配置
 ├── CtrlBoard-H7_WS1812.ioc                 # STM32CubeMX 工程配置
+├── 代码规范.md                             # 当前工程代码规范
 ├── BUG_FIX_RECORD.md                       # 修复记录
 ├── control_chain.svg                       # 控制链路图
 ├── fit_yaw_inertia_from_vofa.m             # yaw 惯量拟合脚本
@@ -138,12 +154,13 @@ Hero/
 ## 环境要求
 
 - Windows 开发环境。
-- Keil MDK-ARM V5.27 或兼容版本。
-- STM32CubeMX，版本待补充。
-- STM32H7xx Device Family Pack，版本待补充。
-- 调试/下载器：J-Link 或 ST-Link，具体型号待补充。
+- Keil MDK-ARM V5.27 或兼容版本；当前本机验证环境为 μVision V5.40。
+- ARMCC V5.06 或 Keil 工程兼容工具链。
+- STM32CubeMX，用于修改 `.ioc` 中的外设、RTOS、时钟树和中断配置。
+- STM32H7xx Device Family Pack。
+- 调试/下载器：J-Link 或 ST-Link，具体型号按现场硬件配置。
 - 主控目标芯片：STM32H723VGTx。
-- 外置灯板工具链：WCH CH32V003F4P 工程工具，版本待补充。
+- 外置灯板工具链：WCH CH32V003F4P 工程工具。
 - 可选工具：Git、MATLAB、VOFA+、CMake/C++ 编译器。
 
 ## 安装步骤
@@ -197,20 +214,142 @@ FreeRTOS 创建的主要任务：
 | 任务 | 入口 | 优先级 | 栈 | 周期/延时 | 职责 |
 |---|---|---:|---:|---|---|
 | defaultTask | `StartDefaultTask` | Normal | 128 | 1 ms | USB_DEVICE 初始化和保留循环 |
-| auto_aim | `auto_aim_task` | Normal | 256 | 1 ms | 自瞄在线状态、开关和误差缓存 |
+| auto_aim | `auto_aim_task` | Normal | 256 | 1 ms | 自瞄在线状态、软开关和误差缓存 |
 | COMM_APP | `comm_app_task` | BelowNormal | 640 | 1 ms | USB CDC、uproto、通道调度、主机命令注入 |
-| gimbalTask | `gimbal_task` | High | 1024 | 1 ms | 云台闭环、重力补偿、发射调度、VOFA 输出 |
-| service_task | `ServiceTask_Init` 创建 | Low | 待补充 | `SERVICE_CONTROL_TIME` | 蜂鸣器、IMU、板载灯等服务 |
-| lightTask | `light_task` | Low | 256 | 50 ms | 外置灯板状态帧生成和 UART8 发送 |
-| detect | `detect_task` | Low | 128 | `DETECT_CONTROL_TIME` | DBUS 和底盘电机在线检测 |
-| chassis | `chassis_task` | High | 768 | 1 ms | 双舵轮底盘控制、功控、CAN 输出入口 |
+| gimbalTask | `gimbal_task` | High | 1024 | `GIMBAL_CONTROL_TIME` | 云台闭环、重力补偿、发射调度、VOFA 输出 |
+| service_task | `ServiceTask_Init` 创建 | Low | 由工程配置决定 | `SERVICE_CONTROL_TIME` | 蜂鸣器、IMU、板载灯等服务 |
+| lightTask | `light_task` | Low | 256 | `LIGHT_TASK_PERIOD_MS` | 外置灯板状态帧生成和 UART8 发送 |
+| detect | `detect_task` | Low | 128 | `DETECT_CONTROL_TIME` | DBUS、电机和外设在线检测 |
+| chassis | `chassis_task` | High | 768 | `CHASSIS_CONTROL_TIME_MS` | 底盘控制、功控、CAN 输出入口 |
+
+## 控制链路
+
+云台任务链路固定为：
+
+```text
+gimbal_init
+-> shoot_init
+-> gimbal_set_mode
+-> gimbal_mode_change_control_transit
+-> gimbal_feedback_update
+-> gimbal_set_control
+-> gimbal_control_loop
+-> gravity_comp_execute
+-> shoot_control_loop
+-> gimbal_send_cmd
+-> vTaskDelayUntil(GIMBAL_CONTROL_TIME)
+```
+
+底盘任务链路固定为：
+
+```text
+chassis_init
+-> chassis_set_mode
+-> chassis_mode_change_control_transit
+-> chassis_feedback_update
+-> chassis_set_contorl
+-> chassis_control_loop
+-> chassis_send_cmd
+-> osDelay(CHASSIS_CONTROL_TIME_MS)
+```
+
+底盘控制循环固定为：
+
+```text
+速度规划
+-> chassis_body_feedforward_update
+-> chassis_body_velocity_brake_update
+-> chas_inv_cal
+-> PID_Calc_Jump
+-> chassis_dynamic_current_limit_update
+-> chassis_power_control
+-> CAN 电流发送
+```
+
+发射控制循环固定为：
+
+```text
+shoot_task_set_mode
+-> shoot_task_update_feedback
+-> shoot_task_update_heat_model
+-> shoot_task_control_friction / shoot_task_stop_friction
+-> shoot_task_control_strum
+-> shoot_task_send_friction_current / shoot_task_send_strum_torque
+```
+
+发射热量链路：
+
+```text
+摩擦轮掉速和电流开火检测
+-> shoot_task_set_fire_detected
+-> fired_bullet_count++
+-> heat += SHOOT_HEAT_PER_BULLET
+-> shoot_task_fire_heat_would_over_limit
+-> 拨弹入口禁止继续打弹
+-> light_render_shoot_heat_status 显示热量色域
+```
+
+## 发射热量模型
+
+热量模型位于 `User/APP_Support/shoot/shoot_3508.c` 和 `User/APP_Support/shoot/shoot_task.h`。
+
+| 参数 | 当前值 | 含义 |
+|---|---:|---|
+| `SHOOT_HEAT_PER_BULLET` | `100U` | 开火检测确认一发弹丸后的热量增量 |
+| `SHOOT_HEAT_LIMIT` | `200U` | 热量上限，预测下一发达到或超过该值时禁止拨弹 |
+| `SHOOT_HEAT_COOL_PER_SECOND` | `20U` | 每秒自然冷却热量 |
+| `SHOOT_HEAT_DECAY_INTERVAL_MS` | `50U` | 每 50 ms 热量下降 1 |
+
+控制状态字段：
+
+| 字段 | 含义 |
+|---|---|
+| `fired_bullet_count` | 开火检测确认的打弹数量 |
+| `heat` | 当前软件热量模型值 |
+| `heat_cool_ticks` | 热量冷却计时 |
+| `heat_limit_active` | 下一发会达到或超过热量上限时置位 |
+
+禁发条件为：
+
+```c
+heat + SHOOT_HEAT_PER_BULLET >= SHOOT_HEAT_LIMIT
+```
+
+在当前参数下，第一发后热量变为 100；第二发会使热量达到 200，因此在热量冷却到 99 之前禁止继续拨弹。
+
+## 灯板显示
+
+主控通过 UART8 发送 10 路 RGB 状态帧，帧格式为：
+
+```text
+0xAA 0x55 + 10 * RGB + 0x55 0xAA
+```
+
+当前灯位分配：
+
+| 灯位 | 含义 |
+|---:|---|
+| 0 | DBUS 在线状态 |
+| 1 | 底盘电机在线状态 |
+| 2 | 摩擦轮在线/工作状态 |
+| 3 | 自瞄在线/激活状态 |
+| 4~6 | 底盘行为状态 |
+| 7 | 云台行为状态 |
+| 8 | 发射热量状态，绿 -> 黄 -> 红 |
+| 9 | light 任务心跳 |
+
+热量灯显示规则：
+
+- `heat = 0`：绿色。
+- `heat = SHOOT_HEAT_LIMIT / 2`：黄色。
+- `heat_limit_active = true` 或 `heat >= SHOOT_HEAT_LIMIT`：红色。
 
 ## 配置说明
 
 ### 工程与外设
 
 - `CtrlBoard-H7_WS1812.ioc`：STM32CubeMX 配置入口，包含 STM32H723VGTx、FreeRTOS、USB CDC HS、FDCAN、UART DMA、SPI 和 TIM24。
-- `MDK-ARM/CtrlBoard-H7_WS1812.uvprojx`：Keil 工程入口，目标名为 `CtrlBoard-H7_WS1812`，生成 hex 文件。
+- `MDK-ARM/CtrlBoard-H7_WS1812.uvprojx`：Keil 工程入口，目标名为 `CtrlBoard-H7_WS1812`，生成 `axf` 和 `hex` 文件。
 - `Core/Src/main.c`：外设初始化顺序、CAN 启动、UART DMA 启动、TIM24 时间基和 uproto 初始化。
 - `Core/Src/freertos.c`：任务创建入口。
 
@@ -220,8 +359,8 @@ FreeRTOS 创建的主要任务：
 |---|---|---|
 | FDCAN1 | Classic CAN，1 Mbps | yaw MIT、拨弹 MIT、底盘电机、PM01 |
 | FDCAN2 | Classic CAN，1 Mbps | pitch MIT、三路摩擦轮 |
-| FDCAN3 | Classic CAN，1.25 Mbps | 预留接收入口 |
-| UART5 | 100000 baud，9B，Even，2 stop，DMA RX | DBUS/SBUS 遥控器 |
+| FDCAN3 | Classic CAN，0.25 Mbps | 预留接收入口 |
+| UART5 | 100000 baud，8E1，DMA RX | DBUS/SBUS 遥控器 |
 | UART7 | 115200 baud，DMA RX/TX | HWT101 接收 |
 | UART8 | 115200 baud，DMA TX | 外置灯板发送 |
 | USART1 | 921600 baud，DMA RX/TX | 裁判系统/串口通信入口 |
@@ -229,18 +368,14 @@ FreeRTOS 创建的主要任务：
 | USB_DEVICE | CDC HS | 上位机通信 |
 | TIM24 | 内部时钟，Prescaler 239 | 微秒时间基 |
 
-### 接线说明
-
-- 灯条的 RX 接开发板的 RX，第一版灯条画板丝印标错。
-- HWT101 的 232 板接开发板时，RX 接 RX，TX 接 TX。
-
 ### 主要参数文件
 
-- `User/APP_Support/common/robot_param.h`：机器人模式、电容开关、云台 PID、底盘几何、通道映射、底盘控制参数、物理前馈参数、MIT 电机 ID、角度限位、自瞄/发射相关公共参数。
-- `User/APP/chassis_task.h`：底盘控制结构体、模式枚举和任务接口。
-- `User/APP_Support/shoot_task.h`：摩擦轮目标转速、电流限制、ADRC 参数、拨弹 PID 和前馈参数。
-- `User/Communication/example/device/comm_app_config.h`：通信任务栈、优先级、通道 ID、USB 枚举超时、主机命令注入通道映射。
-- `User/APP/light_task.h`：灯珠数量、帧长度、灯板任务周期。
+- `User/APP_Support/common/robot_param.h`：机器人模式、电容开关、CAN ID、通道映射、云台 PID、底盘几何、底盘速度规划、底盘制动、MIT 电机 ID、发射公共参数。
+- `User/APP/chassis_task.h`：底盘控制结构体、底盘模式枚举、任务接口和弱接口声明。
+- `User/APP/gimbal_task.h`：云台控制结构体、云台电机状态、PID 接口和任务接口声明。
+- `User/APP_Support/shoot/shoot_task.h`：摩擦轮目标转速、电流限制、ADRC 参数、拨弹 PID、开火检测字段、热量模型参数。
+- `User/APP/light_task.h`：灯珠数量、帧长度、灯板任务周期、灯位映射和灯效状态结构。
+- `User/Communication/example/device/comm_app_config.h`：通信任务栈、优先级、通道 ID、USB 枚举超时和主机命令注入通道映射。
 
 ### CAN ID 分配
 
@@ -250,8 +385,63 @@ FreeRTOS 创建的主要任务：
 | pitch MIT 电机 | FDCAN2 | `0x02` | `0x52` |
 | 拨弹 MIT 电机 | FDCAN1 | `0x03` | `0x53` |
 | 摩擦轮 1/2/3 | FDCAN2 | `0x200` | `0x201` / `0x202` / `0x203` |
-| 底盘电机组 | FDCAN1 | `0x1FF` | `0x205` ~ `0x208` |
+| 底盘 3508 电机组 | FDCAN1 | `0x1FF` | `0x205` ~ `0x208` |
 | PM01 超级电容 | FDCAN1 | `0x600` ~ `0x603` | `0x600` ~ `0x603`、`0x610` ~ `0x613` |
+
+## 代码规范
+
+完整规范见 `代码规范.md`。README 保留当前工程必须遵守的核心规则。
+
+### 模块归属
+
+- `User/APP/*_task.c` 负责任务入口、全局控制对象、模块初始化调用、周期调度和弱接口声明。
+- `User/APP/*_task.h` 负责任务数据结构、模块接口声明和跨模块状态字段。
+- `User/APP_Support/common/robot_param.h` 负责机器人级宏、CAN ID、通道映射、底盘/云台/发射/功率等跨模块参数。
+- `User/APP_Support/chassis/chassis_behaviour.*` 负责遥控器、键鼠、掉线状态到底盘行为模式和底盘控制模式的映射。
+- `User/APP_Support/chassis/chassis_calculate.*` 负责底盘运动学正解、逆解、坐标旋转和运动学限幅。
+- `User/APP_Support/chassis/Omni_chassis.*` 负责底盘初始化、反馈更新、目标生成、速度规划、轮速控制、制动补偿和 CAN 发送。
+- `User/APP_Support/gimbal/gimbal_behaviour.*` 负责云台行为模式映射。
+- `User/APP_Support/gimbal/yaw_pitch_direct.*` 负责 yaw-pitch 云台反馈、目标生成、PID/前馈/摩擦补偿和 MIT/3508 输出。
+- `User/APP_Support/shoot/shoot_3508.*` 负责 3508 摩擦轮和拨弹机构控制。
+- `User/APP_Support/power_control/*` 负责底盘功率预测、功率限幅、电流缩放和功率模块通信。
+- `User/BSP/*` 负责板级外设封装、CAN/UART/TIM/DWT 和遥控器底层数据。
+- `User/Devices/*` 负责设备级封装和调试输出。
+
+### 组织规则
+
+- 新增功能先判断职责归属，沿已有模块文件、结构体、宏分组和调用链路接入。
+- 结构体、枚举和宏定义统一放入对应模块头文件；`.c` 文件只保留静态变量、静态表、函数声明和函数实现。
+- `.h` 文件顺序为头文件保护、依赖头文件、条件编译、宏定义、枚举、结构体、外部变量声明、函数声明。
+- `.c` 文件顺序为模块头文件、依赖头文件、条件编译、局部静态表、全局状态、静态辅助函数、任务接口实现、控制辅助函数。
+- 条件编译以 `ROBOT_TYPE`、`ROBOT_CHASSIS`、`ROBOT_GIMBAL`、`ROBOT_FRICTION` 为入口。
+- 控制周期使用已有宏表达，例如 `CHASSIS_CONTROL_TIME_MS`、`GIMBAL_CONTROL_TIME`、`SHOOT_CONTROL_TIME`。
+
+### 命名与注释
+
+- 类型命名使用小写模块名加语义后缀：结构体用 `_t`，枚举用 `_e`。
+- 控制函数使用模块前缀加动作：`chassis_*`、`gimbal_*`、`shoot_*`、`VOFA_*`。
+- 全局控制对象使用模块名表达职责，例如 `chassis_move`、`gimbal_control`、`shoot_task_control`。
+- 文件内私有函数使用 `static`，文件内私有表使用 `static const`。
+- 宏使用全大写和下划线，数值宏名带单位语义。
+- 文件编码统一使用 UTF-8，新增注释主要使用中文。
+- 对外函数使用 Doxygen 风格块注释，说明功能、输入参数、返回值和单位。
+- 结构体字段和宏定义使用行尾中文注释，说明物理含义、单位、取值含义或硬件映射。
+- 控制参数宏注释写清单位、作用链路和调参直接效果。
+
+### 数据与保护
+
+- 外部传入指针在函数开头做空指针保护，保护后直接 `return` 或返回零值。
+- 遥控器输入先经死区处理，再进入比例换算、滤波、限幅和控制量赋值。
+- 角度进入控制前使用 `rad_format` 归一化。
+- 输出速度、电流和功率进入执行前使用 `fp32_constrain`、`chassis_limit_abs` 或最大轮速比例缩放。
+- 模式切换在 `*_mode_change_control_transit` 中处理，切换时保存目标角、相对角、规划速度、积分项或上一模式。
+- 掉线和超时状态通过 `toe_is_error`、反馈时间戳、`online`、`error_code` 进入零输出、无力或保持逻辑。
+- CAN 发送函数集中在 `*_send_cmd` 或 BSP CAN 封装中，控制函数只写目标值、中间控制量和最终电流命令。
+- VOFA 输出固定 6 通道，统一经过 `VOFA_Send6`。
+
+### CubeMX 修改约束
+
+CubeMX 管理项包括 FreeRTOS 参数、任务/队列/信号量、外设初始化参数、GPIO、时钟树、中断优先级、DMA、NVIC、HAL tick、USB、FDCAN、UART、SPI、TIM。修改这些配置时先说明 CubeMX 路径、建议值和生成代码后的影响文件，再在 CubeMX 中修改并重新生成代码。
 
 ## 常用命令
 
@@ -265,13 +455,14 @@ git status --short
 
 ```powershell
 rg "GIMBAL_CONTROL_TIME"
+rg "shoot_task_control" User
 rg "CAN_cmd_MIT" User Core
 ```
 
-用 Keil 命令行构建主控工程，`UV4.exe` 路径按本机安装位置补充：
+用 Keil 命令行构建主控工程，`UV4.exe` 路径按本机安装位置调整：
 
 ```powershell
-& "<Keil安装目录>\UV4\UV4.exe" -b "MDK-ARM\CtrlBoard-H7_WS1812.uvprojx" -j0 -o "MDK-ARM\build.log"
+& "D:\Keil5\UV4\UV4.exe" -j0 -b "MDK-ARM\CtrlBoard-H7_WS1812.uvprojx" -o "build_codex_current.log"
 ```
 
 打开 STM32CubeMX 配置：
@@ -292,22 +483,22 @@ start .\MDK-ARM\CtrlBoard-H7_WS1812.uvprojx
 cd .\User\Communication\example\host
 ```
 
-主机端示例构建方式待补充，仓库中已存在 `build/` 输出目录。
-
 ## 开发说明
 
-业务代码优先放在 `User` 目录，`Core`、`Drivers`、`Middlewares` 和 `USB_DEVICE` 中的 CubeMX 生成代码只在外设配置变更时同步调整。控制链路按“BSP/Devices 解析反馈 -> APP 任务读取输入 -> APP_Support 生成目标和控制量 -> Algorithm 计算 -> BSP 下发 CAN/UART/USB”的路径组织。
+业务代码优先放在 `User` 目录；`Core`、`Drivers`、`Middlewares` 和 `USB_DEVICE` 中的 CubeMX 生成代码只在外设配置变更时同步调整。控制链路按“BSP/Devices 解析反馈 -> APP 任务读取输入 -> APP_Support 生成目标和控制量 -> Algorithm 计算 -> BSP 下发 CAN/UART/USB”的路径组织。
 
-新增控制参数时优先放入对应模块头文件：全局、云台、底盘机械和底盘控制参数放入 `robot_param.h`，发射参数放入 `shoot_task.h`，通信参数放入 `comm_app_config.h`。修改 `.ioc` 后需要用 CubeMX 重新生成代码，并检查 `USER CODE BEGIN/END` 区域内的手写逻辑是否保留。
+新增控制参数时优先放入对应模块头文件：全局、云台、底盘机械和跨模块公共参数放入 `robot_param.h`；发射参数放入 `shoot_task.h` 或 `shoot_3508.h`；通信参数放入 `comm_app_config.h`；灯板参数放入 `light_task.h`。修改 `.ioc` 后需要用 CubeMX 重新生成代码，并检查 `USER CODE BEGIN/END` 区域内的手写逻辑是否保留。
 
-当前 `chassis_task()` 已完成底盘目标生成、逆运动学、功控计算和电流变量写入，实际 CAN 下发入口当前发送 `CAN_cmd_CHASSIS_ALL(0, 0, 0, 0)`；恢复实车输出前需要按调试状态接入 `chassis_3508[i].give_current` 和 `chassis_6020[i].give_current`。`USART1` 已启动 DMA 接收，接收回调中的裁判系统解析接入状态待补充。
+当前底盘控制链路已经包含目标生成、速度规划、运动学计算、功控计算、电流变量写入和 CAN 下发。恢复实车输出或改动底盘控制时，需要沿 `chassis_set_mode -> chassis_feedback_update -> chassis_set_contorl -> chassis_control_loop -> chassis_send_cmd` 链路接入。
+
+当前发射控制链路通过摩擦轮掉速和反馈电流判断开火，再由软件热量模型限制下一发拨弹。该模型不替代裁判系统热量数据；裁判热量接口仍在 `referee.c/referee.h` 中保留，可在后续需要时与软件模型融合。
 
 ## 底盘动力学前馈与急停制动说明
 
-底盘控制链路采用“速度规划 -> 整车动力学前馈 -> 单轮模型控制 -> 电流/功率限制”的结构。`vx_plan`、`vy_plan`、`wz_plan` 是底盘期望速度，整车前馈通过相邻控制周期的规划速度差分得到 `ax`、`ay`、`alpha`，再按整车质量和 yaw 转动惯量换算为车体所需的力和力矩，最后分解到 205、206、207、208 四个轮子的 `body_ff_current[]`。这样做的好处是加速、减速、旋转启动时可以在误差变大之前提前给出惯性补偿电流，速度 PI 只需要修正模型误差、摩擦误差和负载扰动。
+底盘控制链路采用“速度规划 -> 整车动力学前馈 -> 单轮模型控制 -> 电流/功率限制”的结构。`vx_plan`、`vy_plan`、`wz_plan` 是底盘期望速度，整车前馈通过相邻控制周期的规划速度差分得到 `ax`、`ay`、`alpha`，再按整车质量和 yaw 转动惯量换算为车体所需的力和力矩，最后分解到 205、206、207、208 四个轮子的 `body_ff_current[]`。
 
-四轮前馈分解使用几何公式和电机方向系数分开处理。几何公式只描述底盘坐标系下各轮对 `vx`、`vy`、`wz` 的贡献，实际电机默认正方向通过 `CHASSIS_WHEEL_205_DIRECTION`、`CHASSIS_WHEEL_206_DIRECTION`、`CHASSIS_WHEEL_207_DIRECTION`、`CHASSIS_WHEEL_208_DIRECTION` 统一变换。这样可以把底盘运动学公式和电机安装方向解耦，后续只需要调整方向宏，不需要改控制公式。
+四轮前馈分解使用几何公式和电机方向系数分开处理。几何公式只描述底盘坐标系下各轮对 `vx`、`vy`、`wz` 的贡献，实际电机默认正方向通过 `CHASSIS_WHEEL_205_DIRECTION`、`CHASSIS_WHEEL_206_DIRECTION`、`CHASSIS_WHEEL_207_DIRECTION`、`CHASSIS_WHEEL_208_DIRECTION` 统一变换。
 
-松杆急停保留速度规划停车分支：当遥控输入导致 `cmd=0` 时，`chassis_s_curve_update()` 先用 `CHASSIS_STOP_DECEL` 生成与当前 `vx_plan` 或 `vy_plan` 方向相反的目标加速度，再用 `CHASSIS_STOP_JERK` 限制加速度变化速度，最后每个控制周期用 `plan = plan + accel * CHASSIS_CONTROL_TIME` 把规划速度拉向 0。这个写法让减速过程每个周期都有连续的反向规划加速度，整车动力学前馈可以持续输出反向惯性补偿电流，速度目标也会平滑接近 0。
+松杆急停保留速度规划停车分支：当遥控输入导致 `cmd=0` 时，`chassis_s_curve_update()` 先用 `CHASSIS_STOP_DECEL` 生成与当前 `vx_plan` 或 `vy_plan` 方向相反的目标加速度，再用 `CHASSIS_STOP_JERK` 限制加速度变化速度，最后每个控制周期用 `plan = plan + accel * CHASSIS_CONTROL_TIME` 把规划速度拉向 0。
 
-固定制动前馈在单轮模型控制中生效。轮速目标进入减速或接近 0，且实测轮速大于 `CHASSIS_BRAKE_ENTER_SPEED_EPS` 时，`stop_brake_active` 置位；此时普通摩擦前馈按 `CHASSIS_BRAKE_FRICTION_FF_SCALE` 缩放，固定制动前馈 `I_brake` 按实测轮速方向给反向电流。轮速低于 `CHASSIS_BRAKE_RELEASE_SPEED_EPS` 或重新给出速度目标时，制动状态释放。这个写法的好处是急停力矩由三部分组成：整车反向加速度前馈补偿惯性，固定制动前馈提供稳定刹车力，速度 PI 根据实际轮速误差补足剩余制动力。
+固定制动前馈在单轮模型控制中生效。轮速目标进入减速或接近 0，且实测轮速大于 `CHASSIS_BRAKE_ENTER_SPEED_EPS` 时，`stop_brake_active` 置位；此时普通摩擦前馈按 `CHASSIS_BRAKE_FRICTION_FF_SCALE` 缩放，固定制动前馈 `I_brake` 按实测轮速方向给反向电流。轮速低于 `CHASSIS_BRAKE_RELEASE_SPEED_EPS` 或重新给出速度目标时，制动状态释放。
