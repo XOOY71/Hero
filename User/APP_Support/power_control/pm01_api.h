@@ -1,3 +1,8 @@
+/**
+  * @file       pm01_api.h
+  * @brief      PM01 超级电容模块接口声明
+  * @note       声明配置命令、访问轮询和反馈解析接口。
+  */
 #ifndef PM01_API_H
 #define PM01_API_H
 

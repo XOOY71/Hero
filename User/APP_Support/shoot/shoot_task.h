@@ -1,3 +1,8 @@
+/**
+  * @file       shoot_task.h
+  * @brief      发射控制参数与状态结构
+  * @note       定义发射模式、摩擦轮参数、拨弹参数和发射状态结构体。
+  */
 #ifndef SHOOT_TASK_H
 #define SHOOT_TASK_H
 
@@ -6,7 +11,7 @@
 
 #include "adrc.h"
 #include "bsp_fdcan.h"
-#include "project_config.h"
+#include "robot_param.h"
 #include "remote_control.h"
 
 /* 射击任务基础配置 */

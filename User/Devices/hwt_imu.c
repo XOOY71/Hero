@@ -1,5 +1,5 @@
 #include "hwt_imu.h"
-#include "project_config.h"
+#include "robot_param.h"
 #include <string.h>
 
 #define HWT_PI              PI

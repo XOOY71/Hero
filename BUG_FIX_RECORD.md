@@ -41,7 +41,7 @@ ff_torque = PITCH_VELOCITY_FF_GAIN * ref_vel + J * ref_accel;
 - `User/APP/gimbal_task.c`
 - `User/APP/gimbal_task.h`
 - `User/APP/yaw_pitch_direct.c`
-- `User/APP/project_config.h`
+- `User/APP_Support/common/robot_param.h`
 
 **验证结果**
 

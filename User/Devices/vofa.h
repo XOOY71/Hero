@@ -23,6 +23,7 @@ void VOFA_SendChassisMotorMeasure(uint8_t motor_idx);
 void VOFA_SendChassisPowerDebug(uint8_t motor_idx);
 void VOFA_SendChassisPowerCurrentDebug(void);
 void VOFA_SendChassisSpeedAccel(void);
+void VOFA_SendChassisRealSpeedCurrent(void);
 void VOFA_SendChassisAnglePidDebug(void);
 void VOFA_SendChassisTranslatePairDebug(void);
 void VOFA_SendChassisMotionDebug(void);

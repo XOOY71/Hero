@@ -1,6 +1,6 @@
 #include "bsp_fdcan.h"
 #include "stdint.h"
-#include "project_config.h"
+#include "robot_param.h"
 #include "detect_task.h"
 #include "pm01_api.h"
 #include "wattmeter_api.h"
@@ -341,6 +341,9 @@ uint8_t fdcan1_receive(hcan_t *hfdcan, uint16_t *rec_id, uint8_t *buf)
 				can1_cnt = (uint8_t)motor_index;
 				MITFdbData(&MIT_MOTOR_MEASURE[can1_cnt], buf, can1_cnt);
 				MIT_MOTOR_MEASURE[can1_cnt].fdb.last_fdb_time = fdb_time;
+				detect_hook((pRxHeader.Identifier == DM_YAW_MASTER_ID) ?
+				            YAW_GIMBAL_MOTOR_TOE :
+				            PLUCK_MOTOR_TOE);
 				break;
 			}
 			case 0x205:
@@ -412,6 +415,7 @@ uint8_t fdcan2_receive(hcan_t *hfdcan, uint16_t *rec_id, uint8_t *buf)
 				can1_cnt = (uint8_t)motor_index;
 				MITFdbData(&MIT_MOTOR_MEASURE[can1_cnt], buf, can1_cnt);
 				MIT_MOTOR_MEASURE[can1_cnt].fdb.last_fdb_time = fdb_time;
+				detect_hook(PITCH_GIMBAL_MOTOR_TOE);
 				break;
 			}
 			case CAN_FRIC1_ID:
@@ -429,6 +433,7 @@ uint8_t fdcan2_receive(hcan_t *hfdcan, uint16_t *rec_id, uint8_t *buf)
 				get_motor_measure(&DJI_MOTOR_MEASURE[can2_cnt], buf);
 
 				DJI_MOTOR_MEASURE[can2_cnt].last_fdb_time = fdb_time;
+				detect_hook((uint8_t)(FRIC1_MOTOR_TOE + motor_index));
 				break;
 			}
 			default:

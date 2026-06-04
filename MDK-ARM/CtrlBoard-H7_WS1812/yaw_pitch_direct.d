@@ -3,7 +3,7 @@ ctrlboard-h7_ws1812\yaw_pitch_direct.o: ..\User\APP_Support\gimbal\yaw_pitch_dir
 ctrlboard-h7_ws1812\yaw_pitch_direct.o: ../User/APP/gimbal_task.h
 ctrlboard-h7_ws1812\yaw_pitch_direct.o: D:\Keil5\ARM\ARMCC\Bin\..\include\stdint.h
 ctrlboard-h7_ws1812\yaw_pitch_direct.o: D:\Keil5\ARM\ARMCC\Bin\..\include\stdbool.h
-ctrlboard-h7_ws1812\yaw_pitch_direct.o: ../User/APP_Support/common/project_config.h
+ctrlboard-h7_ws1812\yaw_pitch_direct.o: ../User/APP_Support/common/robot_param.h
 ctrlboard-h7_ws1812\yaw_pitch_direct.o: ../User/BSP/remote_control.h
 ctrlboard-h7_ws1812\yaw_pitch_direct.o: ../User/BSP/bsp_usart.h
 ctrlboard-h7_ws1812\yaw_pitch_direct.o: ../Core/Inc/main.h
@@ -54,11 +54,12 @@ ctrlboard-h7_ws1812\yaw_pitch_direct.o: D:\Keil5\ARM\ARMCC\Bin\..\include\stdio.
 ctrlboard-h7_ws1812\yaw_pitch_direct.o: D:\Keil5\ARM\ARMCC\Bin\..\include\stdlib.h
 ctrlboard-h7_ws1812\yaw_pitch_direct.o: ../User/Algorithm/pid.h
 ctrlboard-h7_ws1812\yaw_pitch_direct.o: ../User/Algorithm/gravity_comp.h
-ctrlboard-h7_ws1812\yaw_pitch_direct.o: ..\User\APP_Support\gimbal\gimbal_behaviour.h
 ctrlboard-h7_ws1812\yaw_pitch_direct.o: ../User/APP/auto_aim.h
 ctrlboard-h7_ws1812\yaw_pitch_direct.o: ../User/Devices/hwt_imu.h
 ctrlboard-h7_ws1812\yaw_pitch_direct.o: ../User/BSP/bsp_fdcan.h
 ctrlboard-h7_ws1812\yaw_pitch_direct.o: ../Core/Inc/fdcan.h
+ctrlboard-h7_ws1812\yaw_pitch_direct.o: ../User/APP/detect_task.h
+ctrlboard-h7_ws1812\yaw_pitch_direct.o: ../User/APP_Support/common/struct_typedef.h
 ctrlboard-h7_ws1812\yaw_pitch_direct.o: ../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS/cmsis_os.h
 ctrlboard-h7_ws1812\yaw_pitch_direct.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/FreeRTOS.h
 ctrlboard-h7_ws1812\yaw_pitch_direct.o: ../Core/Inc/FreeRTOSConfig.h

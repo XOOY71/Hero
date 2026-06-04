@@ -1,6 +1,15 @@
+/**
+  * @file       target_curve.c
+  * @brief      云台目标曲线生成器
+  * @note       实现常值、三角函数、周期波形、阶跃、斜坡和手动 S 型速度曲线。
+  */
 #include "target_curve.h"
 #include <math.h>
 
+/**
+  * @brief          对目标曲线数值执行区间限幅
+  * @retval         none
+  */
 static float TargetCurve_Clamp(float x, float min_val, float max_val)
 {
     if (x < min_val)
@@ -14,31 +23,55 @@ static float TargetCurve_Clamp(float x, float min_val, float max_val)
     return x;
 }
 
+/**
+  * @brief          计算浮点数的小数部分
+  * @retval         none
+  */
 static float TargetCurve_Frac(float x)
 {
     return x - floorf(x);
 }
 
+/**
+  * @brief          将负值钳制为 0
+  * @retval         none
+  */
 static float TargetCurve_NonNegative(float x)
 {
     return (x < 0.0f) ? 0.0f : x;
 }
 
+/**
+  * @brief          将方波占空比限制到有效范围
+  * @retval         none
+  */
 static float TargetCurve_SafeDuty(float duty)
 {
     return TargetCurve_Clamp(duty, 0.01f, 0.99f);
 }
 
+/**
+  * @brief          获取 2*pi 常量
+  * @retval         none
+  */
 static float TargetCurve_TwoPi(void)
 {
     return 2.0f * TARGET_PI;
 }
 
+/**
+  * @brief          将弧度相位转换为周期相位
+  * @retval         none
+  */
 static float TargetCurve_PhaseToCycle(float phase_rad)
 {
     return phase_rad / TargetCurve_TwoPi();
 }
 
+/**
+  * @brief          按最大步长逼近目标值
+  * @retval         none
+  */
 static float TargetCurve_MoveToward(float current, float target, float max_delta)
 {
     if (max_delta <= 0.0f)
@@ -65,6 +98,10 @@ static float TargetCurve_MoveToward(float current, float target, float max_delta
     return current;
 }
 
+/**
+  * @brief          对目标曲线状态执行输出限幅
+  * @retval         none
+  */
 static void TargetCurve_ApplyLimit(const TargetCurve_t *obj, TargetCurveState_t *state)
 {
     if ((obj == 0) || (state == 0))
@@ -105,6 +142,10 @@ static void TargetCurve_ApplyLimit(const TargetCurve_t *obj, TargetCurveState_t 
     }
 }
 
+/**
+  * @brief          更新手动输入 S 型速度曲线状态
+  * @retval         none
+  */
 static TargetCurveState_t TargetCurve_UpdateManualSVel(TargetCurve_t *obj, float dt_s)
 {
     TargetCurveState_t s;
@@ -148,6 +189,10 @@ static TargetCurveState_t TargetCurve_UpdateManualSVel(TargetCurve_t *obj, float
     return s;
 }
 
+/**
+  * @brief          初始化目标曲线对象
+  * @retval         none
+  */
 void TargetCurve_Init(TargetCurve_t *obj)
 {
     if (obj == 0)
@@ -190,6 +235,10 @@ void TargetCurve_Init(TargetCurve_t *obj)
     obj->state.acceleration = 0.0f;
 }
 
+/**
+  * @brief          重置目标曲线时间和状态
+  * @retval         none
+  */
 void TargetCurve_Reset(TargetCurve_t *obj)
 {
     if (obj == 0)
@@ -211,6 +260,10 @@ void TargetCurve_Reset(TargetCurve_t *obj)
     }
 }
 
+/**
+  * @brief          设置目标曲线输出限幅
+  * @retval         none
+  */
 void TargetCurve_SetOutputLimit(TargetCurve_t *obj,
                                 uint8_t enable,
                                 float min_output,
@@ -235,6 +288,10 @@ void TargetCurve_SetOutputLimit(TargetCurve_t *obj,
     TargetCurve_ApplyLimit(obj, &obj->state);
 }
 
+/**
+  * @brief          设置目标曲线类型
+  * @retval         none
+  */
 void TargetCurve_SetType(TargetCurve_t *obj, TargetCurveType_t type)
 {
     if (obj == 0)
@@ -246,6 +303,10 @@ void TargetCurve_SetType(TargetCurve_t *obj, TargetCurveType_t type)
     obj->state = TargetCurve_CalcStateAtTime(obj, obj->time_s);
 }
 
+/**
+  * @brief          设置目标曲线幅值
+  * @retval         none
+  */
 void TargetCurve_SetAmplitude(TargetCurve_t *obj, float amplitude)
 {
     if (obj == 0)
@@ -257,6 +318,10 @@ void TargetCurve_SetAmplitude(TargetCurve_t *obj, float amplitude)
     obj->state = TargetCurve_CalcStateAtTime(obj, obj->time_s);
 }
 
+/**
+  * @brief          设置目标曲线频率
+  * @retval         none
+  */
 void TargetCurve_SetFrequency(TargetCurve_t *obj, float frequency_hz)
 {
     if (obj == 0)
@@ -268,6 +333,10 @@ void TargetCurve_SetFrequency(TargetCurve_t *obj, float frequency_hz)
     obj->state = TargetCurve_CalcStateAtTime(obj, obj->time_s);
 }
 
+/**
+  * @brief          设置目标曲线相位
+  * @retval         none
+  */
 void TargetCurve_SetPhase(TargetCurve_t *obj, float phase_rad)
 {
     if (obj == 0)
@@ -279,6 +348,10 @@ void TargetCurve_SetPhase(TargetCurve_t *obj, float phase_rad)
     obj->state = TargetCurve_CalcStateAtTime(obj, obj->time_s);
 }
 
+/**
+  * @brief          设置目标曲线偏置
+  * @retval         none
+  */
 void TargetCurve_SetOffset(TargetCurve_t *obj, float offset)
 {
     if (obj == 0)
@@ -290,6 +363,10 @@ void TargetCurve_SetOffset(TargetCurve_t *obj, float offset)
     obj->state = TargetCurve_CalcStateAtTime(obj, obj->time_s);
 }
 
+/**
+  * @brief          配置常值目标曲线
+  * @retval         none
+  */
 void TargetCurve_SetConstant(TargetCurve_t *obj, float value)
 {
     if (obj == 0)
@@ -306,6 +383,10 @@ void TargetCurve_SetConstant(TargetCurve_t *obj, float value)
     obj->state = TargetCurve_CalcStateAtTime(obj, obj->time_s);
 }
 
+/**
+  * @brief          配置正弦目标曲线
+  * @retval         none
+  */
 void TargetCurve_SetSine(TargetCurve_t *obj,
                          float amplitude,
                          float frequency_hz,
@@ -326,6 +407,10 @@ void TargetCurve_SetSine(TargetCurve_t *obj,
     obj->state = TargetCurve_CalcStateAtTime(obj, obj->time_s);
 }
 
+/**
+  * @brief          配置正弦目标曲线
+  * @retval         none
+  */
 void TargetCurve_SetCosine(TargetCurve_t *obj,
                            float amplitude,
                            float frequency_hz,
@@ -346,6 +431,10 @@ void TargetCurve_SetCosine(TargetCurve_t *obj,
     obj->state = TargetCurve_CalcStateAtTime(obj, obj->time_s);
 }
 
+/**
+  * @brief          配置方波目标曲线
+  * @retval         none
+  */
 void TargetCurve_SetSquare(TargetCurve_t *obj,
                            float amplitude,
                            float frequency_hz,
@@ -368,6 +457,10 @@ void TargetCurve_SetSquare(TargetCurve_t *obj,
     obj->state = TargetCurve_CalcStateAtTime(obj, obj->time_s);
 }
 
+/**
+  * @brief          配置三角波目标曲线
+  * @retval         none
+  */
 void TargetCurve_SetTriangle(TargetCurve_t *obj,
                              float amplitude,
                              float frequency_hz,
@@ -388,6 +481,10 @@ void TargetCurve_SetTriangle(TargetCurve_t *obj,
     obj->state = TargetCurve_CalcStateAtTime(obj, obj->time_s);
 }
 
+/**
+  * @brief          配置上升锯齿波目标曲线
+  * @retval         none
+  */
 void TargetCurve_SetSawUp(TargetCurve_t *obj,
                           float amplitude,
                           float frequency_hz,
@@ -408,6 +505,10 @@ void TargetCurve_SetSawUp(TargetCurve_t *obj,
     obj->state = TargetCurve_CalcStateAtTime(obj, obj->time_s);
 }
 
+/**
+  * @brief          配置上升锯齿波目标曲线
+  * @retval         none
+  */
 void TargetCurve_SetSawDown(TargetCurve_t *obj,
                             float amplitude,
                             float frequency_hz,
@@ -428,6 +529,10 @@ void TargetCurve_SetSawDown(TargetCurve_t *obj,
     obj->state = TargetCurve_CalcStateAtTime(obj, obj->time_s);
 }
 
+/**
+  * @brief          配置梯形波目标曲线
+  * @retval         none
+  */
 void TargetCurve_SetTrapezoid(TargetCurve_t *obj,
                               float amplitude,
                               float frequency_hz,
@@ -468,6 +573,10 @@ void TargetCurve_SetTrapezoid(TargetCurve_t *obj,
     obj->state = TargetCurve_CalcStateAtTime(obj, obj->time_s);
 }
 
+/**
+  * @brief          配置阶跃目标曲线
+  * @retval         none
+  */
 void TargetCurve_SetStep(TargetCurve_t *obj,
                          float start_value,
                          float end_value,
@@ -486,6 +595,10 @@ void TargetCurve_SetStep(TargetCurve_t *obj,
     obj->state = TargetCurve_CalcStateAtTime(obj, obj->time_s);
 }
 
+/**
+  * @brief          配置斜坡目标曲线
+  * @retval         none
+  */
 void TargetCurve_SetRamp(TargetCurve_t *obj,
                          float start_value,
                          float slope,
@@ -504,6 +617,10 @@ void TargetCurve_SetRamp(TargetCurve_t *obj,
     obj->state = TargetCurve_CalcStateAtTime(obj, obj->time_s);
 }
 
+/**
+  * @brief          配置单次 S 型位置目标曲线
+  * @retval         none
+  */
 void TargetCurve_SetSCurveStep(TargetCurve_t *obj,
                                float start_value,
                                float end_value,
@@ -524,6 +641,10 @@ void TargetCurve_SetSCurveStep(TargetCurve_t *obj,
     obj->state = TargetCurve_CalcStateAtTime(obj, obj->time_s);
 }
 
+/**
+  * @brief          配置手动输入 S 型速度整形曲线
+  * @retval         none
+  */
 void TargetCurve_SetManualSVel(TargetCurve_t *obj,
                                float init_position,
                                float max_vel,
@@ -555,6 +676,10 @@ void TargetCurve_SetManualSVel(TargetCurve_t *obj,
     TargetCurve_ApplyLimit(obj, &obj->state);
 }
 
+/**
+  * @brief          设置手动归一化输入
+  * @retval         none
+  */
 void TargetCurve_SetManualInput(TargetCurve_t *obj, float input_norm)
 {
     if (obj == 0)
@@ -565,6 +690,10 @@ void TargetCurve_SetManualInput(TargetCurve_t *obj, float input_norm)
     obj->manual_input = TargetCurve_Clamp(input_norm, -1.0f, 1.0f);
 }
 
+/**
+  * @brief          计算指定时间的目标曲线状态
+  * @retval         none
+  */
 TargetCurveState_t TargetCurve_CalcStateAtTime(const TargetCurve_t *obj, float time_s)
 {
     TargetCurveState_t out;
@@ -759,6 +888,10 @@ TargetCurveState_t TargetCurve_CalcStateAtTime(const TargetCurve_t *obj, float t
     return out;
 }
 
+/**
+  * @brief          按周期更新目标曲线状态
+  * @retval         none
+  */
 TargetCurveState_t TargetCurve_UpdateState(TargetCurve_t *obj, float dt_s)
 {
     TargetCurveState_t zero = {0.0f, 0.0f, 0.0f};
@@ -787,16 +920,28 @@ TargetCurveState_t TargetCurve_UpdateState(TargetCurve_t *obj, float dt_s)
     return obj->state;
 }
 
+/**
+  * @brief          计算指定时间的目标曲线位置输出
+  * @retval         none
+  */
 float TargetCurve_CalcAtTime(const TargetCurve_t *obj, float time_s)
 {
     return TargetCurve_CalcStateAtTime(obj, time_s).position;
 }
 
+/**
+  * @brief          按周期更新并返回目标曲线位置输出
+  * @retval         none
+  */
 float TargetCurve_Update(TargetCurve_t *obj, float dt_s)
 {
     return TargetCurve_UpdateState(obj, dt_s).position;
 }
 
+/**
+  * @brief          获取目标曲线当前位置输出
+  * @retval         none
+  */
 float TargetCurve_GetOutput(const TargetCurve_t *obj)
 {
     if (obj == 0)
@@ -807,6 +952,10 @@ float TargetCurve_GetOutput(const TargetCurve_t *obj)
     return obj->state.position;
 }
 
+/**
+  * @brief          获取目标曲线当前位置输出
+  * @retval         none
+  */
 float TargetCurve_GetVelocity(const TargetCurve_t *obj)
 {
     if (obj == 0)
@@ -817,6 +966,10 @@ float TargetCurve_GetVelocity(const TargetCurve_t *obj)
     return obj->state.velocity;
 }
 
+/**
+  * @brief          获取目标曲线当前加速度输出
+  * @retval         none
+  */
 float TargetCurve_GetAcceleration(const TargetCurve_t *obj)
 {
     if (obj == 0)

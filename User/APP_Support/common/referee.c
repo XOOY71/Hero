@@ -73,6 +73,10 @@ enemy_wave_key_t               		enemy_wave_key;
 uint32_t g_referee_last_rx_ms = 0;
 
 
+/**
+  * @brief          清空裁判系统全部接收数据
+  * @retval         none
+  */
 void init_referee_data(void)
 {
     memset(&referee_receive_header,			0, sizeof(frame_header_struct_t			));
@@ -124,11 +128,21 @@ void init_referee_data(void)
     g_referee_last_rx_ms = 0;
 }
 
+/**
+  * @brief          兼容旧接口的裁判数据初始化入口
+  * @retval         none
+  */
 void init_referee_struct_data(void)
 {
     init_referee_data();
 }
 
+/**
+  * @brief          按 cmd_id 分发裁判系统数据帧
+  * @param[in]      frame: 裁判协议完整帧指针
+  * @note           成功解析后刷新 g_referee_last_rx_ms，供在线状态判断使用。
+  * @retval         none
+  */
 void referee_handle_data(uint8_t *frame)
 {
 	uint16_t cmd_id = 0;
@@ -196,6 +210,11 @@ void referee_handle_data(uint8_t *frame)
 	}
 }
 
+/**
+  * @brief          裁判数据解析兼容入口
+  * @param[in]      frame: 裁判协议完整帧指针
+  * @retval         none
+  */
 void referee_data_solve(uint8_t *frame)
 {
 	referee_handle_data(frame);

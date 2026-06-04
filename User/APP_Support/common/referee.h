@@ -1,3 +1,8 @@
+/**
+  * @file       referee.h
+  * @brief      裁判系统数据结构与接口声明
+  * @note       定义裁判协议数据结构和业务查询接口。
+  */
 #ifndef REFEREE_H
 #define REFEREE_H
 

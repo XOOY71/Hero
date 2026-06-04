@@ -72,7 +72,7 @@ Hero/
 │   │   ├── Safewarning.c / *.h             # 安全提示/蜂鸣器相关逻辑
 │   │   └── usb_task.c / *.h                # USB 任务保留入口
 │   ├── APP_Support/                        # 应用支撑层和参数层
-│   │   ├── project_config.h                # 全局模式、云台 PID、底盘几何、MIT ID、限位和公共参数
+│   │   ├── robot_param.h                # 全局模式、云台 PID、底盘几何、MIT ID、限位和公共参数
 │   │   ├── gimbal_behaviour.c / *.h        # 云台行为状态机
 │   │   ├── yaw_pitch_direct.c / *.h        # yaw/pitch 反馈、目标和 MIT 下发链路
 │   │   ├── shoot_task.c / *.h              # 摩擦轮和拨弹控制
@@ -236,7 +236,7 @@ FreeRTOS 创建的主要任务：
 
 ### 主要参数文件
 
-- `User/APP_Support/project_config.h`：机器人模式、电容开关、云台 PID、底盘几何、通道映射、底盘控制参数、物理前馈参数、MIT 电机 ID、角度限位、自瞄/发射相关公共参数。
+- `User/APP_Support/common/robot_param.h`：机器人模式、电容开关、云台 PID、底盘几何、通道映射、底盘控制参数、物理前馈参数、MIT 电机 ID、角度限位、自瞄/发射相关公共参数。
 - `User/APP/chassis_task.h`：底盘控制结构体、模式枚举和任务接口。
 - `User/APP_Support/shoot_task.h`：摩擦轮目标转速、电流限制、ADRC 参数、拨弹 PID 和前馈参数。
 - `User/Communication/example/device/comm_app_config.h`：通信任务栈、优先级、通道 ID、USB 枚举超时、主机命令注入通道映射。
@@ -298,7 +298,7 @@ cd .\User\Communication\example\host
 
 业务代码优先放在 `User` 目录，`Core`、`Drivers`、`Middlewares` 和 `USB_DEVICE` 中的 CubeMX 生成代码只在外设配置变更时同步调整。控制链路按“BSP/Devices 解析反馈 -> APP 任务读取输入 -> APP_Support 生成目标和控制量 -> Algorithm 计算 -> BSP 下发 CAN/UART/USB”的路径组织。
 
-新增控制参数时优先放入对应模块头文件：全局、云台、底盘机械和底盘控制参数放入 `project_config.h`，发射参数放入 `shoot_task.h`，通信参数放入 `comm_app_config.h`。修改 `.ioc` 后需要用 CubeMX 重新生成代码，并检查 `USER CODE BEGIN/END` 区域内的手写逻辑是否保留。
+新增控制参数时优先放入对应模块头文件：全局、云台、底盘机械和底盘控制参数放入 `robot_param.h`，发射参数放入 `shoot_task.h`，通信参数放入 `comm_app_config.h`。修改 `.ioc` 后需要用 CubeMX 重新生成代码，并检查 `USER CODE BEGIN/END` 区域内的手写逻辑是否保留。
 
 当前 `chassis_task()` 已完成底盘目标生成、逆运动学、功控计算和电流变量写入，实际 CAN 下发入口当前发送 `CAN_cmd_CHASSIS_ALL(0, 0, 0, 0)`；恢复实车输出前需要按调试状态接入 `chassis_3508[i].give_current` 和 `chassis_6020[i].give_current`。`USART1` 已启动 DMA 接收，接收回调中的裁判系统解析接入状态待补充。
 

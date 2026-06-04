@@ -1743,9 +1743,9 @@
           <GroupName>APP_Support/common</GroupName>
           <Files>
             <File>
-              <FileName>project_config.h</FileName>
+              <FileName>robot_param.h</FileName>
               <FileType>5</FileType>
-              <FilePath>..\User\APP_Support\common\project_config.h</FilePath>
+              <FilePath>..\User\APP_Support\common\robot_param.h</FilePath>
             </File>
             <File>
               <FileName>protocol.h</FileName>

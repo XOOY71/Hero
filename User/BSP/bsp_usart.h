@@ -12,7 +12,7 @@
 #include "main.h"
 #include "string.h"
 
-#include "project_config.h"
+#include "robot_param.h"
 #include "fifo.h"
 
 #define BUFF_SIZE	25

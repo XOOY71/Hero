@@ -38,9 +38,21 @@ typedef enum
 
 
 //根据遥控器输入设置底盘行为模式
+/**
+  * @brief          设置底盘行为模式
+  * @retval         none
+  */
 extern void chassis_behaviour_mode_set(chassis_move_t *chassis_move_mode);
 //根据当前行为模式设置底盘控制参数
+/**
+  * @brief          根据底盘行为模式生成速度给定
+  * @retval         none
+  */
 extern void chassis_behaviour_control_set(fp32 *vx_set, fp32 *vy_set, fp32 *angle_set, chassis_move_t *chassis_move_rc_to_vector);
+/**
+  * @brief          将遥控器输入转换为底盘平移速度
+  * @retval         none
+  */
 extern void chassis_rc_to_control_vector(fp32 *vx_set, fp32 *vy_set, chassis_move_t *chassis_move_rc_to_vector);
 
 //全局变量，用于存储底盘行为模式

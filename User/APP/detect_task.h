@@ -1,3 +1,8 @@
+/**
+  * @file       detect_task.h
+  * @brief      设备在线检测接口声明
+  * @note       定义 TOE 设备编号、离线状态结构体和检测接口。
+  */
 #ifndef DETECT_TASK_H
 #define DETECT_TASK_H
 
@@ -5,6 +10,7 @@
 
 #define DETECT_TASK_INIT_TIME 57
 #define DETECT_CONTROL_TIME 10
+#define DBUS_RX_ACTIVE_HOLD_TIME 100U
 
 enum errorList
 {
@@ -17,9 +23,12 @@ enum errorList
     CHASSIS_MOTOR6_TOE,
     CHASSIS_MOTOR7_TOE,
     CHASSIS_MOTOR8_TOE,
-    PLUCK_MOTOR_TOE,
-    YAW_GIMBAL_MOTOR_TOE,
-    PITCH_GIMBAL_MOTOR_TOE,
+    PLUCK_MOTOR_TOE,        // 拨弹 MIT 电机在线检测
+    FRIC1_MOTOR_TOE,        // 摩擦轮 1 电机在线检测
+    FRIC2_MOTOR_TOE,        // 摩擦轮 2 电机在线检测
+    FRIC3_MOTOR_TOE,        // 摩擦轮 3 电机在线检测
+    YAW_GIMBAL_MOTOR_TOE,   // yaw MIT 电机在线检测
+    PITCH_GIMBAL_MOTOR_TOE, // pitch MIT 电机在线检测
     BOARD_GYRO_TOE,
     BOARD_ACCEL_TOE,
     BOARD_MAG_TOE,

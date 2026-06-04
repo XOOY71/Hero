@@ -48,7 +48,7 @@ ctrlboard-h7_ws1812\chassis_behaviour.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm
 ctrlboard-h7_ws1812\chassis_behaviour.o: ../Core/Inc/fdcan.h
 ctrlboard-h7_ws1812\chassis_behaviour.o: D:\Keil5\ARM\ARMCC\Bin\..\include\stdbool.h
 ctrlboard-h7_ws1812\chassis_behaviour.o: ../User/APP/gimbal_task.h
-ctrlboard-h7_ws1812\chassis_behaviour.o: ../User/APP_Support/common/project_config.h
+ctrlboard-h7_ws1812\chassis_behaviour.o: ../User/APP_Support/common/robot_param.h
 ctrlboard-h7_ws1812\chassis_behaviour.o: ../User/BSP/remote_control.h
 ctrlboard-h7_ws1812\chassis_behaviour.o: ../User/BSP/bsp_usart.h
 ctrlboard-h7_ws1812\chassis_behaviour.o: D:\Keil5\ARM\ARMCC\Bin\..\include\string.h

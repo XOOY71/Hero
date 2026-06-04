@@ -11,7 +11,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#include "project_config.h"
+#include "robot_param.h"
 #include "remote_control.h"
 #include "pid.h"
 #include "gravity_comp.h"
@@ -119,80 +119,99 @@ extern float yaw_can_set_current;
 extern float pitch_can_set_current;
 extern int16_t shoot_can_set_current;
 
+/**
+  * @brief          创建云台控制任务
+  * @retval         none
+  */
 void GimbalTask_Init(void);
 
 /**
-  * @brief          返回yaw 电机数据指针
-  * @param[in]      none
-  * @retval         yaw电机指针
+  * @brief          获取 yaw 电机控制结构体指针
+  * @retval         yaw 电机控制结构体只读指针
   */
 const gimbal_motor_t *get_yaw_motor_point(void);
 
 /**
-  * @brief          返回pitch 电机数据指针
-  * @param[in]      none
-  * @retval         pitch电机指针
+  * @brief          获取 pitch 电机控制结构体指针
+  * @retval         pitch 电机控制结构体只读指针
   */
 const gimbal_motor_t *get_pitch_motor_point(void);
 
 /**
-  * @brief          云台控制模式:GIMBAL_MOTOR_GYRO，更新绝对角目标
-  * @param[out]     motor:yaw电机或者pitch电机
-  * @param[in]      add:角度增量
+  * @brief          更新绝对角目标并执行限幅
   * @retval         none
   */
 void gimbal_absolute_angle_limit(gimbal_motor_t *motor, float add);
 
 /**
-  * @brief          云台控制模式:GIMBAL_MOTOR_GYRO
-  * @param[out]     motor:yaw电机或者pitch电机
+  * @brief          执行云台电机绝对角控制
   * @retval         none
   */
 void gimbal_motor_absolute_angle_control(gimbal_motor_t *motor);
 
 /**
-  * @brief          云台控制模式:GIMBAL_MOTOR_ENCODE
-  * @param[out]     motor:yaw电机或者pitch电机
+  * @brief          执行云台电机相对角控制
   * @retval         none
   */
 void gimbal_motor_relative_angle_control(gimbal_motor_t *motor);
 
 /**
-  * @brief          云台控制模式:GIMBAL_MOTOR_RAW
-  * @param[out]     motor:yaw电机或者pitch电机
+  * @brief          执行云台电机 RAW 输出控制
   * @retval         none
   */
 void gimbal_motor_raw_angle_control(gimbal_motor_t *motor);
 
 /**
-  * @brief          简化PID初始化
-  * @param[out]     pid:PID结构体指针
-  * @param[in]      kp,ki,kd,max_out,max_iout: PID参数
+  * @brief          初始化云台 PID 控制器
   * @retval         none
   */
 void gimbal_pid_init(gimbal_pid_t *pid, float kp, float ki, float kd, float max_out, float max_iout);
 
 /**
-  * @brief          简化PID清零
-  * @param[out]     pid:PID结构体指针
+  * @brief          清空云台 PID 控制器状态
   * @retval         none
   */
 void gimbal_pid_clear(gimbal_pid_t *pid);
 
 /**
-  * @brief          简化PID计算接口
-  * @param[out]     pid:PID结构体指针
-  * @param[in]      get,set,error_delta
-  * @retval         PID输出
+  * @brief          计算云台 PID 输出
+  * @retval         PID 输出
   */
 float gimbal_pid_calc(gimbal_pid_t *pid, float get, float set, float error_delta);
 
-/* platform hooks */
+/**
+  * @brief          初始化云台控制结构体
+  * @retval         none
+  */
 void gimbal_init(gimbal_control_t *control);
+/**
+  * @brief          设置云台控制模式
+  * @retval         none
+  */
 void gimbal_set_mode(gimbal_control_t *control);
+/**
+  * @brief          更新云台反馈数据
+  * @retval         none
+  */
 void gimbal_feedback_update(gimbal_control_t *control);
+/**
+  * @brief          初始化云台控制结构体
+  * @retval         none
+  */
 void gimbal_mode_change_control_transit(gimbal_control_t *control);
+/**
+  * @brief          生成云台目标控制量
+  * @retval         none
+  */
 void gimbal_set_control(gimbal_control_t *control);
+/**
+  * @brief          设置云台控制模式
+  * @retval         none
+  */
 void gimbal_control_loop(gimbal_control_t *control);
+/**
+  * @brief          设置云台控制模式
+  * @retval         none
+  */
 void gimbal_send_cmd(gimbal_control_t *control);
 #endif

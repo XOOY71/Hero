@@ -1,4 +1,9 @@
-﻿#include "bsp_usart.h"
+/**
+  * @file       Omni_chassis.c
+  * @brief      十字全向底盘控制实现
+  * @note       实现反馈更新、模式切换、速度规划、前馈制动、轮速闭环和电流发送。
+  */
+#include "bsp_usart.h"
 #include "bsp_fdcan.h"
 #include "chassis_behaviour.h"
 #include "chassis_calculate.h"
@@ -9,7 +14,7 @@
 #include "hwt_imu.h"
 
 #include "pid.h"
-#include "project_config.h"
+#include "robot_param.h"
 #include "remote_control.h"
 
 #include "user_lib.h"
@@ -19,14 +24,6 @@
 #include <stdlib.h>
 
 #if (ROBOT_CHASSIS == ROBOT_CHASSIS_OMNI)
-
-#ifndef PID_USUAL
-#define PID_USUAL PID_POSITION
-#endif
-
-#ifndef PID_calc
-#define PID_calc PID_Calc
-#endif
 
 static const fp32 chassis_yaw_pid_param[3] = {
 	CHASSIS_ANGLE_PD_KP,
@@ -42,35 +39,130 @@ static const fp32 chassis_x_order_filter = CHASSIS_ACCEL_X_NUM;
 static const fp32 chassis_y_order_filter = CHASSIS_ACCEL_Y_NUM;
 static fp32 chassis_return_target = CHASSIS_RETURN_TARGET;
 
+/**
+  * @brief          更新底盘电机反馈、正解车速和姿态反馈
+  * @retval         none
+  */
 __attribute__((used)) void chassis_feedback_update(chassis_move_t *chassis_move_update);
+/**
+  * @brief          初始化底盘结构体、控制器和运动学零偏
+  * @retval         none
+  */
 __attribute__((used)) void chassis_init(chassis_move_t *chassis_move_init);
+/**
+  * @brief          刷新底盘控制模式
+  * @retval         none
+  */
 __attribute__((used)) void chassis_set_mode(chassis_move_t *chassis_move_mode);
+/**
+  * @brief          处理底盘模式切换状态过渡
+  * @retval         none
+  */
 __attribute__((used)) void chassis_mode_change_control_transit(chassis_move_t *chassis_move_transit);
+/**
+  * @brief          计算底盘目标速度并写入控制结构体
+  * @retval         none
+  */
 __attribute__((used)) void chassis_set_contorl(chassis_move_t *chassis_move_control);
+/**
+  * @brief          判断底盘 HWT101 航向角是否可用
+  * @retval         none
+  */
 static uint8_t chassis_hwt101_yaw_ready(void);
+/**
+  * @brief          计算底盘航向角 PD 输出
+  * @retval         none
+  */
 static fp32 chassis_angle_pd_calc(pid_type_def *pd, fp32 actual, fp32 target, uint8_t wrap_enable, fp32 target_vel, fp32 actual_vel);
+/**
+  * @brief          计算云台跟随模式底盘自转速度
+  * @retval         none
+  */
 static fp32 chassis_follow_yaw_control(chassis_move_t *chassis_move_follow, fp32 manual_wz);
+/**
+  * @brief          底盘航向保持模式速度给定
+  * @retval         none
+  */
 static fp32 chassis_yaw_hold_control(chassis_move_t *chassis_move_yaw_hold, fp32 manual_wz);
+/**
+  * @brief          判断底盘控制链路是否在线
+  * @retval         none
+  */
+static uint8_t chassis_control_online(void);
+/**
+  * @brief          对数值执行对称限幅
+  * @retval         none
+  */
 static fp32 chassis_limit_abs(fp32 value, fp32 max_abs);
+/**
+  * @brief          按速度、加速度和 jerk 约束更新 S 曲线规划
+  * @retval         none
+  */
 static fp32 chassis_s_curve_update(fp32 cmd, fp32 *plan, fp32 *accel, fp32 max_speed, fp32 max_accel, fp32 max_jerk, fp32 stop_accel, fp32 stop_jerk);
+/**
+  * @brief          计算单个底盘电机速度 PID 输出
+  * @retval         none
+  */
 static fp32 chassis_speed_pi_calc(chassis_move_t *chassis_move_pi, uint8_t motor_idx, fp32 error_v);
+/**
+  * @brief          清除整车前馈和速度制动补偿状态
+  * @retval         none
+  */
 static void chassis_body_feedforward_clear(chassis_move_t *chassis_move_ff);
+/**
+  * @brief          清除底盘控制状态并置零电机输出
+  * @retval         none
+  */
 static void chassis_zero_force_clear(chassis_move_t *chassis_move_zero);
+/**
+  * @brief          根据整车加速度规划更新轮端前馈电流
+  * @retval         none
+  */
 static void chassis_body_feedforward_update(chassis_move_t *chassis_move_ff);
+/**
+  * @brief          清除整车速度制动补偿状态
+  * @retval         none
+  */
+static void chassis_body_velocity_brake_clear(chassis_move_t *chassis_move_brake);
+/**
+  * @brief          根据目标速度和正解车速更新制动补偿
+  * @retval         none
+  */
+static void chassis_body_velocity_brake_update(chassis_move_t *chassis_move_brake);
+/**
+  * @brief          计算单轮模型前馈和速度环合成输出
+  * @retval         电流命令值
+  */
 static fp32 Model_Based_Control(uint8_t motor_idx, fp32 set_speed, fp32 ref_speed);
+/**
+  * @brief          计算底盘四轮速度环输出
+  * @retval         none
+  */
 static void PID_Calc_Jump(chassis_move_t *chassis_pid_calc);
+/**
+  * @brief          根据四轮电流需求更新动态电流限幅
+  * @retval         none
+  */
 static void chassis_dynamic_current_limit_update(chassis_move_t *chassis_move_limit);
+/**
+  * @brief          执行底盘速度规划、前馈、速度环和电流限幅
+  * @retval         none
+  */
 __attribute__((used)) void chassis_control_loop(chassis_move_t *chassis_move_control_loop);
+/**
+  * @brief          发送底盘四个 3508 电机电流命令
+  * @retval         none
+  */
 __attribute__((used)) void chassis_send_cmd(chassis_move_t *chassis_move_send);
 /**
-  * @brief          鏇存柊搴曠洏鍙嶉閲忥紝鍖呮嫭 3508 閫熷害銆両MU 濮挎€佺瓑
-  * @param[out]     chassis_move_update: 搴曠洏鐘舵€佺粨鏋勪綋鎸囬拡
+  * @brief          更新底盘电机反馈、正解车速和姿态反馈
   * @retval         none
   */
 __attribute__((used)) void chassis_feedback_update(chassis_move_t *chassis_move_update)
 {
 	if (chassis_move_update == NULL) return;
 	static fp32 last_speed[CHASSIS_MODULE_NUM] = {0.0f};
+	fp32 wheel_speed[CHASSIS_MODULE_NUM] = {0.0f};
 	const hwt_imu_info_t *hwt101 = hwt101_get_info();
 
 	for (uint8_t i = 0; i < CHASSIS_MODULE_NUM; i++)
@@ -80,7 +172,14 @@ __attribute__((used)) void chassis_feedback_update(chassis_move_t *chassis_move_
 		chassis_move_update->chassis_3508[i].given_current_a = (fp32)chassis_move_update->chassis_3508[i].chassis_motor_measure->given_current * CHASSIS_CURRENT_CMD_TO_A;
 		chassis_move_update->chassis_3508[i].accel = (chassis_move_update->chassis_3508[i].speed - last_speed[i]) * CHASSIS_CONTROL_FREQUENCE;
 		last_speed[i] = chassis_move_update->chassis_3508[i].speed;
+		wheel_speed[i] = chassis_move_update->chassis_3508[i].speed;
 	}
+
+	chas_for_cal(NULL,
+	             wheel_speed,
+	             &chassis_move_update->vx,
+	             &chassis_move_update->vy,
+	             &chassis_move_update->wz);
 
 	if ((hwt101 != NULL) && (hwt101->angle.yaw_init_flag != 0u))
 	{
@@ -108,8 +207,7 @@ __attribute__((used)) void chassis_feedback_update(chassis_move_t *chassis_move_
 }
 
 /**
-  * @brief          鍒濆鍖栧簳鐩樻帶鍒剁粨鏋勪綋鍜屽悇鎺у埗鍣?
-  * @param[out]     chassis_move_init: 搴曠洏鐘舵€佺粨鏋勪綋鎸囬拡
+  * @brief          初始化底盘控制结构体
   * @retval         none
   */
 __attribute__((used)) void chassis_init(chassis_move_t *chassis_move_init)
@@ -145,6 +243,9 @@ __attribute__((used)) void chassis_init(chassis_move_t *chassis_move_init)
 	chassis_move_init->vx_min_speed = -NORMAL_MAX_CHASSIS_SPEED_X;
 	chassis_move_init->vy_max_speed =  NORMAL_MAX_CHASSIS_SPEED_Y;
 	chassis_move_init->vy_min_speed = -NORMAL_MAX_CHASSIS_SPEED_Y;
+	chassis_move_init->vx = 0.0f;
+	chassis_move_init->vy = 0.0f;
+	chassis_move_init->wz = 0.0f;
 	chassis_move_init->vx_plan = 0.0f;
 	chassis_move_init->vy_plan = 0.0f;
 	chassis_move_init->wz_plan = 0.0f;
@@ -170,8 +271,7 @@ __attribute__((used)) void chassis_init(chassis_move_t *chassis_move_init)
 }
 
 /**
-  * @brief          鏇存柊搴曠洏妯″紡
-  * @param[out]     chassis_move_mode: 搴曠洏鐘舵€佺粨鏋勪綋鎸囬拡
+  * @brief          刷新底盘控制模式
   * @retval         none
   */
 __attribute__((used)) void chassis_set_mode(chassis_move_t *chassis_move_mode)
@@ -181,8 +281,7 @@ __attribute__((used)) void chassis_set_mode(chassis_move_t *chassis_move_mode)
 }
 
 /**
-  * @brief          澶勭悊搴曠洏妯″紡鍒囨崲鏃剁殑鐘舵€佽繃娓?
-  * @param[out]     chassis_move_transit: 搴曠洏鐘舵€佺粨鏋勪綋鎸囬拡
+  * @brief          处理底盘模式切换过渡
   * @retval         none
   */
 __attribute__((used)) void chassis_mode_change_control_transit(chassis_move_t *chassis_move_transit)
@@ -233,8 +332,7 @@ __attribute__((used)) void chassis_mode_change_control_transit(chassis_move_t *c
 }
 
 /**
-  * @brief          鏍规嵁搴曠洏妯″紡鐢熸垚閫熷害鍜岃閫熷害鎸囦护
-  * @param[out]     chassis_move_control: 搴曠洏鐘舵€佺粨鏋勪綋鎸囬拡
+  * @brief          计算底盘目标速度并写入控制结构体
   * @retval         none
   */
 __attribute__((used)) void chassis_set_contorl(chassis_move_t *chassis_move_control)
@@ -245,7 +343,7 @@ __attribute__((used)) void chassis_set_contorl(chassis_move_t *chassis_move_cont
 
 	fp32 vx_set = 0.0f, vy_set = 0.0f, wz_set = 0.0f;
 
-	// 鐢辫涓哄眰鐢熸垚鍩虹閫熷害鎸囦护
+	// 由行为层生成基础速度指令
 	chassis_behaviour_control_set(&vx_set, &vy_set, &wz_set, chassis_move_control);
 	wz_set = - wz_set;
 
@@ -296,6 +394,10 @@ __attribute__((used)) void chassis_set_contorl(chassis_move_t *chassis_move_cont
 	}
 }
 
+/**
+  * @brief          判断底盘 HWT101 航向角是否可用
+  * @retval         1 表示可用，0 表示不可用
+  */
 static uint8_t chassis_hwt101_yaw_ready(void)
 {
 	const hwt_imu_info_t *hwt101 = hwt101_get_info();
@@ -308,6 +410,25 @@ static uint8_t chassis_hwt101_yaw_ready(void)
 	return 0u;
 }
 
+/**
+  * @brief          判断底盘控制链路是否在线
+  * @retval         1 表示在线，0 表示离线
+  */
+static uint8_t chassis_control_online(void)
+{
+	if (toe_is_error(DBUS_TOE) != 0U) return 0u;
+	if (toe_is_error(CHASSIS_MOTOR1_TOE) != 0U) return 0u;
+	if (toe_is_error(CHASSIS_MOTOR2_TOE) != 0U) return 0u;
+	if (toe_is_error(CHASSIS_MOTOR3_TOE) != 0U) return 0u;
+	if (toe_is_error(CHASSIS_MOTOR4_TOE) != 0U) return 0u;
+
+	return 1u;
+}
+
+/**
+  * @brief          清除整车前馈和速度制动补偿状态
+  * @retval         none
+  */
 static void chassis_body_feedforward_clear(chassis_move_t *chassis_move_ff)
 {
 	uint8_t i;
@@ -324,9 +445,14 @@ static void chassis_body_feedforward_clear(chassis_move_t *chassis_move_ff)
 	{
 		chassis_move_ff->body_ff_current[i] = 0.0f;
 	}
+	chassis_body_velocity_brake_clear(chassis_move_ff);
 	chassis_move_ff->body_ff_init = 0u;
 }
 
+/**
+  * @brief          清除底盘控制状态并置零电机输出
+  * @retval         none
+  */
 static void chassis_zero_force_clear(chassis_move_t *chassis_move_zero)
 {
 	uint8_t i;
@@ -365,6 +491,10 @@ static void chassis_zero_force_clear(chassis_move_t *chassis_move_zero)
 	}
 }
 
+/**
+  * @brief          将轮端力换算为 3508 电流命令
+  * @retval         电流命令值
+  */
 static fp32 chassis_body_force_to_current_cmd(fp32 force_n)
 {
 	fp32 torque_output;
@@ -379,6 +509,10 @@ static fp32 chassis_body_force_to_current_cmd(fp32 force_n)
 	return chassis_limit_abs(current_cmd, CHASSIS_BODY_FF_MAX_CURRENT_CMD);
 }
 
+/**
+  * @brief          根据整车加速度规划更新轮端前馈电流
+  * @retval         none
+  */
 static void chassis_body_feedforward_update(chassis_move_t *chassis_move_ff)
 {
 	fp32 ax;
@@ -435,6 +569,152 @@ static void chassis_body_feedforward_update(chassis_move_t *chassis_move_ff)
 	}
 }
 
+/**
+  * @brief          判断单轴速度制动补偿是否激活
+  * @retval         1 表示激活，0 表示退出
+  */
+static uint8_t chassis_body_velocity_brake_axis_active(fp32 target, fp32 actual, fp32 deadband)
+{
+	if (fabsf(actual) < deadband)
+	{
+		return 0u;
+	}
+
+	if (fabsf(target) < deadband)
+	{
+		return 1u;
+	}
+
+	if ((target * actual) < 0.0f)
+	{
+		return 1u;
+	}
+
+	return 0u;
+}
+
+/**
+  * @brief          清除整车速度制动补偿状态
+  * @retval         none
+  */
+static void chassis_body_velocity_brake_clear(chassis_move_t *chassis_move_brake)
+{
+	uint8_t i;
+
+	if (chassis_move_brake == NULL) return;
+
+	chassis_move_brake->body_vel_brake_error_vx = 0.0f;
+	chassis_move_brake->body_vel_brake_error_vy = 0.0f;
+	chassis_move_brake->body_vel_brake_error_wz = 0.0f;
+	for (i = 0; i < CHASSIS_MODULE_NUM; i++)
+	{
+		chassis_move_brake->body_vel_brake_current[i] = 0.0f;
+	}
+}
+
+/**
+  * @brief          根据目标速度和正解车速更新制动补偿
+  * @retval         none
+  */
+static void chassis_body_velocity_brake_update(chassis_move_t *chassis_move_brake)
+{
+#if (CHASSIS_BODY_VEL_BRAKE_ENABLE != 0U)
+	fp32 ax = 0.0f;
+	fp32 ay = 0.0f;
+	fp32 alpha = 0.0f;
+	fp32 force_x;
+	fp32 force_y;
+	fp32 torque_z;
+	fp32 yaw_force;
+	fp32 wheel_force[CHASSIS_MODULE_NUM] = {0.0f};
+	fp32 xy_speed;
+	fp32 xy_kp;
+	fp32 xy_kp_ratio;
+	uint8_t i;
+
+	if (chassis_move_brake == NULL) return;
+
+	chassis_body_velocity_brake_clear(chassis_move_brake);
+	xy_speed = sqrtf(chassis_move_brake->vx * chassis_move_brake->vx +
+	                 chassis_move_brake->vy * chassis_move_brake->vy);
+	if (xy_speed <= CHASSIS_BODY_VEL_BRAKE_LOW_SPEED)
+	{
+		xy_kp = CHASSIS_BODY_VEL_BRAKE_XY_KP_LOW;
+	}
+	else if (xy_speed >= CHASSIS_BODY_VEL_BRAKE_HIGH_SPEED)
+	{
+		xy_kp = CHASSIS_BODY_VEL_BRAKE_XY_KP_HIGH;
+	}
+	else
+	{
+		xy_kp_ratio = (xy_speed - CHASSIS_BODY_VEL_BRAKE_LOW_SPEED) /
+		              (CHASSIS_BODY_VEL_BRAKE_HIGH_SPEED - CHASSIS_BODY_VEL_BRAKE_LOW_SPEED);
+		xy_kp = CHASSIS_BODY_VEL_BRAKE_XY_KP_LOW +
+		        (CHASSIS_BODY_VEL_BRAKE_XY_KP_HIGH - CHASSIS_BODY_VEL_BRAKE_XY_KP_LOW) * xy_kp_ratio;
+	}
+
+	if (chassis_body_velocity_brake_axis_active(chassis_move_brake->vx_set,
+	                                            chassis_move_brake->vx,
+	                                            CHASSIS_BODY_VEL_BRAKE_SPEED_EPS) != 0u)
+	{
+		chassis_move_brake->body_vel_brake_error_vx =
+			chassis_move_brake->vx_set - chassis_move_brake->vx;
+		ax = chassis_limit_abs(chassis_move_brake->body_vel_brake_error_vx *
+		                       xy_kp,
+		                       CHASSIS_BODY_VEL_BRAKE_ACCEL_LIMIT);
+	}
+
+	if (chassis_body_velocity_brake_axis_active(chassis_move_brake->vy_set,
+	                                            chassis_move_brake->vy,
+	                                            CHASSIS_BODY_VEL_BRAKE_SPEED_EPS) != 0u)
+	{
+		chassis_move_brake->body_vel_brake_error_vy =
+			chassis_move_brake->vy_set - chassis_move_brake->vy;
+		ay = chassis_limit_abs(chassis_move_brake->body_vel_brake_error_vy *
+		                       xy_kp,
+		                       CHASSIS_BODY_VEL_BRAKE_ACCEL_LIMIT);
+	}
+
+	if (chassis_body_velocity_brake_axis_active(chassis_move_brake->wz_set,
+	                                            chassis_move_brake->wz,
+	                                            CHASSIS_BODY_VEL_BRAKE_WZ_EPS) != 0u)
+	{
+		chassis_move_brake->body_vel_brake_error_wz =
+			chassis_move_brake->wz_set - chassis_move_brake->wz;
+		alpha = chassis_limit_abs(chassis_move_brake->body_vel_brake_error_wz *
+		                          CHASSIS_BODY_VEL_BRAKE_WZ_KP,
+		                          CHASSIS_BODY_VEL_BRAKE_WZ_ACCEL_LIMIT);
+	}
+
+	force_x = ROBOT_MASS * ax;
+	force_y = ROBOT_MASS * ay;
+	torque_z = CHASSIS_BODY_FF_YAW_INERTIA_KGM2 * alpha;
+	yaw_force = (fabsf(CHASSIS_OMNI_ROTATE_RADIUS) > 0.0001f) ? (torque_z / CHASSIS_OMNI_ROTATE_RADIUS) : 0.0f;
+
+	wheel_force[WHEEL_REAR_205]  = ( 0.5f * force_y + 0.25f * yaw_force) * CHASSIS_WHEEL_205_DIRECTION;
+	wheel_force[WHEEL_RIGHT_206] = (0.5f * force_x - 0.25f * yaw_force) * CHASSIS_WHEEL_206_DIRECTION;
+	wheel_force[WHEEL_FRONT_207] = (0.5f * force_y - 0.25f * yaw_force) * CHASSIS_WHEEL_207_DIRECTION;
+	wheel_force[WHEEL_LEFT_208]  = ( 0.5f * force_x + 0.25f * yaw_force) * CHASSIS_WHEEL_208_DIRECTION;
+
+	for (i = 0; i < CHASSIS_MODULE_NUM; i++)
+	{
+		chassis_move_brake->body_vel_brake_current[i] =
+			chassis_limit_abs(chassis_body_force_to_current_cmd(wheel_force[i]),
+			                  CHASSIS_BODY_VEL_BRAKE_CURRENT_CMD_LIMIT);
+		chassis_move_brake->body_ff_current[i] =
+			chassis_limit_abs(chassis_move_brake->body_ff_current[i] +
+			                  chassis_move_brake->body_vel_brake_current[i],
+			                  CHASSIS_BODY_FF_MAX_CURRENT_CMD);
+	}
+#else
+	chassis_body_velocity_brake_clear(chassis_move_brake);
+#endif
+}
+
+/**
+  * @brief          计算底盘航向角 PD 输出
+  * @retval         PD 输出
+  */
 static fp32 chassis_angle_pd_calc(pid_type_def *pd, fp32 actual, fp32 target, uint8_t wrap_enable, fp32 target_vel, fp32 actual_vel)
 {
 	fp32 error;
@@ -465,6 +745,10 @@ static fp32 chassis_angle_pd_calc(pid_type_def *pd, fp32 actual, fp32 target, ui
 	return pd->out;
 }
 
+/**
+  * @brief          计算云台跟随模式底盘自转速度
+  * @retval         自转速度给定
+  */
 static fp32 chassis_follow_yaw_control(chassis_move_t *chassis_move_follow, fp32 manual_wz)
 {
 	fp32 min_relative;
@@ -522,6 +806,10 @@ static fp32 chassis_follow_yaw_control(chassis_move_t *chassis_move_follow, fp32
 	return wz_cmd;
 }
 
+/**
+  * @brief          计算底盘航向保持模式自转速度
+  * @retval         自转速度给定
+  */
 static fp32 chassis_yaw_hold_control(chassis_move_t *chassis_move_yaw_hold, fp32 manual_wz)
 {
 	fp32 yaw_rate_set;
@@ -560,6 +848,10 @@ static fp32 chassis_yaw_hold_control(chassis_move_t *chassis_move_yaw_hold, fp32
 	return wz_cmd;
 }
 
+/**
+  * @brief          对数值执行对称限幅
+  * @retval         限幅后的数值
+  */
 static fp32 chassis_limit_abs(fp32 value, fp32 max_abs)
 {
 	if (value > max_abs)
@@ -574,6 +866,10 @@ static fp32 chassis_limit_abs(fp32 value, fp32 max_abs)
 	return value;
 }
 
+/**
+  * @brief          按速度、加速度和 jerk 约束更新 S 曲线规划
+  * @retval         更新后的规划速度
+  */
 static fp32 chassis_s_curve_update(fp32 cmd, fp32 *plan, fp32 *accel, fp32 max_speed, fp32 max_accel, fp32 max_jerk, fp32 stop_accel, fp32 stop_jerk)
 {
 	fp32 accel_target;
@@ -637,6 +933,10 @@ static fp32 chassis_s_curve_update(fp32 cmd, fp32 *plan, fp32 *accel, fp32 max_s
 	return *plan;
 }
 
+/**
+  * @brief          计算单个底盘电机速度 PID 输出
+  * @retval         速度环输出
+  */
 static fp32 chassis_speed_pi_calc(chassis_move_t *chassis_move_pi, uint8_t motor_idx, fp32 error_v)
 {
 	fp32 error_d;
@@ -656,13 +956,10 @@ static fp32 chassis_speed_pi_calc(chassis_move_t *chassis_move_pi, uint8_t motor
 	return chassis_limit_abs(out, CHASSIS_SPEED_PI_MAX_OUT);
 }
 
-/*************************************************************
-  * @brief          3508 鐢垫満妯″瀷鎺у埗
-  * @param[in]      motor_idx: 鐢垫満绱㈠紩 0-3
-  * @param[in]      set_speed: 鐩爣閫熷害
-  * @param[in]      ref_speed: 瀹為檯閫熷害
-  * @retval         鐢垫祦杈撳嚭
- ************************************************************/
+/**
+  * @brief          计算单轮模型前馈和速度环合成输出
+  * @retval         none
+  */
 static fp32 Model_Based_Control(uint8_t motor_idx, fp32 set_speed, fp32 ref_speed)
 {
 	fp32 error_v = set_speed - ref_speed;
@@ -733,11 +1030,10 @@ static fp32 Model_Based_Control(uint8_t motor_idx, fp32 set_speed, fp32 ref_spee
 	return out;
 }
 
-/*************************************************************
-  * @brief          澶勭悊搴曠洏 PID 涓庡洖姝ｉ€昏緫
-  * @param[in]      chassis_pid_calc: 搴曠洏鐘舵€佺粨鏋勪綋鎸囬拡
+/**
+  * @brief          计算底盘四轮速度环输出
   * @retval         none
- ************************************************************/
+  */
 static void PID_Calc_Jump(chassis_move_t *chassis_pid_calc)
 {
 	fp32 target = 0.0f;
@@ -872,6 +1168,12 @@ static void chassis_dynamic_current_limit_update(chassis_move_t *chassis_move_li
 	}
 }
 
+/**
+  * @brief          底盘控制循环
+  * @note           无力模式或在线门控失败时直接清控制状态并返回，正常零输入仍保留零速速度环。
+  * @param[out]     chassis_move_control_loop: 底盘控制结构体指针
+  * @retval         none
+  */
 __attribute__((used)) void chassis_control_loop(chassis_move_t *chassis_move_control_loop)
 {
 	fp32 wheel_speed[CHASSIS_MODULE_NUM] = {0.0f};
@@ -881,6 +1183,14 @@ __attribute__((used)) void chassis_control_loop(chassis_move_t *chassis_move_con
 
 	if (chassis_move_control_loop == NULL) return;
 
+	if ((chassis_move_control_loop->chassis_mode == CHASSIS_VECTOR_NO_MOVE) ||
+	    (chassis_control_online() == 0u))
+	{
+		/* 无力模式和离线保护只清状态并输出 0，不进入零速速度环。 */
+		chassis_zero_force_clear(chassis_move_control_loop);
+		return;
+	}
+
 	chassis_move_control_loop->last_vx_set = chassis_move_control_loop->vx_set;
 	chassis_move_control_loop->last_vy_set = chassis_move_control_loop->vy_set;
 	chassis_move_control_loop->last_wz_set = chassis_move_control_loop->wz_set;
@@ -889,7 +1199,7 @@ __attribute__((used)) void chassis_control_loop(chassis_move_t *chassis_move_con
 	                  (fabsf(chassis_move_control_loop->vy_set) < 0.0001f) &&
 	                  (fabsf(chassis_move_control_loop->wz_set) < 0.0001f)) ? 1u : 0u;
 
-	if ((chassis_move_control_loop->chassis_mode == CHASSIS_VECTOR_NO_MOVE) || (zero_speed_cmd != 0u))
+	if (zero_speed_cmd != 0u)
 	{
 		chassis_move_control_loop->vx_plan = 0.0f;
 		chassis_move_control_loop->vy_plan = 0.0f;
@@ -940,6 +1250,7 @@ __attribute__((used)) void chassis_control_loop(chassis_move_t *chassis_move_con
 		                                                                       chassis_move_control_loop->wz_plan);
 		chassis_body_feedforward_update(chassis_move_control_loop);
 	}
+	chassis_body_velocity_brake_update(chassis_move_control_loop);
 
 	chas_inv_cal(chassis_move_control_loop->vx_plan,
 	             chassis_move_control_loop->vy_plan,
@@ -962,6 +1273,12 @@ __attribute__((used)) void chassis_control_loop(chassis_move_t *chassis_move_con
 	chassis_power_control(chassis_move_control_loop);
 }
 
+/**
+  * @brief          发送底盘电流命令
+  * @note           无力模式、DBUS 离线或任一底盘电机离线时发送 0 电流。
+  * @param[in]      chassis_move_send: 底盘控制结构体指针
+  * @retval         none
+  */
 __attribute__((used)) void chassis_send_cmd(chassis_move_t *chassis_move_send)
 {
 	if (chassis_move_send == NULL)
@@ -969,13 +1286,16 @@ __attribute__((used)) void chassis_send_cmd(chassis_move_t *chassis_move_send)
 		return;
 	}
 
-	if (!(toe_is_error(CHASSIS_MOTOR1_TOE) && toe_is_error(CHASSIS_MOTOR2_TOE) &&
-	      toe_is_error(CHASSIS_MOTOR3_TOE) && toe_is_error(CHASSIS_MOTOR4_TOE)))
+	if ((chassis_move_send->chassis_mode == CHASSIS_VECTOR_NO_MOVE) ||
+	    (chassis_control_online() == 0u))
 	{
-		CAN_cmd_CHASSIS_ALL(chassis_move_send->chassis_3508[0].give_current,
-		                    chassis_move_send->chassis_3508[1].give_current,
-		                    chassis_move_send->chassis_3508[2].give_current,
-		                    chassis_move_send->chassis_3508[3].give_current);
+		CAN_cmd_CHASSIS_ALL(0, 0, 0, 0);
+		return;
 	}
+
+	CAN_cmd_CHASSIS_ALL(chassis_move_send->chassis_3508[0].give_current,
+	                    chassis_move_send->chassis_3508[1].give_current,
+	                    chassis_move_send->chassis_3508[2].give_current,
+	                    chassis_move_send->chassis_3508[3].give_current);
 }
 #endif

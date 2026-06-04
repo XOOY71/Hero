@@ -3,7 +3,7 @@ ctrlboard-h7_ws1812\gravity_comp.o: ..\User\Algorithm\gravity_comp.h
 ctrlboard-h7_ws1812\gravity_comp.o: D:\Keil5\ARM\ARMCC\Bin\..\include\stdint.h
 ctrlboard-h7_ws1812\gravity_comp.o: ../User/APP/gimbal_task.h
 ctrlboard-h7_ws1812\gravity_comp.o: D:\Keil5\ARM\ARMCC\Bin\..\include\stdbool.h
-ctrlboard-h7_ws1812\gravity_comp.o: ../User/APP_Support/common/project_config.h
+ctrlboard-h7_ws1812\gravity_comp.o: ../User/APP_Support/common/robot_param.h
 ctrlboard-h7_ws1812\gravity_comp.o: ../User/BSP/remote_control.h
 ctrlboard-h7_ws1812\gravity_comp.o: ../User/BSP/bsp_usart.h
 ctrlboard-h7_ws1812\gravity_comp.o: ../Core/Inc/main.h

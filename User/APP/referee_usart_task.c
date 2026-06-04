@@ -1,3 +1,8 @@
+/**
+  * @file       referee_usart_task.c
+  * @brief      裁判串口接收任务
+  * @note       从串口 DMA 数据流中解析裁判系统帧并更新裁判数据。
+  */
 #include "referee_usart_task.h"
 
 #include "string.h"
@@ -14,12 +19,21 @@ static unpack_data_t referee_unpack_data = {0};
 
 static void referee_unpack_fifo_data(void);
 
+/**
+  * @brief          创建裁判串口解析任务
+  * @retval         none
+  */
 void RefereeUsartTask_Init(void)
 {
     osThreadDef(refereeUsartTask, referee_usart_task, osPriorityNormal, 0, 256);
     refereeUsartTaskHandle = osThreadCreate(osThread(refereeUsartTask), NULL);
 }
 
+/**
+  * @brief          裁判串口任务入口
+  * @param[in]      argument: FreeRTOS 任务参数
+  * @retval         none
+  */
 void referee_usart_task(void const *argument)
 {
     (void)argument;

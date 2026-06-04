@@ -1,3 +1,8 @@
+/**
+  * @file       light_task.c
+  * @brief      灯效任务与状态显示
+  * @note       根据底盘、云台、超级电容和遥控状态刷新 WS2812 灯效。
+  */
 #include "light_task.h"
 
 #include <string.h>
@@ -16,54 +21,6 @@
 
 
 /* 灯板串口帧格式：帧头 0xAA 0x55，帧尾 0x55 0xAA，中间是 10 路灯的 RGB 数据。 */
-#define LIGHT_FRAME_HEAD0 0xAAU
-#define LIGHT_FRAME_HEAD1 0x55U
-#define LIGHT_FRAME_TAIL0 0x55U
-#define LIGHT_FRAME_TAIL1 0xAAU
-
-/* 亮度档位统一集中定义，状态颜色只组合这些档位值。 */
-#define LIGHT_LOW 4U
-#define LIGHT_DIM LIGHT_LOW
-#define LIGHT_MID LIGHT_LOW
-#define LIGHT_HIGH LIGHT_LOW
-#define LIGHT_HEARTBEAT_BREATH_TICKS 128U
-#define LIGHT_FRIC_WORK_MIN_RPM 100.0f
-#define LIGHT_FRIC_RUNNING_RPM 200.0f
-#define LIGHT_FRIC_FDB_TIMEOUT 300U
-
-/* 在线状态灯位：一个检测对象对应一颗灯。 */
-#define LIGHT_DBUS_ONLINE_LED 0U
-#define LIGHT_CHASSIS_ONLINE_LED 1U
-#define LIGHT_FRIC_ONLINE_LED 2U
-#define LIGHT_AUTO_AIM_ONLINE_LED 3U
-#define LIGHT_CHASSIS_STATUS_FIRST_LED 4U
-#define LIGHT_CHASSIS_STATUS_LAST_LED 6U
-#define LIGHT_GIMBAL_STATUS_LED 7U
-#define LIGHT_CAP_STATUS_LED 8U
-#define LIGHT_HEARTBEAT_LED 9U
-
-/* 在线状态缓存：灯光任务先汇总各模块在线结果，再统一渲染到灯板。 */
-typedef struct
-{
-    bool dbus_online;
-    bool chassis_motor_online;
-    bool fric_motor_online;
-    bool fric_motor_working;
-    bool fric_motor_running;
-    bool auto_aim_online;
-    bool auto_aim_active;
-} light_online_t;
-
-/* 灯光任务控制块：保存任务句柄、工作模式、灯数组和串口帧缓存。 */
-typedef struct
-{
-    osThreadId task_handle;
-    volatile light_mode_t mode;
-    light_rgb_t leds[LIGHT_LED_COUNT];
-    uint8_t frame[LIGHT_UART_FRAME_BYTES];
-    light_online_t online;
-} light_control_t;
-
 extern super_cap_mode_e super_cap_mode;
 
 static light_control_t light_control = {
@@ -90,7 +47,11 @@ static void light_send_frame(void);
 static void light_fill(uint8_t first, uint8_t last, uint8_t r, uint8_t g, uint8_t b);
 
 
-/* 创建灯光任务，任务只负责状态显示和串口发送，不参与控制闭环。 */
+/**
+  * @brief          创建灯光任务
+  * @note           任务只负责状态显示和串口发送，不参与控制闭环。
+  * @retval         none
+  */
 void LightTask_Init(void)
 {
     osThreadDef(lightTask, light_task, osPriorityLow, 0, 256);
@@ -98,7 +59,12 @@ void LightTask_Init(void)
 }
 
 
-/* 灯光任务主循环：自动模式周期刷新状态灯，手动模式保持外部写入的灯值并周期发送。 */
+/**
+  * @brief          灯光任务主循环
+  * @param[in]      pvParameters: FreeRTOS 任务参数
+  * @note           自动模式周期刷新状态灯，手动模式保持外部写入的灯值并周期发送。
+  * @retval         none
+  */
 void light_task(void const *pvParameters)
 {
     (void)pvParameters;

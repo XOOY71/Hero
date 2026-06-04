@@ -43,7 +43,7 @@ ctrlboard-h7_ws1812\referee_usart_task.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/st
 ctrlboard-h7_ws1812\referee_usart_task.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_pcd.h
 ctrlboard-h7_ws1812\referee_usart_task.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_ll_usb.h
 ctrlboard-h7_ws1812\referee_usart_task.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_pcd_ex.h
-ctrlboard-h7_ws1812\referee_usart_task.o: ../User/APP_Support/common/project_config.h
+ctrlboard-h7_ws1812\referee_usart_task.o: ../User/APP_Support/common/robot_param.h
 ctrlboard-h7_ws1812\referee_usart_task.o: ../User/APP_Support/common/protocol.h
 ctrlboard-h7_ws1812\referee_usart_task.o: ../User/APP_Support/common/struct_typedef.h
 ctrlboard-h7_ws1812\referee_usart_task.o: D:\Keil5\ARM\ARMCC\Bin\..\include\string.h

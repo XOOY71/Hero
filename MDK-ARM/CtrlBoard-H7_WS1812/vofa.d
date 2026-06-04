@@ -50,7 +50,7 @@ ctrlboard-h7_ws1812\vofa.o: D:\Keil5\ARM\ARMCC\Bin\..\include\stdbool.h
 ctrlboard-h7_ws1812\vofa.o: ../User/APP_Support/power_control/chassis_power_control.h
 ctrlboard-h7_ws1812\vofa.o: ../User/APP/chassis_task.h
 ctrlboard-h7_ws1812\vofa.o: ../User/APP/gimbal_task.h
-ctrlboard-h7_ws1812\vofa.o: ../User/APP_Support/common/project_config.h
+ctrlboard-h7_ws1812\vofa.o: ../User/APP_Support/common/robot_param.h
 ctrlboard-h7_ws1812\vofa.o: ../User/BSP/remote_control.h
 ctrlboard-h7_ws1812\vofa.o: ../User/BSP/bsp_usart.h
 ctrlboard-h7_ws1812\vofa.o: D:\Keil5\ARM\ARMCC\Bin\..\include\string.h

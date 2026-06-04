@@ -1,87 +1,124 @@
 /**
-  ****************************(C) COPYRIGHT 2019 DJI****************************
   * @file       yaw_pitch_direct.c
-  * @brief      minimal yaw-pitch direct framework
-  ****************************(C) COPYRIGHT 2019 DJI****************************
+  * @brief      yaw/pitch 直控云台控制实现
+  * @note       实现云台反馈更新、目标限幅、前馈补偿、PID 闭环、在线保护和 MIT 力矩发送。
   */
-
 #include "yaw_pitch_direct.h"
 #include "auto_aim.h"
 #include "hwt_imu.h"
 #include "bsp_fdcan.h"
-#include "project_config.h"
+#include "detect_task.h"
+#include "robot_param.h"
 #include "cmsis_os.h"
 #include <math.h>
 #include <string.h>
 
 #if (ROBOT_GIMBAL == ROBOT_GIMBAL_YAW_PITCH_DIRECT)
 
-#define YAW_PITCH_DIRECT_PI PI
-
-#ifndef GIMBAL_AUTO_AIM_YAW_KP
-#define GIMBAL_AUTO_AIM_YAW_KP 14.0f
-#endif
-#ifndef GIMBAL_AUTO_AIM_PITCH_KP
-#define GIMBAL_AUTO_AIM_PITCH_KP 9.0f
-#endif
-#ifndef GIMBAL_AUTO_AIM_YAW_MAX_SPEED
-#define GIMBAL_AUTO_AIM_YAW_MAX_SPEED (720.0f * YAW_PITCH_DIRECT_PI / 180.0f)
-#endif
-#ifndef GIMBAL_AUTO_AIM_PITCH_MAX_SPEED
-#define GIMBAL_AUTO_AIM_PITCH_MAX_SPEED (720.0f * YAW_PITCH_DIRECT_PI / 180.0f)
-#endif
-#ifndef GIMBAL_AUTO_AIM_YAW_MAX_ACCEL
-#define GIMBAL_AUTO_AIM_YAW_MAX_ACCEL (6000.0f * YAW_PITCH_DIRECT_PI / 180.0f)
-#endif
-#ifndef GIMBAL_AUTO_AIM_PITCH_MAX_ACCEL
-#define GIMBAL_AUTO_AIM_PITCH_MAX_ACCEL (5100.0f * YAW_PITCH_DIRECT_PI / 180.0f)
-#endif
-#ifndef GIMBAL_PITCH_MIT_FDB_TIMEOUT
-#define GIMBAL_PITCH_MIT_FDB_TIMEOUT 100U
-#endif
-
 float yaw_can_set_current = 0.0f;
 float pitch_can_set_current = 0.0f;
 int16_t shoot_can_set_current = 0;
 
-typedef enum
-{
-    GIMBAL_CONTROL_SOURCE_RC = 0,
-    GIMBAL_CONTROL_SOURCE_AUTO,
-} gimbal_control_source_e;
-
 static float yaw_auto_aim_target_vel = 0.0f;
 static float pitch_auto_aim_target_vel = 0.0f;
 
+/**
+  * @brief          声明 yaw 电机在线检测函数
+  * @retval         none
+  */
+static uint8_t gimbal_yaw_online(void);
+/**
+  * @brief          声明 pitch MIT 反馈检测函数
+  * @retval         none
+  */
 static uint8_t gimbal_pitch_mit_feedback_ready(void);
-static void gimbal_pitch_zero_output(gimbal_motor_t *motor);
+/**
+  * @brief          声明单轴零输出清理函数
+  * @retval         none
+  */
+static void gimbal_motor_zero_output(gimbal_motor_t *motor);
+/**
+  * @brief          声明角度归一化函数
+  * @retval         归一化后的角度
+  */
 static float gimbal_wrap_angle(float angle);
+/**
+  * @brief          声明自瞄补偿读取函数
+  * @retval         自瞄补偿量
+  */
 static float gimbal_take_auto_aim_bias(gimbal_motor_t *motor);
+/**
+  * @brief          声明浮点限幅函数
+  * @retval         限幅后的值
+  */
 static float gimbal_clamp(float value, float min_value, float max_value);
+/**
+  * @brief          声明静摩擦补偿原始量计算函数
+  * @retval         静摩擦补偿原始量
+  */
 static float gimbal_calc_static_friction_comp_raw(const gimbal_motor_t *motor, float angle_error);
+/**
+  * @brief          声明静摩擦补偿更新函数
+  * @retval         静摩擦补偿输出
+  */
 static float gimbal_update_static_friction_comp(gimbal_motor_t *motor, float angle_error);
+/**
+  * @brief          声明力矩命令限幅函数
+  * @retval         力矩命令
+  */
 static float gimbal_float_to_torque_cmd(float output);
+/**
+  * @brief          声明惯量前馈计算函数
+  * @retval         前馈力矩
+  */
 static float gimbal_calc_feedforward(gimbal_motor_t *motor);
+/**
+  * @brief          声明角度反馈力矩计算函数
+  * @retval         反馈力矩
+  */
 static float gimbal_calc_feedback_torque(gimbal_motor_t *motor, gimbal_pid_t *angle_pid, float angle_get, float angle_set);
+/**
+  * @brief          声明角速度力矩计算函数
+  * @retval         控制力矩
+  */
 static float gimbal_calc_angle_speed_torque(gimbal_motor_t *motor, gimbal_pid_t *pid, float angle_error);
+/**
+  * @brief          声明自瞄目标速度清理函数
+  * @retval         none
+  */
+static void gimbal_auto_aim_clear_target_vel(gimbal_motor_t *motor);
 
+/**
+  * @brief          获取 INS 姿态角数组弱接口
+  * @retval         姿态角数组指针
+  */
 __attribute__((weak)) const float *get_INS_angle_point(void)
 {
     return 0;
 }
 
+/**
+  * @brief          获取陀螺仪角速度数组弱接口
+  * @retval         角速度数组指针
+  */
 __attribute__((weak)) const float *get_gyro_data_point(void)
 {
     return 0;
 }
 
+/**
+  * @brief          获取加速度数组弱接口
+  * @retval         加速度数组指针
+  */
 __attribute__((weak)) const float *get_accel_data_point(void)
 {
     return 0;
 }
 
-static void gimbal_auto_aim_clear_target_vel(gimbal_motor_t *motor);
-
+/**
+  * @brief          对 MIT 力矩命令执行限幅
+  * @retval         限幅后的值
+  */
 static float gimbal_mit_clamp(float value, float min_value, float max_value)
 {
     if (value > max_value)
@@ -95,21 +132,43 @@ static float gimbal_mit_clamp(float value, float min_value, float max_value)
     return value;
 }
 
+/**
+  * @brief          将控制器输出转换为 MIT 力矩命令
+  * @retval         none
+  */
 static float gimbal_output_to_mit_torque(float output)
 {
     return gimbal_mit_clamp(output, T_MIN, T_MAX);
 }
 
+/**
+  * @brief          判断 yaw 电机是否在线
+  * @retval         none
+  */
+static uint8_t gimbal_yaw_online(void)
+{
+    return (uint8_t)(toe_is_error(YAW_GIMBAL_MOTOR_TOE) == 0U);
+}
+
+/**
+  * @brief          判断 pitch MIT 反馈是否可用
+  * @retval         none
+  */
 static uint8_t gimbal_pitch_mit_feedback_ready(void)
 {
     const MITMeasure_t *measure = &MIT_MOTOR_MEASURE[GIMBAL_PITCH_MIT_INDEX];
     uint32_t now = HAL_GetTick();
 
-    return (uint8_t)((measure->fdb.last_fdb_time != 0U) &&
+    return (uint8_t)((toe_is_error(PITCH_GIMBAL_MOTOR_TOE) == 0U) &&
+                     (measure->fdb.last_fdb_time != 0U) &&
                      ((uint32_t)(now - measure->fdb.last_fdb_time) <=
                       (uint32_t)GIMBAL_PITCH_MIT_FDB_TIMEOUT));
 }
 
+/**
+  * @brief          清除单轴前馈轨迹状态
+  * @retval         none
+  */
 static void gimbal_feedforward_clear(gimbal_motor_t *motor)
 {
     if (motor == 0)
@@ -134,7 +193,11 @@ static void gimbal_feedforward_clear(gimbal_motor_t *motor)
     gimbal_auto_aim_clear_target_vel(motor);
 }
 
-static void gimbal_pitch_zero_output(gimbal_motor_t *motor)
+/**
+  * @brief          清除单轴控制状态并置零输出
+  * @retval         none
+  */
+static void gimbal_motor_zero_output(gimbal_motor_t *motor)
 {
     if (motor == 0)
     {
@@ -164,6 +227,10 @@ static void gimbal_pitch_zero_output(gimbal_motor_t *motor)
     motor->gyro_set = motor->gyro;
 }
 
+/**
+  * @brief          清除指定控制来源的前馈状态
+  * @retval         none
+  */
 static void gimbal_feedforward_clear_source(gimbal_motor_t *motor,
                                             gimbal_control_source_e source)
 {
@@ -190,6 +257,10 @@ static void gimbal_feedforward_clear_source(gimbal_motor_t *motor,
     motor->rc_ref_target_init = 0u;
 }
 
+/**
+  * @brief          根据目标角跟踪更新前馈速度和加速度
+  * @retval         none
+  */
 static void gimbal_feedforward_track_target(gimbal_motor_t *motor,
                                             float target_angle,
                                             gimbal_control_source_e source)
@@ -256,6 +327,10 @@ static void gimbal_feedforward_track_target(gimbal_motor_t *motor,
     *target_last = target_angle;
 }
 
+/**
+  * @brief          将角度归一化到 [-pi, pi]
+  * @retval         none
+  */
 static float yaw_pitch_direct_wrap_angle(float angle)
 {
     while (angle > YAW_PITCH_DIRECT_PI)
@@ -269,6 +344,10 @@ static float yaw_pitch_direct_wrap_angle(float angle)
     return angle;
 }
 
+/**
+  * @brief          规划自瞄目标角速度受限的目标角
+  * @retval         none
+  */
 static float gimbal_auto_aim_plan_target(float target_set,
                                          float desired_target,
                                          float *target_vel,
@@ -306,6 +385,10 @@ static float gimbal_auto_aim_plan_target(float target_set,
     return target_set + step;
 }
 
+/**
+  * @brief          清除单轴自瞄目标速度状态
+  * @retval         none
+  */
 static void gimbal_auto_aim_clear_target_vel(gimbal_motor_t *motor)
 {
     if (motor == &gimbal_control.gimbal_yaw_motor)
@@ -318,6 +401,10 @@ static void gimbal_auto_aim_clear_target_vel(gimbal_motor_t *motor)
     }
 }
 
+/**
+  * @brief          更新 yaw 绝对角目标并执行限幅
+  * @retval         none
+  */
 static void gimbal_yaw_absolute_angle_limit(gimbal_control_t *control,
                                             float add,
                                             uint8_t rc_enable,
@@ -398,6 +485,10 @@ static void gimbal_yaw_absolute_angle_limit(gimbal_control_t *control,
         chassis_yaw + yaw_motor->angle_offset + yaw_motor->relative_angle_set;
 }
 
+/**
+  * @brief          更新 pitch 相对角目标并执行限幅
+  * @retval         none
+  */
 static void gimbal_pitch_relative_angle_limit(gimbal_control_t *control,
                                               float add,
                                               uint8_t rc_enable,
@@ -468,6 +559,10 @@ static void gimbal_pitch_relative_angle_limit(gimbal_control_t *control,
     pitch_motor->absolute_angle_set = pitch_motor->relative_angle_set;
 }
 
+/**
+  * @brief          更新绝对角目标并执行限幅
+  * @retval         none
+  */
 __attribute__((used)) void gimbal_absolute_angle_limit(gimbal_motor_t *motor, float add)
 {
     const float bias = gimbal_take_auto_aim_bias(motor);
@@ -490,6 +585,10 @@ __attribute__((used)) void gimbal_absolute_angle_limit(gimbal_motor_t *motor, fl
     }
 }
 
+/**
+  * @brief          执行云台电机绝对角控制
+  * @retval         none
+  */
 __attribute__((used)) void gimbal_motor_absolute_angle_control(gimbal_motor_t *motor)
 {
     float angle_get;
@@ -526,6 +625,10 @@ __attribute__((used)) void gimbal_motor_absolute_angle_control(gimbal_motor_t *m
     motor->given_current = gimbal_float_to_torque_cmd(motor->output);
 }
 
+/**
+  * @brief          执行云台电机绝对角控制
+  * @retval         none
+  */
 __attribute__((used)) void gimbal_motor_relative_angle_control(gimbal_motor_t *motor)
 {
     if (motor == 0)
@@ -559,6 +662,10 @@ __attribute__((used)) void gimbal_motor_relative_angle_control(gimbal_motor_t *m
     motor->given_current = gimbal_float_to_torque_cmd(motor->output);
 }
 
+/**
+  * @brief          执行云台电机 RAW 输出控制
+  * @retval         none
+  */
 __attribute__((used)) void gimbal_motor_raw_angle_control(gimbal_motor_t *motor)
 {
     if (motor == 0)
@@ -576,6 +683,10 @@ __attribute__((used)) void gimbal_motor_raw_angle_control(gimbal_motor_t *motor)
     motor->given_current = gimbal_float_to_torque_cmd(motor->output);
 }
 
+/**
+  * @brief          初始化云台 PID 控制器
+  * @retval         none
+  */
 __attribute__((used)) void gimbal_pid_init(gimbal_pid_t *pid, float kp, float ki, float kd, float max_out, float max_iout)
 {
     float pid_param[3];
@@ -591,6 +702,10 @@ __attribute__((used)) void gimbal_pid_init(gimbal_pid_t *pid, float kp, float ki
     PID_init(pid, PID_POSITION, pid_param, max_out, max_iout);
 }
 
+/**
+  * @brief          清空云台 PID 控制器状态
+  * @retval         none
+  */
 __attribute__((used)) void gimbal_pid_clear(gimbal_pid_t *pid)
 {
     if (pid == NULL)
@@ -601,6 +716,10 @@ __attribute__((used)) void gimbal_pid_clear(gimbal_pid_t *pid)
     PID_clear(pid);
 }
 
+/**
+  * @brief          计算云台 PID 输出
+  * @retval         none
+  */
 __attribute__((used)) float gimbal_pid_calc(gimbal_pid_t *pid, float get, float set, float error_delta)
 {
     (void)error_delta;
@@ -613,6 +732,10 @@ __attribute__((used)) float gimbal_pid_calc(gimbal_pid_t *pid, float get, float 
     return PID_Calc(pid, get, set);
 }
 
+/**
+  * @brief          将角度归一化到 [-pi, pi]
+  * @retval         none
+  */
 static float gimbal_wrap_angle(float angle)
 {
     while (angle > GIMBAL_PI)
@@ -626,6 +749,10 @@ static float gimbal_wrap_angle(float angle)
     return angle;
 }
 
+/**
+  * @brief          读取并清除单轴自瞄角度补偿量
+  * @retval         none
+  */
 static float gimbal_take_auto_aim_bias(gimbal_motor_t *motor)
 {
     float bias = 0.0f;
@@ -635,6 +762,10 @@ static float gimbal_take_auto_aim_bias(gimbal_motor_t *motor)
     return bias;
 }
 
+/**
+  * @brief          对浮点数执行区间限幅
+  * @retval         none
+  */
 static float gimbal_clamp(float value, float min_value, float max_value)
 {
     if (value > max_value)
@@ -648,6 +779,10 @@ static float gimbal_clamp(float value, float min_value, float max_value)
     return value;
 }
 
+/**
+  * @brief          计算单轴静摩擦补偿原始量
+  * @retval         静摩擦补偿原始量
+  */
 static float gimbal_calc_static_friction_comp_raw(const gimbal_motor_t *motor, float angle_error)
 {
     float abs_error;
@@ -703,6 +838,10 @@ static float gimbal_calc_static_friction_comp_raw(const gimbal_motor_t *motor, f
     return 0.0f;
 }
 
+/**
+  * @brief          更新单轴静摩擦补偿输出
+  * @retval         静摩擦补偿输出
+  */
 static float gimbal_update_static_friction_comp(gimbal_motor_t *motor, float angle_error)
 {
     float alpha;
@@ -728,11 +867,19 @@ static float gimbal_update_static_friction_comp(gimbal_motor_t *motor, float ang
     return motor->static_friction_comp;
 }
 
+/**
+  * @brief          将浮点输出限制为力矩命令范围
+  * @retval         力矩命令
+  */
 static float gimbal_float_to_torque_cmd(float output)
 {
     return gimbal_clamp(output, T_MIN, T_MAX);
 }
 
+/**
+  * @brief          计算单轴惯量前馈力矩
+  * @retval         前馈力矩
+  */
 static float gimbal_calc_feedforward(gimbal_motor_t *motor)
 {
     float velocity_torque = 0.0f;
@@ -752,6 +899,10 @@ static float gimbal_calc_feedforward(gimbal_motor_t *motor)
     return motor->ff_torque;
 }
 
+/**
+  * @brief          计算单轴角度反馈力矩
+  * @retval         反馈力矩
+  */
 static float gimbal_calc_feedback_torque(gimbal_motor_t *motor, gimbal_pid_t *angle_pid, float angle_get, float angle_set)
 {
     float angle_torque;
@@ -773,6 +924,10 @@ static float gimbal_calc_feedback_torque(gimbal_motor_t *motor, gimbal_pid_t *an
     return motor->pid_torque;
 }
 
+/**
+  * @brief          根据角度误差和角速度误差计算控制力矩
+  * @retval         控制力矩
+  */
 static float gimbal_calc_angle_speed_torque(gimbal_motor_t *motor, gimbal_pid_t *pid, float angle_error)
 {
     float speed_error;
@@ -803,6 +958,10 @@ static float gimbal_calc_angle_speed_torque(gimbal_motor_t *motor, gimbal_pid_t 
     return motor->pid_torque;
 }
 
+/**
+  * @brief          清空云台两轴全部 PID 状态
+  * @retval         none
+  */
 static void gimbal_total_pid_clear(gimbal_control_t *control)
 {
     if (control == 0)
@@ -817,8 +976,7 @@ static void gimbal_total_pid_clear(gimbal_control_t *control)
 }
 
 /**
-  * @brief          初始化gimbal_control变量
-  * @param[out]     control: 云台控制结构体指针
+  * @brief          初始化云台控制结构体
   * @retval         none
   */
 __attribute__((used)) void gimbal_init(gimbal_control_t *control)
@@ -910,7 +1068,6 @@ __attribute__((used)) void gimbal_init(gimbal_control_t *control)
 
 /**
   * @brief          设置云台控制模式
-  * @param[out]     control: 云台控制结构体指针
   * @retval         none
   */
 __attribute__((used)) void gimbal_set_mode(gimbal_control_t *control)
@@ -923,13 +1080,12 @@ __attribute__((used)) void gimbal_set_mode(gimbal_control_t *control)
     gimbal_behaviour_mode_set(control);
     if (gimbal_pitch_mit_feedback_ready() == 0u)
     {
-        gimbal_pitch_zero_output(&control->gimbal_pitch_motor);
+        gimbal_motor_zero_output(&control->gimbal_pitch_motor);
     }
 }
 
 /**
-  * @brief          云台反馈更新
-  * @param[out]     control: 云台控制结构体指针
+  * @brief          更新云台反馈数据
   * @retval         none
   */
 __attribute__((used)) void gimbal_feedback_update(gimbal_control_t *control)
@@ -1088,8 +1244,7 @@ __attribute__((used)) void gimbal_feedback_update(gimbal_control_t *control)
 }
 
 /**
-  * @brief          控制模式切换时的过渡处理
-  * @param[out]     control: 云台控制结构体指针
+  * @brief          处理云台模式切换过渡
   * @retval         none
   */
 __attribute__((used)) void gimbal_mode_change_control_transit(gimbal_control_t *control)
@@ -1121,7 +1276,7 @@ __attribute__((used)) void gimbal_mode_change_control_transit(gimbal_control_t *
 
     if (gimbal_pitch_mit_feedback_ready() == 0u)
     {
-        gimbal_pitch_zero_output(&control->gimbal_pitch_motor);
+        gimbal_motor_zero_output(&control->gimbal_pitch_motor);
         return;
     }
 
@@ -1148,8 +1303,7 @@ __attribute__((used)) void gimbal_mode_change_control_transit(gimbal_control_t *
 }
 
 /**
-  * @brief          设置云台控制设定值
-  * @param[out]     control: 云台控制结构体指针
+  * @brief          生成云台目标控制量
   * @retval         none
   */
 __attribute__((used)) void gimbal_set_control(gimbal_control_t *control)
@@ -1274,7 +1428,7 @@ __attribute__((used)) void gimbal_set_control(gimbal_control_t *control)
 
     if (gimbal_pitch_mit_feedback_ready() == 0u)
     {
-        gimbal_pitch_zero_output(pitch_motor);
+        gimbal_motor_zero_output(pitch_motor);
         return;
     }
 
@@ -1375,8 +1529,7 @@ __attribute__((used)) void gimbal_set_control(gimbal_control_t *control)
 }
 
 /**
-  * @brief          云台控制环
-  * @param[out]     control: 云台控制结构体指针
+  * @brief          生成云台目标控制量
   * @retval         none
   */
 __attribute__((used)) void gimbal_control_loop(gimbal_control_t *control)
@@ -1386,9 +1539,11 @@ __attribute__((used)) void gimbal_control_loop(gimbal_control_t *control)
         return;
     }
 
-    if (control->gimbal_yaw_motor.mode == GIMBAL_MOTOR_RAW)
+    if ((control->gimbal_yaw_motor.mode == GIMBAL_MOTOR_RAW) ||
+        (gimbal_yaw_online() == 0u))
     {
-        gimbal_motor_raw_angle_control(&control->gimbal_yaw_motor);
+        /* RAW 无力模式和 yaw 离线保护直接零输出，不进入 yaw 闭环。 */
+        gimbal_motor_zero_output(&control->gimbal_yaw_motor);
     }
     else if (control->gimbal_yaw_motor.mode == GIMBAL_MOTOR_GYRO)
     {
@@ -1401,13 +1556,14 @@ __attribute__((used)) void gimbal_control_loop(gimbal_control_t *control)
 
     if (gimbal_pitch_mit_feedback_ready() == 0u)
     {
-        gimbal_pitch_zero_output(&control->gimbal_pitch_motor);
+        gimbal_motor_zero_output(&control->gimbal_pitch_motor);
         return;
     }
 
     if (control->gimbal_pitch_motor.mode == GIMBAL_MOTOR_RAW)
     {
-        gimbal_motor_raw_angle_control(&control->gimbal_pitch_motor);
+        /* RAW 无力模式直接零输出，不进入 pitch 闭环。 */
+        gimbal_motor_zero_output(&control->gimbal_pitch_motor);
     }
     else if (control->gimbal_pitch_motor.mode == GIMBAL_MOTOR_GYRO)
     {
@@ -1420,8 +1576,7 @@ __attribute__((used)) void gimbal_control_loop(gimbal_control_t *control)
 }
 
 /**
-  * @brief          发送控制命令
-  * @param[out]     control: 云台控制结构体指针
+  * @brief          发送云台电机命令
   * @retval         none
   */
 __attribute__((used)) void gimbal_send_cmd(gimbal_control_t *control)
@@ -1434,8 +1589,18 @@ __attribute__((used)) void gimbal_send_cmd(gimbal_control_t *control)
         return;
     }
 
-    yaw_can_set_current = control->gimbal_yaw_motor.given_current;
-    if (gimbal_pitch_mit_feedback_ready() == 0u)
+    if ((control->gimbal_yaw_motor.mode == GIMBAL_MOTOR_RAW) ||
+        (gimbal_yaw_online() == 0u))
+    {
+        yaw_can_set_current = 0.0f;
+    }
+    else
+    {
+        yaw_can_set_current = control->gimbal_yaw_motor.given_current;
+    }
+
+    if ((control->gimbal_pitch_motor.mode == GIMBAL_MOTOR_RAW) ||
+        (gimbal_pitch_mit_feedback_ready() == 0u))
     {
         pitch_can_set_current = 0.0f;
     }

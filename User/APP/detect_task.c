@@ -1,3 +1,8 @@
+/**
+  * @file       detect_task.c
+  * @brief      设备在线检测任务
+  * @note       通过 detect_hook 刷新反馈时间戳，并由 toe_is_error 提供在线状态。
+  */
 #include "detect_task.h"
 
 #include "cmsis_os.h"
@@ -6,8 +11,6 @@
 
 static error_t error_list[ERROR_LIST_LENGHT + 1];
 static uint8_t detect_inited = 0U;
-
-#define DBUS_RX_ACTIVE_HOLD_TIME 100U
 
 static bool_t detect_dbus_rx_active(uint32_t now)
 {
@@ -53,6 +56,9 @@ static void detect_init(uint32_t time)
         {2, 3, 14},
         {2, 3, 13},
         {10, 10, 8},
+        {100, 100, 8},
+        {100, 100, 8},
+        {100, 100, 8},
         {2, 3, 4},
         {2, 3, 3},
         {2, 3, 7},
@@ -83,6 +89,12 @@ static void detect_init(uint32_t time)
     detect_inited = 1U;
 }
 
+/**
+  * @brief          设备在线检测任务入口
+  * @param[in]      pvParameters: FreeRTOS 任务参数
+  * @note           周期检查每个 TOE 的最后反馈时间，超时后置为离线。
+  * @retval         none
+  */
 void detect_task(void const *pvParameters)
 {
     (void)pvParameters;
@@ -138,6 +150,11 @@ void detect_task(void const *pvParameters)
     }
 }
 
+/**
+  * @brief          查询设备离线/错误状态
+  * @param[in]      err: TOE 设备编号
+  * @retval         1: 离线或错误，0: 在线
+  */
 bool_t toe_is_error(uint8_t err)
 {
     if (!detect_inited)
@@ -153,6 +170,12 @@ bool_t toe_is_error(uint8_t err)
     return (bool_t)(error_list[err].error_exist == 1U);
 }
 
+/**
+  * @brief          刷新设备反馈时间戳
+  * @param[in]      toe: TOE 设备编号
+  * @note           接收到对应设备反馈帧时调用，用于在线检测门控。
+  * @retval         none
+  */
 void detect_hook(uint8_t toe)
 {
     if (!detect_inited)

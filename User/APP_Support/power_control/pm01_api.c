@@ -1,8 +1,13 @@
+/**
+  * @file       pm01_api.c
+  * @brief      PM01 超级电容模块协议接口
+  * @note       发送功率/电压/电流配置命令并解析模块反馈。
+  */
 #include "pm01_api.h"
 
 #include "bsp_fdcan.h"
 #include "chassis_power_control.h"
-#include "project_config.h"
+#include "robot_param.h"
 
 volatile pm01_od_t pm01_od;
 volatile uint16_t pm01_access_id;
@@ -25,26 +30,55 @@ static void pm01_send_u16(uint16_t can_id, uint16_t value, uint8_t save_flg)
     canx_send_data(&hfdcan1, can_id, data, 4U);
 }
 
+/**
+  * @brief          发送 PM01 原始配置命令
+  * @param[in]      new_cmd: 配置命令字
+  * @param[in]      save_flg: 1 保存到模块，0 临时生效
+  * @retval         none
+  */
 void pm01_cmd_send(uint16_t new_cmd, uint8_t save_flg)
 {
     pm01_send_u16(0x600U, new_cmd, save_flg);
 }
 
+/**
+  * @brief          设置 PM01 输出功率
+  * @param[in]      new_power: 功率设置值
+  * @param[in]      save_flg: 1 保存到模块，0 临时生效
+  * @retval         none
+  */
 void pm01_power_set(uint16_t new_power, uint8_t save_flg)
 {
     pm01_send_u16(0x601U, new_power, save_flg);
 }
 
+/**
+  * @brief          设置 PM01 输出电压
+  * @param[in]      new_voltage: 电压设置值
+  * @param[in]      save_flg: 1 保存到模块，0 临时生效
+  * @retval         none
+  */
 void pm01_voltage_set(uint16_t new_voltage, uint8_t save_flg)
 {
     pm01_send_u16(0x602U, new_voltage, save_flg);
 }
 
+/**
+  * @brief          设置 PM01 输出电流
+  * @param[in]      new_current: 电流设置值
+  * @param[in]      save_flg: 1 保存到模块，0 临时生效
+  * @retval         none
+  */
 void pm01_current_set(uint16_t new_current, uint8_t save_flg)
 {
     pm01_send_u16(0x603U, new_current, save_flg);
 }
 
+/**
+  * @brief          PM01 访问轮询
+  * @note           周期发送查询帧，驱动 PM01 反馈更新。
+  * @retval         none
+  */
 void pm01_access_poll(void)
 {
 #if defined(ROBOT_CAP) && (ROBOT_CAP == Cap_on)
@@ -62,6 +96,12 @@ void pm01_access_poll(void)
 #endif
 }
 
+/**
+  * @brief          解析 PM01 CAN 反馈
+  * @param[in]      can_id: CAN 标识符
+  * @param[in]      can_rx_data: CAN 数据区指针
+  * @retval         none
+  */
 void pm01_response_handle(uint16_t can_id, const uint8_t *can_rx_data)
 {
     uint16_t value0;

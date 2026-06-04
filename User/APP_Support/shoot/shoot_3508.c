@@ -1,3 +1,8 @@
+/**
+  * @file       shoot_3508.c
+  * @brief      3508 摩擦轮与 MIT 拨弹控制
+  * @note       实现摩擦轮 ADRC 控制、掉速前馈、拨弹力矩控制和在线门控。
+  */
 #include "shoot_3508.h"
 
 #include <math.h>
@@ -5,18 +10,9 @@
 
 #include "fdcan.h"
 #include "gimbal_behaviour.h"
+#include "detect_task.h"
 
 #if (ROBOT_FRICTION == ROBOT_FRICTION_3508)
-
-#define SHOOT_FRICTION_CMD_ID 0x200U
-#define SHOOT_FRIC_RPM_TO_MPS (2.0f * PI * SHOOT_FRIC_WHEEL_RADIUS_M / 60.0f)
-#define SHOOT_FRIC_MA_PER_A 1000.0f
-#ifndef SHOOT_STRUM_RELEASE_LOCK_VEL_RADPS
-#define SHOOT_STRUM_RELEASE_LOCK_VEL_RADPS 1.0f
-#endif
-#ifndef SHOOT_STRUM_TARGET_LPF_ALPHA
-#define SHOOT_STRUM_TARGET_LPF_ALPHA 0.01f
-#endif
 
 extern motor_measure_t DJI_MOTOR_MEASURE[8];
 
@@ -25,10 +21,13 @@ shoot_task_control_t shoot_task_control;
 static void shoot_task_init_control(shoot_task_control_t *control);
 static void shoot_task_set_mode(shoot_task_control_t *control);
 static void shoot_task_update_feedback(shoot_task_control_t *control);
+static bool shoot_task_friction_online(void);
+static bool shoot_task_strum_online(void);
 static void shoot_task_control_friction(shoot_task_control_t *control);
 static void shoot_task_stop_friction(shoot_task_control_t *control);
 static void shoot_task_control_strum(shoot_task_control_t *control);
 static void shoot_task_send_friction_current(int16_t fric1_current, int16_t fric2_current, int16_t fric3_current);
+static void shoot_task_send_strum_torque(float torque_nm);
 static void shoot_task_motor_init(shoot_task_motor_t *motor,
                                   const motor_measure_t *measure,
                                   float direction,
@@ -66,26 +65,32 @@ static float shoot_task_max3(float a, float b, float c);
 static float shoot_task_min_float(float a, float b);
 static float shoot_task_clamp_float(float value, float min_value, float max_value);
 
+/**
+  * @brief          初始化 3508 摩擦轮和 MIT 拨弹控制状态
+  * @note           发射模块挂在云台任务内运行，初始化函数只建立状态，不做阻塞等待。
+  * @retval         none
+  */
 __attribute__((used)) void shoot_init(void)
 {
     shoot_task_init_control(&shoot_task_control);
 }
 
+/**
+  * @brief          发射控制周期入口
+  * @note           STOP 无力模式直接零输出；READY 模式按在线状态进入摩擦轮和拨弹控制。
+  * @retval         none
+  */
 __attribute__((used)) void shoot_control_loop(void)
 {
-
     shoot_task_set_mode(&shoot_task_control);
-
     shoot_task_update_feedback(&shoot_task_control);
 
     if (shoot_task_control.mode == SHOOT_TASK_READY_FRIC)
     {
-
         shoot_task_control_friction(&shoot_task_control);
     }
     else
     {
-
         shoot_task_stop_friction(&shoot_task_control);
     }
 
@@ -220,6 +225,32 @@ static void shoot_task_update_feedback(shoot_task_control_t *control)
     shoot_task_motor_update_current_physics(&control->fric3);
 }
 
+/**
+  * @brief          摩擦轮在线状态
+  * @retval         true: 三个摩擦轮均在线，false: 任一摩擦轮离线
+  */
+static bool shoot_task_friction_online(void)
+{
+    return (toe_is_error(FRIC1_MOTOR_TOE) == 0U) &&
+           (toe_is_error(FRIC2_MOTOR_TOE) == 0U) &&
+           (toe_is_error(FRIC3_MOTOR_TOE) == 0U);
+}
+
+/**
+  * @brief          拨弹 MIT 电机在线状态
+  * @retval         true: 拨弹电机在线，false: 拨弹电机离线
+  */
+static bool shoot_task_strum_online(void)
+{
+    return (toe_is_error(PLUCK_MOTOR_TOE) == 0U);
+}
+
+/**
+  * @brief          摩擦轮闭环控制
+  * @note           三个摩擦轮均在线且 READY 模式有效时进入 ADRC 控制，离线时发 0 并清前馈状态。
+  * @param[out]     control: 发射控制结构体指针
+  * @retval         none
+  */
 static void shoot_task_control_friction(shoot_task_control_t *control)
 {
     uint32_t now;
@@ -230,7 +261,8 @@ static void shoot_task_control_friction(shoot_task_control_t *control)
     }
 
     now = HAL_GetTick();
-    if (!shoot_task_motor_ready(&control->fric1, now) ||
+    if (!shoot_task_friction_online() ||
+        !shoot_task_motor_ready(&control->fric1, now) ||
         !shoot_task_motor_ready(&control->fric2, now) ||
         !shoot_task_motor_ready(&control->fric3, now))
     {
@@ -340,6 +372,12 @@ static void shoot_task_control_friction(shoot_task_control_t *control)
     shoot_task_update_history(control);
 }
 
+/**
+  * @brief          摩擦轮零输出
+  * @note           STOP 无力模式调用该函数，清目标、清前馈、清开火检测并发送 0 电流。
+  * @param[out]     control: 发射控制结构体指针
+  * @retval         none
+  */
 static void shoot_task_stop_friction(shoot_task_control_t *control)
 {
     if (control == NULL)
@@ -389,6 +427,12 @@ static void shoot_task_stop_friction(shoot_task_control_t *control)
     shoot_task_send_friction_current(0, 0, 0);
 }
 
+/**
+  * @brief          拨弹控制
+  * @note           STOP 无力模式和拨弹离线时直接发送 0 力矩；READY 模式下才进入位置/力矩控制。
+  * @param[out]     control: 发射控制结构体指针
+  * @retval         none
+  */
 static void shoot_task_control_strum(shoot_task_control_t *control)
 {
     static bool target_valid = false;
@@ -429,13 +473,18 @@ static void shoot_task_control_strum(shoot_task_control_t *control)
     strum_ready = (control->mode == SHOOT_TASK_READY_FRIC);
     strum_measure = &MIT_MOTOR_MEASURE[SHOOT_STRUM_MIT_INDEX];
     now = HAL_GetTick();
-    feedback_ready = (strum_measure->fdb.last_fdb_time != 0U) &&
+    feedback_ready = shoot_task_strum_online() &&
+                     (strum_measure->fdb.last_fdb_time != 0U) &&
                      ((now - strum_measure->fdb.last_fdb_time) <= SHOOT_STRUM_FDB_TIMEOUT);
-    if (!feedback_ready)
+    if (!strum_ready || !feedback_ready)
     {
         strum_measure->set.POS = 0.0f;
+        strum_measure->set.VEL = 0.0f;
+        strum_measure->set.KP = 0.0f;
+        strum_measure->set.KD = 0.0f;
+        strum_measure->set.TOR = 0.0f;
         target_valid = false;
-        last_press_l = press_l;
+        last_press_l = false;
         long_press_active = false;
         release_follow_active = false;
         hold_ticks = 0U;
@@ -447,6 +496,8 @@ static void shoot_task_control_strum(shoot_task_control_t *control)
         feedback_pos_last = 0.0f;
         feedback_pos_continuous = 0.0f;
         pid_iout = 0.0f;
+        /* STOP 无力模式和拨弹离线保护只发送 0 力矩，不进入拨弹闭环。 */
+        shoot_task_send_strum_torque(0.0f);
         return;
     }
 
@@ -485,19 +536,7 @@ static void shoot_task_control_strum(shoot_task_control_t *control)
     single_ff_release_total_ticks = shoot_task_ms_to_ticks(SHOOT_STRUM_SINGLE_FF_RELEASE_MS);
     torque_cmd = 0.0f;
 
-    if (!strum_ready)
-    {
-        target_pos = feedback_pos_continuous;
-        target_cmd_pos = target_pos;
-        hold_ticks = 0U;
-        single_ff_ticks = 0U;
-        single_ff_release_ticks = 0U;
-        single_ff_torque = 0.0f;
-        long_press_active = false;
-        release_follow_active = false;
-        pid_iout = 0.0f;
-    }
-    else if (press_l)
+    if (press_l)
     {
         if (!last_press_l)
         {
@@ -638,9 +677,16 @@ static void shoot_task_control_strum(shoot_task_control_t *control)
     strum_measure->set.KD = 0.0f;
     strum_measure->set.TOR = torque_cmd;
     last_press_l = press_l;
-    CAN_cmd_MIT(&hfdcan1, DM_STRUM_CAN_ID, 0.0f, 0.0f, 0.0f, 0.0f, torque_cmd);
+    shoot_task_send_strum_torque(torque_cmd);
 }
 
+/**
+  * @brief          发送三路摩擦轮电流
+  * @param[in]      fric1_current: 摩擦轮 1 电流，单位 mA
+  * @param[in]      fric2_current: 摩擦轮 2 电流，单位 mA
+  * @param[in]      fric3_current: 摩擦轮 3 电流，单位 mA
+  * @retval         none
+  */
 static void shoot_task_send_friction_current(int16_t fric1_current, int16_t fric2_current, int16_t fric3_current)
 {
     uint8_t data[8];
@@ -658,6 +704,17 @@ static void shoot_task_send_friction_current(int16_t fric1_current, int16_t fric
     data[7] = 0U;
 
     canx_send_data(&hfdcan2, SHOOT_FRICTION_CMD_ID, data, 8U);
+}
+
+/**
+  * @brief          发送拨弹 MIT 力矩命令
+  * @param[in]      torque_nm: 拨弹输入力矩命令，单位 N*m
+  * @retval         none
+  */
+static void shoot_task_send_strum_torque(float torque_nm)
+{
+    torque_nm = shoot_task_clamp_float(torque_nm, T_MIN, T_MAX);
+    CAN_cmd_MIT(&hfdcan1, DM_STRUM_CAN_ID, 0.0f, 0.0f, 0.0f, 0.0f, torque_nm);
 }
 
 static void shoot_task_motor_init(shoot_task_motor_t *motor,

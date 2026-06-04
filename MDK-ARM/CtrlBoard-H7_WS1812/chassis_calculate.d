@@ -44,7 +44,7 @@ ctrlboard-h7_ws1812\chassis_calculate.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm
 ctrlboard-h7_ws1812\chassis_calculate.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_ll_usb.h
 ctrlboard-h7_ws1812\chassis_calculate.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_pcd_ex.h
 ctrlboard-h7_ws1812\chassis_calculate.o: D:\Keil5\ARM\ARMCC\Bin\..\include\string.h
-ctrlboard-h7_ws1812\chassis_calculate.o: ../User/APP_Support/common/project_config.h
+ctrlboard-h7_ws1812\chassis_calculate.o: ../User/APP_Support/common/robot_param.h
 ctrlboard-h7_ws1812\chassis_calculate.o: ../User/BSP/fifo.h
 ctrlboard-h7_ws1812\chassis_calculate.o: D:\Keil5\ARM\ARMCC\Bin\..\include\stdio.h
 ctrlboard-h7_ws1812\chassis_calculate.o: D:\Keil5\ARM\ARMCC\Bin\..\include\stdlib.h

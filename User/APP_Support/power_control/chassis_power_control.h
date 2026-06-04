@@ -1,8 +1,13 @@
+/**
+  * @file       chassis_power_control.h
+  * @brief      底盘功率控制接口声明
+  * @note       定义功率限制状态、超级电容模式和功率控制入口。
+  */
 #ifndef CHASSIS_POWER_CONTROL_H
 #define CHASSIS_POWER_CONTROL_H
 
 #include "chassis_task.h"
-#include "project_config.h"
+#include "robot_param.h"
 
 #ifndef LIMIT_MAX_MIN
 #define LIMIT_MAX_MIN(val, max, min) ((val) > (max) ? (max) : ((val) < (min) ? (min) : (val)))

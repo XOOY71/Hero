@@ -1,23 +1,17 @@
+/**
+  * @file       auto_aim.c
+  * @brief      自瞄误差缓存与视觉数据接口
+  * @note       接收视觉 yaw/pitch 偏差并提供给云台控制读取。
+  */
 #include "auto_aim.h"
 
 #include "cmsis_os.h"
-#include "project_config.h"
+#include "robot_param.h"
 #include "stm32h7xx_hal.h"
 
 #include <stdbool.h>
 #include <stddef.h>
 #include <math.h>
-
-#define AUTO_AIM_UDEG_TO_RAD (PI / 180000000.0f)
-#define AUTO_AIM_BALLISTIC_DROP_K_MM_PER_M2 18.0f
-#define AUTO_AIM_BALLISTIC_DISTANCE_M 3.9f
-#define AUTO_AIM_MM_PER_M 1000.0f
-
-typedef struct
-{
-    float yaw_err_rad;
-    float pitch_err_rad;
-} auto_aim_error_t;
 
 auto_aim_t aim;
 
@@ -55,6 +49,10 @@ static void auto_aim_clear_error(void)
     taskEXIT_CRITICAL();
 }
 
+/**
+  * @brief          获取视觉 yaw 误差
+  * @retval         yaw 误差，单位 rad
+  */
 float auto_aim_get_yaw_err_rad(void)
 {
     float err;
@@ -66,6 +64,10 @@ float auto_aim_get_yaw_err_rad(void)
     return err;
 }
 
+/**
+  * @brief          获取视觉 pitch 误差
+  * @retval         pitch 误差，单位 rad
+  */
 float auto_aim_get_pitch_err_rad(void)
 {
     float err;
@@ -77,16 +79,29 @@ float auto_aim_get_pitch_err_rad(void)
     return err;
 }
 
+/**
+  * @brief          获取自瞄可用状态
+  * @retval         1: 自瞄开启且在线，0: 自瞄不可用
+  */
 uint8_t auto_aim_is_active(void)
 {
     return (uint8_t)((aim.auto_aim_flag == AIM_ON) && (aim.online != 0U));
 }
 
+/**
+  * @brief          清空视觉误差缓存
+  * @retval         none
+  */
 void auto_aim_reset_delta_accum(void)
 {
     auto_aim_clear_error();
 }
 
+/**
+  * @brief          自瞄任务入口
+  * @param[in]      pvParameters: FreeRTOS 任务参数
+  * @retval         none
+  */
 void auto_aim_task(void const *pvParameters)
 {
     (void)pvParameters;
@@ -102,6 +117,14 @@ void auto_aim_task(void const *pvParameters)
     }
 }
 
+/**
+  * @brief          写入视觉增量误差
+  * @param[in]      dyaw_udeg: yaw 误差，单位 1e-6 deg
+  * @param[in]      dpitch_udeg: pitch 误差，单位 1e-6 deg
+  * @param[in]      status: 视觉状态字
+  * @param[in]      ts_us: 视觉时间戳，单位 us
+  * @retval         none
+  */
 void auto_aim_apply_delta_udeg(int32_t dyaw_udeg,
                                int32_t dpitch_udeg,
                                uint16_t status,

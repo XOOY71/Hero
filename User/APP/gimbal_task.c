@@ -16,14 +16,26 @@ gimbal_control_t gimbal_control;
 
 static osThreadId gimbalTaskHandle = NULL;
 
+/**
+  * @brief          云台任务入口
+  * @retval         none
+  */
 static void gimbal_task(void const *pvParameters);
 
+/**
+  * @brief          创建云台控制任务
+  * @retval         none
+  */
 void GimbalTask_Init(void)
 {
     osThreadDef(gimbalTask, gimbal_task, osPriorityHigh, 0, 1024);
     gimbalTaskHandle = osThreadCreate(osThread(gimbalTask), NULL);
 }
 
+/**
+  * @brief          云台任务入口
+  * @retval         none
+  */
 static void gimbal_task(void const *pvParameters)
 {
     TickType_t last_wake_time;
@@ -50,46 +62,82 @@ static void gimbal_task(void const *pvParameters)
     }
 }
 
+/**
+  * @brief          获取 yaw 电机控制结构体指针
+  * @retval         yaw 电机控制结构体只读指针
+  */
 const gimbal_motor_t *get_yaw_motor_point(void)
 {
     return &gimbal_control.gimbal_yaw_motor;
 }
 
+/**
+  * @brief          获取 pitch 电机控制结构体指针
+  * @retval         pitch 电机控制结构体只读指针
+  */
 const gimbal_motor_t *get_pitch_motor_point(void)
 {
     return &gimbal_control.gimbal_pitch_motor;
 }
 
+/**
+  * @brief          云台初始化弱接口
+  * @retval         none
+  */
 __weak void gimbal_init(gimbal_control_t *control)
 {
     (void)control;
 }
 
+/**
+  * @brief          云台模式设置弱接口
+  * @retval         none
+  */
 __weak void gimbal_set_mode(gimbal_control_t *control)
 {
     (void)control;
 }
 
+/**
+  * @brief          云台反馈更新弱接口
+  * @retval         none
+  */
 __weak void gimbal_feedback_update(gimbal_control_t *control)
 {
     (void)control;
 }
 
+/**
+  * @brief          云台模式切换过渡弱接口
+  * @retval         none
+  */
 __weak void gimbal_mode_change_control_transit(gimbal_control_t *control)
 {
     (void)control;
 }
 
+/**
+  * @brief          云台控制量设置弱接口
+  * @retval         none
+  */
 __weak void gimbal_set_control(gimbal_control_t *control)
 {
     (void)control;
 }
 
+/**
+  * @brief          云台闭环控制弱接口
+  * @retval         none
+  */
 __weak void gimbal_control_loop(gimbal_control_t *control)
 {
     (void)control;
 }
 
+/**
+  * @brief          云台命令发送弱接口
+  * @retval         none
+  */
 __weak void gimbal_send_cmd(gimbal_control_t *control)
 {
     (void)control;

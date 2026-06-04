@@ -1,108 +1,17 @@
 /**
-  ****************************(C) COPYRIGHT 2019 DJI****************************
   * @file       gimbal_behaviour.c
-  * @brief      minimal gimbal behaviour framework
-  ****************************(C) COPYRIGHT 2019 DJI****************************
+  * @brief      云台行为模式控制
+  * @note       将遥控器、键鼠、自瞄和初始化状态转换为云台行为模式与角度增量。
   */
-
 #include "gimbal_behaviour.h"
 #include <math.h>
 
 volatile gimbal_behaviour_e gimbal_behaviour = GIMBAL_ZERO_FORCE;
 
-#ifndef GIMBAL_MODE_CHANNEL
-#define GIMBAL_MODE_CHANNEL 0
-#endif
-
-#ifndef YAW_CHANNEL
-#define YAW_CHANNEL 0
-#endif
-
-#ifndef PITCH_CHANNEL
-#define PITCH_CHANNEL 1
-#endif
-
-#ifndef RC_DEADBAND
-#define RC_DEADBAND 10
-#endif
-
-#ifndef YAW_RC_SEN
-#define YAW_RC_SEN 0.0005f
-#endif
-
-#ifndef PITCH_RC_SEN
-#define PITCH_RC_SEN 0.0005f
-#endif
-
-#ifndef YAW_MOUSE_SEN
-#define YAW_MOUSE_SEN 0.0010f
-#endif
-
-#ifndef PITCH_MOUSE_SEN
-#define PITCH_MOUSE_SEN 0.0010f
-#endif
-
-#ifndef GIMBAL_SPIN_SPEED
-#define GIMBAL_SPIN_SPEED 0.0f
-//#define GIMBAL_SPIN_SPEED 0.03f
-#endif
-
-#ifndef INIT_YAW_SET
-#define INIT_YAW_SET 0.0f
-#endif
-
-#ifndef INIT_PITCH_SET
-#define INIT_PITCH_SET 0.0f
-#endif
-
-#ifndef GIMBAL_INIT_YAW_SPEED
-#define GIMBAL_INIT_YAW_SPEED 0.15f
-#endif
-
-#ifndef GIMBAL_INIT_PITCH_SPEED
-#define GIMBAL_INIT_PITCH_SPEED 0.15f
-#endif
-
-#ifndef GIMBAL_INIT_ANGLE_ERROR
-#define GIMBAL_INIT_ANGLE_ERROR 0.03f
-#endif
-
-#ifndef GIMBAL_INIT_TIME
-#define GIMBAL_INIT_TIME 2000U
-#endif
-
-#ifndef GIMBAL_INIT_STOP_TIME
-#define GIMBAL_INIT_STOP_TIME 200U
-#endif
-
-#ifndef GIMBAL_CALI_START_STEP
-#define GIMBAL_CALI_START_STEP 1U
-#endif
-
-#ifndef GIMBAL_CALI_PITCH_MAX_STEP
-#define GIMBAL_CALI_PITCH_MAX_STEP 1U
-#endif
-
-#ifndef GIMBAL_CALI_PITCH_MIN_STEP
-#define GIMBAL_CALI_PITCH_MIN_STEP 2U
-#endif
-
-#ifndef GIMBAL_CALI_YAW_MAX_STEP
-#define GIMBAL_CALI_YAW_MAX_STEP 3U
-#endif
-
-#ifndef GIMBAL_CALI_YAW_MIN_STEP
-#define GIMBAL_CALI_YAW_MIN_STEP 4U
-#endif
-
-#ifndef GIMBAL_CALI_END_STEP
-#define GIMBAL_CALI_END_STEP 5U
-#endif
-
-#ifndef GIMBAL_CALI_MOTOR_SET
-#define GIMBAL_CALI_MOTOR_SET 100.0f
-#endif
-
+/**
+  * @brief          对遥控器通道值执行死区处理
+  * @retval         死区处理后的通道值
+  */
 static int16_t gimbal_apply_deadband(int16_t value)
 {
     if (value > RC_DEADBAND || value < -RC_DEADBAND)
@@ -112,6 +21,10 @@ static int16_t gimbal_apply_deadband(int16_t value)
     return 0;
 }
 
+/**
+  * @brief          读取遥控器和鼠标输入并转换为云台角度增量
+  * @retval         none
+  */
 static void gimbal_read_manual_input(float *yaw, float *pitch, gimbal_control_t *control)
 {
     int16_t yaw_channel = 0;
@@ -142,8 +55,7 @@ static void gimbal_read_manual_input(float *yaw, float *pitch, gimbal_control_t 
 }
 
 /**
-  * @brief          云台行为状态机以及电机状态机设置
-  * @param[out]     control: 云台数据指针
+  * @brief          设置云台行为模式对应的电机控制模式
   * @retval         none
   */
 void gimbal_behaviour_mode_set(gimbal_control_t *control)
@@ -196,10 +108,7 @@ void gimbal_behaviour_mode_set(gimbal_control_t *control)
 }
 
 /**
-  * @brief          云台行为控制，根据不同行为采用不同控制函数
-  * @param[out]     add_yaw: yaw角度增加值
-  * @param[out]     add_pitch: pitch角度增加值
-  * @param[in]      control: 云台数据指针
+  * @brief          根据云台行为模式生成两轴角度增量
   * @retval         none
   */
 void gimbal_behaviour_control_set(float *add_yaw, float *add_pitch, gimbal_control_t *control)
@@ -240,9 +149,8 @@ void gimbal_behaviour_control_set(float *add_yaw, float *add_pitch, gimbal_contr
 }
 
 /**
-  * @brief          云台在某些行为下，需要底盘不动
-  * @param[in]      none
-  * @retval         true:no move false:normal
+  * @brief          输出云台对底盘停止的联动请求
+  * @retval         none
   */
 bool gimbal_cmd_to_chassis_stop(void)
 {
@@ -253,9 +161,8 @@ bool gimbal_cmd_to_chassis_stop(void)
 }
 
 /**
-  * @brief          云台在某些行为下，需要射击停止
-  * @param[in]      none
-  * @retval         true:no move false:normal
+  * @brief          输出云台对底盘停止的联动请求
+  * @retval         none
   */
 bool gimbal_cmd_to_shoot_stop(void)
 {
@@ -266,8 +173,7 @@ bool gimbal_cmd_to_shoot_stop(void)
 }
 
 /**
-  * @brief          云台行为状态机设置
-  * @param[in]      control: 云台数据指针
+  * @brief          更新云台行为状态机
   * @retval         none
   */
 void gimbal_behavour_set(gimbal_control_t *control)
@@ -373,9 +279,7 @@ void gimbal_behavour_set(gimbal_control_t *control)
 }
 
 /**
-  * @brief          当云台行为模式是GIMBAL_ZERO_FORCE时，控制量清零
-  * @param[in]      yaw,pitch: 输出控制量
-  * @param[in]      control: 云台数据指针
+  * @brief          无力模式云台角度增量清零
   * @retval         none
   */
 void gimbal_zero_force_control(float *yaw, float *pitch, gimbal_control_t *control)
@@ -392,9 +296,7 @@ void gimbal_zero_force_control(float *yaw, float *pitch, gimbal_control_t *contr
 }
 
 /**
-  * @brief          云台初始化控制
-  * @param[out]     yaw,pitch: 输出控制量
-  * @param[in]      control: 云台数据指针
+  * @brief          初始化模式云台回中控制量生成
   * @retval         none
   */
 void gimbal_init_control(float *yaw, float *pitch, gimbal_control_t *control)
@@ -409,9 +311,7 @@ void gimbal_init_control(float *yaw, float *pitch, gimbal_control_t *control)
 }
 
 /**
-  * @brief          云台校准控制
-  * @param[out]     yaw,pitch: 输出控制量
-  * @param[in]      control: 云台数据指针
+  * @brief          云台校准模式控制量生成
   * @retval         none
   */
 void gimbal_cali_control(float *yaw, float *pitch, gimbal_control_t *control)
@@ -447,9 +347,7 @@ void gimbal_cali_control(float *yaw, float *pitch, gimbal_control_t *control)
 }
 
 /**
-  * @brief          云台绝对角控制
-  * @param[out]     yaw,pitch: 输出控制量
-  * @param[in]      control: 云台数据指针
+  * @brief          绝对角模式云台角度增量生成
   * @retval         none
   */
 void gimbal_absolute_angle_control(float *yaw, float *pitch, gimbal_control_t *control)
@@ -463,9 +361,7 @@ void gimbal_absolute_angle_control(float *yaw, float *pitch, gimbal_control_t *c
 }
 
 /**
-  * @brief          云台相对角控制
-  * @param[out]     yaw,pitch: 输出控制量
-  * @param[in]      control: 云台数据指针
+  * @brief          绝对角模式云台角度增量生成
   * @retval         none
   */
 void gimbal_relative_angle_control(float *yaw, float *pitch, gimbal_control_t *control)
@@ -479,9 +375,7 @@ void gimbal_relative_angle_control(float *yaw, float *pitch, gimbal_control_t *c
 }
 
 /**
-  * @brief          云台静止控制
-  * @param[out]     yaw,pitch: 输出控制量
-  * @param[in]      control: 云台数据指针
+  * @brief          无力模式云台角度增量清零
   * @retval         none
   */
 void gimbal_motionless_control(float *yaw, float *pitch, gimbal_control_t *control)
@@ -498,9 +392,7 @@ void gimbal_motionless_control(float *yaw, float *pitch, gimbal_control_t *contr
 }
 
 /**
-  * @brief          云台小陀螺控制
-  * @param[out]     yaw,pitch: 输出控制量
-  * @param[in]      control: 云台数据指针
+  * @brief          自旋模式云台角度增量生成
   * @retval         none
   */
 void gimbal_spin_control(float *yaw, float *pitch, gimbal_control_t *control)

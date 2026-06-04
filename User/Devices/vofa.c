@@ -94,6 +94,16 @@ void VOFA_SendChassisSpeedAccel(void)
                chassis_move.wz_plan_accel);
 }
 
+void VOFA_SendChassisRealSpeedCurrent(void)
+{
+    VOFA_Send6(chassis_move.vx,
+               chassis_move.vy,
+               chassis_move.chassis_3508[0].given_current_a,
+               chassis_move.chassis_3508[1].given_current_a,
+               chassis_move.chassis_3508[2].given_current_a,
+               chassis_move.chassis_3508[3].given_current_a);
+}
+
 void VOFA_SendChassisAnglePidDebug(void)
 {
     float target = chassis_move.chassis_angle_pid.set;
@@ -233,5 +243,5 @@ void VOFA_SendGimbalStrum(void)
 
 void VOFA_ServiceSend(void)
 {
-    VOFA_SendChassisAnglePidDebug();
+    VOFA_SendChassisRealSpeedCurrent();
 }

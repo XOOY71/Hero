@@ -1,7 +1,19 @@
+/**
+  * @file       wattmeter_api.c
+  * @brief      功率计反馈解析
+  * @note       解析功率计 CAN 反馈并更新功率观测数据。
+  */
 #include "wattmeter_api.h"
 
 volatile wattmeter_measure_t wattmeter_measure = {0.0f, 0.0f, 0.0f};
 
+/**
+  * @brief          解析功率计 CAN 反馈
+  * @param[in]      can_id: CAN 标识符
+  * @param[in]      can_rx_data: CAN 数据区指针
+  * @param[in]      len: 数据长度，单位 byte
+  * @retval         none
+  */
 void wattmeter_feedback_handle(uint16_t can_id, const uint8_t *can_rx_data, uint8_t len)
 {
     uint16_t voltage_raw;

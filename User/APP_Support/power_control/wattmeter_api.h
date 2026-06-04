@@ -1,3 +1,8 @@
+/**
+  * @file       wattmeter_api.h
+  * @brief      功率计接口声明
+  * @note       声明功率计反馈数据结构和解析接口。
+  */
 #ifndef WATTMETER_API_H
 #define WATTMETER_API_H
 

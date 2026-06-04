@@ -1,11 +1,16 @@
-﻿#ifndef CHASSIS_TASK_H
+/**
+  * @file       chassis_task.h
+  * @brief      底盘任务数据结构与接口声明
+  * @note       定义底盘模式、电机状态、规划速度、前馈和制动补偿字段。
+  */
+#ifndef CHASSIS_TASK_H
 #define CHASSIS_TASK_H
 
 #include "bsp_fdcan.h"
 #include "gimbal_task.h"
 #include "hwt_imu.h"
 #include "pid.h"
-#include "project_config.h"
+#include "robot_param.h"
 #include "remote_control.h"
 #include "struct_typedef.h"
 #include "user_lib.h"
@@ -113,6 +118,10 @@ typedef struct
     fp32 body_ff_ay;
     fp32 body_ff_alpha;
     fp32 body_ff_current[CHASSIS_MODULE_NUM];
+    fp32 body_vel_brake_error_vx;
+    fp32 body_vel_brake_error_vy;
+    fp32 body_vel_brake_error_wz;
+    fp32 body_vel_brake_current[CHASSIS_MODULE_NUM];
     uint8_t body_ff_init;
     fp32 gimbal_radian_of_ecd;
     fp32 chassis_yaw_rate;
@@ -129,13 +138,52 @@ typedef struct
     fp32 chassis_roll;
 } chassis_move_t;
 
+/**
+  * @brief          底盘任务入口
+  * @retval         none
+  */
 extern void chassis_task(void const *pvParameters);
+
+/**
+  * @brief          初始化底盘控制结构体
+  * @retval         none
+  */
 void chassis_init(chassis_move_t *chassis_move_init);
+
+/**
+  * @brief          设置底盘当前模式
+  * @retval         none
+  */
 void chassis_set_mode(chassis_move_t *chassis_move_mode);
+
+/**
+  * @brief          处理底盘模式切换过渡
+  * @retval         none
+  */
 void chassis_mode_change_control_transit(chassis_move_t *chassis_move_transit);
+
+/**
+  * @brief          更新底盘电机和传感器反馈
+  * @retval         none
+  */
 void chassis_feedback_update(chassis_move_t *chassis_move_update);
+
+/**
+  * @brief          生成底盘控制目标量
+  * @retval         none
+  */
 void chassis_set_contorl(chassis_move_t *chassis_move_control);
+
+/**
+  * @brief          执行底盘闭环控制
+  * @retval         none
+  */
 void chassis_control_loop(chassis_move_t *chassis_move_control_loop);
+
+/**
+  * @brief          发送底盘电机命令
+  * @retval         none
+  */
 void chassis_send_cmd(chassis_move_t *chassis_move_send);
 
 extern chassis_move_t chassis_move;

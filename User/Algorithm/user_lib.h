@@ -1,7 +1,7 @@
 #ifndef USER_LIB_H
 #define USER_LIB_H
 #include "struct_typedef.h"
-#include "project_config.h"
+#include "robot_param.h"
 
 #ifndef PI
 #define PI 3.14159265358979f

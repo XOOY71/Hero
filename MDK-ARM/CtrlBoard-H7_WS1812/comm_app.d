@@ -88,7 +88,7 @@ ctrlboard-h7_ws1812\comm_app.o: ..\User\Communication\example\device\../shared/p
 ctrlboard-h7_ws1812\comm_app.o: ../User/BSP/bsp_dwt.h
 ctrlboard-h7_ws1812\comm_app.o: ../User/BSP/bsp_tim24.h
 ctrlboard-h7_ws1812\comm_app.o: ../User/APP/gimbal_task.h
-ctrlboard-h7_ws1812\comm_app.o: ../User/APP_Support/common/project_config.h
+ctrlboard-h7_ws1812\comm_app.o: ../User/APP_Support/common/robot_param.h
 ctrlboard-h7_ws1812\comm_app.o: ../User/BSP/remote_control.h
 ctrlboard-h7_ws1812\comm_app.o: ../User/BSP/bsp_usart.h
 ctrlboard-h7_ws1812\comm_app.o: ../User/BSP/fifo.h

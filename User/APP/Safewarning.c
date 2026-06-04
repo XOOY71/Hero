@@ -1,3 +1,8 @@
+/**
+  * @file       Safewarning.c
+  * @brief      蜂鸣器与安全提示控制
+  * @note       管理蜂鸣器提示节奏和 WS2812 安全提示输出。
+  */
 #include "safewarning.h"
 #include "cmsis_os.h"
 #include "ws2812.h"
@@ -7,6 +12,11 @@ uint8_t r = 1;
 uint8_t g = 1;
 uint8_t b = 1;
 
+/**
+  * @brief          WS2812 测试灯效任务
+  * @note           周期改变 RGB 值并刷新灯带。
+  * @retval         none
+  */
 void ws2812_task(void)
 {
     static uint16_t ws_cnt = 0;
@@ -27,38 +37,18 @@ void ws2812_task(void)
     b++;
 }
 
+/**
+  * @brief          蜂鸣器 PWM 测试输出
+  * @retval         none
+  */
 void beep_test(void)
 {
 	HAL_TIM_PWM_Start(&htim12, TIM_CHANNEL_2);
 	TIM12->CCR2 = 1800;
 }
 
-// 音符频率定义（单位：Hz）- 调整为接近4kHz的频段
-#define NOTE_1K 1000
-#define NOTE_2K 2000
-#define NOTE_3K 3000
-#define NOTE_4K 4000  // 蜂鸣器谐振频率
-#define NOTE_5K 5000  // 可选，但注意定时器能力足够
-
-// 蜂鸣器状态结构体
-typedef struct {
-    BeepType_t current_type;      // 当前播放的提示音类型
-    uint16_t step;                 // 当前步骤
-    uint16_t counter;              // 计时计数器
-    uint8_t is_playing;            // 是否正在播放
-    uint16_t frequency;            // 当前频率
-    uint16_t duration;             // 当前音符持续时间
-} Beep_State_t;
-
 static Beep_State_t beep_state = {0};
 
-// 提示音音效序列定义
-typedef struct {
-    uint16_t freq;      // 频率（Hz），0表示静音
-    uint16_t duration;  // 持续时间（ms）
-} Note_t;
-
-// 开机提示音：从1kHz到4kHz的细致音阶
 static const Note_t power_on_melody[] = {
     {1000, 100},   // 滴
 	{2000, 100},   // 滴
@@ -133,7 +123,10 @@ static void SetBeepFrequency(uint16_t freq) {
     HAL_TIM_PWM_Start(&htim12, TIM_CHANNEL_2);
 }
 
-// 初始化蜂鸣器
+/**
+  * @brief          初始化蜂鸣器状态
+  * @retval         none
+  */
 void Beep_Init(void) {
     beep_state.is_playing = 0;
     beep_state.step = 0;
@@ -141,7 +134,11 @@ void Beep_Init(void) {
     Beep_Stop();
 }
 
-// 播放提示音
+/**
+  * @brief          播放指定提示音
+  * @param[in]      type: 提示音类型
+  * @retval         none
+  */
 void Beep_Play(BeepType_t type) {
     if (beep_state.is_playing) {
         Beep_Stop();
@@ -153,7 +150,10 @@ void Beep_Play(BeepType_t type) {
     beep_state.is_playing = 1;
 }
 
-// 停止蜂鸣器
+/**
+  * @brief          停止蜂鸣器输出
+  * @retval         none
+  */
 void Beep_Stop(void) {
     HAL_TIM_PWM_Stop(&htim12, TIM_CHANNEL_2);
     beep_state.is_playing = 0;
@@ -161,12 +161,19 @@ void Beep_Stop(void) {
     beep_state.counter = 0;
 }
 
-// 检查蜂鸣器是否正在播放
+/**
+  * @brief          查询蜂鸣器播放状态
+  * @retval         1: 正在播放，0: 空闲
+  */
 uint8_t Beep_IsPlaying(void) {
     return beep_state.is_playing;
 }
 
-// 蜂鸣器任务（每1ms调用一次，已在TIM6中断中执行）
+/**
+  * @brief          蜂鸣器周期任务
+  * @note           每 1ms 调用一次，用于推进当前提示音音符序列。
+  * @retval         none
+  */
 void Beep_Task(void) {
     if (!beep_state.is_playing) {
         return;
