@@ -3,7 +3,7 @@
 <title>Static Call Graph - [CtrlBoard-H7_WS1812\CtrlBoard-H7_WS1812.axf]</title></head>
 <body><HR>
 <H1>Static Call Graph for image CtrlBoard-H7_WS1812\CtrlBoard-H7_WS1812.axf</H1><HR>
-<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 5060528: Last Updated: Fri Jun 05 04:11:42 2026
+<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 5060528: Last Updated: Fri Jun 05 04:48:26 2026
 <BR><P>
 <H3>Maximum Stack Usage =        940 bytes + Unknown(Functions without stacksize, Cycles, Untraceable Function Pointers)</H3><H3>
 Call chain for Maximum Stack Depth:</H3>
@@ -765,10 +765,10 @@ Global Symbols
 
 <P><STRONG><a name="[288]"></a>__aeabi_memcpy</STRONG> (Thumb, 0 bytes, Stack size 0 bytes, rt_memcpy_v6.o(.text))
 <BR><BR>[Called By]<UL><LI><a href="#[337]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;referee_handle_data
-<LI><a href="#[1df]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;fifo_s_puts
 <LI><a href="#[285]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;mux_encode
 <LI><a href="#[31a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;mux_decode
 <LI><a href="#[27e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ch_uproto_queue_notify
+<LI><a href="#[1df]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;fifo_s_puts
 </UL>
 
 <P><STRONG><a name="[104]"></a>__rt_memcpy</STRONG> (Thumb, 138 bytes, Stack size 0 bytes, rt_memcpy_v6.o(.text), UNUSED)
@@ -789,11 +789,11 @@ Global Symbols
 <LI><a href="#[326]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;uproto_init
 <LI><a href="#[1fb]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;MX_FREERTOS_Init
 <LI><a href="#[318]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;proto_init_from_main
-<LI><a href="#[2ea]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;gimbal_channel_publish
-<LI><a href="#[2e8]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;gimbal_channel_init
 <LI><a href="#[2ba]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;setup_channels
 <LI><a href="#[cf]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;gimbal_on_fire
 <LI><a href="#[d0]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;gimbal_on_chassis
+<LI><a href="#[2ea]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;gimbal_channel_publish
+<LI><a href="#[2e8]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;gimbal_channel_init
 <LI><a href="#[104]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__rt_memcpy
 </UL>
 
@@ -828,16 +828,16 @@ Global Symbols
 <LI><a href="#[cb]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;referee_usart_task
 <LI><a href="#[30c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;light_clear
 <LI><a href="#[30a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;hwt_imu_init
-<LI><a href="#[1e7]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_UART_ErrorCallback
-<LI><a href="#[1de]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_UARTEx_RxEventCallback
-<LI><a href="#[362]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;time_sync_channel_init
-<LI><a href="#[2e8]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;gimbal_channel_init
 <LI><a href="#[2b7]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;chmgr_init
 <LI><a href="#[27a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;channel_init
 <LI><a href="#[287]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ch_uproto_bind
 <LI><a href="#[356]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;shoot_task_motor_init
 <LI><a href="#[347]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;shoot_task_init_control
 <LI><a href="#[e4]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;gimbal_init
+<LI><a href="#[1e7]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_UART_ErrorCallback
+<LI><a href="#[1de]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_UARTEx_RxEventCallback
+<LI><a href="#[362]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;time_sync_channel_init
+<LI><a href="#[2e8]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;gimbal_channel_init
 <LI><a href="#[197]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_PCD_MspInit
 <LI><a href="#[15]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_CDC_Init
 </UL>
@@ -961,8 +961,8 @@ Global Symbols
 </UL>
 <BR>[Calls]<UL><LI><a href="#[116]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;adrc_clamp
 </UL>
-<BR>[Called By]<UL><LI><a href="#[114]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ADRC_Reset
-<LI><a href="#[11a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ADRC_hot_reset
+<BR>[Called By]<UL><LI><a href="#[11a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ADRC_hot_reset
+<LI><a href="#[114]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ADRC_Reset
 </UL>
 
 <P><STRONG><a name="[117]"></a>ADRC_Update</STRONG> (Thumb, 252 bytes, Stack size 8 bytes, adrc.o(i.ADRC_Update))
@@ -1074,8 +1074,8 @@ Global Symbols
 <P><STRONG><a name="[126]"></a>CAN_cmd_MIT</STRONG> (Thumb, 182 bytes, Stack size 32 bytes, bsp_fdcan.o(i.CAN_cmd_MIT))
 <BR><BR>[Stack]<UL><LI>Max Depth = 124<LI>Call Chain = CAN_cmd_MIT &rArr; canx_send_data &rArr; HAL_FDCAN_AddMessageToTxFifoQ &rArr; FDCAN_CopyMessageToRAM
 </UL>
-<BR>[Calls]<UL><LI><a href="#[127]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;float_to_uint
-<LI><a href="#[125]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;canx_send_data
+<BR>[Calls]<UL><LI><a href="#[125]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;canx_send_data
+<LI><a href="#[127]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;float_to_uint
 </UL>
 <BR>[Called By]<UL><LI><a href="#[355]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;shoot_task_send_strum_torque
 <LI><a href="#[ec]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;gimbal_send_cmd
@@ -1522,13 +1522,13 @@ Global Symbols
 <LI><a href="#[337]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;referee_handle_data
 <LI><a href="#[310]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;light_update_online_status
 <LI><a href="#[269]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;auto_aim_apply_delta_udeg
+<LI><a href="#[2ee]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;gimbal_pitch_mit_feedback_ready
+<LI><a href="#[345]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;shoot_task_control_strum
+<LI><a href="#[346]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;shoot_task_control_friction
 <LI><a href="#[1e1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;sbus_to_rc
 <LI><a href="#[2d5]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;fdcan2_receive
 <LI><a href="#[2ce]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;fdcan1_receive
 <LI><a href="#[d3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;comm_app_task
-<LI><a href="#[2ee]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;gimbal_pitch_mit_feedback_ready
-<LI><a href="#[345]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;shoot_task_control_strum
-<LI><a href="#[346]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;shoot_task_control_friction
 </UL>
 
 <P><STRONG><a name="[1da]"></a>HAL_IncTick</STRONG> (Thumb, 12 bytes, Stack size 0 bytes, stm32h7xx_hal.o(i.HAL_IncTick))
@@ -3631,11 +3631,11 @@ Global Symbols
 <P><STRONG><a name="[277]"></a>camera_channel_init_ex</STRONG> (Thumb, 164 bytes, Stack size 64 bytes, camera_channel.o(i.camera_channel_init_ex))
 <BR><BR>[Stack]<UL><LI>Max Depth = 92<LI>Call Chain = camera_channel_init_ex &rArr; channel_init &rArr; __aeabi_memclr4
 </UL>
-<BR>[Calls]<UL><LI><a href="#[279]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;cam_fifo_clear
-<LI><a href="#[278]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;platform_memset
+<BR>[Calls]<UL><LI><a href="#[278]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;platform_memset
 <LI><a href="#[27c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;chmgr_register
 <LI><a href="#[27a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;channel_init
 <LI><a href="#[27b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;channel_bind_transport
+<LI><a href="#[279]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;cam_fifo_clear
 </UL>
 <BR>[Called By]<UL><LI><a href="#[2ba]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;setup_channels
 </UL>
@@ -3738,10 +3738,10 @@ Global Symbols
 </UL>
 
 <P><STRONG><a name="[27b]"></a>channel_bind_transport</STRONG> (Thumb, 12 bytes, Stack size 0 bytes, comm.o(i.channel_bind_transport))
-<BR><BR>[Called By]<UL><LI><a href="#[362]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;time_sync_channel_init
+<BR><BR>[Called By]<UL><LI><a href="#[2ba]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;setup_channels
+<LI><a href="#[362]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;time_sync_channel_init
 <LI><a href="#[2e8]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;gimbal_channel_init
 <LI><a href="#[277]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;camera_channel_init_ex
-<LI><a href="#[2ba]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;setup_channels
 </UL>
 
 <P><STRONG><a name="[27a]"></a>channel_init</STRONG> (Thumb, 70 bytes, Stack size 24 bytes, comm.o(i.channel_init))
@@ -3749,10 +3749,10 @@ Global Symbols
 </UL>
 <BR>[Calls]<UL><LI><a href="#[156]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_memclr4
 </UL>
-<BR>[Called By]<UL><LI><a href="#[362]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;time_sync_channel_init
+<BR>[Called By]<UL><LI><a href="#[2ba]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;setup_channels
+<LI><a href="#[362]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;time_sync_channel_init
 <LI><a href="#[2e8]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;gimbal_channel_init
 <LI><a href="#[277]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;camera_channel_init_ex
-<LI><a href="#[2ba]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;setup_channels
 </UL>
 
 <P><STRONG><a name="[2a2]"></a>chas_for_cal</STRONG> (Thumb, 92 bytes, Stack size 0 bytes, chassis_calculate.o(i.chas_for_cal))
@@ -3938,10 +3938,10 @@ Global Symbols
 </UL>
 
 <P><STRONG><a name="[27c]"></a>chmgr_register</STRONG> (Thumb, 30 bytes, Stack size 0 bytes, comm.o(i.chmgr_register))
-<BR><BR>[Called By]<UL><LI><a href="#[362]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;time_sync_channel_init
+<BR><BR>[Called By]<UL><LI><a href="#[2ba]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;setup_channels
+<LI><a href="#[362]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;time_sync_channel_init
 <LI><a href="#[2e8]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;gimbal_channel_init
 <LI><a href="#[277]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;camera_channel_init_ex
-<LI><a href="#[2ba]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;setup_channels
 </UL>
 
 <P><STRONG><a name="[2bd]"></a>chmgr_tick</STRONG> (Thumb, 40 bytes, Stack size 16 bytes, comm.o(i.chmgr_tick))
@@ -3965,10 +3965,6 @@ Global Symbols
 <BR>[Calls]<UL><LI><a href="#[21f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;osDelay
 <LI><a href="#[20d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;MX_USB_DEVICE_Init
 <LI><a href="#[136]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_GetTick
-<LI><a href="#[2bb]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;usb_cdc_port_poll_rx
-<LI><a href="#[2b8]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;usb_cdc_port_init
-<LI><a href="#[2b9]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;usb_cdc_port_bind_uproto
-<LI><a href="#[27d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;camera_channel_tick
 <LI><a href="#[be]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;sync_now_us
 <LI><a href="#[2ba]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;setup_channels
 <LI><a href="#[2bf]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;comm_publish_referee
@@ -3978,6 +3974,10 @@ Global Symbols
 <LI><a href="#[289]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ch_uproto_register_rx
 <LI><a href="#[287]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ch_uproto_bind
 <LI><a href="#[283]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ch_uproto_arbiter_tick
+<LI><a href="#[2bb]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;usb_cdc_port_poll_rx
+<LI><a href="#[2b8]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;usb_cdc_port_init
+<LI><a href="#[2b9]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;usb_cdc_port_bind_uproto
+<LI><a href="#[27d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;camera_channel_tick
 </UL>
 <BR>[Address Reference Count : 1]<UL><LI> comm_app.o(.constdata)
 </UL>
@@ -4011,12 +4011,12 @@ Global Symbols
 <BR>[Calls]<UL><LI><a href="#[136]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_GetTick
 <LI><a href="#[2cf]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_FDCAN_GetRxMessage
 <LI><a href="#[2ca]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;detect_hook
+<LI><a href="#[2d4]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;wattmeter_feedback_handle
+<LI><a href="#[2d3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pm01_response_handle
 <LI><a href="#[2d2]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;get_motor_measure
 <LI><a href="#[2d1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;get_mit_motor_index
 <LI><a href="#[2d0]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;fdcan_dlc_to_len
 <LI><a href="#[1f5]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;MITFdbData
-<LI><a href="#[2d4]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;wattmeter_feedback_handle
-<LI><a href="#[2d3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pm01_response_handle
 </UL>
 <BR>[Called By]<UL><LI><a href="#[15a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;fdcan1_rx_callback
 </UL>
@@ -4229,22 +4229,22 @@ Global Symbols
 </UL>
 
 <P><STRONG><a name="[2ea]"></a>gimbal_channel_publish</STRONG> (Thumb, 182 bytes, Stack size 136 bytes, gimbal_channel.o(i.gimbal_channel_publish))
-<BR><BR>[Stack]<UL><LI>Max Depth = 160<LI>Call Chain = gimbal_channel_publish &rArr; comm_write_u64_le
+<BR><BR>[Stack]<UL><LI>Max Depth = 160<LI>Call Chain = gimbal_channel_publish &rArr; ch_uproto_queue_notify
 </UL>
-<BR>[Calls]<UL><LI><a href="#[2c5]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;comm_write_u64_le
+<BR>[Calls]<UL><LI><a href="#[27e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ch_uproto_queue_notify
+<LI><a href="#[2c5]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;comm_write_u64_le
 <LI><a href="#[2eb]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;comm_write_i32_le
-<LI><a href="#[27e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ch_uproto_queue_notify
 <LI><a href="#[105]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_memcpy4
 </UL>
 <BR>[Called By]<UL><LI><a href="#[d5]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;on_tick
 </UL>
 
 <P><STRONG><a name="[2c4]"></a>gimbal_channel_publish_referee</STRONG> (Thumb, 118 bytes, Stack size 56 bytes, gimbal_channel.o(i.gimbal_channel_publish_referee))
-<BR><BR>[Stack]<UL><LI>Max Depth = 80<LI>Call Chain = gimbal_channel_publish_referee &rArr; comm_write_u64_le
+<BR><BR>[Stack]<UL><LI>Max Depth = 80<LI>Call Chain = gimbal_channel_publish_referee &rArr; ch_uproto_queue_notify
 </UL>
-<BR>[Calls]<UL><LI><a href="#[2c5]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;comm_write_u64_le
+<BR>[Calls]<UL><LI><a href="#[27e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ch_uproto_queue_notify
+<LI><a href="#[2c5]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;comm_write_u64_le
 <LI><a href="#[2eb]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;comm_write_i32_le
-<LI><a href="#[27e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ch_uproto_queue_notify
 </UL>
 <BR>[Called By]<UL><LI><a href="#[2bf]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;comm_publish_referee
 </UL>
@@ -4281,14 +4281,14 @@ Global Symbols
 <BR><BR>[Stack]<UL><LI>Max Depth = 140<LI>Call Chain = gimbal_init &rArr; Motor_ENABLE &rArr; canx_send_data &rArr; HAL_FDCAN_AddMessageToTxFifoQ &rArr; FDCAN_CopyMessageToRAM
 </UL>
 <BR>[Calls]<UL><LI><a href="#[270]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;get_remote_control_point
-<LI><a href="#[2f7]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;get_gyro_data_point
-<LI><a href="#[2f8]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;get_accel_data_point
-<LI><a href="#[2f6]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;get_INS_angle_point
 <LI><a href="#[2f9]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;gravity_comp_init
 <LI><a href="#[216]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Motor_ENABLE
 <LI><a href="#[eb]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;gimbal_pid_init
 <LI><a href="#[ea]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;gimbal_pid_clear
 <LI><a href="#[e3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;gimbal_feedback_update
+<LI><a href="#[2f7]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;get_gyro_data_point
+<LI><a href="#[2f8]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;get_accel_data_point
+<LI><a href="#[2f6]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;get_INS_angle_point
 <LI><a href="#[156]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_memclr4
 </UL>
 <BR>[Called By]<UL><LI><a href="#[c8]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;gimbal_task
@@ -6341,7 +6341,7 @@ Local Symbols
 </UL>
 
 <P><STRONG><a name="[2bf]"></a>comm_publish_referee</STRONG> (Thumb, 126 bytes, Stack size 72 bytes, comm_app.o(i.comm_publish_referee))
-<BR><BR>[Stack]<UL><LI>Max Depth = 152<LI>Call Chain = comm_publish_referee &rArr; gimbal_channel_publish_referee &rArr; comm_write_u64_le
+<BR><BR>[Stack]<UL><LI>Max Depth = 152<LI>Call Chain = comm_publish_referee &rArr; gimbal_channel_publish_referee &rArr; ch_uproto_queue_notify
 </UL>
 <BR>[Calls]<UL><LI><a href="#[2c3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;comm_referee_get_snapshot
 <LI><a href="#[2c4]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;gimbal_channel_publish_referee
@@ -6354,8 +6354,8 @@ Local Symbols
 </UL>
 <BR>[Calls]<UL><LI><a href="#[2a7]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;get_yaw_motor_point
 <LI><a href="#[2a8]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;get_pitch_motor_point
-<LI><a href="#[2f6]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;get_INS_angle_point
 <LI><a href="#[be]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;sync_now_us
+<LI><a href="#[2f6]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;get_INS_angle_point
 </UL>
 <BR>[Address Reference Count : 1]<UL><LI> comm_app.o(.constdata)
 </UL>
@@ -6390,13 +6390,13 @@ Local Symbols
 <P><STRONG><a name="[2ba]"></a>setup_channels</STRONG> (Thumb, 206 bytes, Stack size 128 bytes, comm_app.o(i.setup_channels))
 <BR><BR>[Stack]<UL><LI>Max Depth = 276<LI>Call Chain = setup_channels &rArr; gimbal_channel_init_ex &rArr; gimbal_channel_init &rArr; channel_init &rArr; __aeabi_memclr4
 </UL>
-<BR>[Calls]<UL><LI><a href="#[33f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;time_sync_channel_init_ex
-<LI><a href="#[2e9]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;gimbal_channel_init_ex
-<LI><a href="#[277]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;camera_channel_init_ex
-<LI><a href="#[27c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;chmgr_register
+<BR>[Calls]<UL><LI><a href="#[27c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;chmgr_register
 <LI><a href="#[2b7]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;chmgr_init
 <LI><a href="#[27a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;channel_init
 <LI><a href="#[27b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;channel_bind_transport
+<LI><a href="#[33f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;time_sync_channel_init_ex
+<LI><a href="#[2e9]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;gimbal_channel_init_ex
+<LI><a href="#[277]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;camera_channel_init_ex
 <LI><a href="#[105]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_memcpy4
 </UL>
 <BR>[Called By]<UL><LI><a href="#[d3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;comm_app_task
@@ -6414,10 +6414,10 @@ Local Symbols
 </UL>
 <BR>[Calls]<UL><LI><a href="#[361]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;time_sync_channel_now_us
 </UL>
-<BR>[Called By]<UL><LI><a href="#[d3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;comm_app_task
-<LI><a href="#[cf]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;gimbal_on_fire
+<BR>[Called By]<UL><LI><a href="#[cf]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;gimbal_on_fire
 <LI><a href="#[d0]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;gimbal_on_chassis
 <LI><a href="#[cd]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;gimbal_get_state
+<LI><a href="#[d3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;comm_app_task
 </UL>
 <BR>[Address Reference Count : 1]<UL><LI> comm_app.o(i.setup_channels)
 </UL>
@@ -6463,7 +6463,7 @@ Local Symbols
 <BR>[Address Reference Count : 1]<UL><LI> gimbal_channel.o(.constdata)
 </UL>
 <P><STRONG><a name="[d5]"></a>on_tick</STRONG> (Thumb, 88 bytes, Stack size 24 bytes, gimbal_channel.o(i.on_tick))
-<BR><BR>[Stack]<UL><LI>Max Depth = 184<LI>Call Chain = on_tick &rArr; gimbal_channel_publish &rArr; comm_write_u64_le
+<BR><BR>[Stack]<UL><LI>Max Depth = 184<LI>Call Chain = on_tick &rArr; gimbal_channel_publish &rArr; ch_uproto_queue_notify
 </UL>
 <BR>[Calls]<UL><LI><a href="#[2ea]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;gimbal_channel_publish
 </UL>
@@ -6510,24 +6510,24 @@ Local Symbols
 </UL>
 
 <P><STRONG><a name="[d7]"></a>on_rx</STRONG> (Thumb, 416 bytes, Stack size 64 bytes, time_sync_channel.o(i.on_rx))
-<BR><BR>[Stack]<UL><LI>Max Depth = 88<LI>Call Chain = on_rx &rArr; comm_write_u64_le
+<BR><BR>[Stack]<UL><LI>Max Depth = 88<LI>Call Chain = on_rx &rArr; ch_uproto_queue_notify
 </UL>
-<BR>[Calls]<UL><LI><a href="#[31d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;now_us
+<BR>[Calls]<UL><LI><a href="#[27e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ch_uproto_queue_notify
+<LI><a href="#[31d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;now_us
 <LI><a href="#[2c7]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;comm_write_u64_le
 <LI><a href="#[31e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;comm_write_u16_le
 <LI><a href="#[31f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;comm_read_u64_le
-<LI><a href="#[27e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ch_uproto_queue_notify
 <LI><a href="#[320]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_ldivmod
 </UL>
 <BR>[Address Reference Count : 1]<UL><LI> time_sync_channel.o(.constdata)
 </UL>
 <P><STRONG><a name="[d8]"></a>on_tick</STRONG> (Thumb, 168 bytes, Stack size 48 bytes, time_sync_channel.o(i.on_tick))
-<BR><BR>[Stack]<UL><LI>Max Depth = 72<LI>Call Chain = on_tick &rArr; comm_write_u64_le
+<BR><BR>[Stack]<UL><LI>Max Depth = 72<LI>Call Chain = on_tick &rArr; ch_uproto_queue_notify
 </UL>
-<BR>[Calls]<UL><LI><a href="#[31d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;now_us
+<BR>[Calls]<UL><LI><a href="#[27e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ch_uproto_queue_notify
+<LI><a href="#[31d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;now_us
 <LI><a href="#[2c7]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;comm_write_u64_le
 <LI><a href="#[31e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;comm_write_u16_le
-<LI><a href="#[27e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ch_uproto_queue_notify
 </UL>
 <BR>[Address Reference Count : 1]<UL><LI> time_sync_channel.o(.constdata)
 </UL>
@@ -6617,9 +6617,9 @@ Local Symbols
 <LI><a href="#[266]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ADRC_GetLastOutput
 <LI><a href="#[267]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ADRC_GetDisturbance
 </UL>
-<BR>[Called By]<UL><LI><a href="#[111]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ADRC_calc
-<LI><a href="#[11d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ADRC_reset
+<BR>[Called By]<UL><LI><a href="#[11d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ADRC_reset
 <LI><a href="#[11a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ADRC_hot_reset
+<LI><a href="#[111]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ADRC_calc
 </UL>
 
 <P><STRONG><a name="[23e]"></a>IntToUnicode</STRONG> (Thumb, 56 bytes, Stack size 20 bytes, usbd_desc.o(i.IntToUnicode))
