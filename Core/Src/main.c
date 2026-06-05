@@ -18,9 +18,9 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
-#include "cmsis_os.h"
 #include "dma.h"
 #include "fdcan.h"
+#include "octospi.h"
 #include "spi.h"
 #include "tim.h"
 #include "usart.h"
@@ -37,6 +37,7 @@
 #include "uproto.h"
 #include "usb_cdc_port.h"
 #include "bsp_tim24.h"
+#include "w25q64.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -68,7 +69,6 @@ uint16_t datapack_ordorcount = 0;
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 void PeriphCommonClock_Config(void);
-void MX_FREERTOS_Init(void);
 /* USER CODE BEGIN PFP */
 void proto_init_from_main(void);
 /* USER CODE END PFP */
@@ -123,9 +123,15 @@ int main(void)
   MX_UART5_Init();
   MX_USART10_UART_Init();
   MX_SPI2_Init();
+  MX_USB_DEVICE_Init();
   MX_TIM24_Init();
   MX_UART8_Init();
+  MX_OCTOSPI2_Init();
   /* USER CODE BEGIN 2 */
+	if (OSPI_W25Qxx_Init() != OSPI_W25Qxx_OK)
+	{
+		Error_Handler();
+	}
 //  	Servo_Mapping_Init();
 	bsp_can_init();
 	
@@ -148,14 +154,6 @@ int main(void)
 //	fdcanx_send_data(&hfdcan2, 0x02,can2send_test, 8);
 	#endif
   /* USER CODE END 2 */
-
-  /* Call init function for freertos objects (in cmsis_os2.c) */
-  MX_FREERTOS_Init();
-
-  /* Start scheduler */
-  osKernelStart();
-
-  /* We should never get here as control is now taken by the scheduler */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
