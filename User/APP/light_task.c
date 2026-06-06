@@ -54,8 +54,12 @@ static void light_fill(uint8_t first, uint8_t last, uint8_t r, uint8_t g, uint8_
   */
 void LightTask_Init(void)
 {
-    osThreadDef(lightTask, light_task, osPriorityLow, 0, 256);
-    light_control.task_handle = osThreadCreate(osThread(lightTask), NULL);
+    static const osThreadAttr_t lightTask_attributes = {
+        .name = "lightTask",
+        .stack_size = 256 * 4,
+        .priority = (osPriority_t) osPriorityLow,
+    };
+    light_control.task_handle = osThreadNew(light_task, NULL, &lightTask_attributes);
 }
 
 
@@ -65,7 +69,7 @@ void LightTask_Init(void)
   * @note           自动模式周期刷新状态灯，手动模式保持外部写入的灯值并周期发送。
   * @retval         none
   */
-void light_task(void const *pvParameters)
+void light_task(void *pvParameters)
 {
     (void)pvParameters;
 

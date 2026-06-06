@@ -5,9 +5,11 @@
   */
 #include "auto_aim.h"
 
+#include "FreeRTOS.h"
 #include "cmsis_os.h"
 #include "robot_param.h"
 #include "stm32h7xx_hal.h"
+#include "task.h"
 
 #include <stdbool.h>
 #include <stddef.h>
@@ -102,7 +104,7 @@ void auto_aim_reset_delta_accum(void)
   * @param[in]      pvParameters: FreeRTOS 任务参数
   * @retval         none
   */
-void auto_aim_task(void const *pvParameters)
+void auto_aim_task(void *pvParameters)
 {
     (void)pvParameters;
 

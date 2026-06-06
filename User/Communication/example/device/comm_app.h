@@ -22,7 +22,7 @@ void comm_app_start(void);
 /**
   * @brief      任务入口（如需由外部统一调度创建任务时使用）
   */
-void comm_app_task(void const *argument);
+void comm_app_task(void *argument);
 
 /**
   * @brief      EXTI 钩子：当相机触发 GPIO 有效沿到来时调用

@@ -7,7 +7,9 @@
 
 #if (FLASH_LOG_ENABLE != 0U)
 
+#include "FreeRTOS.h"
 #include "cmsis_os.h"
+#include "task.h"
 
 #include <stdio.h>
 #include <string.h>

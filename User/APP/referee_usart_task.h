@@ -13,6 +13,6 @@
 extern uint8_t usart6_buf[2][USART_RX_BUF_LENGHT];
 
 void RefereeUsartTask_Init(void);
-void referee_usart_task(void const *argument);
+void referee_usart_task(void *argument);
 
 #endif

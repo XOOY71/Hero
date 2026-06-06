@@ -5,9 +5,11 @@
   */
 #include "detect_task.h"
 
+#include "FreeRTOS.h"
 #include "cmsis_os.h"
 #include "flash_log.h"
 #include "remote_control.h"
+#include "task.h"
 #include "usart.h"
 
 static error_t error_list[ERROR_LIST_LENGHT + 1];
@@ -98,7 +100,7 @@ static void detect_init(uint32_t time)
   * @note           周期检查每个 TOE 的最后反馈时间，超时后置为离线。
   * @retval         none
   */
-void detect_task(void const *pvParameters)
+void detect_task(void *pvParameters)
 {
     (void)pvParameters;
 

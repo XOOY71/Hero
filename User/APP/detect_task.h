@@ -55,7 +55,7 @@ typedef __packed struct
     fp32 frequency;
 } error_t;
 
-void detect_task(void const *pvParameters);
+void detect_task(void *pvParameters);
 bool_t toe_is_error(uint8_t err);
 void detect_hook(uint8_t toe);
 const error_t *get_error_list_point(void);

@@ -46,7 +46,7 @@
 /* 复用公共协议 ID：UPROTO_MSG_MUX、CAM_CH_ID、TS_CH_ID、GIMBAL_CH_ID 等
  * 自定义演示流通道的 SID 在 comm_app_config.h 中定义 */
 
-static osThreadId g_comm_app_tid = NULL;
+static osThreadId_t g_comm_app_tid = NULL;
 extern uproto_context_t proto_ctx;
 
 static channel_manager_t g_mgr;
@@ -138,7 +138,8 @@ static uint64_t now_us_fallback(void) {
  */
 static uint64_t sync_now_us(void *user) {
     (void)user;
-    return time_sync_channel_now_us(&g_tsync);
+    uint64_t now_us = time_sync_channel_now_us(&g_tsync);
+    return (now_us != 0ULL) ? now_us : now_us_fallback();
 }
 
 /* forward decls for gimbal channel hooks */
@@ -309,7 +310,7 @@ void comm_camera_trigger_poll(void) {
  * @param[in]      arg：任务参数（未使用）
  * @details        等待 USB CDC 枚举 → 绑定 uproto 与通道 → 周期性调度
  */
-void comm_app_task(void const *arg) {
+void comm_app_task(void *arg) {
     (void)arg;
     extern USBD_HandleTypeDef hUsbDeviceHS;
     MX_USB_DEVICE_Init();
@@ -359,8 +360,12 @@ void comm_app_task(void const *arg) {
 void comm_app_start(void) {
     if(g_comm_app_tid != NULL)
         return;
-    osThreadDef(COMM_APP, (os_pthread)comm_app_task, COMM_APP_PRIO, 0, COMM_APP_STACK);
-    g_comm_app_tid = osThreadCreate(osThread(COMM_APP), NULL);
+    static const osThreadAttr_t comm_app_attributes = {
+        .name = "COMM_APP",
+        .stack_size = COMM_APP_STACK * 4,
+        .priority = (osPriority_t) COMM_APP_PRIO,
+    };
+    g_comm_app_tid = osThreadNew(comm_app_task, NULL, &comm_app_attributes);
 }
 
 /* gimbal integration: real implementations */

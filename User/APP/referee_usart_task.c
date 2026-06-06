@@ -14,7 +14,7 @@
 
 uint8_t usart6_buf[2][USART_RX_BUF_LENGHT];
 
-static osThreadId refereeUsartTaskHandle = NULL;
+static osThreadId_t refereeUsartTaskHandle = NULL;
 static unpack_data_t referee_unpack_data = {0};
 
 static void referee_unpack_fifo_data(void);
@@ -25,8 +25,13 @@ static void referee_unpack_fifo_data(void);
   */
 void RefereeUsartTask_Init(void)
 {
-    osThreadDef(refereeUsartTask, referee_usart_task, osPriorityNormal, 0, 256);
-    refereeUsartTaskHandle = osThreadCreate(osThread(refereeUsartTask), NULL);
+    static const osThreadAttr_t refereeUsartTask_attributes = {
+        .name = "refereeUsartTask",
+        .stack_size = 256 * 4,
+        .priority = (osPriority_t) osPriorityNormal,
+    };
+    refereeUsartTaskHandle = osThreadNew(referee_usart_task, NULL, &refereeUsartTask_attributes);
+    (void)refereeUsartTaskHandle;
 }
 
 /**
@@ -34,7 +39,7 @@ void RefereeUsartTask_Init(void)
   * @param[in]      argument: FreeRTOS 任务参数
   * @retval         none
   */
-void referee_usart_task(void const *argument)
+void referee_usart_task(void *argument)
 {
     (void)argument;
 

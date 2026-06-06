@@ -1,6 +1,6 @@
-﻿// usb_comm.c - CMSIS-RTOS v1 (cmsis_os.h) 版本
+﻿// usb_comm.c - CMSIS-RTOS2 版本
 #include "usb_common.h"
-#include "cmsis_os.h"     // CMSIS-RTOS v1
+#include "cmsis_os2.h"
 #include "usbd_cdc_if.h"
 #include "usbd_core.h"
 #include "..\\..\\User\\Communication\\core\\uproto.h"
@@ -32,10 +32,10 @@ static uint8_t  usb_tx_ring[USB_TX_RING_SIZE];
 static uint16_t usb_tx_wpos = 0;
 static uint16_t usb_tx_count = 0;
 
-/* RTOS 对象（CMSIS v1） */
-static osMutexId usb_tx_mutex = NULL;
-static osThreadId usb_tx_thread_id = NULL;
-static osThreadId usb_rx_thread_id = NULL;
+/* RTOS 对象（CMSIS-RTOS2） */
+static osMutexId_t usb_tx_mutex = NULL;
+static osThreadId_t usb_tx_thread_id = NULL;
+static osThreadId_t usb_rx_thread_id = NULL;
 
 /* 信号位（线程间通知） */
 #define USB_TX_SIGNAL (1U)
@@ -65,17 +65,16 @@ static void usb_do_send_from_queue(void)
 }
 
 /* 发送线程（被 usb_comm_send 唤醒） */
-static void usb_tx_worker(const void *arg)
+static void usb_tx_worker(void *arg)
 {
     (void)arg;
     for (;;) {
         /* 等待 signal（新数据到来） */
-        osEvent evt = osSignalWait(USB_TX_SIGNAL, osWaitForever);
-        (void)evt;
+        (void)osThreadFlagsWait(USB_TX_SIGNAL, osFlagsWaitAny, osWaitForever);
 
         /* 一旦被唤醒，循环发送直到队列为空 */
         while (1) {
-            if (osMutexWait(usb_tx_mutex, 10) != osOK) {
+            if (osMutexAcquire(usb_tx_mutex, 10) != osOK) {
                 /* 获取互斥失败，短延时后重试 */
                 osDelay(2);
                 continue;
@@ -101,7 +100,7 @@ static void usb_tx_worker(const void *arg)
                     if (hh == NULL) break;
                     if (hh->TxState == 0) {
                         /* 发送完成 —— 将刚刚发送的字节从队列中移除 */
-                        if (osMutexWait(usb_tx_mutex, 100) == osOK) {
+                        if (osMutexAcquire(usb_tx_mutex, 100) == osOK) {
                             uint16_t read_pos = usb_tx_read_pos();
                             uint16_t first_chunk = (uint16_t)((USB_TX_RING_SIZE - read_pos) < usb_tx_count ? (USB_TX_RING_SIZE - read_pos) : usb_tx_count);
                             uint16_t send_len = (first_chunk > USB_TX_CHUNK_MAX) ? USB_TX_CHUNK_MAX : first_chunk;
@@ -130,7 +129,7 @@ static void usb_tx_worker(const void *arg)
 }
 
 /* 接收线程：轮询 usb_buf_len（来自原 usbd_cdc_if.c），把数据拷到本地并调用 uproto 处理，随后清零 usb_buf */
-static void usb_rx_worker(const void *arg)
+static void usb_rx_worker(void *arg)
 {
     (void)arg;
     for (;;) {
@@ -159,25 +158,29 @@ static void usb_rx_worker(const void *arg)
     }
 }
 
-/* 初始化：创建互斥与线程（CMSIS-RTOS v1） */
+/* 初始化：创建互斥与线程（CMSIS-RTOS2） */
 void usb_comm_init(void)
 {
     if (usb_tx_mutex == NULL) {
-        /* 创建互斥（使用宏名 usb_tx_mutex_def） */
-        static osMutexDef_t usb_tx_mutex_def;
-        usb_tx_mutex = osMutexCreate(&usb_tx_mutex_def);
+        usb_tx_mutex = osMutexNew(NULL);
     }
 
     if (usb_tx_thread_id == NULL) {
-        /* 创建发送线程 */
-        osThreadDef(USB_TX_THREAD, (os_pthread)usb_tx_worker, osPriorityBelowNormal, 0, USB_TX_THREAD_STACK);
-        usb_tx_thread_id = osThreadCreate(osThread(USB_TX_THREAD), NULL);
+        static const osThreadAttr_t usb_tx_thread_attributes = {
+            .name = "USB_TX_THREAD",
+            .stack_size = USB_TX_THREAD_STACK * 4,
+            .priority = (osPriority_t) osPriorityBelowNormal,
+        };
+        usb_tx_thread_id = osThreadNew(usb_tx_worker, NULL, &usb_tx_thread_attributes);
     }
 
     if (usb_rx_thread_id == NULL) {
-        /* 创建接收线程 */
-        osThreadDef(USB_RX_THREAD, (os_pthread)usb_rx_worker, osPriorityNormal, 0, 512);
-        usb_rx_thread_id = osThreadCreate(osThread(USB_RX_THREAD), NULL);
+        static const osThreadAttr_t usb_rx_thread_attributes = {
+            .name = "USB_RX_THREAD",
+            .stack_size = 512 * 4,
+            .priority = (osPriority_t) osPriorityNormal,
+        };
+        usb_rx_thread_id = osThreadNew(usb_rx_worker, NULL, &usb_rx_thread_attributes);
     }
 
     /* 初始化 ring 状态 */
@@ -190,7 +193,7 @@ void usb_comm_init(void)
 uint32_t usb_comm_tx_free_space(void)
 {
     uint32_t free_space = 0;
-    if (usb_tx_mutex && osMutexWait(usb_tx_mutex, 10) == osOK) {
+    if (usb_tx_mutex && osMutexAcquire(usb_tx_mutex, 10) == osOK) {
         free_space = (size_t)(USB_TX_RING_SIZE - usb_tx_count);
         osMutexRelease(usb_tx_mutex);
     }
@@ -204,7 +207,7 @@ uint32_t usb_comm_send(const uint8_t *data, uint32_t len)
 
     if (usb_tx_mutex == NULL) return 0;
 
-    if (osMutexWait(usb_tx_mutex, 0) != osOK) {
+    if (osMutexAcquire(usb_tx_mutex, 0) != osOK) {
         return 0; // 无法马上获取互斥，返回 0
     }
 
@@ -235,7 +238,7 @@ uint32_t usb_comm_send(const uint8_t *data, uint32_t len)
 
     /* 唤醒发送线程（设置信号） */
     if (usb_tx_thread_id) {
-        osSignalSet(usb_tx_thread_id, USB_TX_SIGNAL);
+        (void)osThreadFlagsSet(usb_tx_thread_id, USB_TX_SIGNAL);
     }
 
     return (uint32_t)to_write;
@@ -254,5 +257,6 @@ void usb_comm_on_rx_direct(uint8_t *buf, uint32_t len)
     if (!buf || len == 0) return;
     uproto_on_rx_bytes(&proto_ctx, buf, len);
 }
+
 
 

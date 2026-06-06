@@ -49,7 +49,7 @@ typedef struct
 
 extern auto_aim_t aim;
 
-void auto_aim_task(void const *pvParameters);
+void auto_aim_task(void *pvParameters);
 void auto_aim_apply_delta_udeg(int32_t dyaw_udeg,
                                int32_t dpitch_udeg,
                                uint16_t status,

@@ -4,7 +4,9 @@
   * @note       串联底盘模式、反馈、控制、发送的周期任务链路。
   */
 #include "chassis_task.h"
+#include "FreeRTOS.h"
 #include "cmsis_os.h"
+#include "task.h"
 
 #if INCLUDE_uxTaskGetStackHighWaterMark
 uint32_t chassis_high_water;
@@ -16,7 +18,7 @@ chassis_move_t chassis_move;
   * @brief          底盘任务入口
   * @retval         none
   */
-void chassis_task(void const *pvParameters)
+void chassis_task(void *pvParameters)
 {
 	vTaskDelay(CHASSIS_TASK_INIT_TIME);
 	chassis_init(&chassis_move);

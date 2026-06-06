@@ -14,13 +14,13 @@
 
 gimbal_control_t gimbal_control;
 
-static osThreadId gimbalTaskHandle = NULL;
+static osThreadId_t gimbalTaskHandle = NULL;
 
 /**
   * @brief          云台任务入口
   * @retval         none
   */
-static void gimbal_task(void const *pvParameters);
+static void gimbal_task(void *pvParameters);
 
 /**
   * @brief          创建云台控制任务
@@ -28,8 +28,12 @@ static void gimbal_task(void const *pvParameters);
   */
 void GimbalTask_Init(void)
 {
-    osThreadDef(gimbalTask, gimbal_task, osPriorityHigh, 0, 1024);
-    gimbalTaskHandle = osThreadCreate(osThread(gimbalTask), NULL);
+    static const osThreadAttr_t gimbalTask_attributes = {
+        .name = "gimbalTask",
+        .stack_size = 1024 * 4,
+        .priority = (osPriority_t) osPriorityHigh,
+    };
+    gimbalTaskHandle = osThreadNew(gimbal_task, NULL, &gimbalTask_attributes);
     (void)gimbalTaskHandle;
 }
 
@@ -37,7 +41,7 @@ void GimbalTask_Init(void)
   * @brief          云台任务入口
   * @retval         none
   */
-static void gimbal_task(void const *pvParameters)
+static void gimbal_task(void *pvParameters)
 {
     TickType_t last_wake_time;
 

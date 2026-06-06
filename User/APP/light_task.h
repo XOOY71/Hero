@@ -67,7 +67,7 @@ typedef struct
 
 typedef struct
 {
-    osThreadId task_handle;
+    osThreadId_t task_handle;
     volatile light_mode_t mode;
     light_rgb_t leds[LIGHT_LED_COUNT];
     uint8_t frame[LIGHT_UART_FRAME_BYTES];
@@ -75,7 +75,7 @@ typedef struct
 } light_control_t;
 
 void LightTask_Init(void);
-void light_task(void const *pvParameters);
+void light_task(void *pvParameters);
 
 void light_set_auto_mode(void);
 void light_set_manual_mode(void);

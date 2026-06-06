@@ -142,7 +142,7 @@ typedef struct
   * @brief          底盘任务入口
   * @retval         none
   */
-extern void chassis_task(void const *pvParameters);
+extern void chassis_task(void *pvParameters);
 
 /**
   * @brief          初始化底盘控制结构体

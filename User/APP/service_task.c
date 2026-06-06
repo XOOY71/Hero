@@ -6,20 +6,27 @@
   */
 
 #include "service_task.h"
+#include "FreeRTOS.h"
 #include "cmsis_os.h"
 #include "safewarning.h"
 #include "hwt_imu.h"
 #include "vofa.h"
 #include "flash_log.h"
+#include "task.h"
 service_control_t service_control;
 
 /**/
-static osThreadId serviceTaskHandle = NULL;
-static void service_task(void const *pvParameters);
+static osThreadId_t serviceTaskHandle = NULL;
+static void service_task(void *pvParameters);
 void ServiceTask_Init(void)
 {
-    osThreadDef(serviceTask, service_task, osPriorityLow, 0, 256);
-    serviceTaskHandle = osThreadCreate(osThread(serviceTask), NULL);
+    static const osThreadAttr_t serviceTask_attributes = {
+        .name = "serviceTask",
+        .stack_size = 256 * 4,
+        .priority = (osPriority_t) osPriorityLow,
+    };
+    serviceTaskHandle = osThreadNew(service_task, NULL, &serviceTask_attributes);
+    (void)serviceTaskHandle;
 }
 /**/
 
@@ -29,7 +36,7 @@ void ServiceTask_Init(void)
   * @param[in]      none
   * @retval         none
   */
-static void service_task(void const *pvParameters)
+static void service_task(void *pvParameters)
 {
     (void)pvParameters;
 
