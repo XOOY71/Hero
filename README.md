@@ -1,6 +1,6 @@
 # Hero
 
-`Hero` 是一套面向 RoboMaster 英雄机器人的 STM32H723VGTx 控制板固件工程。主控基于 STM32 HAL、FreeRTOS CMSIS-RTOS v1、FDCAN、UART DMA 和 USB CDC，实现云台、底盘、发射、自瞄通信、裁判数据解析、在线检测、功率控制、VOFA 调试和外置灯板状态显示；`light/CH32V003F4P` 目录包含外置 WS2812 灯板固件。
+`Hero` 是一套面向 RoboMaster 英雄机器人的 STM32H723VGTx 控制板固件工程。主控基于 STM32 HAL、FreeRTOS CMSIS-RTOS v1、FDCAN、UART DMA、USB CDC 和 OCTOSPI2，实现云台、底盘、发射、自瞄通信、裁判数据解析、在线检测、功率控制、W25Q64 外部 Flash、VOFA 调试和外置灯板状态帧输出。
 
 当前工程已经将机器人级参数文件整理为 `User/APP_Support/common/robot_param.h`，业务层代码规范见 `代码规范.md`。CubeMX 生成代码仍以 `CtrlBoard-H7_WS1812.ioc` 为入口，手写业务代码集中放在 `User` 目录。
 
@@ -13,7 +13,10 @@
 - 自瞄通信：USB CDC + uproto + channel 框架，包含云台状态发布、自瞄增量注入、主机底盘/射击命令注入、相机触发和时间同步通道。
 - 裁判与功控：裁判系统结构解析入口、枪口热量读取接口、底盘功率和缓冲能量读取接口、PM01 超级电容对象字典访问、底盘功率限制接口。
 - 在线检测：DBUS、底盘电机、云台电机、摩擦轮和拨弹电机在线状态检测，供任务保护、零输出保护和灯板显示使用。
-- 灯板显示：主控 UART8 输出 10 路 RGB 状态帧，外置 CH32V003F4P 固件驱动 WS2812 灯珠；8 号提示灯显示发射热量，颜色从绿到黄再到红。
+- 灯板显示：主控 UART8 输出 10 路 RGB 状态帧，外置 CH32V003F4P 灯板固件驱动 WS2812 灯珠；8 号提示灯显示发射热量，颜色从绿到黄再到红。
+- 外部 Flash：OCTOSPI2 驱动 W25Q64，支持 JEDEC ID 校验、4 KB 扇区擦除、32 KB/64 KB 块擦除、整片擦除、页写入、连续读写和内存映射。
+- Flash 错误日志：`flash_log` 把短文本错误事件缓存到 RAM 队列，再由 `service_task` 周期写入 W25Q64 末尾 64 KB 日志区。
+- 服务任务：`service_task` 统一调度 HWT IMU 初始化、Flash 日志初始化、WS2812、蜂鸣器、VOFA 6 通道发送和日志落盘服务。
 - 调试支持：VOFA 固定 6 通道数据发送、Keil 构建日志、弹道/惯量测试数据、MATLAB 拟合脚本和控制链路图。
 
 ## 技术栈
@@ -22,11 +25,12 @@
 - 主控框架：STM32CubeMX 生成工程 + STM32H7 HAL Driver。
 - RTOS：FreeRTOS，CMSIS-RTOS v1。
 - 构建工具：Keil MDK-ARM 工程文件，当前本机使用 μVision V5.40 / ARMCC V5.06。
-- 通信接口：FDCAN1、FDCAN2、FDCAN3、UART5、UART7、UART8、USART1、USART10、USB CDC HS、SPI2、SPI6、TIM24。
+- 通信接口：FDCAN1、FDCAN2、FDCAN3、UART5、UART7、UART8、USART1、USART10、USB CDC HS、OCTOSPI2、SPI2、SPI6、TIM24。
+- 外部存储：W25Q64，8 MB，JEDEC ID 为 `0xEF4017`，OSPI 内存映射起始地址为 `0x90000000`。
 - 控制算法：PID、ADRC、Kalman Filter、Quaternion EKF、目标曲线、重力补偿、惯量前馈、摩擦补偿、低通滤波和数学工具函数。
 - 上位机协议：uproto、channel manager、gimbal/camera/time_sync 通道。
 - 外置灯板：CH32V003F4P + WS2812。
-- 调试工具：Git、VOFA+、Keil build log、MATLAB。
+- 调试工具：Git、VOFA+、Keil build log、MATLAB、Flash 日志串口导出。
 
 ## 目录结构
 
@@ -37,11 +41,13 @@ Hero/
 │   │   ├── main.h                          # 全局 HAL 入口和 GPIO 宏
 │   │   ├── FreeRTOSConfig.h                # FreeRTOS 裁剪配置
 │   │   ├── fdcan.h / usart.h / tim.h       # FDCAN、UART、TIM 外设接口
+│   │   ├── octospi.h / spi.h / dma.h       # OCTOSPI2、SPI、DMA 外设接口
 │   │   └── stm32h7xx_it.h                  # 中断服务声明
 │   └── Src/                                # 启动流程、外设初始化、任务创建和中断实现
-│       ├── main.c                          # HAL、时钟、外设、CAN、UART DMA、TIM24、uproto 启动入口
+│       ├── main.c                          # HAL、时钟、CAN、UART DMA、OCTOSPI2、TIM24、uproto 启动入口
 │       ├── freertos.c                      # FreeRTOS 任务创建入口
 │       ├── fdcan.c / usart.c / tim.c       # CubeMX 外设初始化实现
+│       ├── octospi.c / spi.c / dma.c       # CubeMX 外设初始化实现
 │       ├── stm32h7xx_it.c                  # 中断分发入口
 │       └── system_stm32h7xx.c              # 系统时钟底层支持
 ├── Drivers/                                # ST 官方驱动和 CMSIS 支持包
@@ -74,13 +80,14 @@ Hero/
 │   │   ├── detect_task.c / detect_task.h   # DBUS、电机和外设在线检测
 │   │   ├── light_task.c / light_task.h     # 外置灯板状态渲染和 UART8 帧发送
 │   │   ├── referee_usart_task.c / *.h      # 裁判串口任务入口
-│   │   ├── service_task.c / *.h            # 蜂鸣器、IMU、板载灯服务入口
+│   │   ├── service_task.c / *.h            # 蜂鸣器、IMU、VOFA、Flash 日志和板载灯服务入口
 │   │   ├── Safewarning.c / Safewarning.h   # 安全提示/蜂鸣器相关逻辑
 │   │   └── usb_task.c / usb_task.h         # USB 任务保留入口
 │   ├── APP_Support/                        # 应用支撑层和参数层
 │   │   ├── common/
 │   │   │   ├── robot_param.h               # 全局模式、CAN ID、云台/底盘/发射/功率公共参数
 │   │   │   ├── referee.c / referee.h       # 裁判系统数据结构和解析接口
+│   │   │   ├── flash_log.c / flash_log.h   # W25Q64 错误日志队列、落盘、导出和清除
 │   │   │   ├── protocol.h                  # 裁判协议结构体
 │   │   │   └── struct_typedef.h            # 基础类型定义
 │   │   ├── gimbal/
@@ -117,20 +124,8 @@ Hero/
 │   └── Devices/                            # 具体设备驱动和调试输出
 │       ├── hwt_imu.c / hwt_imu.h           # HWT101/HWT906 IMU 数据解析
 │       ├── vofa.c / vofa.h                 # VOFA 调试数据发送
+│       ├── w25q64.c / w25q64.h             # W25Q64 初始化、擦除、读写和内存映射
 │       └── ws2812.c / ws2812.h             # 板载 WS2812 驱动
-├── light/
-│   ├── Src/                                # 简化版外置灯板固件源码
-│   │   ├── main.c                          # 灯板主循环
-│   │   ├── uart_proto.c                    # 主控到灯板串口帧解析
-│   │   └── ws2812.c                        # WS2812 输出
-│   ├── Inc/                                # 灯板公共头文件和板级配置
-│   └── CH32V003F4P/                        # WCH 工程化灯板固件
-│       ├── User/                           # CH32V003 用户代码、WS2812、串口协议和中断
-│       ├── Peripheral/                     # CH32V00x 外设库
-│       ├── Startup/                        # RISC-V 启动文件
-│       ├── Ld/                             # 链接脚本
-│       ├── Debug/                          # 调试串口支持
-│       └── obj/                            # 构建输出
 ├── MDK-ARM/                                # Keil MDK-ARM 主控工程
 │   ├── CtrlBoard-H7_WS1812.uvprojx         # Keil 工程文件
 │   ├── CtrlBoard-H7_WS1812.uvoptx          # Keil 工程选项
@@ -141,12 +136,17 @@ Hero/
 ├── CtrlBoard-H7_WS1812.ioc                 # STM32CubeMX 工程配置
 ├── 代码规范.md                             # 当前工程代码规范
 ├── BUG_FIX_RECORD.md                       # 修复记录
-├── control_chain.svg                       # 控制链路图
+├── W25Q64_移植说明.md                      # W25Q64 移植记录
+├── 裁判链路迁移缺口与修改说明.md           # 裁判链路迁移记录
+├── 麦克纳姆底盘闭环与急停减速链路.md       # 底盘闭环与急停减速链路记录
+├── ST_Edge_AI_功率控制预测模型部署指南.md  # ST Edge AI 功率预测模型部署说明
+├── NanoEdge_AI_Studio_底盘功率控制教程.md  # NanoEdge AI Studio 功率控制教程
+├── 工程框架迁移提示词.md                   # 工程框架迁移说明
 ├── fit_yaw_inertia_from_vofa.m             # yaw 惯量拟合脚本
 ├── vofa+.csv                               # VOFA 采样数据
-├── Yaw Inertia Fit.pdf                     # yaw 惯量拟合结果
-├── Yaw VOFA Data Overview.pdf              # yaw 采样数据概览
+├── power_profile_filtered.csv              # 功率控制采样数据
 ├── shot.png                                # 发射/弹道相关图片
+├── 开源报告.pdf                            # 开源报告文档
 ├── 调试日志.md                             # 调试记录
 └── 弹道测试数据/                           # 弹道测试数据
 ```
@@ -160,7 +160,8 @@ Hero/
 - STM32H7xx Device Family Pack。
 - 调试/下载器：J-Link 或 ST-Link，具体型号按现场硬件配置。
 - 主控目标芯片：STM32H723VGTx。
-- 外置灯板工具链：WCH CH32V003F4P 工程工具。
+- 外部存储硬件：W25Q64，连接 OCTOSPI2。
+- 外置灯板硬件：CH32V003F4P + WS2812，主控通过 UART8 输出 RGB 状态帧。
 - 可选工具：Git、MATLAB、VOFA+、CMake/C++ 编译器。
 
 ## 安装步骤
@@ -203,6 +204,8 @@ HAL_Init()
 -> MX_GPIO_Init() / MX_DMA_Init() / 外设初始化
 -> bsp_can_init()
 -> UART DMA ReceiveToIdle 启动
+-> MX_OCTOSPI2_Init()
+-> OSPI_W25Qxx_Init()
 -> tim24_timebase_init()
 -> proto_init_from_main()
 -> MX_FREERTOS_Init()
@@ -214,10 +217,10 @@ FreeRTOS 创建的主要任务：
 | 任务 | 入口 | 优先级 | 栈 | 周期/延时 | 职责 |
 |---|---|---:|---:|---|---|
 | defaultTask | `StartDefaultTask` | Normal | 128 | 1 ms | USB_DEVICE 初始化和保留循环 |
-| auto_aim | `auto_aim_task` | Normal | 256 | 1 ms | 自瞄在线状态、软开关和误差缓存 |
-| COMM_APP | `comm_app_task` | BelowNormal | 640 | 1 ms | USB CDC、uproto、通道调度、主机命令注入 |
+| auto_aim | `auto_aim_task` | Realtime | 256 | 1 ms | 自瞄在线状态、软开关、弹道下坠补偿和误差缓存 |
+| COMM_APP | `comm_app_task` | Realtime | 640 | 1 ms | USB CDC、uproto、通道调度、主机命令注入 |
 | gimbalTask | `gimbal_task` | High | 1024 | `GIMBAL_CONTROL_TIME` | 云台闭环、重力补偿、发射调度、VOFA 输出 |
-| service_task | `ServiceTask_Init` 创建 | Low | 由工程配置决定 | `SERVICE_CONTROL_TIME` | 蜂鸣器、IMU、板载灯等服务 |
+| serviceTask | `ServiceTask_Init` 创建 | Low | 256 | `SERVICE_CONTROL_TIME` | HWT IMU、Flash 日志、WS2812、蜂鸣器和 VOFA 服务 |
 | lightTask | `light_task` | Low | 256 | `LIGHT_TASK_PERIOD_MS` | 外置灯板状态帧生成和 UART8 发送 |
 | detect | `detect_task` | Low | 128 | `DETECT_CONTROL_TIME` | DBUS、电机和外设在线检测 |
 | chassis | `chassis_task` | High | 768 | `CHASSIS_CONTROL_TIME_MS` | 底盘控制、功控、CAN 输出入口 |
@@ -287,6 +290,52 @@ shoot_task_set_mode
 -> shoot_task_fire_heat_would_over_limit
 -> 拨弹入口禁止继续打弹
 -> light_render_shoot_heat_status 显示热量色域
+```
+
+service 任务启动链路：
+
+```text
+ServiceTask_Init
+-> osThreadNew(service_task)
+-> vTaskDelay(SERVICE_TASK_INIT_TIME)
+-> hwt_imu_init
+-> flash_log_init
+-> 周期服务循环
+```
+
+service 任务周期链路：
+
+```text
+service_time += SERVICE_CONTROL_TIME
+-> ws2812_task
+-> Beep_Task
+-> VOFA_ServiceSend
+-> flash_log_service
+-> vTaskDelay(SERVICE_CONTROL_TIME)
+```
+
+通信接收链路：
+
+```text
+USB OUT ISR
+-> CDC_Receive_HS
+-> uproto_on_rx_bytes
+-> uproto_process_rx_buffer
+-> handler(UPROTO_MSG_MUX)
+-> on_mux_rx
+-> chmgr_dispatch_rx
+-> channel.hooks.on_rx
+```
+
+通信发送链路：
+
+```text
+on_tick / on_rx
+-> ch_uproto_queue_notify
+-> ch_uproto_arbiter_tick
+-> mux_encode
+-> uproto_send_notify
+-> USB CDC 发送
 ```
 
 ## 发射热量模型
@@ -366,16 +415,152 @@ heat + SHOOT_HEAT_PER_BULLET >= SHOOT_HEAT_LIMIT
 | USART1 | 921600 baud，DMA RX/TX | 裁判系统/串口通信入口 |
 | USART10 | 921600 baud，DMA RX/TX | HWT906 或扩展通信 |
 | USB_DEVICE | CDC HS | 上位机通信 |
+| OCTOSPI2 | Quad SPI，8 MB 地址空间 | W25Q64 外部 Flash |
 | TIM24 | 内部时钟，Prescaler 239 | 微秒时间基 |
+
+### 外部 Flash 参数
+
+OCTOSPI2 由 CubeMX 生成，业务驱动位于 `User/Devices/w25q64.c` 和 `User/Devices/w25q64.h`。
+
+| 参数 | 当前值 | 作用 |
+|---|---:|---|
+| 实例 | `OCTOSPI2` | 外部 W25Q64 通信接口 |
+| 句柄 | `hospi2` | HAL OSPI 操作对象 |
+| FifoThreshold | `8` | OSPI FIFO 阈值 |
+| DualQuad | `HAL_OSPI_DUALQUAD_DISABLE` | 单片 Quad Flash 模式 |
+| MemoryType | `HAL_OSPI_MEMTYPE_MICRON` | HAL 存储器类型配置 |
+| DeviceSize | `23` | 8 MB 地址空间 |
+| ClockMode | `HAL_OSPI_CLOCK_MODE_3` | OSPI 时钟模式 |
+| ClockPrescaler | `3` | OSPI 分频参数 |
+| SampleShifting | `HAL_OSPI_SAMPLE_SHIFTING_HALFCYCLE` | 半周期采样移位 |
+
+OCTOSPI2 引脚映射：
+
+| 引脚 | 功能 |
+|---|---|
+| PA1 | `OCTOSPIM_P1_IO3` |
+| PA3 | `OCTOSPIM_P1_IO2` |
+| PB0 | `OCTOSPIM_P1_IO1` |
+| PB2 | `OCTOSPIM_P1_CLK` |
+| PE11 | `OCTOSPIM_P1_NCS` |
+| PD11 | `OCTOSPIM_P1_IO0` |
+
+W25Q64 容量参数：
+
+| 宏 | 当前值 | 含义 |
+|---|---:|---|
+| `W25Qxx_PageSize` | `256` | 页大小，单位 byte |
+| `W25Qxx_FlashSize` | `0x800000` | 总容量 8 MB |
+| `W25Qxx_FLASH_ID` | `0xEF4017` | W25Q64 JEDEC ID |
+| `W25Qxx_Mem_Addr` | `0x90000000` | 内存映射起始地址 |
+
+W25Q64 驱动接口：
+
+| 接口 | 功能 |
+|---|---|
+| `OSPI_W25Qxx_Init()` | 初始化并校验 JEDEC ID |
+| `OSPI_W25Qxx_ReadID()` | 读取 W25Q64 ID，目标值为 `0xEF4017` |
+| `OSPI_W25Qxx_MemoryMappedMode()` | 进入 OSPI 内存映射模式 |
+| `OSPI_W25Qxx_SectorErase()` | 擦除 4 KB 扇区 |
+| `OSPI_W25Qxx_BlockErase_32K()` | 擦除 32 KB 块 |
+| `OSPI_W25Qxx_BlockErase_64K()` | 擦除 64 KB 块 |
+| `OSPI_W25Qxx_ChipErase()` | 整片擦除 |
+| `OSPI_W25Qxx_WritePage()` | 页写入，单页 256 byte |
+| `OSPI_W25Qxx_WriteBuffer()` | 连续写入缓冲区 |
+| `OSPI_W25Qxx_ReadBuffer()` | 连续读取缓冲区 |
 
 ### 主要参数文件
 
 - `User/APP_Support/common/robot_param.h`：机器人模式、电容开关、CAN ID、通道映射、云台 PID、底盘几何、底盘速度规划、底盘制动、MIT 电机 ID、发射公共参数。
 - `User/APP/chassis_task.h`：底盘控制结构体、底盘模式枚举、任务接口和弱接口声明。
 - `User/APP/gimbal_task.h`：云台控制结构体、云台电机状态、PID 接口和任务接口声明。
+- `User/APP/service_task.h`：服务任务周期、启动延时和 `service_control_t`。
 - `User/APP_Support/shoot/shoot_task.h`：摩擦轮目标转速、电流限制、ADRC 参数、拨弹 PID、开火检测字段、热量模型参数。
+- `User/APP_Support/common/flash_log.h`：Flash 日志区大小、记录结构、来源枚举、等级枚举和维护接口。
+- `User/Devices/w25q64.h`：W25Q64 命令、容量、JEDEC ID、错误码和 OSPI 读写接口。
 - `User/APP/light_task.h`：灯珠数量、帧长度、灯板任务周期、灯位映射和灯效状态结构。
 - `User/Communication/example/device/comm_app_config.h`：通信任务栈、优先级、通道 ID、USB 枚举超时和主机命令注入通道映射。
+
+### Flash 错误日志
+
+Flash 日志位于 `User/APP_Support/common/flash_log.c` 和 `User/APP_Support/common/flash_log.h`，事件先进入 RAM 队列，再由 `service_task` 周期写入 W25Q64 末尾日志区。
+
+控制开关位于 `User/APP_Support/common/robot_param.h`：
+
+| 宏 | 当前值 | 含义 |
+|---|---:|---|
+| `FLASH_LOG_ENABLE` | `0U` | 外部 Flash 错误日志开关，`1U` 表示启用 |
+| `FLASH_LOG_QUEUE_DEPTH` | `8U` | RAM 日志队列深度 |
+
+日志区参数：
+
+| 宏 | 当前值 | 含义 |
+|---|---:|---|
+| `FLASH_LOG_MAGIC` | `0x464C4F47UL` | 记录有效标识，ASCII 为 `FLOG` |
+| `FLASH_LOG_RECORD_SIZE` | `64U` | 单条日志长度，单位 byte |
+| `FLASH_LOG_TEXT_LEN` | `44U` | 单条日志文本长度，单位 byte |
+| `FLASH_LOG_SECTOR_SIZE` | `4096U` | W25Q64 扇区大小，单位 byte |
+| `FLASH_LOG_REGION_SIZE` | `64U * 1024U` | 日志区大小，单位 byte |
+| `FLASH_LOG_REGION_BASE` | `W25Qxx_FlashSize - FLASH_LOG_REGION_SIZE` | 日志区起始地址 |
+| `FLASH_LOG_REGION_END` | `W25Qxx_FlashSize` | 日志区结束地址 |
+| `FLASH_LOG_RECORD_COUNT` | `FLASH_LOG_REGION_SIZE / FLASH_LOG_RECORD_SIZE` | 日志区记录容量 |
+
+日志来源：
+
+| 枚举 | 含义 |
+|---|---|
+| `FLASH_LOG_SOURCE_SYSTEM` | 系统初始化和全局状态 |
+| `FLASH_LOG_SOURCE_DETECT` | 在线检测 TOE 状态 |
+| `FLASH_LOG_SOURCE_OSPI` | 外部 Flash/OSPI 状态 |
+
+日志接口：
+
+| 接口 | 功能 |
+|---|---|
+| `flash_log_init()` | 扫描日志区并恢复下一写入地址和序号 |
+| `flash_log_service()` | 从 RAM 队列取出一条记录并写入 Flash |
+| `flash_log_enqueue_error()` | 入队错误事件 |
+| `flash_log_dump_to_uart()` | 按序号输出日志到指定 UART |
+| `flash_log_clear()` | 擦除日志区并重置 RAM 控制状态 |
+
+日志写入链路：
+
+```text
+flash_log_enqueue_error()
+-> RAM 队列保存 flash_log_record_t
+-> service_task 周期调用 flash_log_service()
+-> 扇区边界触发 OSPI_W25Qxx_SectorErase()
+-> OSPI_W25Qxx_WriteBuffer() 写入 64 byte 记录
+-> next_addr 到达 FLASH_LOG_REGION_END 后回到 FLASH_LOG_REGION_BASE
+```
+
+`FLASH_LOG_ENABLE` 为 `0U` 时，`flash_log_*` 接口保留空实现，调用链路保持稳定；启用日志时需要确认 W25Q64 初始化成功、OSPI2 引脚和时钟配置正确。
+
+### 自瞄参数
+
+自瞄参数位于 `User/APP/auto_aim.h`。
+
+| 宏 | 当前值 | 含义 |
+|---|---:|---|
+| `AIM_INIT_TIME` | `500U` | 自瞄任务启动延时，单位 ms |
+| `AUTO_AIM_TIMEOUT` | `2000U` | 自瞄反馈超时阈值，单位 ms |
+| `AUTO_AIM_TIME` | `1U` | 自瞄任务周期，单位 ms |
+| `AUTO_AIM_UDEG_TO_RAD` | `PI / 180000000.0f` | 微度到弧度换算系数 |
+| `AUTO_AIM_BALLISTIC_DROP_K_MM_PER_M2` | `18.0f` | 弹道下坠补偿系数，单位 mm/m^2 |
+| `AUTO_AIM_BALLISTIC_DISTANCE_M` | `3.9f` | 默认补偿距离，单位 m |
+| `AUTO_AIM_MM_PER_M` | `1000.0f` | 米到毫米换算系数 |
+| `AUTO_AIM_SOFT_ENABLE` | `0` | 自瞄软件开关默认值 |
+
+自瞄接口：
+
+| 接口 | 功能 |
+|---|---|
+| `auto_aim_task()` | 自瞄任务入口 |
+| `auto_aim_apply_delta_udeg()` | 注入 yaw/pitch 微度增量、状态和时间戳 |
+| `auto_aim_get_yaw_err_rad()` | 获取 yaw 弧度误差 |
+| `auto_aim_get_pitch_err_rad()` | 获取 pitch 弧度误差 |
+| `auto_aim_is_active()` | 读取自瞄在线并启用状态 |
+| `auto_aim_reset_delta_accum()` | 清空增量累计值 |
 
 ### CAN ID 分配
 
@@ -397,6 +582,7 @@ heat + SHOOT_HEAT_PER_BULLET >= SHOOT_HEAT_LIMIT
 - `User/APP/*_task.c` 负责任务入口、全局控制对象、模块初始化调用、周期调度和弱接口声明。
 - `User/APP/*_task.h` 负责任务数据结构、模块接口声明和跨模块状态字段。
 - `User/APP_Support/common/robot_param.h` 负责机器人级宏、CAN ID、通道映射、底盘/云台/发射/功率等跨模块参数。
+- `User/APP_Support/common/flash_log.*` 负责 W25Q64 日志区扫描、错误事件入队、周期落盘、串口导出和日志区清除。
 - `User/APP_Support/chassis/chassis_behaviour.*` 负责遥控器、键鼠、掉线状态到底盘行为模式和底盘控制模式的映射。
 - `User/APP_Support/chassis/chassis_calculate.*` 负责底盘运动学正解、逆解、坐标旋转和运动学限幅。
 - `User/APP_Support/chassis/Omni_chassis.*` 负责底盘初始化、反馈更新、目标生成、速度规划、轮速控制、制动补偿和 CAN 发送。
@@ -405,6 +591,7 @@ heat + SHOOT_HEAT_PER_BULLET >= SHOOT_HEAT_LIMIT
 - `User/APP_Support/shoot/shoot_3508.*` 负责 3508 摩擦轮和拨弹机构控制。
 - `User/APP_Support/power_control/*` 负责底盘功率预测、功率限幅、电流缩放和功率模块通信。
 - `User/BSP/*` 负责板级外设封装、CAN/UART/TIM/DWT 和遥控器底层数据。
+- `User/Devices/w25q64.*` 负责 W25Q64 初始化、擦除、读写和内存映射。
 - `User/Devices/*` 负责设备级封装和调试输出。
 
 ### 组织规则
@@ -457,6 +644,8 @@ git status --short
 rg "GIMBAL_CONTROL_TIME"
 rg "shoot_task_control" User
 rg "CAN_cmd_MIT" User Core
+rg "FLASH_LOG_ENABLE|flash_log_" User
+rg "OSPI_W25Qxx|MX_OCTOSPI2" User Core
 ```
 
 用 Keil 命令行构建主控工程，`UV4.exe` 路径按本机安装位置调整：
@@ -481,17 +670,24 @@ start .\MDK-ARM\CtrlBoard-H7_WS1812.uvprojx
 
 ```powershell
 cd .\User\Communication\example\host
+.\build\uproto_host_cpp.exe --list
+.\build\uproto_host_cpp.exe --quiet COM3
+.\build\uproto_host_cpp.exe --sine yaw:1:10@50 COM3
 ```
 
 ## 开发说明
 
 业务代码优先放在 `User` 目录；`Core`、`Drivers`、`Middlewares` 和 `USB_DEVICE` 中的 CubeMX 生成代码只在外设配置变更时同步调整。控制链路按“BSP/Devices 解析反馈 -> APP 任务读取输入 -> APP_Support 生成目标和控制量 -> Algorithm 计算 -> BSP 下发 CAN/UART/USB”的路径组织。
 
-新增控制参数时优先放入对应模块头文件：全局、云台、底盘机械和跨模块公共参数放入 `robot_param.h`；发射参数放入 `shoot_task.h` 或 `shoot_3508.h`；通信参数放入 `comm_app_config.h`；灯板参数放入 `light_task.h`。修改 `.ioc` 后需要用 CubeMX 重新生成代码，并检查 `USER CODE BEGIN/END` 区域内的手写逻辑是否保留。
+新增控制参数时优先放入对应模块头文件：全局、云台、底盘机械和跨模块公共参数放入 `robot_param.h`；发射参数放入 `shoot_task.h` 或 `shoot_3508.h`；通信参数放入 `comm_app_config.h`；Flash 日志参数放入 `flash_log.h` 或 `robot_param.h` 的日志开关区；W25Q64 命令和容量参数放入 `w25q64.h`；灯板参数放入 `light_task.h`。修改 `.ioc` 后需要用 CubeMX 重新生成代码，并检查 `USER CODE BEGIN/END` 区域内的手写逻辑是否保留。
 
 当前底盘控制链路已经包含目标生成、速度规划、运动学计算、功控计算、电流变量写入和 CAN 下发。恢复实车输出或改动底盘控制时，需要沿 `chassis_set_mode -> chassis_feedback_update -> chassis_set_contorl -> chassis_control_loop -> chassis_send_cmd` 链路接入。
 
 当前发射控制链路通过摩擦轮掉速和反馈电流判断开火，再由软件热量模型限制下一发拨弹。该模型不替代裁判系统热量数据；裁判热量接口仍在 `referee.c/referee.h` 中保留，可在后续需要时与软件模型融合。
+
+当前外部 Flash 链路由 `Core/Src/main.c` 初始化 OCTOSPI2，再调用 `OSPI_W25Qxx_Init()` 校验 W25Q64 ID；Flash 日志由 `service_task` 初始化并周期服务，控制循环只调用 `flash_log_enqueue_error()` 入队事件。
+
+OCTOSPI2、GPIO、时钟树、DMA、NVIC、USB、FDCAN、UART、SPI、TIM 和 FreeRTOS 属于 CubeMX 管理项。调整这些项时先给出 CubeMX 路径、建议值和生成代码后的影响文件，再通过 CubeMX 生成工程。
 
 ## 底盘动力学前馈与急停制动说明
 
