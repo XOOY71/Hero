@@ -22,6 +22,7 @@ ctrlboard-h7_ws1812\freertos.o: ../Drivers/CMSIS/Include/cmsis_version.h
 ctrlboard-h7_ws1812\freertos.o: ../Drivers/CMSIS/Include/cmsis_compiler.h
 ctrlboard-h7_ws1812\freertos.o: ../Drivers/CMSIS/Include/cmsis_armcc.h
 ctrlboard-h7_ws1812\freertos.o: ../Drivers/CMSIS/Include/mpu_armv7.h
+ctrlboard-h7_ws1812\freertos.o: ../Drivers/CMSIS/Include/cachel1_armv7.h
 ctrlboard-h7_ws1812\freertos.o: ../Drivers/CMSIS/Device/ST/STM32H7xx/Include/system_stm32h7xx.h
 ctrlboard-h7_ws1812\freertos.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal.h
 ctrlboard-h7_ws1812\freertos.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/Legacy/stm32_hal_legacy.h
@@ -40,6 +41,7 @@ ctrlboard-h7_ws1812\freertos.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_ha
 ctrlboard-h7_ws1812\freertos.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_hsem.h
 ctrlboard-h7_ws1812\freertos.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_i2c.h
 ctrlboard-h7_ws1812\freertos.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_i2c_ex.h
+ctrlboard-h7_ws1812\freertos.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_ospi.h
 ctrlboard-h7_ws1812\freertos.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_pwr.h
 ctrlboard-h7_ws1812\freertos.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_pwr_ex.h
 ctrlboard-h7_ws1812\freertos.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_spi.h
@@ -51,11 +53,7 @@ ctrlboard-h7_ws1812\freertos.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_ha
 ctrlboard-h7_ws1812\freertos.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_pcd.h
 ctrlboard-h7_ws1812\freertos.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_ll_usb.h
 ctrlboard-h7_ws1812\freertos.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_pcd_ex.h
-ctrlboard-h7_ws1812\freertos.o: ../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS/cmsis_os.h
-ctrlboard-h7_ws1812\freertos.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/timers.h
-ctrlboard-h7_ws1812\freertos.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/queue.h
-ctrlboard-h7_ws1812\freertos.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/semphr.h
-ctrlboard-h7_ws1812\freertos.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/event_groups.h
+ctrlboard-h7_ws1812\freertos.o: ../Drivers/CMSIS/RTOS2/Include/cmsis_os2.h
 ctrlboard-h7_ws1812\freertos.o: ../User/APP/gimbal_task.h
 ctrlboard-h7_ws1812\freertos.o: D:\Keil5\ARM\ARMCC\Bin\..\include\stdbool.h
 ctrlboard-h7_ws1812\freertos.o: ../User/APP_Support/common/robot_param.h
@@ -79,6 +77,6 @@ ctrlboard-h7_ws1812\freertos.o: ../User/APP_Support/common/struct_typedef.h
 ctrlboard-h7_ws1812\freertos.o: ../User/Algorithm/user_lib.h
 ctrlboard-h7_ws1812\freertos.o: ../User/APP/detect_task.h
 ctrlboard-h7_ws1812\freertos.o: ../User/APP/light_task.h
-ctrlboard-h7_ws1812\freertos.o: ../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS/cmsis_os.h
+ctrlboard-h7_ws1812\freertos.o: ../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS_V2/cmsis_os.h
 ctrlboard-h7_ws1812\freertos.o: ../User/APP/referee_usart_task.h
 ctrlboard-h7_ws1812\freertos.o: ../User/APP_Support/common/protocol.h

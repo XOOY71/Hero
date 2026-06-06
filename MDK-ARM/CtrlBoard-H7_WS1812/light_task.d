@@ -2,21 +2,9 @@ ctrlboard-h7_ws1812\light_task.o: ..\User\APP\light_task.c
 ctrlboard-h7_ws1812\light_task.o: ..\User\APP\light_task.h
 ctrlboard-h7_ws1812\light_task.o: D:\Keil5\ARM\ARMCC\Bin\..\include\stdbool.h
 ctrlboard-h7_ws1812\light_task.o: D:\Keil5\ARM\ARMCC\Bin\..\include\stdint.h
-ctrlboard-h7_ws1812\light_task.o: ../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS/cmsis_os.h
-ctrlboard-h7_ws1812\light_task.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/FreeRTOS.h
+ctrlboard-h7_ws1812\light_task.o: ../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS_V2/cmsis_os.h
+ctrlboard-h7_ws1812\light_task.o: ../Drivers/CMSIS/RTOS2/Include/cmsis_os2.h
 ctrlboard-h7_ws1812\light_task.o: D:\Keil5\ARM\ARMCC\Bin\..\include\stddef.h
-ctrlboard-h7_ws1812\light_task.o: ../Core/Inc/FreeRTOSConfig.h
-ctrlboard-h7_ws1812\light_task.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/projdefs.h
-ctrlboard-h7_ws1812\light_task.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/portable.h
-ctrlboard-h7_ws1812\light_task.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/deprecated_definitions.h
-ctrlboard-h7_ws1812\light_task.o: ../Middlewares/Third_Party/FreeRTOS/Source/portable/RVDS/ARM_CM4F/portmacro.h
-ctrlboard-h7_ws1812\light_task.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/mpu_wrappers.h
-ctrlboard-h7_ws1812\light_task.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/task.h
-ctrlboard-h7_ws1812\light_task.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/list.h
-ctrlboard-h7_ws1812\light_task.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/timers.h
-ctrlboard-h7_ws1812\light_task.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/queue.h
-ctrlboard-h7_ws1812\light_task.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/semphr.h
-ctrlboard-h7_ws1812\light_task.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/event_groups.h
 ctrlboard-h7_ws1812\light_task.o: D:\Keil5\ARM\ARMCC\Bin\..\include\string.h
 ctrlboard-h7_ws1812\light_task.o: ../User/BSP/bsp_usart.h
 ctrlboard-h7_ws1812\light_task.o: ../Core/Inc/main.h
@@ -31,6 +19,7 @@ ctrlboard-h7_ws1812\light_task.o: ../Drivers/CMSIS/Include/cmsis_version.h
 ctrlboard-h7_ws1812\light_task.o: ../Drivers/CMSIS/Include/cmsis_compiler.h
 ctrlboard-h7_ws1812\light_task.o: ../Drivers/CMSIS/Include/cmsis_armcc.h
 ctrlboard-h7_ws1812\light_task.o: ../Drivers/CMSIS/Include/mpu_armv7.h
+ctrlboard-h7_ws1812\light_task.o: ../Drivers/CMSIS/Include/cachel1_armv7.h
 ctrlboard-h7_ws1812\light_task.o: ../Drivers/CMSIS/Device/ST/STM32H7xx/Include/system_stm32h7xx.h
 ctrlboard-h7_ws1812\light_task.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal.h
 ctrlboard-h7_ws1812\light_task.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/Legacy/stm32_hal_legacy.h
@@ -49,6 +38,7 @@ ctrlboard-h7_ws1812\light_task.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_
 ctrlboard-h7_ws1812\light_task.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_hsem.h
 ctrlboard-h7_ws1812\light_task.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_i2c.h
 ctrlboard-h7_ws1812\light_task.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_i2c_ex.h
+ctrlboard-h7_ws1812\light_task.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_ospi.h
 ctrlboard-h7_ws1812\light_task.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_pwr.h
 ctrlboard-h7_ws1812\light_task.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_pwr_ex.h
 ctrlboard-h7_ws1812\light_task.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_spi.h
@@ -77,7 +67,6 @@ ctrlboard-h7_ws1812\light_task.o: ../User/Devices/hwt_imu.h
 ctrlboard-h7_ws1812\light_task.o: ../User/APP_Support/common/struct_typedef.h
 ctrlboard-h7_ws1812\light_task.o: ../User/Algorithm/user_lib.h
 ctrlboard-h7_ws1812\light_task.o: ../User/APP_Support/power_control/chassis_power_control.h
-ctrlboard-h7_ws1812\light_task.o: ../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS/cmsis_os.h
 ctrlboard-h7_ws1812\light_task.o: ..\User\APP\detect_task.h
 ctrlboard-h7_ws1812\light_task.o: ../User/APP_Support/gimbal/gimbal_behaviour.h
 ctrlboard-h7_ws1812\light_task.o: ../User/APP_Support/shoot/shoot_task.h

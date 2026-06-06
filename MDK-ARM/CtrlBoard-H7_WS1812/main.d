@@ -12,6 +12,7 @@ ctrlboard-h7_ws1812\main.o: ../Drivers/CMSIS/Include/cmsis_version.h
 ctrlboard-h7_ws1812\main.o: ../Drivers/CMSIS/Include/cmsis_compiler.h
 ctrlboard-h7_ws1812\main.o: ../Drivers/CMSIS/Include/cmsis_armcc.h
 ctrlboard-h7_ws1812\main.o: ../Drivers/CMSIS/Include/mpu_armv7.h
+ctrlboard-h7_ws1812\main.o: ../Drivers/CMSIS/Include/cachel1_armv7.h
 ctrlboard-h7_ws1812\main.o: ../Drivers/CMSIS/Device/ST/STM32H7xx/Include/system_stm32h7xx.h
 ctrlboard-h7_ws1812\main.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal.h
 ctrlboard-h7_ws1812\main.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/Legacy/stm32_hal_legacy.h
@@ -31,6 +32,7 @@ ctrlboard-h7_ws1812\main.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_fl
 ctrlboard-h7_ws1812\main.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_hsem.h
 ctrlboard-h7_ws1812\main.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_i2c.h
 ctrlboard-h7_ws1812\main.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_i2c_ex.h
+ctrlboard-h7_ws1812\main.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_ospi.h
 ctrlboard-h7_ws1812\main.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_pwr.h
 ctrlboard-h7_ws1812\main.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_pwr_ex.h
 ctrlboard-h7_ws1812\main.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_spi.h
@@ -42,7 +44,6 @@ ctrlboard-h7_ws1812\main.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_ua
 ctrlboard-h7_ws1812\main.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_pcd.h
 ctrlboard-h7_ws1812\main.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_ll_usb.h
 ctrlboard-h7_ws1812\main.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_pcd_ex.h
-ctrlboard-h7_ws1812\main.o: ../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS/cmsis_os.h
 ctrlboard-h7_ws1812\main.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/FreeRTOS.h
 ctrlboard-h7_ws1812\main.o: ../Core/Inc/FreeRTOSConfig.h
 ctrlboard-h7_ws1812\main.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/projdefs.h
@@ -50,14 +51,10 @@ ctrlboard-h7_ws1812\main.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/p
 ctrlboard-h7_ws1812\main.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/deprecated_definitions.h
 ctrlboard-h7_ws1812\main.o: ../Middlewares/Third_Party/FreeRTOS/Source/portable/RVDS/ARM_CM4F/portmacro.h
 ctrlboard-h7_ws1812\main.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/mpu_wrappers.h
-ctrlboard-h7_ws1812\main.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/task.h
-ctrlboard-h7_ws1812\main.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/list.h
-ctrlboard-h7_ws1812\main.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/timers.h
-ctrlboard-h7_ws1812\main.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/queue.h
-ctrlboard-h7_ws1812\main.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/semphr.h
-ctrlboard-h7_ws1812\main.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/event_groups.h
+ctrlboard-h7_ws1812\main.o: ../Drivers/CMSIS/RTOS2/Include/cmsis_os2.h
 ctrlboard-h7_ws1812\main.o: ../Core/Inc/dma.h
 ctrlboard-h7_ws1812\main.o: ../Core/Inc/fdcan.h
+ctrlboard-h7_ws1812\main.o: ../Core/Inc/octospi.h
 ctrlboard-h7_ws1812\main.o: ../Core/Inc/spi.h
 ctrlboard-h7_ws1812\main.o: ../Core/Inc/tim.h
 ctrlboard-h7_ws1812\main.o: ../Core/Inc/usart.h
@@ -78,3 +75,4 @@ ctrlboard-h7_ws1812\main.o: ../User/APP/safewarning.h
 ctrlboard-h7_ws1812\main.o: ../User/Communication/core/uproto.h
 ctrlboard-h7_ws1812\main.o: ../User/Communication/example/device/usb_cdc_port.h
 ctrlboard-h7_ws1812\main.o: ../User/BSP/bsp_tim24.h
+ctrlboard-h7_ws1812\main.o: ../User/Devices/w25q64.h

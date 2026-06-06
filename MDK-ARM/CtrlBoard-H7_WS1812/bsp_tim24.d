@@ -14,6 +14,7 @@ ctrlboard-h7_ws1812\bsp_tim24.o: ../Drivers/CMSIS/Include/cmsis_version.h
 ctrlboard-h7_ws1812\bsp_tim24.o: ../Drivers/CMSIS/Include/cmsis_compiler.h
 ctrlboard-h7_ws1812\bsp_tim24.o: ../Drivers/CMSIS/Include/cmsis_armcc.h
 ctrlboard-h7_ws1812\bsp_tim24.o: ../Drivers/CMSIS/Include/mpu_armv7.h
+ctrlboard-h7_ws1812\bsp_tim24.o: ../Drivers/CMSIS/Include/cachel1_armv7.h
 ctrlboard-h7_ws1812\bsp_tim24.o: ../Drivers/CMSIS/Device/ST/STM32H7xx/Include/system_stm32h7xx.h
 ctrlboard-h7_ws1812\bsp_tim24.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal.h
 ctrlboard-h7_ws1812\bsp_tim24.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/Legacy/stm32_hal_legacy.h
@@ -33,6 +34,7 @@ ctrlboard-h7_ws1812\bsp_tim24.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_h
 ctrlboard-h7_ws1812\bsp_tim24.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_hsem.h
 ctrlboard-h7_ws1812\bsp_tim24.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_i2c.h
 ctrlboard-h7_ws1812\bsp_tim24.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_i2c_ex.h
+ctrlboard-h7_ws1812\bsp_tim24.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_ospi.h
 ctrlboard-h7_ws1812\bsp_tim24.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_pwr.h
 ctrlboard-h7_ws1812\bsp_tim24.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_pwr_ex.h
 ctrlboard-h7_ws1812\bsp_tim24.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_spi.h

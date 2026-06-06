@@ -11,4 +11,3 @@ ctrlboard-h7_ws1812\croutine.o: ../Middlewares/Third_Party/FreeRTOS/Source/inclu
 ctrlboard-h7_ws1812\croutine.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/task.h
 ctrlboard-h7_ws1812\croutine.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/list.h
 ctrlboard-h7_ws1812\croutine.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/croutine.h
-ctrlboard-h7_ws1812\croutine.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/list.h

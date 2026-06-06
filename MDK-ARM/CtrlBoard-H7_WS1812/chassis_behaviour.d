@@ -15,6 +15,7 @@ ctrlboard-h7_ws1812\chassis_behaviour.o: ../Drivers/CMSIS/Include/cmsis_version.
 ctrlboard-h7_ws1812\chassis_behaviour.o: ../Drivers/CMSIS/Include/cmsis_compiler.h
 ctrlboard-h7_ws1812\chassis_behaviour.o: ../Drivers/CMSIS/Include/cmsis_armcc.h
 ctrlboard-h7_ws1812\chassis_behaviour.o: ../Drivers/CMSIS/Include/mpu_armv7.h
+ctrlboard-h7_ws1812\chassis_behaviour.o: ../Drivers/CMSIS/Include/cachel1_armv7.h
 ctrlboard-h7_ws1812\chassis_behaviour.o: ../Drivers/CMSIS/Device/ST/STM32H7xx/Include/system_stm32h7xx.h
 ctrlboard-h7_ws1812\chassis_behaviour.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal.h
 ctrlboard-h7_ws1812\chassis_behaviour.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/Legacy/stm32_hal_legacy.h
@@ -34,6 +35,7 @@ ctrlboard-h7_ws1812\chassis_behaviour.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm
 ctrlboard-h7_ws1812\chassis_behaviour.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_hsem.h
 ctrlboard-h7_ws1812\chassis_behaviour.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_i2c.h
 ctrlboard-h7_ws1812\chassis_behaviour.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_i2c_ex.h
+ctrlboard-h7_ws1812\chassis_behaviour.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_ospi.h
 ctrlboard-h7_ws1812\chassis_behaviour.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_pwr.h
 ctrlboard-h7_ws1812\chassis_behaviour.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_pwr_ex.h
 ctrlboard-h7_ws1812\chassis_behaviour.o: ../Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_spi.h
@@ -61,18 +63,6 @@ ctrlboard-h7_ws1812\chassis_behaviour.o: ../User/Devices/hwt_imu.h
 ctrlboard-h7_ws1812\chassis_behaviour.o: ../User/APP_Support/common/struct_typedef.h
 ctrlboard-h7_ws1812\chassis_behaviour.o: ../User/Algorithm/user_lib.h
 ctrlboard-h7_ws1812\chassis_behaviour.o: ../User/APP_Support/power_control/chassis_power_control.h
-ctrlboard-h7_ws1812\chassis_behaviour.o: ../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS/cmsis_os.h
-ctrlboard-h7_ws1812\chassis_behaviour.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/FreeRTOS.h
-ctrlboard-h7_ws1812\chassis_behaviour.o: ../Core/Inc/FreeRTOSConfig.h
-ctrlboard-h7_ws1812\chassis_behaviour.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/projdefs.h
-ctrlboard-h7_ws1812\chassis_behaviour.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/portable.h
-ctrlboard-h7_ws1812\chassis_behaviour.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/deprecated_definitions.h
-ctrlboard-h7_ws1812\chassis_behaviour.o: ../Middlewares/Third_Party/FreeRTOS/Source/portable/RVDS/ARM_CM4F/portmacro.h
-ctrlboard-h7_ws1812\chassis_behaviour.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/mpu_wrappers.h
-ctrlboard-h7_ws1812\chassis_behaviour.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/task.h
-ctrlboard-h7_ws1812\chassis_behaviour.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/list.h
-ctrlboard-h7_ws1812\chassis_behaviour.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/timers.h
-ctrlboard-h7_ws1812\chassis_behaviour.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/queue.h
-ctrlboard-h7_ws1812\chassis_behaviour.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/semphr.h
-ctrlboard-h7_ws1812\chassis_behaviour.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/event_groups.h
+ctrlboard-h7_ws1812\chassis_behaviour.o: ../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS_V2/cmsis_os.h
+ctrlboard-h7_ws1812\chassis_behaviour.o: ../Drivers/CMSIS/RTOS2/Include/cmsis_os2.h
 ctrlboard-h7_ws1812\chassis_behaviour.o: ../User/APP_Support/gimbal/gimbal_behaviour.h

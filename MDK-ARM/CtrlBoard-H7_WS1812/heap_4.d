@@ -1,5 +1,6 @@
 ctrlboard-h7_ws1812\heap_4.o: ../Middlewares/Third_Party/FreeRTOS/Source/portable/MemMang/heap_4.c
 ctrlboard-h7_ws1812\heap_4.o: D:\Keil5\ARM\ARMCC\Bin\..\include\stdlib.h
+ctrlboard-h7_ws1812\heap_4.o: D:\Keil5\ARM\ARMCC\Bin\..\include\string.h
 ctrlboard-h7_ws1812\heap_4.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/FreeRTOS.h
 ctrlboard-h7_ws1812\heap_4.o: D:\Keil5\ARM\ARMCC\Bin\..\include\stddef.h
 ctrlboard-h7_ws1812\heap_4.o: D:\Keil5\ARM\ARMCC\Bin\..\include\stdint.h
