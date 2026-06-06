@@ -1,0 +1,5 @@
+# Keil/MDK build output
+MDK-ARM/CtrlBoard-H7_WS1812/
+
+# Keil user interface state
+MDK-ARM/*.uvguix.*
