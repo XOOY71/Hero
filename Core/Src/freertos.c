@@ -109,7 +109,7 @@ void MX_FREERTOS_Init(void) {
     static const osThreadAttr_t auto_aim_attributes = {
       .name = "auto_aim",
       .stack_size = 256 * 4,
-      .priority = (osPriority_t) osPriorityAboveNormal,
+      .priority = (osPriority_t) osPriorityRealtime,
     };
     static const osThreadAttr_t detect_attributes = {
       .name = "detect",
