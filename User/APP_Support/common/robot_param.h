@@ -35,6 +35,10 @@ extern "C" {
 #define ROBOT_CHASSIS   ROBOT_CHASSIS_OMNI
 #define ROBOT_FRICTION  ROBOT_FRICTION_3508
 
+/* ========================= 外部 Flash 日志配置 ========================= */
+#define FLASH_LOG_ENABLE        0U   // 外部 Flash 错误日志开关，0=关闭，1=开启
+#define FLASH_LOG_QUEUE_DEPTH   8U   // RAM 日志队列深度，控制循环只入队
+
 /* ========================= 云台角度 PID 参数 ========================= */
 /* pitch 轴陀螺仪绝对角控制 PID */
 #define PITCH_GYRO_ABSOLUTE_PID_KP         4.0f

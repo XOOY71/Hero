@@ -6,11 +6,13 @@
 #include "detect_task.h"
 
 #include "cmsis_os.h"
+#include "flash_log.h"
 #include "remote_control.h"
 #include "usart.h"
 
 static error_t error_list[ERROR_LIST_LENGHT + 1];
 static uint8_t detect_inited = 0U;
+static uint8_t detect_error_last[ERROR_LIST_LENGHT];
 
 static bool_t detect_dbus_rx_active(uint32_t now)
 {
@@ -83,6 +85,7 @@ static void detect_init(uint32_t time)
         error_list[i].last_time = time;
         error_list[i].lost_time = time;
         error_list[i].work_time = time;
+        detect_error_last[i] = error_list[i].error_exist;
     }
 
     error_list[ERROR_LIST_LENGHT].enable = 0U;
@@ -143,6 +146,16 @@ void detect_task(void const *pvParameters)
             {
                 error_list[i].is_lost = 0U;
                 error_list[i].error_exist = 0U;
+            }
+
+            if (detect_error_last[i] != error_list[i].error_exist)
+            {
+                const char *detail = (error_list[i].error_exist != 0U) ? "lost" : "recover";
+
+                (void)flash_log_enqueue_error(FLASH_LOG_SOURCE_DETECT,
+                                              (int16_t)i,
+                                              detail);
+                detect_error_last[i] = error_list[i].error_exist;
             }
         }
 

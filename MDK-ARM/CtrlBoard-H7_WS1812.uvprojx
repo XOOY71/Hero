@@ -1106,6 +1106,16 @@
               <FileType>5</FileType>
               <FilePath>..\User\APP_Support\common\struct_typedef.h</FilePath>
             </File>
+            <File>
+              <FileName>flash_log.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\User\APP_Support\common\flash_log.c</FilePath>
+            </File>
+            <File>
+              <FileName>flash_log.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\User\APP_Support\common\flash_log.h</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
